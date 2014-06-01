@@ -65,18 +65,18 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Spines.Mahjong.Analysis\Spines.Mahjong.Analysis.csproj">
-      <Project>{9203dc32-f5b6-47f7-9c66-cb98937534a5}</Project>
-      <Name>Spines.Mahjong.Analysis</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <CodeAnalysisDictionary Include="..\..\CommonResources\CustomDictionary.xml">
       <Link>CommonResources\CustomDictionary.xml</Link>
     </CodeAnalysisDictionary>
   </ItemGroup>
   <ItemGroup>
     <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Spines.Mahjong.Analysis\Spines.Mahjong.Analysis.csproj">
+      <Project>{9203dc32-f5b6-47f7-9c66-cb98937534a5}</Project>
+      <Name>Spines.Mahjong.Analysis</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
