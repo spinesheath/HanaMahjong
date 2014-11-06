@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -36,6 +37,8 @@ using System.Security.Cryptography.X509Certificates;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+
+[assembly: CLSCompliant(true)]
 
 [assembly: InternalsVisibleTo("Spines.Mahjong.Analysis.InternalTests,PublicKey="+
 "00240000048000009400000006020000002400005253413100040000010001002f388592d01391"+

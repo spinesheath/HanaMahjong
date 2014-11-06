@@ -47,8 +47,10 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnalysisException.cs" />
+    <Compile Include="Combination.cs" />
+    <Compile Include="HonorCombinationFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ShantenCalculator.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\..\CommonResources\CustomDictionary.xml">
