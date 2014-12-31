@@ -25,8 +25,7 @@ namespace Spines.Tenhou.Client.InternalTests
     [TestMethod]
     public void TestTransform()
     {
-      var a = new Authenticator();
-      var t = a.Transform("20141229-cc32e3fd");
+      var t = Authenticator.Transform("20141229-cc32e3fd");
       Assert.AreEqual("20141229-3a2cc69f", t, "AuthenticationString was incorrectly transformed.");
     }
   }

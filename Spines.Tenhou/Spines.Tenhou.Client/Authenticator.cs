@@ -20,7 +20,7 @@ using System.Globalization;
 
 namespace Spines.Tenhou.Client
 {
-  internal class Authenticator
+  internal static class Authenticator
   {
     private const char AuthenticationStringSplitter = '-';
 
@@ -30,7 +30,7 @@ namespace Spines.Tenhou.Client
       64456, 8673, 52710, 49975, 2006, 62677, 3463, 17754, 5357
     };
 
-    public string Transform(string authenticationString)
+    public static string Transform(string authenticationString)
     {
       var parts = authenticationString.Split(new[] {AuthenticationStringSplitter});
       if (parts.Length != 2 || parts[0].Length != 8 || parts[1].Length != 8)

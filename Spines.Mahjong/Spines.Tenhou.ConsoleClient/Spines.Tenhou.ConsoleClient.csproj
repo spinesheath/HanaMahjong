@@ -58,9 +58,9 @@
     <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\CommonResources\CustomDictionary.xml">
+    <CodeAnalysisDictionary Include="..\..\CommonResources\CustomDictionary.xml">
       <Link>CommonResources\CustomDictionary.xml</Link>
-    </Content>
+    </CodeAnalysisDictionary>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Spines.Tenhou\Spines.Tenhou.Client\Spines.Tenhou.Client.csproj">
