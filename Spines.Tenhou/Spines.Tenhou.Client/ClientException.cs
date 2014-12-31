@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.Analysis.AnalysisException.cs
+﻿// Spines.Tenhou.Client.ClientException.cs
 // 
 // Copyright (C) 2014  Johannes Heckl
 // 
@@ -18,40 +18,41 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Spines.Mahjong.Analysis
+namespace Spines.Tenhou.Client
 {
   /// <summary>
-  /// General Analysis Exception.
+  /// General Client Exception.
   /// </summary>
   [Serializable]
-  public class AnalysisException : Exception
+  public class ClientException : Exception
   {
     /// <summary>
-    /// Creates a new Instance of AnalysisException.
+    /// Creates a new Instance of ClientException.
     /// </summary>
-    public AnalysisException()
+    public ClientException()
     {
     }
 
     /// <summary>
-    /// Creates a new Instance of AnalysisException with a message.
+    /// Creates a new Instance of ClientException with a message.
     /// </summary>
-    public AnalysisException(string message) : base(message)
+    public ClientException(string message)
+      : base(message)
     {
     }
 
     /// <summary>
-    /// Creates a new Instance of AnalysisException with a message and inner Exception.
+    /// Creates a new Instance of ClientException with a message and inner Exception.
     /// </summary>
-    public AnalysisException(string message, Exception inner)
+    public ClientException(string message, Exception inner)
       : base(message, inner)
     {
     }
 
     /// <summary>
-    /// Creates a new Instance of AnalysisException from a SerializationInfo and StreamingContext.
+    /// Creates a new Instance of ClientException from a SerializationInfo and StreamingContext.
     /// </summary>
-    protected AnalysisException(SerializationInfo info, StreamingContext context)
+    protected ClientException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
     }

@@ -32,7 +32,7 @@ namespace Spines.Mahjong.Analysis
     {
       if (numberOfTiles < 0)
       {
-        throw new AnalysisException("NumberOfTiles can not be negative.");
+        throw new AnalysisException("Number of tiles can not be negative.");
       }
       Combinations = Enumerable.Repeat(new Combination(), numberOfTiles);
     }
