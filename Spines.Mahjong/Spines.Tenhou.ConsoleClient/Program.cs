@@ -5,12 +5,21 @@ namespace Spines.Tenhou.ConsoleClient
 {
   class Program
   {
-    static void Main(string[] args)
+    static void Main()
     {
-      var c = new TenhouConnection();
-      c.Open();
+      //using(var t = new TenhouTcpClient())
+      //{
+      //  t.Connect();
+      //  var c = new TenhouConnection(t);
+      //  c.LogOn("ID0160262B-SG8PcR2h", "M", "0000");
+      //  Console.ReadKey();
+      //  t.Close();
+      //}
+
+      var t = new DummyTenhouTcpClient();
+      var c = new TenhouConnection(t);
+      c.LogOn("ID0160262B-SG8PcR2h", "M", "0000");
       Console.ReadKey();
-      c.Close();
     }
   }
 }
