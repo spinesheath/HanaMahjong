@@ -16,12 +16,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace Spines.Tenhou.Client
@@ -34,7 +34,8 @@ namespace Spines.Tenhou.Client
     private const int Port = 10080;
     private readonly IPAddress _address = IPAddress.Parse("133.242.10.78");
     private TcpClient _client;
-    private BackgroundWorker _receiver;
+    private CancellationTokenSource _receiverCancellationTokenSource;
+    private Task _receiverTask;
 
     /// <summary>
     /// Disposes this.
@@ -67,10 +68,40 @@ namespace Spines.Tenhou.Client
     {
       _client = new TcpClient();
       _client.Connect(_address, Port);
-      _receiver = new BackgroundWorker {WorkerSupportsCancellation = true};
-      _receiver.DoWork += RecieveMessages;
-      _receiver.RunWorkerAsync();
+      var stream = _client.GetStream();
+      stream.ReadTimeout = 1000;
+      RecieveMessagesAsync(stream);
       SendKeepAlivePing();
+    }
+
+    private async void RecieveMessagesAsync(NetworkStream stream)
+    {
+      _receiverCancellationTokenSource = new CancellationTokenSource();
+      var token = _receiverCancellationTokenSource.Token;
+      _receiverTask = Task.Run(() => RecieveMessages(stream, token), token);
+      await _receiverTask;
+    }
+
+    private void RecieveMessages(NetworkStream stream, CancellationToken cancellationToken)
+    {
+      while (!cancellationToken.IsCancellationRequested)
+      {
+        if (!stream.DataAvailable)
+        {
+          Thread.Sleep(100);
+          continue;
+        }
+        var buffer = new byte[1024];
+        stream.Read(buffer, 0, buffer.Length);
+        var parts = new string(Encoding.ASCII.GetChars(buffer)).Replace("&", "&amp;")
+          .Split(new[] {'\0'}, StringSplitOptions.RemoveEmptyEntries);
+        Console.WriteLine("Received message: " + Environment.NewLine + string.Join(Environment.NewLine, parts));
+        var xElements = parts.Select(XElement.Parse);
+        foreach (var xElement in xElements)
+        {
+          RaiseRecieve(xElement);
+        }
+      }
     }
 
     private void SendKeepAlivePing()
@@ -91,16 +122,25 @@ namespace Spines.Tenhou.Client
     /// </summary>
     public void Close()
     {
-      if (_client != null)
+      try
       {
-        _client.Close();
-        _client = null;
+        if (_receiverCancellationTokenSource != null && _receiverTask != null)
+        {
+          _receiverCancellationTokenSource.Cancel();
+          _receiverTask.Wait(1000);
+          _receiverCancellationTokenSource.Dispose();
+          _receiverTask.Dispose();
+        }
+        if (_client != null)
+        {
+          _client.Close();
+        }
       }
-      if (_receiver != null)
+      finally 
       {
-        _receiver.CancelAsync();
-        _receiver.Dispose();
-        _receiver = null;
+        _receiverCancellationTokenSource = null;
+        _receiverTask = null;
+        _client = null;
       }
     }
 
@@ -113,31 +153,6 @@ namespace Spines.Tenhou.Client
       if (disposing)
       {
         Close();
-      }
-    }
-
-    private void RecieveMessages(object sender, DoWorkEventArgs e)
-    {
-      var worker = (BackgroundWorker) sender;
-      var stream = _client.GetStream();
-      stream.ReadTimeout = 1000;
-      while (!worker.CancellationPending)
-      {
-        if (!stream.DataAvailable)
-        {
-          Thread.Sleep(100);
-          continue;
-        }
-        var buffer = new byte[1024];
-        stream.Read(buffer, 0, buffer.Length);
-        var parts = new string(Encoding.ASCII.GetChars(buffer)).Replace("&", "&amp;")
-          .Split(new[] {'\0'}, StringSplitOptions.RemoveEmptyEntries);
-        Console.WriteLine("Received message: " + Environment.NewLine + string.Join(Environment.NewLine, parts));
-        var xElements = parts.Select(XElement.Parse);
-        foreach (var xElement in xElements)
-        {
-          RaiseRecieve(xElement);
-        }
       }
     }
 

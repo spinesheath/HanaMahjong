@@ -7,19 +7,18 @@ namespace Spines.Tenhou.ConsoleClient
   {
     static void Main()
     {
-      //using(var t = new TenhouTcpClient())
-      //{
-      //  t.Connect();
-      //  var c = new TenhouConnection(t);
-      //  c.LogOn("ID0160262B-SG8PcR2h", "M", "0000");
-      //  Console.ReadKey();
-      //  t.Close();
-      //}
+      using (var t = new TenhouTcpClient())
+      {
+        t.Connect();
+        var c = new TenhouConnection(t);
+        c.LogOn("ID0160262B-SG8PcR2h", "M", "0000");
+        Console.ReadKey();
+      }
 
-      var t = new DummyTenhouTcpClient();
-      var c = new TenhouConnection(t);
-      c.LogOn("ID0160262B-SG8PcR2h", "M", "0000");
-      Console.ReadKey();
+      //var t = new DummyTenhouTcpClient();
+      //var c = new TenhouConnection(t);
+      //c.LogOn("ID0160262B-SG8PcR2h", "M", "0000");
+      //Console.ReadKey();
     }
   }
 }

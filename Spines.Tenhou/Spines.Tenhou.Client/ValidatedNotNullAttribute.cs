@@ -19,6 +19,10 @@ using System;
 
 namespace Spines.Tenhou.Client
 {
+  /// <summary>
+  /// If a parameter is marked with this Attribute, Code Analysis assumes that the paramter is checked for null.
+  /// This does not perform the null check.
+  /// </summary>
   internal sealed class ValidatedNotNullAttribute : Attribute
   {
   }
