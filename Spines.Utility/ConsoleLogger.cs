@@ -1,4 +1,4 @@
-﻿// Spines.Utility.ValidationExtensions.cs
+﻿// Spines.Utility.ConsoleLogger.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -16,26 +16,22 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.ComponentModel;
 
 namespace Spines.Utility
 {
   /// <summary>
-  /// Extension Methods for validating parameters.
+  /// Logger that writes to the console.
   /// </summary>
-  public static class ValidationExtensions
+  public class ConsoleLogger : ILogger
   {
     /// <summary>
-    /// Throws an ArgumentNullException if the tested instance of a reference type is null.
+    /// Logs the message at trace level.
     /// </summary>
-    /// <typeparam name="T">The type of the instance to be tested.</typeparam>
-    /// <param name="input">The instance to be tested for null.</param>
-    /// <param name="argumentName">The name of argument that is to be tested.</param>
-    public static void ThrowIfNull<T>([ValidatedNotNull] this T input, string argumentName) where T : class
+    /// <param name="message">The message to log.</param>
+    public void Trace([Localizable(false)]string message)
     {
-      if (input == null)
-      {
-        throw new ArgumentNullException(argumentName);
-      }
+      Console.WriteLine(message);
     }
   }
 }

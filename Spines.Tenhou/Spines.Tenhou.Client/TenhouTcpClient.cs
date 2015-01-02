@@ -34,9 +34,19 @@ namespace Spines.Tenhou.Client
   {
     private const int Port = 10080;
     private readonly IPAddress _address = IPAddress.Parse("133.242.10.78");
+    private readonly ILogger _logger;
     private TcpClient _client;
     private CancellationTokenSource _receiverCancellationTokenSource;
     private Task _receiverTask;
+
+    /// <summary>
+    /// Creates a new instance of TenhouTcpClient.
+    /// </summary>
+    /// <param name="logger">A logger.</param>
+    public TenhouTcpClient(ILogger logger)
+    {
+      _logger = logger;
+    }
 
     /// <summary>
     /// Disposes this.
@@ -128,7 +138,7 @@ namespace Spines.Tenhou.Client
       stream.Read(buffer, 0, buffer.Length);
       var parts = new string(Encoding.ASCII.GetChars(buffer)).Replace("&", "&amp;")
         .Split(new[] {'\0'}, StringSplitOptions.RemoveEmptyEntries);
-      Console.WriteLine("Received message: " + Environment.NewLine + string.Join(Environment.NewLine, parts));
+      _logger.Trace("Received message: " + Environment.NewLine + string.Join(Environment.NewLine, parts));
       var xElements = parts.Select(XElement.Parse);
       foreach (var xElement in xElements)
       {
@@ -170,7 +180,7 @@ namespace Spines.Tenhou.Client
       var stream = _client.GetStream();
       var data = Encoding.ASCII.GetBytes(message).Concat(new byte[] {0}).ToArray();
       stream.Write(data, 0, data.Length);
-      Console.WriteLine("Sent message: " + message);
+      _logger.Trace("Sent message: " + message);
     }
 
     private void SendBye()

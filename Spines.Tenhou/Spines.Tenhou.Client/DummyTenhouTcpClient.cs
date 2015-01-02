@@ -26,6 +26,17 @@ namespace Spines.Tenhou.Client
   /// </summary>
   public class DummyTenhouTcpClient : ITenhouTcpClient
   {
+    private readonly ILogger _logger;
+
+    /// <summary>
+    /// Creates a new instance of DummyTenhouTcpClient.
+    /// </summary>
+    /// <param name="logger">A logger.</param>
+    public DummyTenhouTcpClient(ILogger logger)
+    {
+      _logger = logger;
+    }
+
     /// <summary>
     /// Emulates the tenhou.net server.
     /// </summary>
@@ -33,7 +44,7 @@ namespace Spines.Tenhou.Client
     public void Send(XElement message)
     {
       message.ThrowIfNull("message");
-      Console.WriteLine("Sending: " + message);
+      _logger.Trace("Sending: " + message);
       if (message.Name == "HELO")
       {
         ReceiveHelo();
@@ -49,6 +60,15 @@ namespace Spines.Tenhou.Client
     /// </summary>
     public event EventHandler<ReceivedMessageEventArgs> Receive;
 
+    private void RaiseReceive(XElement message)
+    {
+      _logger.Trace("Receiving: " + message);
+      if (null != Receive)
+      {
+        Receive(this, new ReceivedMessageEventArgs(message));
+      }
+    }
+
     private void ReceiveHelo()
     {
       var uname = new XAttribute("uname", "%71%77%64%66%65%72%67%68");
@@ -58,15 +78,6 @@ namespace Spines.Tenhou.Client
       var scale = new XAttribute("ratingscale",
         "PF3=1.000000&PF4=1.000000&PF01C=0.582222&PF02C=0.501632&PF03C=0.414869&PF11C=0.823386&PF12C=0.709416&PF13C=0.586714&PF23C=0.378722&PF33C=0.535594&PF1C00=8.000000");
       RaiseReceive(new XElement("HELO", uname, auth, expire, days, scale));
-    }
-
-    private void RaiseReceive(XElement message)
-    {
-      Console.WriteLine("Receiving: " + message);
-      if(null != Receive)
-      {
-        Receive(this, new ReceivedMessageEventArgs(message));
-      }
     }
 
     private void ReceiveLn()

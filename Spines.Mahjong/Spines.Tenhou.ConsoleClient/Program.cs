@@ -1,5 +1,6 @@
 ﻿using System;
 using Spines.Tenhou.Client;
+using Spines.Utility;
 
 namespace Spines.Tenhou.ConsoleClient
 {
@@ -15,7 +16,8 @@ namespace Spines.Tenhou.ConsoleClient
       //  Console.ReadKey();
       //}
 
-      var t = new DummyTenhouTcpClient();
+      var l = new ConsoleLogger();
+      var t = new DummyTenhouTcpClient(l);
       var c = new TenhouConnection(t);
       c.LogOn("ID0160262B-SG8PcR2h", "M", "0000");
       Console.ReadKey();
