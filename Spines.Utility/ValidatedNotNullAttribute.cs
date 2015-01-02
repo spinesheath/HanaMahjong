@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.ValidatedNotNullAttribute.cs
+﻿// Spines.Utility.ValidatedNotNullAttribute.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -17,7 +17,7 @@
 
 using System;
 
-namespace Spines.Tenhou.Client
+namespace Spines.Utility
 {
   /// <summary>
   /// If a parameter is marked with this Attribute, Code Analysis assumes that the paramter is checked for null.

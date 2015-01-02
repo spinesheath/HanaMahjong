@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Tenhou.Client.Intern
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Tenhou.ConsoleClient", "Spines.Tenhou.ConsoleClient\Spines.Tenhou.ConsoleClient.csproj", "{B19EB3E1-554A-4206-B77A-99DA114E3268}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Utility", "..\Spines.Utility\Spines.Utility.csproj", "{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{B19EB3E1-554A-4206-B77A-99DA114E3268}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B19EB3E1-554A-4206-B77A-99DA114E3268}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B19EB3E1-554A-4206-B77A-99DA114E3268}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

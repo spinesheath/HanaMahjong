@@ -23,6 +23,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client
 {
@@ -47,6 +48,11 @@ namespace Spines.Tenhou.Client
     }
 
     /// <summary>
+    /// Is raised every time a message from the server is received.
+    /// </summary>
+    public event EventHandler<ReceivedMessageEventArgs> Receive;
+
+    /// <summary>
     /// Sends a message to the server.
     /// </summary>
     /// <param name="message">The message to send.</param>
@@ -54,67 +60,6 @@ namespace Spines.Tenhou.Client
     {
       message.ThrowIfNull("message");
       Send(message.ToString());
-    }
-
-    /// <summary>
-    /// Is raised every time a message from the server is received.
-    /// </summary>
-    public event EventHandler<ReceivedMessageEventArgs> Receive;
-
-    /// <summary>
-    /// Connects to tenhou.net.
-    /// </summary>
-    public void Connect()
-    {
-      _client = new TcpClient();
-      _client.Connect(_address, Port);
-      var stream = _client.GetStream();
-      stream.ReadTimeout = 1000;
-      RecieveMessagesAsync(stream);
-      SendKeepAlivePing();
-    }
-
-    private async void RecieveMessagesAsync(NetworkStream stream)
-    {
-      _receiverCancellationTokenSource = new CancellationTokenSource();
-      var token = _receiverCancellationTokenSource.Token;
-      _receiverTask = Task.Run(() => RecieveMessages(stream, token), token);
-      await _receiverTask;
-    }
-
-    private void RecieveMessages(NetworkStream stream, CancellationToken cancellationToken)
-    {
-      while (!cancellationToken.IsCancellationRequested)
-      {
-        if (!stream.DataAvailable)
-        {
-          Thread.Sleep(100);
-          continue;
-        }
-        var buffer = new byte[1024];
-        stream.Read(buffer, 0, buffer.Length);
-        var parts = new string(Encoding.ASCII.GetChars(buffer)).Replace("&", "&amp;")
-          .Split(new[] {'\0'}, StringSplitOptions.RemoveEmptyEntries);
-        Console.WriteLine("Received message: " + Environment.NewLine + string.Join(Environment.NewLine, parts));
-        var xElements = parts.Select(XElement.Parse);
-        foreach (var xElement in xElements)
-        {
-          RaiseRecieve(xElement);
-        }
-      }
-    }
-
-    private void SendKeepAlivePing()
-    {
-      Send("<Z />");
-    }
-
-    private void Send(string message)
-    {
-      var stream = _client.GetStream();
-      var data = Encoding.ASCII.GetBytes(message).Concat(new byte[] {0}).ToArray();
-      stream.Write(data, 0, data.Length);
-      Console.WriteLine("Sent message: " + message);
     }
 
     /// <summary>
@@ -136,12 +81,25 @@ namespace Spines.Tenhou.Client
           _client.Close();
         }
       }
-      finally 
+      finally
       {
         _receiverCancellationTokenSource = null;
         _receiverTask = null;
         _client = null;
       }
+    }
+
+    /// <summary>
+    /// Connects to tenhou.net.
+    /// </summary>
+    public void Connect()
+    {
+      _client = new TcpClient();
+      _client.Connect(_address, Port);
+      var stream = _client.GetStream();
+      stream.ReadTimeout = 1000;
+      RecieveMessagesAsync(stream);
+      SendKeepAlivePing();
     }
 
     /// <summary>
@@ -162,6 +120,67 @@ namespace Spines.Tenhou.Client
       {
         Receive(this, new ReceivedMessageEventArgs(xElement));
       }
+    }
+
+    private void ReadMessage(NetworkStream stream)
+    {
+      var buffer = new byte[1024];
+      stream.Read(buffer, 0, buffer.Length);
+      var parts = new string(Encoding.ASCII.GetChars(buffer)).Replace("&", "&amp;")
+        .Split(new[] {'\0'}, StringSplitOptions.RemoveEmptyEntries);
+      Console.WriteLine("Received message: " + Environment.NewLine + string.Join(Environment.NewLine, parts));
+      var xElements = parts.Select(XElement.Parse);
+      foreach (var xElement in xElements)
+      {
+        RaiseRecieve(xElement);
+      }
+    }
+
+    private void RecieveMessages(NetworkStream stream, CancellationToken cancellationToken)
+    {
+      var sleepCounter = 0;
+      while (!cancellationToken.IsCancellationRequested)
+      {
+        if (sleepCounter > 30)
+        {
+          SendKeepAlivePing();
+          sleepCounter = 0;
+        }
+        if (!stream.DataAvailable)
+        {
+          Thread.Sleep(100);
+          sleepCounter += 1;
+          continue;
+        }
+        ReadMessage(stream);
+      }
+      SendBye();
+    }
+
+    private async void RecieveMessagesAsync(NetworkStream stream)
+    {
+      _receiverCancellationTokenSource = new CancellationTokenSource();
+      var token = _receiverCancellationTokenSource.Token;
+      _receiverTask = Task.Run(() => RecieveMessages(stream, token), token);
+      await _receiverTask;
+    }
+
+    private void Send(string message)
+    {
+      var stream = _client.GetStream();
+      var data = Encoding.ASCII.GetBytes(message).Concat(new byte[] {0}).ToArray();
+      stream.Write(data, 0, data.Length);
+      Console.WriteLine("Sent message: " + message);
+    }
+
+    private void SendBye()
+    {
+      Send("<BYE />");
+    }
+
+    private void SendKeepAlivePing()
+    {
+      Send("<Z />");
     }
   }
 }

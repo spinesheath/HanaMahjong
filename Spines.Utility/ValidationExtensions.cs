@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.ValidationExtensions.cs
+﻿// Spines.Utility.ValidationExtensions.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -17,12 +17,12 @@
 
 using System;
 
-namespace Spines.Tenhou.Client
+namespace Spines.Utility
 {
   /// <summary>
   /// Extension Methods for validating parameters.
   /// </summary>
-  internal static class ValidationExtensions
+  public static class ValidationExtensions
   {
     /// <summary>
     /// Throws an ArgumentNullException if the tested instance of a reference type is null.
@@ -30,7 +30,7 @@ namespace Spines.Tenhou.Client
     /// <typeparam name="T">The type of the instance to be tested.</typeparam>
     /// <param name="validatee">The instance to be tested for null.</param>
     /// <param name="argumentName">The name of argument that is to be tested.</param>
-    public static void ThrowIfNull<T>([ValidatedNotNullAttribute]this T validatee, string argumentName) where T : class
+    public static void ThrowIfNull<T>([ValidatedNotNull] this T validatee, string argumentName) where T : class
     {
       if (validatee == null)
       {

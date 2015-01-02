@@ -17,6 +17,7 @@
 
 using System.Linq;
 using System.Xml.Linq;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client
 {
@@ -48,7 +49,22 @@ namespace Spines.Tenhou.Client
       gender.ThrowIfNull("gender");
       lobby.ThrowIfNull("lobby");
       _client.Receive += ReceiveMessage;
-      ContactServer(tenhouId.Replace("-", "%2D"), gender, lobby);
+      ContactServer(tenhouId, gender, lobby);
+    }
+
+    private void Authenticate(string authenticationString)
+    {
+      var transformed = Authenticator.Transform(authenticationString);
+      var valAttribute = new XAttribute("val", transformed);
+      _client.Send(new XElement("AUTH", valAttribute));
+    }
+
+    private void ContactServer(string tenhouId, string gender, string lobby)
+    {
+      var idAttribute = new XAttribute("name", tenhouId.Replace("-", "%2D"));
+      var lobbyAttribute = new XAttribute("tid", lobby);
+      var genderAttribute = new XAttribute("sx", gender);
+      _client.Send(new XElement("HELO", idAttribute, lobbyAttribute, genderAttribute));
     }
 
     private void ReceiveMessage(object sender, ReceivedMessageEventArgs e)
@@ -61,21 +77,6 @@ namespace Spines.Tenhou.Client
           Authenticate(auth.Value);
         }
       }
-    }
-
-    private void ContactServer(string accountId, string gender, string lobby)
-    {
-      var idAttribute = new XAttribute("name", accountId);
-      var lobbyAttribute = new XAttribute("tid", lobby);
-      var genderAttribute = new XAttribute("sx", gender);
-      _client.Send(new XElement("HELO", idAttribute, lobbyAttribute, genderAttribute));
-    }
-
-    private void Authenticate(string authenticationString)
-    {
-      var transformed = Authenticator.Transform(authenticationString);
-      var valAttribute = new XAttribute("val", transformed);
-      _client.Send(new XElement("AUTH", valAttribute));
     }
   }
 }
