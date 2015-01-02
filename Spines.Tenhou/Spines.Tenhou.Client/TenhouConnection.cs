@@ -52,6 +52,15 @@ namespace Spines.Tenhou.Client
       ContactServer(tenhouId, gender, lobby);
     }
 
+    /// <summary>
+    /// Joins a match.
+    /// </summary>
+    public void Join()
+    {
+      var t = new XAttribute("t", "0,9");
+      _client.Send(new XElement("JOIN", t));
+    }
+
     private void Authenticate(string authenticationString)
     {
       var transformed = Authenticator.Transform(authenticationString);
@@ -76,6 +85,11 @@ namespace Spines.Tenhou.Client
         {
           Authenticate(auth.Value);
         }
+      }
+      else if(e.Message.Name == "REJOIN")
+      {
+        var msg = new XElement(e.Message) {Name = "JOIN"};
+        _client.Send(msg);
       }
     }
   }

@@ -20,6 +20,7 @@ namespace Spines.Tenhou.ConsoleClient
       var t = new DummyTenhouTcpClient(l);
       var c = new TenhouConnection(t);
       c.LogOn("ID0160262B-SG8PcR2h", "M", "0000");
+      c.Join();
       Console.ReadKey();
     }
   }
