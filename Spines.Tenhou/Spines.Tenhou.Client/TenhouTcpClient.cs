@@ -151,7 +151,7 @@ namespace Spines.Tenhou.Client
       var sleepCounter = 0;
       while (!cancellationToken.IsCancellationRequested)
       {
-        if (sleepCounter > 30)
+        if (sleepCounter > 40)
         {
           SendKeepAlivePing();
           sleepCounter = 0;
