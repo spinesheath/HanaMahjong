@@ -17,10 +17,10 @@
 
 using System;
 using System.Collections.Generic;
-using Spines.Utility;
 using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client
 {
@@ -32,6 +32,7 @@ namespace Spines.Tenhou.Client
     private readonly ITenhouTcpClient _client;
     private readonly string _gender;
     private readonly int _lobby;
+    private readonly Dictionary<string, Action<XElement>> _messageActions = new Dictionary<string, Action<XElement>>();
     private readonly string _tenhouId;
 
     /// <summary>
@@ -53,10 +54,10 @@ namespace Spines.Tenhou.Client
       InitializeMessageActions();
     }
 
-    private void InitializeMessageActions()
-    {
-      _messageActions.Add("HELO", OnRecievedLoggedOn);
-    }
+    /// <summary>
+    /// Raised when the account was successfully logged on.
+    /// </summary>
+    public event EventHandler<LoggedOnEventArgs> LoggedOn;
 
     /// <summary>
     /// Joins a match.
@@ -101,12 +102,41 @@ namespace Spines.Tenhou.Client
       _client.Send(new XElement("HELO", idAttribute, lobbyAttribute, genderAttribute));
     }
 
-    /// <summary>
-    /// Raised when the account was successfully logged on.
-    /// </summary>
-    public event EventHandler<LoggedOnEventArgs> LoggedOn;
+    private void OnRecievedLoggedOn(XElement message)
+    {
+      Authenticate(message.Attribute("auth").Value);
+      if (LoggedOn != null)
+      {
+        LoggedOn(this, new LoggedOnEventArgs(message));
+      }
+    }
 
-    private readonly Dictionary<string, Action<XElement>> _messageActions = new Dictionary<string, Action<XElement>>();
+    private void OnRecievedRejoin(XElement message)
+    {
+      _client.Send(new XElement(message) {Name = "JOIN"});
+    }
+
+    private void InitializeMessageActions()
+    {
+      _messageActions.Add("HELO", OnRecievedLoggedOn);
+      _messageActions.Add("REJOIN", OnRecievedRejoin);
+      _messageActions.Add("GO", OnReceivedGo);
+      _messageActions.Add("UN", m => { });
+      _messageActions.Add("TAIKYOKU", m => { });
+      _messageActions.Add("INIT", m => { });
+      _messageActions.Add("REACH", m => { });
+      _messageActions.Add("N", m => { });
+      _messageActions.Add("DORA", m => { });
+      _messageActions.Add("PROF", m => { });
+      _messageActions.Add("RANKING", m => { });
+      _messageActions.Add("CHAT", m => { });
+      _messageActions.Add("AGARI", OnReceivedAgariOrRyuukyoku);
+      _messageActions.Add("RYUUKYOKU", OnReceivedAgariOrRyuukyoku);
+      _messageActions.Add("T", m => { });
+      _messageActions.Add("U", m => { });
+      _messageActions.Add("V", m => { });
+      _messageActions.Add("W", m => { });
+    }
 
     private void ReceiveMessage(object sender, ReceivedMessageEventArgs e)
     {
@@ -114,72 +144,6 @@ namespace Spines.Tenhou.Client
       if (_messageActions.ContainsKey(nodeName))
       {
         _messageActions[nodeName](e.Message);
-      }
-      else if (e.Message.Name == "REJOIN")
-      {
-        var msg = new XElement(e.Message) {Name = "JOIN"};
-        _client.Send(msg);
-      }
-      else if (e.Message.Name == "GO")
-      {
-        _client.Send(new XElement("GOK"));
-        _client.Send(new XElement("NEXTREADY"));
-      }
-      else if (e.Message.Name == "UN") // usernames
-      {
-      }
-      else if (e.Message.Name == "TAIKYOKU") // oya and game log id
-      {
-      }
-      else if (e.Message.Name == "INIT") // starting hand
-      {
-      }
-      else if (e.Message.Name == "REACH")
-      {
-      }
-      else if (e.Message.Name == "N") // call
-      {
-      }
-      else if (e.Message.Name == "DORA") // dora revealed after kan
-      {
-      }
-      else if (e.Message.Name == "PROF")
-      {
-      }
-      else if (e.Message.Name == "RANKING")
-      {
-      }
-      else if (e.Message.Name == "CHAT")
-      {
-      }
-      else if (e.Message.Name == "AGARI")
-      {
-        if (e.Message.Attributes().Any(a => a.Name == "owari"))
-        {
-          _client.Send(new XElement("BYE"));
-          _client.Send(new XElement("BYE"));
-          ContactServer();
-        }
-        else
-        {
-          _client.Send(new XElement("NEXTREADY"));
-        }
-      }
-      else if (e.Message.Name == "RYUUKYOKU")
-      {
-        if (e.Message.Attributes().Any(a => a.Name == "owari"))
-        {
-          _client.Send(new XElement("BYE"));
-          _client.Send(new XElement("BYE"));
-          ContactServer();
-        }
-        else
-        {
-          _client.Send(new XElement("NEXTREADY"));
-        }
-      }
-      else if (e.Message.Name == "T" || e.Message.Name == "U" || e.Message.Name == "V" || e.Message.Name == "W")
-      {
       }
       else if (StartsWith(e, 'T') && ContainsNumber(e))
       {
@@ -231,11 +195,24 @@ namespace Spines.Tenhou.Client
       }
     }
 
-    private void OnRecievedLoggedOn(XElement message)
+    private void OnReceivedAgariOrRyuukyoku(XElement message)
     {
-      Authenticate(message.Attribute("auth").Value);
-      if (LoggedOn != null)
-        LoggedOn(this, new LoggedOnEventArgs(message));
+      if (message.Attributes().Any(a => a.Name == "owari"))
+      {
+        _client.Send(new XElement("BYE"));
+        _client.Send(new XElement("BYE"));
+        ContactServer();
+      }
+      else
+      {
+        _client.Send(new XElement("NEXTREADY"));
+      }
+    }
+
+    private void OnReceivedGo(XElement message)
+    {
+      _client.Send(new XElement("GOK"));
+      _client.Send(new XElement("NEXTREADY"));
     }
 
     private void SendDenyCall(ReceivedMessageEventArgs e)
