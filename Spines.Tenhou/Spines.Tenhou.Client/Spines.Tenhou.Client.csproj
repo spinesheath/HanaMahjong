@@ -53,10 +53,12 @@
     <Compile Include="ClientException.cs" />
     <Compile Include="DummyTenhouTcpClient.cs" />
     <Compile Include="ITenhouTcpClient.cs" />
+    <Compile Include="LoggedOnEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReceivedMessageEventArgs.cs" />
     <Compile Include="TenhouConnection.cs" />
     <Compile Include="TenhouTcpClient.cs" />
+    <Compile Include="TsumokiriAi.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />

@@ -46,7 +46,7 @@ namespace Spines.Tenhou.Client
     public void Send(XElement message)
     {
       message.ThrowIfNull("message");
-      _logger.Trace("Sending: " + message);
+      _logger.Trace("O: " + message);
       if (message.Name == "HELO")
       {
         FakeReceiveHelo();
@@ -107,7 +107,7 @@ namespace Spines.Tenhou.Client
 
     private void RaiseReceive(XElement message)
     {
-      _logger.Trace("Receiving: " + message);
+      _logger.Trace("I: " + message);
       if (null != Receive)
       {
         Receive(this, new ReceivedMessageEventArgs(message));

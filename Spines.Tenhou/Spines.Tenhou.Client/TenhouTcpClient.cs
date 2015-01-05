@@ -138,7 +138,7 @@ namespace Spines.Tenhou.Client
       stream.Read(buffer, 0, buffer.Length);
       var parts = new string(Encoding.ASCII.GetChars(buffer)).Replace("&", "&amp;")
         .Split(new[] {'\0'}, StringSplitOptions.RemoveEmptyEntries);
-      _logger.Trace("Received message: " + Environment.NewLine + string.Join(Environment.NewLine, parts));
+      _logger.Trace(string.Join(Environment.NewLine, parts.Select(p => "I: " + p)));
       var xElements = parts.Select(XElement.Parse);
       foreach (var xElement in xElements)
       {
@@ -180,7 +180,7 @@ namespace Spines.Tenhou.Client
       var stream = _client.GetStream();
       var data = Encoding.ASCII.GetBytes(message).Concat(new byte[] {0}).ToArray();
       stream.Write(data, 0, data.Length);
-      _logger.Trace("Sent message: " + message);
+      _logger.Trace("O: " + message);
     }
 
     private void SendBye()
