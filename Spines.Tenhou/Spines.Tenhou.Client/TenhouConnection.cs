@@ -55,9 +55,24 @@ namespace Spines.Tenhou.Client
     }
 
     /// <summary>
+    /// Raised when a player discards a tile.
+    /// </summary>
+    public event EventHandler<DiscardEventArgs> Discard;
+
+    /// <summary>
     /// Raised when the account was successfully logged on.
     /// </summary>
     public event EventHandler<LoggedOnEventArgs> LoggedOn;
+
+    /// <summary>
+    /// Raised when an opponent draws a tile.
+    /// </summary>
+    public event EventHandler<OpponentDrawEventArgs> OpponentDraw;
+
+    /// <summary>
+    /// Raised when the active player draws a tile.
+    /// </summary>
+    public event EventHandler<PlayerDrawEventArgs> PlayerDraw;
 
     /// <summary>
     /// Joins a match.
@@ -77,14 +92,19 @@ namespace Spines.Tenhou.Client
       ContactServer();
     }
 
-    private static bool ContainsNumber(ReceivedMessageEventArgs e)
+    private static bool IsDiscard(string nodeName)
     {
-      return e.Message.Name.LocalName.Any(char.IsNumber);
+      return "DEFGdefg".Contains(nodeName[0]) && nodeName.Any(char.IsNumber);
     }
 
-    private static bool StartsWith(ReceivedMessageEventArgs e, char c)
+    private static bool IsOpponentDraw(string nodeName)
     {
-      return e.Message.Name.LocalName[0] == c;
+      return nodeName == "U" || nodeName == "V" || nodeName == "W";
+    }
+
+    private static bool IsPlayerDraw(string nodeName)
+    {
+      return nodeName[0] == 'T' && nodeName.Any(char.IsNumber);
     }
 
     private void Authenticate(string authenticationString)
@@ -96,24 +116,10 @@ namespace Spines.Tenhou.Client
 
     private void ContactServer()
     {
-      var idAttribute = new XAttribute("name", _tenhouId.Replace("-", "%2D"));
+      var idAttribute = new XAttribute("nodeName", _tenhouId.Replace("-", "%2D"));
       var lobbyAttribute = new XAttribute("tid", _lobby.ToString("D4", CultureInfo.InvariantCulture));
       var genderAttribute = new XAttribute("sx", _gender);
       _client.Send(new XElement("HELO", idAttribute, lobbyAttribute, genderAttribute));
-    }
-
-    private void OnRecievedLoggedOn(XElement message)
-    {
-      Authenticate(message.Attribute("auth").Value);
-      if (LoggedOn != null)
-      {
-        LoggedOn(this, new LoggedOnEventArgs(message));
-      }
-    }
-
-    private void OnRecievedRejoin(XElement message)
-    {
-      _client.Send(new XElement(message) {Name = "JOIN"});
     }
 
     private void InitializeMessageActions()
@@ -132,67 +138,6 @@ namespace Spines.Tenhou.Client
       _messageActions.Add("CHAT", m => { });
       _messageActions.Add("AGARI", OnReceivedAgariOrRyuukyoku);
       _messageActions.Add("RYUUKYOKU", OnReceivedAgariOrRyuukyoku);
-      _messageActions.Add("T", m => { });
-      _messageActions.Add("U", m => { });
-      _messageActions.Add("V", m => { });
-      _messageActions.Add("W", m => { });
-    }
-
-    private void ReceiveMessage(object sender, ReceivedMessageEventArgs e)
-    {
-      var nodeName = e.Message.Name.LocalName;
-      if (_messageActions.ContainsKey(nodeName))
-      {
-        _messageActions[nodeName](e.Message);
-      }
-      else if (StartsWith(e, 'T') && ContainsNumber(e))
-      {
-        SendTsumokiri(e, "D");
-      }
-      else if (StartsWith(e, 'U') && ContainsNumber(e))
-      {
-        SendTsumokiri(e, "E");
-      }
-      else if (StartsWith(e, 'V') && ContainsNumber(e))
-      {
-        SendTsumokiri(e, "F");
-      }
-      else if (StartsWith(e, 'W') && ContainsNumber(e))
-      {
-        SendTsumokiri(e, "G");
-      }
-      else if (StartsWith(e, 'D') && ContainsNumber(e))
-      {
-        SendDenyCall(e);
-      }
-      else if (StartsWith(e, 'E') && ContainsNumber(e))
-      {
-        SendDenyCall(e);
-      }
-      else if (StartsWith(e, 'F') && ContainsNumber(e))
-      {
-        SendDenyCall(e);
-      }
-      else if (StartsWith(e, 'G') && ContainsNumber(e))
-      {
-        SendDenyCall(e);
-      }
-      else if (StartsWith(e, 'd') && ContainsNumber(e))
-      {
-        SendDenyCall(e);
-      }
-      else if (StartsWith(e, 'e') && ContainsNumber(e))
-      {
-        SendDenyCall(e);
-      }
-      else if (StartsWith(e, 'f') && ContainsNumber(e))
-      {
-        SendDenyCall(e);
-      }
-      else if (StartsWith(e, 'g') && ContainsNumber(e))
-      {
-        SendDenyCall(e);
-      }
     }
 
     private void OnReceivedAgariOrRyuukyoku(XElement message)
@@ -209,24 +154,96 @@ namespace Spines.Tenhou.Client
       }
     }
 
+    private void OnReceivedDiscard(XElement message)
+    {
+      if (Discard != null)
+      {
+        Discard(this, new DiscardEventArgs(message));
+      }
+    }
+
     private void OnReceivedGo(XElement message)
     {
       _client.Send(new XElement("GOK"));
       _client.Send(new XElement("NEXTREADY"));
     }
 
-    private void SendDenyCall(ReceivedMessageEventArgs e)
+    private void OnReceivedOpponentDraw(XElement message)
     {
-      if (e.Message.Attributes().Any(a => a.Name == "t"))
+      if (OpponentDraw != null)
       {
-        _client.Send(new XElement("N"));
+        OpponentDraw(this, new OpponentDrawEventArgs(message));
       }
     }
 
-    private void SendTsumokiri(ReceivedMessageEventArgs e, string name)
+    private void OnReceivedPlayerDraw(XElement message)
     {
-      var p = new XAttribute("p", e.Message.Name.LocalName.Substring(1));
-      _client.Send(new XElement(name, p));
+      if (PlayerDraw != null)
+      {
+        PlayerDraw(this, new PlayerDrawEventArgs(message));
+      }
+    }
+
+    private void OnRecievedLoggedOn(XElement message)
+    {
+      Authenticate(message.Attribute("auth").Value);
+      if (LoggedOn != null)
+      {
+        LoggedOn(this, new LoggedOnEventArgs(message));
+      }
+    }
+
+    private void OnRecievedRejoin(XElement message)
+    {
+      _client.Send(new XElement(message) {Name = "JOIN"});
+    }
+
+    private void ReceiveMessage(object sender, ReceivedMessageEventArgs e)
+    {
+      var nodeName = e.Message.Name.LocalName;
+      if (_messageActions.ContainsKey(nodeName))
+      {
+        _messageActions[nodeName](e.Message);
+      }
+      else if (IsPlayerDraw(nodeName))
+      {
+        OnReceivedPlayerDraw(e.Message);
+      }
+      else if (IsOpponentDraw(nodeName))
+      {
+        OnReceivedOpponentDraw(e.Message);
+      }
+      else if (IsDiscard(nodeName))
+      {
+        OnReceivedDiscard(e.Message);
+      }
+    }
+
+    /// <summary>
+    /// Tells the server that a callable tile will not be called.
+    /// </summary>
+    public void SendDenyCall()
+    {
+      _client.Send(new XElement("N"));
+    }
+
+    /// <summary>
+    /// Tells the server that the most recent discard was called for a chii together with two other tiles.
+    /// </summary>
+    public void SendChii(Tile tile0, Tile tile1)
+    {
+      var type = new XAttribute("type", "3");
+      var hai0 = new XAttribute("hai0", tile0.Id);
+      var hai1 = new XAttribute("hai1", tile1.Id);
+      _client.Send(new XElement("N", type, hai0, hai1));
+    }
+
+    /// <summary>
+    /// Tells the server that a tile is discarded.
+    /// </summary>
+    public void SendDiscard(Tile tile)
+    {
+      _client.Send(new XElement("D", new XAttribute("p", tile.Id)));
     }
   }
 }

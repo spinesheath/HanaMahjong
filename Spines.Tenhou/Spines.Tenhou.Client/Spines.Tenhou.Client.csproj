@@ -51,6 +51,9 @@
   <ItemGroup>
     <Compile Include="Authenticator.cs" />
     <Compile Include="ClientException.cs" />
+    <Compile Include="DiscardEventArgs.cs" />
+    <Compile Include="OpponentDrawEventArgs.cs" />
+    <Compile Include="PlayerDrawEventArgs.cs" />
     <Compile Include="DummyTenhouTcpClient.cs" />
     <Compile Include="ITenhouTcpClient.cs" />
     <Compile Include="LoggedOnEventArgs.cs" />
@@ -58,6 +61,7 @@
     <Compile Include="ReceivedMessageEventArgs.cs" />
     <Compile Include="TenhouConnection.cs" />
     <Compile Include="TenhouTcpClient.cs" />
+    <Compile Include="Tile.cs" />
     <Compile Include="TsumokiriAi.cs" />
   </ItemGroup>
   <ItemGroup>
