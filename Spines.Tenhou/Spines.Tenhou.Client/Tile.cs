@@ -16,6 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client
 {
@@ -35,6 +36,44 @@ namespace Spines.Tenhou.Client
         throw new ArgumentOutOfRangeException("id", id, "The id of a tile must be between 0 and 135.");
       }
       Id = id;
+    }
+
+    /// <summary>
+    /// True if both tiles have the same Id.
+    /// </summary>
+    public static bool operator ==(Tile leftHandSide, Tile rightHandSide)
+    {
+      leftHandSide.ThrowIfNull("leftHandSide");
+      rightHandSide.ThrowIfNull("rightHandSide");
+      return leftHandSide.Equals(rightHandSide);
+    }
+
+    /// <summary>
+    /// False if both tiles have the same Id.
+    /// </summary>
+    public static bool operator !=(Tile leftHandSide, Tile rightHandSide)
+    {
+      return !(leftHandSide == rightHandSide);
+    }
+
+    /// <summary>
+    /// True if both tiles have the same Id.
+    /// </summary>
+    public override bool Equals(object obj)
+    {
+      if (obj == null || GetType() != obj.GetType())
+      {
+        return false;
+      }
+      return ((Tile) obj).Id == Id;
+    }
+
+    /// <summary>
+    /// Calculates the hash code of the tile, which is the hash code of the tile id.
+    /// </summary>
+    public override int GetHashCode()
+    {
+      return Id.GetHashCode();
     }
 
     /// <summary>

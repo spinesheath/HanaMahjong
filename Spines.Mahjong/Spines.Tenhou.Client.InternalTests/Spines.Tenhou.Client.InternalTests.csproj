@@ -61,6 +61,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AuthenticatorTests.cs" />
+    <Compile Include="MeldTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

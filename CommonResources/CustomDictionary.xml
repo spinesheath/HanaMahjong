@@ -1,8 +1,11 @@
 <Dictionary>
-      <Words>
-         <Recognized>
-            <Word>shanten</Word>
-            <Word>tenhou</Word>
-         </Recognized>
-      </Words>
+  <Words>
+    <Recognized>
+      <Word>shanten</Word>
+      <Word>tenhou</Word>
+      <Word>tsumokiri</Word>
+      <Word>chii</Word>
+      <Word>nuki</Word>
+    </Recognized>
+  </Words>
 </Dictionary>

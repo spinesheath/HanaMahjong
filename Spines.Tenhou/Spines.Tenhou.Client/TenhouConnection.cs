@@ -232,6 +232,8 @@ namespace Spines.Tenhou.Client
     /// </summary>
     public void SendChii(Tile tile0, Tile tile1)
     {
+      tile0.ThrowIfNull("tile0");
+      tile1.ThrowIfNull("tile1");
       var type = new XAttribute("type", "3");
       var hai0 = new XAttribute("hai0", tile0.Id);
       var hai1 = new XAttribute("hai1", tile1.Id);
@@ -243,6 +245,7 @@ namespace Spines.Tenhou.Client
     /// </summary>
     public void SendDiscard(Tile tile)
     {
+      tile.ThrowIfNull("tile");
       _client.Send(new XElement("D", new XAttribute("p", tile.Id)));
     }
   }

@@ -52,6 +52,7 @@
     <Compile Include="Authenticator.cs" />
     <Compile Include="ClientException.cs" />
     <Compile Include="DiscardEventArgs.cs" />
+    <Compile Include="Meld.cs" />
     <Compile Include="OpponentDrawEventArgs.cs" />
     <Compile Include="PlayerDrawEventArgs.cs" />
     <Compile Include="DummyTenhouTcpClient.cs" />
