@@ -24,130 +24,194 @@ namespace Spines.Tenhou.Client
 {
   internal class Meld
   {
-    private static readonly int[,] KoutsuTileOffsets = {{1, 2, 3}, {0, 2, 3}, {0, 1, 3}, {0, 1, 2}};
-    private readonly int _meldCode;
-
+    /// <summary>
+    /// Creates a meld from a meld code.
+    /// </summary>
+    /// <param name="meldCodeString">The meld code that specifies the meld.</param>
+    /// <param name="ownerId">The owner of the meld.</param>
     public Meld(string meldCodeString, int ownerId)
     {
-      _meldCode = Convert.ToInt32(meldCodeString, CultureInfo.InvariantCulture);
-      Type = GetMeldType();
-      Tiles = Decode().ToArray();
-      FromPlayerId = GetFromPlayerId(ownerId);
+      var meldCode = Convert.ToInt32(meldCodeString, CultureInfo.InvariantCulture);
+      Type = GetMeldType(meldCode);
+      Tiles = GetTiles(meldCode).Select(tile => new MeldTile(tile, GetMeldTileType(meldCode, tile))).ToArray();
+      FromPlayerId = GetFromPlayerId(meldCode, ownerId);
       OwnerId = ownerId;
     }
 
+    /// <summary>
+    /// The id of the owner of the meld.
+    /// </summary>
     public int OwnerId { get; private set; }
+
+    /// <summary>
+    /// The id of the player that discarded the called tile, or the owner in case of a closed kan. Not sure about added kan.
+    /// </summary>
     public int FromPlayerId { get; private set; }
+
+    /// <summary>
+    /// The tiles in the meld.
+    /// </summary>
     public MeldTile[] Tiles { get; private set; }
+
+    /// <summary>
+    /// The type of the meld.
+    /// </summary>
     public MeldType Type { get; private set; }
 
+    /// <summary>
+    /// Calculates the index of the tile among all the tiles of a tile type that is not used by a koutsu or was added to a
+    /// koutsu.
+    /// </summary>
+    private static int GetUnusedOrAddedTileIndex(int meldCode)
+    {
+      return IntFromBits(meldCode, 2, 5);
+    }
+
+    /// <summary>
+    /// Checks if the meld code has the specified bit, starting from the least significant bit at index 0.
+    /// </summary>
+    private static bool HasBit(int meldCode, int bitIndex)
+    {
+      return (meldCode & 1 << bitIndex) != 0;
+    }
+
+    /// <summary>
+    /// Apply a bitmask with all ones in a single block and then treat the selected bits as an integer.
+    /// For example, with letters as arbitrary bits: IntFromBits(abcdefgh, 3, 2) == 00000def.
+    /// </summary>
+    /// <param name="value">The value to extract the result from.</param>
+    /// <param name="numberOfBits">The number of bits that will be selected.</param>
+    /// <param name="leftShift">How many of the least significant bits to ignore.</param>
+    /// <returns>The selected bits from the original value.</returns>
     private static int IntFromBits(int value, int numberOfBits, int leftShift)
     {
       var mask = (1 << numberOfBits) - 1;
       return (value >> leftShift) & mask;
     }
 
-    private IEnumerable<MeldTile> Decode()
+    /// <summary>
+    /// Gets the tile that was added to a koutsu.
+    /// </summary>
+    private Tile GetAddedTile(int meldCode)
     {
-      return GetTiles().Select((tile, index) => new MeldTile(tile, GetMeldTileType(tile, index)));
+      return new Tile(GetBaseIndex(meldCode) + GetUnusedOrAddedTileIndex(meldCode));
     }
 
-    private int GetBaseIndex()
+    /// <summary>
+    /// Extracts a base index from the meld code depending on the meld type. How the base index is used also depends on the
+    /// meld type.
+    /// </summary>
+    private int GetBaseIndex(int meldCode)
     {
       if (Type == MeldType.Shuntsu)
       {
-        var t = IntFromBits(_meldCode, 6, 10) / 3;
+        var t = IntFromBits(meldCode, 6, 10) / 3;
         return ((t / 7) * 9 + t % 7) * 4;
       }
       if (Type == MeldType.AddedKan || Type == MeldType.Koutsu)
       {
-        return IntFromBits(_meldCode, 7, 9) / 3 * 4;
+        return IntFromBits(meldCode, 7, 9) / 3 * 4;
       }
-      return IntFromBits(_meldCode, 8, 8) & ~3;
+      return IntFromBits(meldCode, 8, 8) & ~3;
     }
 
     /// <summary>
     /// Extracts the id of the called tile from the meld code.
     /// </summary>
-    private Tile GetCalledTile()
+    private Tile GetCalledTile(int meldCode)
     {
-      var baseIndex = GetBaseIndex();
       if (Type == MeldType.Shuntsu)
       {
-        return new Tile(baseIndex + IntFromBits(_meldCode, 6, 10) % 3);
+        return new Tile(GetBaseIndex(meldCode) + IntFromBits(meldCode, 6, 10) % 3);
       }
       if (Type == MeldType.AddedKan || Type == MeldType.Koutsu)
       {
-        return new Tile(baseIndex + KoutsuTileOffsets[GetUnusedOrAddedTileIndex(), IntFromBits(_meldCode, 7, 9) % 3]);
+        return new Tile(GetBaseIndex(meldCode) + GetKoutsuShiftedIndex(meldCode, IntFromBits(meldCode, 7, 9) % 3));
       }
-      return new Tile(baseIndex + IntFromBits(_meldCode, 8, 8) % 4);
+      return new Tile(GetBaseIndex(meldCode) + IntFromBits(meldCode, 8, 8) % 4);
     }
 
     /// <summary>
     /// Gets the id of the player that discarded the called tile, or id the owner of the meld for a closed kan.
     /// Not sure about added kan.
     /// </summary>
+    /// <param name="meldCode">The meld code.</param>
     /// <param name="ownerId">The id of the owner of the meld.</param>
-    private int GetFromPlayerId(int ownerId)
+    private int GetFromPlayerId(int meldCode, int ownerId)
     {
-      return (ownerId + IntFromBits(_meldCode, 2, 0)) % 4;
+      return (ownerId + IntFromBits(meldCode, 2, 0)) % 4;
     }
 
-    private MeldTileType GetMeldTileType(Tile tile, int index)
+    /// <summary>
+    /// Shifts the tile index in a tile type based on the index of the missing tile in a koutsu or the added tile in an added
+    /// kan.
+    /// </summary>
+    /// <param name="meldCode">The meld code.</param>
+    /// <param name="index">The index that will be shifted.</param>
+    private int GetKoutsuShiftedIndex(int meldCode, int index)
     {
-      if (Type == MeldType.ClosedKan && (index == 0 || index == 3))
+      return index + ((GetUnusedOrAddedTileIndex(meldCode) <= index) ? 1 : 0);
+    }
+
+    /// <summary>
+    /// Determines if the tile has been called, added to a koutsu or selected from the meld owner's hand.
+    /// </summary>
+    private MeldTileType GetMeldTileType(int meldCode, Tile tile)
+    {
+      if (Type != MeldType.ClosedKan && tile == GetCalledTile(meldCode))
       {
-        return MeldTileType.FaceDown;
+        return MeldTileType.Called;
       }
-      if (tile == GetCalledTile())
-      {
-        return MeldTileType.Flipped;
-      }
-      if (Type == MeldType.AddedKan && tile == GetAddedTile())
+      if (Type == MeldType.AddedKan && tile == GetAddedTile(meldCode))
       {
         return MeldTileType.Added;
       }
       return MeldTileType.Normal;
     }
 
-    private MeldType GetMeldType()
+    /// <summary>
+    /// Extracts the meld type from the meld code.
+    /// </summary>
+    /// <param name="meldCode"></param>
+    /// <remarks>The order of checks is important. A meld code could possibly have bits 2 and 3 set which makes it a shuntsu.</remarks>
+    private MeldType GetMeldType(int meldCode)
     {
-      if ((_meldCode & 1 << 2) != 0)
+      if (HasBit(meldCode, 2))
       {
         return MeldType.Shuntsu;
       }
-      if ((_meldCode & 1 << 3) != 0)
+      if (HasBit(meldCode, 3))
       {
         return MeldType.Koutsu;
       }
-      if ((_meldCode & 1 << 4) != 0)
+      if (HasBit(meldCode, 4))
       {
         return MeldType.AddedKan;
       }
-      if ((_meldCode & 1 << 5) != 0)
+      if (HasBit(meldCode, 5))
       {
         throw new ClientException("Nuki not supported");
       }
-      if ((_meldCode & 3) != 0)
+      if (HasBit(meldCode, 1) || HasBit(meldCode, 0))
       {
         return MeldType.CalledKan;
       }
       return MeldType.ClosedKan;
     }
 
-    private IEnumerable<Tile> GetTiles()
+    private IEnumerable<Tile> GetTiles(int meldCode)
     {
-      var baseIndex = GetBaseIndex();
+      var baseIndex = GetBaseIndex(meldCode);
       var tileCount = IsKan() ? 4 : 3;
       for (var i = 0; i < tileCount; ++i)
       {
         switch (Type)
         {
           case MeldType.Shuntsu:
-            yield return new Tile(baseIndex + 4 * i + IntFromBits(_meldCode, 2, 1 + 2 * i));
+            yield return new Tile(baseIndex + 4 * i + IntFromBits(meldCode, 2, 1 + 2 * i));
             break;
           case MeldType.Koutsu:
-            yield return new Tile(baseIndex + KoutsuTileOffsets[GetUnusedOrAddedTileIndex(), i]);
+            yield return new Tile(baseIndex + GetKoutsuShiftedIndex(meldCode, i));
             break;
           default:
             yield return new Tile(baseIndex + i);
@@ -156,28 +220,10 @@ namespace Spines.Tenhou.Client
       }
     }
 
-    /// <summary>
-    /// Calculates the index of the tile among all the tiles of a tile type that is not used by a koutsu or was added to a koutsu.
-    /// </summary>
-    private int GetUnusedOrAddedTileIndex()
-    {
-      return IntFromBits(_meldCode, 2, 5);
-    }
-
-    /// <summary>
-    /// Gets the tile that was added to a koutsu.
-    /// </summary>
-    private Tile GetAddedTile()
-    {
-      return new Tile(GetBaseIndex() + GetUnusedOrAddedTileIndex());
-    }
-
     private bool IsKan()
     {
       return Type != MeldType.Shuntsu && Type != MeldType.Koutsu;
     }
-
-    // Apply a bitmask with all ones in a single block and then treat the selected bits as an integer
   }
 
   internal enum MeldType
@@ -192,8 +238,7 @@ namespace Spines.Tenhou.Client
   internal enum MeldTileType
   {
     Normal,
-    FaceDown,
-    Flipped,
+    Called,
     Added
   }
 

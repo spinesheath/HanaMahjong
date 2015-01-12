@@ -33,7 +33,7 @@ namespace Spines.Tenhou.Client.InternalTests
       Assert.IsTrue(m.Tiles.Any(t => t.Tile.Id == 111), "Missing tile 111.");
       Assert.IsTrue(m.Tiles.Any(t => t.Tile.Id == 109), "Missing tile 109.");
       Assert.IsTrue(m.Tiles.Any(t => t.Tile.Id == 108), "Missing tile 108.");
-      Assert.AreEqual(MeldTileType.Flipped, m.Tiles.First(t => t.Tile.Id == 111).Type, "Wrong type of tile 111.");
+      Assert.AreEqual(MeldTileType.Called, m.Tiles.First(t => t.Tile.Id == 111).Type, "Wrong type of tile 111.");
       Assert.AreEqual(MeldTileType.Normal, m.Tiles.First(t => t.Tile.Id == 109).Type, "Wrong type of tile 109");
       Assert.AreEqual(MeldTileType.Normal, m.Tiles.First(t => t.Tile.Id == 108).Type, "Wrong type of tile 108");
     }
