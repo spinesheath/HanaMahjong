@@ -68,7 +68,7 @@ namespace Spines.Tenhou.Client
     /// <param name="message">The message to send.</param>
     public void Send(XElement message)
     {
-      message.ThrowIfNull("message");
+      Validate.NotNull(message, "message");
       Send(message.ToString());
     }
 

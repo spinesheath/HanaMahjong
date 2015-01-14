@@ -44,13 +44,10 @@ namespace Spines.Tenhou.Client
     /// <param name="lobby">The lobby to connect to.</param>
     public TenhouConnection(ITenhouTcpClient client, string tenhouId, string gender, int lobby)
     {
-      client.ThrowIfNull("client");
-      tenhouId.ThrowIfNull("tenhouId");
-      gender.ThrowIfNull("gender");
-      _tenhouId = tenhouId;
-      _gender = gender;
-      _lobby = lobby;
-      _client = client;
+      _tenhouId = Validate.NotNull(tenhouId, "tenhouId");
+      _gender = Validate.NotNull(gender, "gender");
+      _lobby = Validate.InRange(lobby, 0, 9999);
+      _client = Validate.NotNull(client, "client");
       InitializeMessageActions();
     }
 
@@ -232,8 +229,8 @@ namespace Spines.Tenhou.Client
     /// </summary>
     public void SendChii(Tile tile0, Tile tile1)
     {
-      tile0.ThrowIfNull("tile0");
-      tile1.ThrowIfNull("tile1");
+      Validate.NotNull(tile0, "tile0");
+      Validate.NotNull(tile1, "tile1");
       var type = new XAttribute("type", "3");
       var hai0 = new XAttribute("hai0", tile0.Id);
       var hai1 = new XAttribute("hai1", tile1.Id);
@@ -245,7 +242,7 @@ namespace Spines.Tenhou.Client
     /// </summary>
     public void SendDiscard(Tile tile)
     {
-      tile.ThrowIfNull("tile");
+      Validate.NotNull(tile, "tile");
       _client.Send(new XElement("D", new XAttribute("p", tile.Id)));
     }
   }

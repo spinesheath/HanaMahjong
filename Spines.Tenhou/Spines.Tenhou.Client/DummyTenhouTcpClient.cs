@@ -45,7 +45,7 @@ namespace Spines.Tenhou.Client
     /// <param name="message">Used to determine the next fake message to receive.</param>
     public void Send(XElement message)
     {
-      message.ThrowIfNull("message");
+      Validate.NotNull(message, "message");
       _logger.Trace("O: " + message);
       if (message.Name == "HELO")
       {

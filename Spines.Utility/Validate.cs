@@ -1,4 +1,4 @@
-﻿// Spines.Utility.ValidationExtensions.cs
+﻿// Spines.Utility.Validate.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -22,7 +22,7 @@ namespace Spines.Utility
   /// <summary>
   /// Extension Methods for validating parameters.
   /// </summary>
-  public static class ValidationExtensions
+  public static class Validate
   {
     /// <summary>
     /// Throws an ArgumentNullException if the tested instance of a reference type is null.
@@ -30,12 +30,30 @@ namespace Spines.Utility
     /// <typeparam name="T">The type of the instance to be tested.</typeparam>
     /// <param name="input">The instance to be tested for null.</param>
     /// <param name="argumentName">The name of argument that is to be tested.</param>
-    public static void ThrowIfNull<T>([ValidatedNotNull] this T input, string argumentName) where T : class
+    /// <returns>The value that was passed into the method.</returns>
+    public static T NotNull<T>([ValidatedNotNull] T input, string argumentName) where T : class
     {
       if (input == null)
       {
         throw new ArgumentNullException(argumentName);
       }
+      return input;
+    }
+
+    /// <summary>
+    /// Throws an ArgumentOutOfRangeException if value is smaller than min or larger than max.
+    /// </summary>
+    /// <param name="value">The tested value.</param>
+    /// <param name="min">The smallest allowed value.</param>
+    /// <param name="max">The largest allowed value.</param>
+    /// <returns>The value that was passed into the method.</returns>
+    public static int InRange(int value, int min, int max)
+    {
+      if (value < min || value > max)
+      {
+        throw new ArgumentOutOfRangeException("Value must be between " + min + " and " + max);
+      }
+      return value;
     }
   }
 }

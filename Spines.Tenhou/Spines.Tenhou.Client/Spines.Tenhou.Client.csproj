@@ -53,6 +53,10 @@
     <Compile Include="ClientException.cs" />
     <Compile Include="DiscardEventArgs.cs" />
     <Compile Include="Meld.cs" />
+    <Compile Include="MeldCode.cs" />
+    <Compile Include="MeldTile.cs" />
+    <Compile Include="MeldTileType.cs" />
+    <Compile Include="MeldType.cs" />
     <Compile Include="OpponentDrawEventArgs.cs" />
     <Compile Include="PlayerDrawEventArgs.cs" />
     <Compile Include="DummyTenhouTcpClient.cs" />

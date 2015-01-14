@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using Spines.Utility;
 
 namespace Spines.Tenhou.Client
@@ -31,11 +30,7 @@ namespace Spines.Tenhou.Client
     /// <param name="id">The id of the tile, from 0 to 135.</param>
     public Tile(int id)
     {
-      if (id < 0 || id > 135)
-      {
-        throw new ArgumentOutOfRangeException("id", id, "The id of a tile must be between 0 and 135.");
-      }
-      Id = id;
+      Id = Validate.InRange(id, 0, 135);
     }
 
     /// <summary>
@@ -43,9 +38,7 @@ namespace Spines.Tenhou.Client
     /// </summary>
     public static bool operator ==(Tile leftHandSide, Tile rightHandSide)
     {
-      leftHandSide.ThrowIfNull("leftHandSide");
-      rightHandSide.ThrowIfNull("rightHandSide");
-      return leftHandSide.Equals(rightHandSide);
+      return Validate.NotNull(leftHandSide, "leftHandSide").Equals(Validate.NotNull(rightHandSide, "rightHandSide"));
     }
 
     /// <summary>
