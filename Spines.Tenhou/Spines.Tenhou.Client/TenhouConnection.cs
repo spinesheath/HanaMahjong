@@ -128,13 +128,18 @@ namespace Spines.Tenhou.Client
       _messageActions.Add("TAIKYOKU", m => { });
       _messageActions.Add("INIT", m => { });
       _messageActions.Add("REACH", m => { });
-      _messageActions.Add("N", m => { });
+      _messageActions.Add("N", OnReceivedCall);
       _messageActions.Add("DORA", m => { });
       _messageActions.Add("PROF", m => { });
       _messageActions.Add("RANKING", m => { });
       _messageActions.Add("CHAT", m => { });
       _messageActions.Add("AGARI", OnReceivedAgariOrRyuukyoku);
       _messageActions.Add("RYUUKYOKU", OnReceivedAgariOrRyuukyoku);
+    }
+
+    private void OnReceivedCall(XElement message)
+    {
+      
     }
 
     private void OnReceivedAgariOrRyuukyoku(XElement message)
@@ -151,44 +156,19 @@ namespace Spines.Tenhou.Client
       }
     }
 
-    private void OnReceivedDiscard(XElement message)
-    {
-      if (Discard != null)
-      {
-        Discard(this, new DiscardEventArgs(message));
-      }
-    }
-
     private void OnReceivedGo(XElement message)
     {
       _client.Send(new XElement("GOK"));
       _client.Send(new XElement("NEXTREADY"));
     }
 
-    private void OnReceivedOpponentDraw(XElement message)
-    {
-      if (OpponentDraw != null)
-      {
-        OpponentDraw(this, new OpponentDrawEventArgs(message));
-      }
-    }
-
-    private void OnReceivedPlayerDraw(XElement message)
-    {
-      if (PlayerDraw != null)
-      {
-        PlayerDraw(this, new PlayerDrawEventArgs(message));
-      }
-    }
-
     private void OnRecievedLoggedOn(XElement message)
     {
       Authenticate(message.Attribute("auth").Value);
-      if (LoggedOn != null)
-      {
-        LoggedOn(this, new LoggedOnEventArgs(message));
-      }
+      EventUtility.Fire(LoggedOn, this, new LoggedOnEventArgs(message));
     }
+
+
 
     private void OnRecievedRejoin(XElement message)
     {
@@ -204,15 +184,15 @@ namespace Spines.Tenhou.Client
       }
       else if (IsPlayerDraw(nodeName))
       {
-        OnReceivedPlayerDraw(e.Message);
+        EventUtility.Fire(PlayerDraw, this, new PlayerDrawEventArgs(e.Message));
       }
       else if (IsOpponentDraw(nodeName))
       {
-        OnReceivedOpponentDraw(e.Message);
+        EventUtility.Fire(OpponentDraw, this, new OpponentDrawEventArgs(e.Message));
       }
       else if (IsDiscard(nodeName))
       {
-        OnReceivedDiscard(e.Message);
+        EventUtility.Fire(Discard, this, new DiscardEventArgs(e.Message));
       }
     }
 

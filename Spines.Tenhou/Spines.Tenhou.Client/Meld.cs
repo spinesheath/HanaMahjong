@@ -16,6 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace Spines.Tenhou.Client
@@ -49,7 +50,7 @@ namespace Spines.Tenhou.Client
     /// <summary>
     /// The tiles in the meld.
     /// </summary>
-    public MeldTile[] Tiles { get; private set; }
+    public IEnumerable<MeldTile> Tiles { get; private set; }
 
     /// <summary>
     /// The type of the meld.
