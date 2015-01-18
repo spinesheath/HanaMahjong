@@ -22,7 +22,8 @@ namespace Spines.Tenhou.ConsoleClient
 
       var l = new ConsoleLogger();
       var t = new DummyTenhouTcpClient(l);
-      var c = new TenhouConnection(t, "ID0160262B-SG8PcR2h", "M", 0);
+      var i = new LogOnInformation("ID0160262B-SG8PcR2h", "M", 0);
+      var c = new TenhouConnection(t, i);
       c.LogOn();
       c.Join();
       Console.ReadKey();

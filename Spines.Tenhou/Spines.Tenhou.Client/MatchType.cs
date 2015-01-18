@@ -1,4 +1,4 @@
-// Spines.Utility.EventUtility.cs
+// Spines.Tenhou.Client.MatchType.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,29 +15,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-
-namespace Spines.Utility
+namespace Spines.Tenhou.Client
 {
   /// <summary>
-  /// Utility Methods for eventing.
+  /// The type of a match.
   /// </summary>
-  public static class EventUtility
+  public class MatchType
   {
-    /// <summary>
-    /// Raises the event if there are any subscribers.
-    /// </summary>
-    /// <param name="handler">The event handler that is raised.</param>
-    /// <param name="sender">The sender of the event.</param>
-    /// <param name="e">The arguments of the event.</param>
-    /// <typeparam name="TEventArgs">The type of the event args.</typeparam>
-    public static void CheckAndRaise<TEventArgs>(EventHandler<TEventArgs> handler, object sender, TEventArgs e)
-      where TEventArgs : EventArgs
+    internal MatchType(string typeId)
     {
-      if (handler != null)
-      {
-        handler(sender, e);
-      }
+      AkaAri = typeId == "9";
     }
+
+    /// <summary>
+    /// True if the match is played with 3 red fives.
+    /// </summary>
+    public bool AkaAri { get; private set; }
   }
 }

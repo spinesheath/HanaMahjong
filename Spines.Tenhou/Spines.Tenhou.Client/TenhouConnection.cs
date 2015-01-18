@@ -15,12 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Spines.Utility;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
-using Spines.Utility;
 
 namespace Spines.Tenhou.Client
 {
@@ -29,25 +29,23 @@ namespace Spines.Tenhou.Client
   /// </summary>
   public class TenhouConnection
   {
+    private readonly ILobbyClient _lobbyClient;
     private readonly ITenhouTcpClient _client;
-    private readonly string _gender;
-    private readonly int _lobby;
     private readonly Dictionary<string, Action<XElement>> _messageActions = new Dictionary<string, Action<XElement>>();
-    private readonly string _tenhouId;
+    private readonly LogOnInformation _logOnInformation;
+    private IMatchClient _matchClient;
 
     /// <summary>
     /// Creates a new Instance of TenhouConnection using the specified ITenhouTcpClient.
     /// </summary>
     /// <param name="client">The ITenhouTcpClient used to connect to the server.</param>
-    /// <param name="tenhouId">The Id of the Tenhou Account.</param>
-    /// <param name="gender">The gender of the Tenhou Account.</param>
-    /// <param name="lobby">The lobby to connect to.</param>
-    public TenhouConnection(ITenhouTcpClient client, string tenhouId, string gender, int lobby)
+    /// <param name="logOnInformation">The information necessary to log onto tenhou.net.</param>
+    /// <param name="lobbyClient">A client for the tenhou lobby.</param>
+    public TenhouConnection(ITenhouTcpClient client, LogOnInformation logOnInformation, ILobbyClient lobbyClient)
     {
-      _tenhouId = Validate.NotNull(tenhouId, "tenhouId");
-      _gender = Validate.NotNull(gender, "gender");
-      _lobby = Validate.InRange(lobby, 0, 9999);
       _client = Validate.NotNull(client, "client");
+      _logOnInformation = Validate.NotNull(logOnInformation, "logOnInformation");
+      _lobbyClient = Validate.NotNull(lobbyClient, "lobbyClient");
       InitializeMessageActions();
     }
 
@@ -55,11 +53,6 @@ namespace Spines.Tenhou.Client
     /// Raised when a player discards a tile.
     /// </summary>
     public event EventHandler<DiscardEventArgs> Discard;
-
-    /// <summary>
-    /// Raised when the account was successfully logged on.
-    /// </summary>
-    public event EventHandler<LoggedOnEventArgs> LoggedOn;
 
     /// <summary>
     /// Raised when an opponent draws a tile.
@@ -76,7 +69,7 @@ namespace Spines.Tenhou.Client
     /// </summary>
     public void Join()
     {
-      var value = _lobby.ToString(CultureInfo.InvariantCulture) + "," + "9";
+      var value = _logOnInformation.Lobby.ToString(CultureInfo.InvariantCulture) + "," + "9";
       _client.Send(new XElement("JOIN", new XAttribute("t", value)));
     }
 
@@ -113,19 +106,20 @@ namespace Spines.Tenhou.Client
 
     private void ContactServer()
     {
-      var idAttribute = new XAttribute("nodeName", _tenhouId.Replace("-", "%2D"));
-      var lobbyAttribute = new XAttribute("tid", _lobby.ToString("D4", CultureInfo.InvariantCulture));
-      var genderAttribute = new XAttribute("sx", _gender);
+      var idAttribute = new XAttribute("nodeName", _logOnInformation.TenhouId.Replace("-", "%2D"));
+      var lobbyAttribute = new XAttribute("tid", _logOnInformation.Lobby.ToString("D4", CultureInfo.InvariantCulture));
+      var genderAttribute = new XAttribute("sx", _logOnInformation.Gender);
       _client.Send(new XElement("HELO", idAttribute, lobbyAttribute, genderAttribute));
     }
 
     private void InitializeMessageActions()
     {
-      _messageActions.Add("HELO", OnRecievedLoggedOn);
-      _messageActions.Add("REJOIN", OnRecievedRejoin);
+      _messageActions.Add("HELO", OnReceivedLoggedOn);
+      _messageActions.Add("REJOIN", OnReceivedRejoin);
       _messageActions.Add("GO", OnReceivedGo);
-      _messageActions.Add("UN", m => { });
-      _messageActions.Add("TAIKYOKU", m => { });
+      _messageActions.Add("LN", m => { });
+      _messageActions.Add("UN", OnReceivedPlayers);
+      _messageActions.Add("TAIKYOKU", OnReceivedTaikyoku);
       _messageActions.Add("INIT", m => { });
       _messageActions.Add("REACH", m => { });
       _messageActions.Add("N", OnReceivedCall);
@@ -135,6 +129,25 @@ namespace Spines.Tenhou.Client
       _messageActions.Add("CHAT", m => { });
       _messageActions.Add("AGARI", OnReceivedAgariOrRyuukyoku);
       _messageActions.Add("RYUUKYOKU", OnReceivedAgariOrRyuukyoku);
+    }
+
+    private void OnReceivedTaikyoku(XElement message)
+    {
+      var firstDealerIndex = Convert.ToInt32(message.Attribute("oya").Value, CultureInfo.InvariantCulture);
+      var logId = message.Attribute("log").Value;
+      _matchClient.SetFirstDealer(firstDealerIndex);
+      _matchClient.SetLogId(logId);
+    }
+
+    private void OnReceivedPlayers(XElement message)
+    {
+      _matchClient.UpdatePlayers(GetPlayers(message));
+    }
+
+    private static IEnumerable<PlayerInformation> GetPlayers(XElement message)
+    {
+      var playerCount = message.Attributes().Count(a => a.Name.LocalName.StartsWith("n"));
+      return Enumerable.Range(0, playerCount).Select(i => new PlayerInformation(message, i));
     }
 
     private void OnReceivedCall(XElement message)
@@ -160,18 +173,25 @@ namespace Spines.Tenhou.Client
     {
       _client.Send(new XElement("GOK"));
       _client.Send(new XElement("NEXTREADY"));
+      _matchClient.Start(new MatchInformation(message));
     }
 
-    private void OnRecievedLoggedOn(XElement message)
+    private void OnReceivedLoggedOn(XElement message)
     {
       Authenticate(message.Attribute("auth").Value);
-      EventUtility.Fire(LoggedOn, this, new LoggedOnEventArgs(message));
+      _lobbyClient.LoggedOn(new AccountInformation(message));
     }
 
-
-
-    private void OnRecievedRejoin(XElement message)
+    private void OnReceivedRejoin(XElement message)
     {
+      var parts = message.Attribute("t").Value.Split(new []{','});
+      var lobby = Convert.ToInt32(parts[0], CultureInfo.InvariantCulture);
+      var matchType = new MatchType(parts[1]);
+      if (!_lobbyClient.ProposeMatch(lobby, matchType))
+      {
+        return;
+      }
+      _matchClient = _lobbyClient.GetMatchClient();
       _client.Send(new XElement(message) {Name = "JOIN"});
     }
 
@@ -184,15 +204,15 @@ namespace Spines.Tenhou.Client
       }
       else if (IsPlayerDraw(nodeName))
       {
-        EventUtility.Fire(PlayerDraw, this, new PlayerDrawEventArgs(e.Message));
+        EventUtility.CheckAndRaise(PlayerDraw, this, new PlayerDrawEventArgs(e.Message));
       }
       else if (IsOpponentDraw(nodeName))
       {
-        EventUtility.Fire(OpponentDraw, this, new OpponentDrawEventArgs(e.Message));
+        EventUtility.CheckAndRaise(OpponentDraw, this, new OpponentDrawEventArgs(e.Message));
       }
       else if (IsDiscard(nodeName))
       {
-        EventUtility.Fire(Discard, this, new DiscardEventArgs(e.Message));
+        EventUtility.CheckAndRaise(Discard, this, new DiscardEventArgs(e.Message));
       }
     }
 

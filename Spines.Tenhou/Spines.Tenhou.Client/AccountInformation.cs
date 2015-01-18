@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.LoggedOnEventArgs.cs
+﻿// Spines.Tenhou.Client.AccountInformation.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -27,9 +27,9 @@ namespace Spines.Tenhou.Client
   /// <summary>
   /// Data provided by the server after logging on.
   /// </summary>
-  public class LoggedOnEventArgs : EventArgs
+  public class AccountInformation
   {
-    internal LoggedOnEventArgs(XElement message)
+    internal AccountInformation(XElement message)
     {
       RatingScales = GetRatingScales2(message);
       ExpireDays = GetExpireDays(message);
