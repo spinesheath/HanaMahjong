@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.DiscardEventArgs.cs
+// Spines.Tenhou.Client.LogOnInformation.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,45 +15,39 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Spines.Utility;
-using System;
-using System.Linq;
-using System.Xml.Linq;
-
 namespace Spines.Tenhou.Client
 {
   /// <summary>
-  /// Data provided by the server when a player discards a tile.
+  /// Information necessary to log onto tenhou.net.
   /// </summary>
-  public class DiscardEventArgs : EventArgs
+  public class LogOnInformation
   {
-    internal DiscardEventArgs(XElement message)
+    /// <summary>
+    /// Initializes a new instance of LogOnInformation.
+    /// </summary>
+    /// <param name="tenhouId">The Id of the Tenhou Account.</param>
+    /// <param name="gender">The gender of the Tenhou Account.</param>
+    /// <param name="lobby">The lobby to connect to.</param>
+    public LogOnInformation(string tenhouId, string gender, int lobby)
     {
-      Callable = message.Attributes("t").Any();
-      var name = message.Name.LocalName;
-      Tsumokiri = "defg".Contains(name[0]);
-      PlayerId = name[0] - (Tsumokiri ? 'd' : 'D');
-      Tile = new Tile(InvariantConvert.ToInt32(name.Substring(1)));
+      TenhouId = tenhouId;
+      Gender = gender;
+      Lobby = lobby;
     }
 
     /// <summary>
-    /// 0, 1, 2, 3 for T, U, V, W.
+    /// The Id of the Tenhou Account.
     /// </summary>
-    public int PlayerId { get; private set; }
+    public string TenhouId { get; private set; }
 
     /// <summary>
-    /// Id of the discarded tile.
+    /// The gender of the Tenhou Account.
     /// </summary>
-    public Tile Tile { get; private set; }
+    public string Gender { get; private set; }
 
     /// <summary>
-    /// True if the discarded tile is the last tile drawn.
+    /// The lobby to connect to.
     /// </summary>
-    public bool Tsumokiri { get; private set; }
-
-    /// <summary>
-    /// True if the discarded tile can be called.
-    /// </summary>
-    public bool Callable { get; private set; }
+    public int Lobby { get; private set; }
   }
 }

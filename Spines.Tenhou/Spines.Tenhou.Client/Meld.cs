@@ -15,9 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
-using System.Globalization;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client
 {
@@ -30,7 +29,7 @@ namespace Spines.Tenhou.Client
     /// <param name="ownerId">The owner of the meld.</param>
     public Meld(string meldCodeString, int ownerId)
     {
-      var meldCode = new MeldCode(Convert.ToInt32(meldCodeString, CultureInfo.InvariantCulture), ownerId);
+      var meldCode = new MeldCode(InvariantConvert.ToInt32(meldCodeString), ownerId);
       Type = meldCode.Type;
       Tiles = meldCode.Tiles;
       FromPlayerId = meldCode.FromPlayerId;

@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Spines.Utility;
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
@@ -33,7 +33,7 @@ namespace Spines.Tenhou.Client
       PlayerIndex = playerIndex;
       UserName = DecodeName(message.Attribute("n" + playerIndex).Value);
       Dan = message.Attribute("dan").Value.Split(new[] {','})[playerIndex];
-      Rating = Convert.ToDecimal(message.Attribute("rate").Value.Split(new[] { ',' })[playerIndex], CultureInfo.InvariantCulture);
+      Rating = InvariantConvert.ToDecimal(message.Attribute("rate").Value.Split(new[] { ',' })[playerIndex]);
       Gender = message.Attribute("sx").Value.Split(new[] { ',' })[playerIndex];
     }
 

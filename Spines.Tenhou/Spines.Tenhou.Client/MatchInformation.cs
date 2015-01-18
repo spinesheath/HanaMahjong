@@ -15,8 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Globalization;
+using Spines.Utility;
 using System.Xml.Linq;
 
 namespace Spines.Tenhou.Client
@@ -29,17 +28,17 @@ namespace Spines.Tenhou.Client
     /// <summary>
     /// Instantiates a new instance of MatchInformation.
     /// </summary>
-    public MatchInformation(XElement message)
+    internal MatchInformation(XElement message)
     {
-      Type = new MatchType(message.Attribute("type").Value);
-      Lobby = Convert.ToInt32(message.Attribute("lobby"), CultureInfo.InvariantCulture);
+      MatchType = new MatchType(message.Attribute("type").Value);
+      Lobby = InvariantConvert.ToInt32(message.Attribute("lobby").Value);
       MatchId = message.Attribute("gpid").Value;
     }
 
     /// <summary>
     /// The type of the match.
     /// </summary>
-    public MatchType Type { get; private set; }
+    public MatchType MatchType { get; private set; }
 
     /// <summary>
     /// The lobby for the match.

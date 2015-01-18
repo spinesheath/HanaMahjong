@@ -15,9 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Spines.Utility;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
@@ -67,22 +67,22 @@ namespace Spines.Tenhou.Client
     private static DateTime GetExpireDate(XElement message)
     {
       var value = message.Attribute("expire").Value;
-      var year = Convert.ToInt32(value.Substring(0, 4), CultureInfo.InvariantCulture);
-      var month = Convert.ToInt32(value.Substring(4, 2), CultureInfo.InvariantCulture);
-      var day = Convert.ToInt32(value.Substring(6, 2), CultureInfo.InvariantCulture);
+      var year = InvariantConvert.ToInt32(value.Substring(0, 4));
+      var month = InvariantConvert.ToInt32(value.Substring(4, 2));
+      var day = InvariantConvert.ToInt32(value.Substring(6, 2));
       return new DateTime(year, month, day);
     }
 
     private static int GetExpireDays(XElement message)
     {
-      return Convert.ToInt32(message.Attribute("expiredays").Value, CultureInfo.InvariantCulture);
+      return InvariantConvert.ToInt32(message.Attribute("expiredays").Value);
     }
 
     private static Dictionary<string, double> GetRatingScales2(XElement message)
     {
       var entries = message.Attribute("ratingscale").Value.Split(new[] {"&"}, StringSplitOptions.RemoveEmptyEntries);
       var entryParts = entries.Select(entry => entry.Split(new[] {"="}, StringSplitOptions.RemoveEmptyEntries));
-      return entryParts.ToDictionary(parts => parts[0], parts => Convert.ToDouble(parts[1], CultureInfo.InvariantCulture));
+      return entryParts.ToDictionary(parts => parts[0], parts => InvariantConvert.ToDouble(parts[1]));
     }
 
     private static string GetUserName(XElement message)

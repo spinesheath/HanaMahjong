@@ -16,8 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Globalization;
 using System.Xml.Linq;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client
 {
@@ -28,7 +28,7 @@ namespace Spines.Tenhou.Client
   {
     internal PlayerDrawEventArgs(XElement message)
     {
-      Tile = new Tile(Convert.ToInt32(message.Name.LocalName.Substring(1), CultureInfo.InvariantCulture));
+      Tile = new Tile(InvariantConvert.ToInt32(message.Name.LocalName.Substring(1)));
     }
 
     /// <summary>

@@ -18,7 +18,6 @@
 using Spines.Utility;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -69,7 +68,7 @@ namespace Spines.Tenhou.Client
     /// </summary>
     public void Join()
     {
-      var value = _logOnInformation.Lobby.ToString(CultureInfo.InvariantCulture) + "," + "9";
+      var value = InvariantConvert.ToString(_logOnInformation.Lobby) + "," + "9";
       _client.Send(new XElement("JOIN", new XAttribute("t", value)));
     }
 
@@ -107,7 +106,7 @@ namespace Spines.Tenhou.Client
     private void ContactServer()
     {
       var idAttribute = new XAttribute("nodeName", _logOnInformation.TenhouId.Replace("-", "%2D"));
-      var lobbyAttribute = new XAttribute("tid", _logOnInformation.Lobby.ToString("D4", CultureInfo.InvariantCulture));
+      var lobbyAttribute = new XAttribute("tid", InvariantConvert.ToString(_logOnInformation.Lobby, "D4"));
       var genderAttribute = new XAttribute("sx", _logOnInformation.Gender);
       _client.Send(new XElement("HELO", idAttribute, lobbyAttribute, genderAttribute));
     }
@@ -133,7 +132,7 @@ namespace Spines.Tenhou.Client
 
     private void OnReceivedTaikyoku(XElement message)
     {
-      var firstDealerIndex = Convert.ToInt32(message.Attribute("oya").Value, CultureInfo.InvariantCulture);
+      var firstDealerIndex = InvariantConvert.ToInt32(message.Attribute("oya").Value);
       var logId = message.Attribute("log").Value;
       _matchClient.SetFirstDealer(firstDealerIndex);
       _matchClient.SetLogId(logId);
@@ -146,7 +145,7 @@ namespace Spines.Tenhou.Client
 
     private static IEnumerable<PlayerInformation> GetPlayers(XElement message)
     {
-      var playerCount = message.Attributes().Count(a => a.Name.LocalName.StartsWith("n"));
+      var playerCount = message.Attributes().Count(a => a.Name.LocalName.StartsWith("n", StringComparison.InvariantCulture));
       return Enumerable.Range(0, playerCount).Select(i => new PlayerInformation(message, i));
     }
 
@@ -185,7 +184,7 @@ namespace Spines.Tenhou.Client
     private void OnReceivedRejoin(XElement message)
     {
       var parts = message.Attribute("t").Value.Split(new []{','});
-      var lobby = Convert.ToInt32(parts[0], CultureInfo.InvariantCulture);
+      var lobby = InvariantConvert.ToInt32(parts[0]);
       var matchType = new MatchType(parts[1]);
       if (!_lobbyClient.ProposeMatch(lobby, matchType))
       {

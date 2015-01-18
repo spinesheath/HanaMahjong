@@ -15,8 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Globalization;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client
 {
@@ -43,29 +42,19 @@ namespace Spines.Tenhou.Client
     private static string CreatePostfix(string p0, string p1)
     {
       var tableIndex = GetTableIndex(p0);
-      var a = TranslationTable[tableIndex] ^ ConvertHexToInt(p1.Substring(0, 4));
-      var b = TranslationTable[tableIndex + 1] ^ ConvertHexToInt(p1.Substring(4, 4));
+      var a = TranslationTable[tableIndex] ^ InvariantConvert.HexToInt32(p1.Substring(0, 4));
+      var b = TranslationTable[tableIndex + 1] ^ InvariantConvert.HexToInt32(p1.Substring(4, 4));
       return ConvertIntToHex4(a) + ConvertIntToHex4(b);
     }
 
     private static int GetTableIndex(string p0)
     {
-      return ConvertDecimalToInt("2" + p0.Substring(2, 6)) % (12 - ConvertDecimalToInt(p0.Substring(7, 1))) * 2;
-    }
-
-    private static int ConvertDecimalToInt(string s)
-    {
-      return Convert.ToInt32(s, CultureInfo.InvariantCulture);
-    }
-
-    private static int ConvertHexToInt(string s)
-    {
-      return int.Parse(s, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture);
+      return InvariantConvert.ToInt32("2" + p0.Substring(2, 6)) % (12 - InvariantConvert.ToInt32(p0.Substring(7, 1))) * 2;
     }
 
     private static string ConvertIntToHex4(int i)
     {
-      return i.ToString("x4", CultureInfo.InvariantCulture);
+      return InvariantConvert.ToString(i, "x4");
     }
   }
 }
