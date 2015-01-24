@@ -124,14 +124,6 @@ namespace Spines.Tenhou.Client
       }
     }
 
-    private void RaiseRecieve(XElement xElement)
-    {
-      if (Receive != null)
-      {
-        Receive(this, new ReceivedMessageEventArgs(xElement));
-      }
-    }
-
     private void ReadMessage(NetworkStream stream)
     {
       var buffer = new byte[1024];
@@ -142,7 +134,7 @@ namespace Spines.Tenhou.Client
       var xElements = parts.Select(XElement.Parse);
       foreach (var xElement in xElements)
       {
-        RaiseRecieve(xElement);
+        EventUtility.CheckAndRaise(Receive, this, new ReceivedMessageEventArgs(xElement));
       }
     }
 

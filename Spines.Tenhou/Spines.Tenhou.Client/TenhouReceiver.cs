@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.TenhouConnection.cs
+﻿// Spines.Tenhou.Client.TenhouReceiver.cs
 // 
 // Copyright (C) 2014  Johannes Heckl
 // 
@@ -24,61 +24,31 @@ using System.Xml.Linq;
 namespace Spines.Tenhou.Client
 {
   /// <summary>
-  /// Connection to Tenhou.net.
+  /// Recieves and translates messages from Tenhou.net.
   /// </summary>
-  public class TenhouConnection
+  public class TenhouReceiver
   {
     private readonly ILobbyClient _lobbyClient;
-    private readonly ITenhouTcpClient _client;
+    private readonly ITenhouTcpClient _server;
     private readonly Dictionary<string, Action<XElement>> _messageActions = new Dictionary<string, Action<XElement>>();
-    private readonly LogOnInformation _logOnInformation;
-    private IMatchClient _matchClient;
+    private readonly TenhouSender _sender;
+    private readonly IMatchClient _matchClient;
 
     /// <summary>
-    /// Creates a new Instance of TenhouConnection using the specified ITenhouTcpClient.
+    /// Creates a new Instance of TenhouReceiver using the specified ITenhouTcpClient.
     /// </summary>
     /// <param name="client">The ITenhouTcpClient used to connect to the server.</param>
-    /// <param name="logOnInformation">The information necessary to log onto tenhou.net.</param>
+    /// <param name="sender">Used to send messages to the server.</param>
     /// <param name="lobbyClient">A client for the tenhou lobby.</param>
-    public TenhouConnection(ITenhouTcpClient client, LogOnInformation logOnInformation, ILobbyClient lobbyClient)
+    /// <param name="matchClient">A match client.</param>
+    public TenhouReceiver(ITenhouTcpClient client, TenhouSender sender, ILobbyClient lobbyClient, IMatchClient matchClient)
     {
-      _client = Validate.NotNull(client, "client");
-      _logOnInformation = Validate.NotNull(logOnInformation, "logOnInformation");
+      _server = Validate.NotNull(client, "client");
       _lobbyClient = Validate.NotNull(lobbyClient, "lobbyClient");
+      _sender = Validate.NotNull(sender, "sender");
+      _matchClient = Validate.NotNull(matchClient, "matchClient");
       InitializeMessageActions();
-    }
-
-    /// <summary>
-    /// Raised when a player discards a tile.
-    /// </summary>
-    public event EventHandler<DiscardEventArgs> Discard;
-
-    /// <summary>
-    /// Raised when an opponent draws a tile.
-    /// </summary>
-    public event EventHandler<OpponentDrawEventArgs> OpponentDraw;
-
-    /// <summary>
-    /// Raised when the active player draws a tile.
-    /// </summary>
-    public event EventHandler<PlayerDrawEventArgs> PlayerDraw;
-
-    /// <summary>
-    /// Joins a match.
-    /// </summary>
-    public void Join()
-    {
-      var value = InvariantConvert.ToString(_logOnInformation.Lobby) + "," + "9";
-      _client.Send(new XElement("JOIN", new XAttribute("t", value)));
-    }
-
-    /// <summary>
-    /// Logs a user in.
-    /// </summary>
-    public void LogOn()
-    {
-      _client.Receive += ReceiveMessage;
-      ContactServer();
+      _server.Receive += ReceiveMessage;
     }
 
     private static bool IsDiscard(string nodeName)
@@ -100,15 +70,7 @@ namespace Spines.Tenhou.Client
     {
       var transformed = Authenticator.Transform(authenticationString);
       var valAttribute = new XAttribute("val", transformed);
-      _client.Send(new XElement("AUTH", valAttribute));
-    }
-
-    private void ContactServer()
-    {
-      var idAttribute = new XAttribute("nodeName", _logOnInformation.TenhouId.Replace("-", "%2D"));
-      var lobbyAttribute = new XAttribute("tid", InvariantConvert.ToString(_logOnInformation.Lobby, "D4"));
-      var genderAttribute = new XAttribute("sx", _logOnInformation.Gender);
-      _client.Send(new XElement("HELO", idAttribute, lobbyAttribute, genderAttribute));
+      _server.Send(new XElement("AUTH", valAttribute));
     }
 
     private void InitializeMessageActions()
@@ -145,7 +107,7 @@ namespace Spines.Tenhou.Client
 
     private static IEnumerable<PlayerInformation> GetPlayers(XElement message)
     {
-      var playerCount = message.Attributes().Count(a => a.Name.LocalName.StartsWith("n", StringComparison.InvariantCulture));
+      var playerCount = message.Attributes().Count(a => a.Name.LocalName[0] == 'n');
       return Enumerable.Range(0, playerCount).Select(i => new PlayerInformation(message, i));
     }
 
@@ -158,20 +120,20 @@ namespace Spines.Tenhou.Client
     {
       if (message.Attributes().Any(a => a.Name == "owari"))
       {
-        _client.Send(new XElement("BYE"));
-        _client.Send(new XElement("BYE"));
-        ContactServer();
+        _server.Send(new XElement("BYE"));
+        _server.Send(new XElement("BYE"));
+        _sender.LogOn();
       }
       else
       {
-        _client.Send(new XElement("NEXTREADY"));
+        _server.Send(new XElement("NEXTREADY"));
       }
     }
 
     private void OnReceivedGo(XElement message)
     {
-      _client.Send(new XElement("GOK"));
-      _client.Send(new XElement("NEXTREADY"));
+      _server.Send(new XElement("GOK"));
+      _server.Send(new XElement("NEXTREADY"));
       _matchClient.Start(new MatchInformation(message));
     }
 
@@ -186,12 +148,7 @@ namespace Spines.Tenhou.Client
       var parts = message.Attribute("t").Value.Split(new []{','});
       var lobby = InvariantConvert.ToInt32(parts[0]);
       var matchType = new MatchType(parts[1]);
-      if (!_lobbyClient.ProposeMatch(lobby, matchType))
-      {
-        return;
-      }
-      _matchClient = _lobbyClient.GetMatchClient();
-      _client.Send(new XElement(message) {Name = "JOIN"});
+      _matchClient.ProposeMatch(new MatchProposal(lobby, matchType));
     }
 
     private void ReceiveMessage(object sender, ReceivedMessageEventArgs e)
@@ -203,46 +160,36 @@ namespace Spines.Tenhou.Client
       }
       else if (IsPlayerDraw(nodeName))
       {
-        EventUtility.CheckAndRaise(PlayerDraw, this, new PlayerDrawEventArgs(e.Message));
+        _matchClient.DrawTile(CreateTileFromDrawOrDiscard(e.Message));
       }
       else if (IsOpponentDraw(nodeName))
       {
-        EventUtility.CheckAndRaise(OpponentDraw, this, new OpponentDrawEventArgs(e.Message));
+        _matchClient.OpponentDrawTile(GetPlayerIndexFromDrawOrDiscard(e.Message));
       }
       else if (IsDiscard(nodeName))
       {
-        EventUtility.CheckAndRaise(Discard, this, new DiscardEventArgs(e.Message));
+        _matchClient.Discard(new DiscardInformation(e.Message));
       }
     }
 
     /// <summary>
-    /// Tells the server that a callable tile will not be called.
+    /// Extracts the player index from a draw or discard message.
     /// </summary>
-    public void SendDenyCall()
+    /// <param name="message">The draw or discard message.</param>
+    /// <returns>The player index.</returns>
+    private static int GetPlayerIndexFromDrawOrDiscard(XElement message)
     {
-      _client.Send(new XElement("N"));
+      return message.Name.LocalName[0] - 'T';
     }
 
     /// <summary>
-    /// Tells the server that the most recent discard was called for a chii together with two other tiles.
+    /// Creates a tile from the name of a draw or discard message.
     /// </summary>
-    public void SendChii(Tile tile0, Tile tile1)
+    /// <param name="message">The draw or discard message.</param>
+    /// <returns>The drawn or discarded tile.</returns>
+    private static Tile CreateTileFromDrawOrDiscard(XElement message)
     {
-      Validate.NotNull(tile0, "tile0");
-      Validate.NotNull(tile1, "tile1");
-      var type = new XAttribute("type", "3");
-      var hai0 = new XAttribute("hai0", tile0.Id);
-      var hai1 = new XAttribute("hai1", tile1.Id);
-      _client.Send(new XElement("N", type, hai0, hai1));
-    }
-
-    /// <summary>
-    /// Tells the server that a tile is discarded.
-    /// </summary>
-    public void SendDiscard(Tile tile)
-    {
-      Validate.NotNull(tile, "tile");
-      _client.Send(new XElement("D", new XAttribute("p", tile.Id)));
+      return new Tile(InvariantConvert.ToInt32(message.Name.LocalName.Substring(1)));
     }
   }
 }

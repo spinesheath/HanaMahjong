@@ -27,19 +27,5 @@ namespace Spines.Tenhou.Client
     /// </summary>
     /// <param name="accountInformation">Information about the account.</param>
     void LoggedOn(AccountInformation accountInformation);
-
-    /// <summary>
-    /// Asks the client whether to join a match.
-    /// </summary>
-    /// <param name="lobby">The lobby in which the match is played.</param>
-    /// <param name="matchType">The type of match.</param>
-    /// <returns>True, if the match is accepted, false outherwise.</returns>
-    bool ProposeMatch(int lobby, MatchType matchType);
-
-    /// <summary>
-    /// Gets a match client.
-    /// </summary>
-    /// <returns>A match client.</returns>
-    IMatchClient GetMatchClient();
   }
 }

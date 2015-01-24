@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.PlayerDrawEventArgs.cs
+﻿// Spines.Tenhou.Client.MatchProposal.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,25 +15,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Xml.Linq;
-using Spines.Utility;
-
 namespace Spines.Tenhou.Client
 {
   /// <summary>
-  /// Data provided by the server when the active player draws a tile.
+  /// A proposal of a match.
   /// </summary>
-  public class PlayerDrawEventArgs : EventArgs
+  public class MatchProposal
   {
-    internal PlayerDrawEventArgs(XElement message)
+    internal MatchProposal(int lobby, MatchType matchType)
     {
-      Tile = new Tile(InvariantConvert.ToInt32(message.Name.LocalName.Substring(1)));
+      Lobby = lobby;
+      MatchType = matchType;
     }
 
     /// <summary>
-    /// The drawn tile.
+    /// The lobby the match is played in.
     /// </summary>
-    public Tile Tile { get; private set; }
+    public int Lobby { get; private set; }
+
+    /// <summary>
+    /// The type of the match.
+    /// </summary>
+    public MatchType MatchType { get; private set; }
   }
 }

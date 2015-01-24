@@ -12,10 +12,10 @@ namespace Spines.Tenhou.ConsoleClient
       //using (var t = new TenhouTcpClient(l))
       //{
       //  t.Connect();
-      //  var c = new TenhouConnection(t, "ID0160262B-SG8PcR2h", "M", 0);
+      //  var c = new TenhouReceiver(t, "ID0160262B-SG8PcR2h", "M", 0);
       //  c.LogOn();
       //  Console.ReadKey();
-      //  //c.Join();
+      //  //c.RequestMatch();
       //  Console.ReadKey();
       //}
       //Console.ReadKey();
@@ -23,9 +23,11 @@ namespace Spines.Tenhou.ConsoleClient
       var l = new ConsoleLogger();
       var t = new DummyTenhouTcpClient(l);
       var i = new LogOnInformation("ID0160262B-SG8PcR2h", "M", 0);
-      var c = new TenhouConnection(t, i, null);
-      c.LogOn();
-      c.Join();
+      var s = new TenhouSender(t, i);
+      var a = new TsumokiriAi(s);
+      var c = new TenhouReceiver(t, s, null, a);
+      s.LogOn();
+      s.RequestMatch();
       Console.ReadKey();
     }
   }

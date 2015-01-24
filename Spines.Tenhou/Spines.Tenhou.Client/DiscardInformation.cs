@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.DiscardEventArgs.cs
+﻿// Spines.Tenhou.Client.DiscardInformation.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -25,21 +25,21 @@ namespace Spines.Tenhou.Client
   /// <summary>
   /// Data provided by the server when a player discards a tile.
   /// </summary>
-  public class DiscardEventArgs : EventArgs
+  public class DiscardInformation
   {
-    internal DiscardEventArgs(XElement message)
+    internal DiscardInformation(XElement message)
     {
       Callable = message.Attributes("t").Any();
       var name = message.Name.LocalName;
       Tsumokiri = "defg".Contains(name[0]);
-      PlayerId = name[0] - (Tsumokiri ? 'd' : 'D');
+      PlayerIndex = name[0] - (Tsumokiri ? 'd' : 'D');
       Tile = new Tile(InvariantConvert.ToInt32(name.Substring(1)));
     }
 
     /// <summary>
     /// 0, 1, 2, 3 for T, U, V, W.
     /// </summary>
-    public int PlayerId { get; private set; }
+    public int PlayerIndex { get; private set; }
 
     /// <summary>
     /// Id of the discarded tile.
