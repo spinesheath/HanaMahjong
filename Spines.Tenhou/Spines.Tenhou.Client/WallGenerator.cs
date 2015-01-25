@@ -1,8 +1,7 @@
+using Spines.Utility;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
-using Spines.Utility;
 
 namespace Spines.Tenhou.Client
 {
@@ -11,7 +10,7 @@ namespace Spines.Tenhou.Client
   /// </summary>
   public class WallGenerator
   {
-    private readonly uint[] _seedValues = new uint[624];
+    private readonly int[] _seedValues;
     private readonly int[] _wall = new int[136];
     private readonly int[] _dice = new int[2];
 
@@ -21,26 +20,18 @@ namespace Spines.Tenhou.Client
     /// <param name="seed"></param>
     public WallGenerator(string seed)
     {
+      Validate.NotNull(seed, "seed");
       unchecked
       {
         var delimiterPos = seed.IndexOf(",", StringComparison.Ordinal);
-
         var seedText = seed.Substring(delimiterPos + 1);
-
-        // mt19937ar-sha512-n288-base64,*data*
-
         if (seed.IndexOf("mt19937ar-sha512-n288-base64", StringComparison.Ordinal) == 0)
         {
-          byte[] seedBytes = Convert.FromBase64String(seedText);
-
-          // Convert to UInt32 array
-          for (var i = 0; i < _seedValues.Length; i++)
-          {
-            _seedValues[i] = (uint)(seedBytes[i * 4 + 0] << 0) |
-                             (uint)(seedBytes[i * 4 + 1] << 8) |
-                             (uint)(seedBytes[i * 4 + 2] << 16) |
-                             (uint)(seedBytes[i * 4 + 3] << 24);
-          }
+          var seedBytes = Convert.FromBase64String(seedText);
+          var numberOfInts = seedBytes.Length * sizeof(byte) / sizeof(int);
+          var t = new int[numberOfInts];
+          Buffer.BlockCopy(seedBytes, 0, _seedValues, 0, numberOfInts * sizeof(int));
+          _seedValues = t;
         }
         else
         {
@@ -55,23 +46,26 @@ namespace Spines.Tenhou.Client
     /// </summary>
     /// <param name="text"></param>
     /// <returns></returns>
-    private static uint[] DecompositeHexList(string text)
+    private static int[] DecompositeHexList(string text)
     {
       unchecked
       {
         string[] delimiter = { "," };
 
-        if (text == null) return null;
+        if (text == null)
+        {
+          return null;
+        }
 
         var temp = text.Split(delimiter, StringSplitOptions.None);
-        var result = new uint[temp.Length];
+        var result = new int[temp.Length];
 
         for (var i = 0; i < temp.Length; i++)
         {
           var index = temp[i].IndexOf('.');
           if (index >= 0) temp[i] = temp[i].Substring(0, index);
 
-          result[i] = Convert.ToUInt32(temp[i], 16);
+          result[i] = unchecked ((int)Convert.ToUInt32(temp[i], 16));
         }
 
         return result;
@@ -86,7 +80,7 @@ namespace Spines.Tenhou.Client
     {
       unchecked
       {
-        var shuffler = new TenhouShuffler(_seedValues.Select(x => (int) x).ToArray());
+        var shuffler = new TenhouShuffler(_seedValues);
 
         var rnd = new uint[64 / 4 * 9]; // 144
 

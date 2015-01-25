@@ -74,6 +74,7 @@
     <Compile Include="ReceivedMessageEventArgs.cs" />
     <Compile Include="TenhouReceiver.cs" />
     <Compile Include="TenhouSender.cs" />
+    <Compile Include="TenhouShuffler.cs" />
     <Compile Include="TenhouTcpClient.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="TsumokiriAI.cs" />

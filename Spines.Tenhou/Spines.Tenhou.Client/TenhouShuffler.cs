@@ -1,4 +1,4 @@
-﻿// Spines.Utility.TenhouShuffler.cs
+﻿// Spines.Tenhou.Client.TenhouShuffler.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -19,12 +19,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Spines.Utility
+namespace Spines.Tenhou.Client
 {
   /// <summary>
   /// A shuffler used by tenhou.net, based on the mersenne twister MT19937.
   /// </summary>
-  public class TenhouShuffler
+  internal class TenhouShuffler
   {
     private const int NumberOfWords = 624;
     private const int ParallelSequenceNumber = 397;
@@ -35,57 +35,6 @@ namespace Spines.Utility
     private uint _nextWordIndex;
 
     /// <summary>
-    /// Returns the next random number in the sequence.
-    /// </summary>
-    /// <returns></returns>
-    public int GetNext()
-    {
-      if (_nextWordIndex == 0)
-      {
-        CreateNextState();
-      }
-      var t = _words[_nextWordIndex];
-      _nextWordIndex = (_nextWordIndex + 1) % NumberOfWords;
-      return unchecked ((int)Temper(t));
-    }
-
-    private void CreateNextState()
-    {
-      for (var i = 0; i < NumberOfWords; ++i)
-      {
-        var y = (_words[i] & UpperMask) | (_words[(i + 1) % NumberOfWords] & LowerMask);
-        _words[i] = _words[(i + ParallelSequenceNumber) % NumberOfWords] ^ (y >> 1) ^ _evenOddXorValues[y & 1];
-      }
-    }
-
-    private static uint Temper(uint y)
-    {
-      y ^= (y >> 11);
-      y ^= (y << 7) & 0x9d2c5680;
-      y ^= (y << 15) & 0xefc60000;
-      y ^= (y >> 18);
-      return y;
-    }
-
-    private void Init(uint seed)
-    {
-      _words[0] = seed;
-      for (uint i = 1; i < NumberOfWords; i++)
-      {
-        unchecked
-        {
-          _words[i] = PreviousXor(i) * 1812433253;
-          _words[i] += i;
-        }
-      }
-    }
-
-    private uint PreviousXor(uint i)
-    {
-      return _words[i - 1] ^ (_words[i - 1] >> 30);
-    }
-
-    /// <summary>
     /// Creates a new instance of TenhouShuffler and initializes it with a seed.
     /// </summary>
     /// <param name="seed">The seed to initialize the shuffler with.</param>
@@ -93,7 +42,7 @@ namespace Spines.Utility
     {
       unchecked
       {
-        var seedArray = seed.Select(x => (uint)x).ToArray();
+        var seedArray = seed.Select(x => (uint) x).ToArray();
         Init(19650218);
 
         uint i = 1;
@@ -133,6 +82,57 @@ namespace Spines.Utility
         }
         _words[0] = 0x80000000;
       }
+    }
+
+    /// <summary>
+    /// Returns the next random number in the sequence.
+    /// </summary>
+    /// <returns></returns>
+    public int GetNext()
+    {
+      if (_nextWordIndex == 0)
+      {
+        CreateNextState();
+      }
+      var t = _words[_nextWordIndex];
+      _nextWordIndex = (_nextWordIndex + 1) % NumberOfWords;
+      return unchecked ((int) Temper(t));
+    }
+
+    private static uint Temper(uint y)
+    {
+      y ^= (y >> 11);
+      y ^= (y << 7) & 0x9d2c5680;
+      y ^= (y << 15) & 0xefc60000;
+      y ^= (y >> 18);
+      return y;
+    }
+
+    private void CreateNextState()
+    {
+      for (var i = 0; i < NumberOfWords; ++i)
+      {
+        var y = (_words[i] & UpperMask) | (_words[(i + 1) % NumberOfWords] & LowerMask);
+        _words[i] = _words[(i + ParallelSequenceNumber) % NumberOfWords] ^ (y >> 1) ^ _evenOddXorValues[y & 1];
+      }
+    }
+
+    private void Init(uint seed)
+    {
+      _words[0] = seed;
+      for (uint i = 1; i < NumberOfWords; i++)
+      {
+        unchecked
+        {
+          _words[i] = PreviousXor(i) * 1812433253;
+          _words[i] += i;
+        }
+      }
+    }
+
+    private uint PreviousXor(uint i)
+    {
+      return _words[i - 1] ^ (_words[i - 1] >> 30);
     }
   }
 }
