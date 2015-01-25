@@ -11,9 +11,6 @@ namespace Spines.Tenhou.Client
   /// </summary>
   public class WallGenerator
   {
-    // Random generator
-    private readonly Mt19937Ar _r = new Mt19937Ar();
-
     private readonly uint[] _seedValues = new uint[624];
     private readonly int[] _wall = new int[136];
     private readonly int[] _dice = new int[2];
@@ -89,7 +86,7 @@ namespace Spines.Tenhou.Client
     {
       unchecked
       {
-        _r.InitByArray(_seedValues.Select(x => (int)x).ToArray());
+        var shuffler = new TenhouShuffler(_seedValues.Select(x => (int) x).ToArray());
 
         var rnd = new uint[64 / 4 * 9]; // 144
 
@@ -100,7 +97,7 @@ namespace Spines.Tenhou.Client
 
           for (var i = 0; i < src.Length; i++)
           {
-            src[i] = (uint) _r.GetNext();
+            src[i] = (uint) shuffler.GetNext();
           }
 
           var srcbyte = new byte[src.Length * 4];

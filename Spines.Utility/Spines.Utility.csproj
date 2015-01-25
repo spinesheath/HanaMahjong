@@ -52,7 +52,7 @@
     <Compile Include="EventUtility.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="InvariantConvert.cs" />
-    <Compile Include="Mt19937Ar.cs" />
+    <Compile Include="TenhouShuffler.cs" />
     <Compile Include="NullLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ValidatedNotNullAttribute.cs" />
