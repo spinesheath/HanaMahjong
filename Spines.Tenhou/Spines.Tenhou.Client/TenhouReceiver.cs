@@ -49,7 +49,7 @@ namespace Spines.Tenhou.Client
       _lobbyListeners.Add(Validate.NotNull(lobbyClient, "lobbyClient"));
       _matchListeners.Add(Validate.NotNull(matchClient, "matchClient"));
       InitializeMessageActions();
-      // TODO unsubscribe from server?
+      // TODO unsubscribe from server? Or just verify that server is disposed after receiver is gone?
       _server.Receive += ReceiveMessage;
       _server.Connected += OnConnected;
     }
