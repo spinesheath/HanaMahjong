@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.ReceivedMessageEventArgs.cs
+﻿// Spines.Utility.NullLogger.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,28 +15,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Xml.Linq;
-
-namespace Spines.Tenhou.Client
+namespace Spines.Utility
 {
   /// <summary>
-  /// Carries the message recieved by an XML client.
+  /// Dummy implementation of ILogger that doesn't actually log anything.
   /// </summary>
-  internal class ReceivedMessageEventArgs : EventArgs
+  public class NullLogger : ILogger
   {
     /// <summary>
-    /// Initializes the message.
+    /// Logs the message at trace level. Doesn't actually log anything.
     /// </summary>
-    /// <param name="message">The message that was received.</param>
-    public ReceivedMessageEventArgs(XElement message)
+    /// <param name="message">The message to log.</param>
+    public void Trace(string message)
     {
-      Message = message;
     }
-
-    /// <summary>
-    /// The message that was received.
-    /// </summary>
-    public XElement Message { get; private set; }
   }
 }

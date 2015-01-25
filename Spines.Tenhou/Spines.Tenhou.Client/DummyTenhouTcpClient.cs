@@ -26,7 +26,7 @@ namespace Spines.Tenhou.Client
   /// <summary>
   /// A dummy implementation of ITenhouTcpClient that doesn't connect to tenhou.net.
   /// </summary>
-  public class DummyTenhouTcpClient : ITenhouTcpClient
+  internal class DummyTenhouTcpClient : ITenhouTcpClient
   {
     private readonly ILogger _logger;
 
@@ -55,22 +55,59 @@ namespace Spines.Tenhou.Client
       {
         FakeReceiveLn();
       }
-      else if(message.Name == "JOIN")
+      else if (message.Name == "JOIN")
       {
         var t = message.Attributes().FirstOrDefault(a => a.Name == "t");
         if (t != null)
         {
-          var parts = t.Value.Split(new[] { ',' });
+          var parts = t.Value.Split(new[] {','});
           if (parts.Count() == 2)
           {
             FakeRecieveRejoin(parts);
           }
-          else if(parts.Count() == 3)
+          else if (parts.Count() == 3)
           {
             FakeRecieveGo(parts);
           }
         }
       }
+    }
+
+    /// <summary>
+    /// Is raised in response to Send.
+    /// </summary>
+    public event EventHandler<ReceivedMessageEventArgs> Receive;
+
+    /// <summary>
+    /// Is raised once the client successfully connected to the server.
+    /// </summary>
+    public event EventHandler<EventArgs> Connected;
+
+    /// <summary>
+    /// Raises the Connected event.
+    /// </summary>
+    public void Connect()
+    {
+      EventUtility.CheckAndRaise(Connected, this, new EventArgs());
+    }
+
+    private void FakeReceiveHelo()
+    {
+      var uname = new XAttribute("uname", "%71%77%64%66%65%72%67%68");
+      var auth = new XAttribute("auth", "20141229-cc32e3fd");
+      var expire = new XAttribute("expire", "20141230");
+      var days = new XAttribute("expiredays", "2");
+      var scale = new XAttribute("ratingscale",
+        "PF3=1.000000&PF4=1.000000&PF01C=0.582222&PF02C=0.501632&PF03C=0.414869&PF11C=0.823386&PF12C=0.709416&PF13C=0.586714&PF23C=0.378722&PF33C=0.535594&PF1C00=8.000000");
+      RaiseReceive(new XElement("HELO", uname, auth, expire, days, scale));
+    }
+
+    private void FakeReceiveLn()
+    {
+      var n = new XAttribute("n", "Buf1Bke1kV1Hd");
+      var j = new XAttribute("j", "C1B3C3C1C4C8D3C1D4B9C3D12C4D8B1C1C1C2C3C2C1B11B");
+      var g = new XAttribute("g", "DY1Q2s1Js1Y2Bk1DE4w8IU1I2k1EE4M8Fg4Bs4E8o4M8n1By2BR2z2J1BL1BI1e1h2b9G26E");
+      RaiseReceive(new XElement("LN", n, j, g));
     }
 
     private void FakeRecieveGo(string[] parts)
@@ -96,14 +133,9 @@ namespace Spines.Tenhou.Client
 
     private void FakeRecieveRejoin(IEnumerable<string> parts)
     {
-      var t = new XAttribute("t", string.Join(",", parts.Concat(new [] {"r"})));
+      var t = new XAttribute("t", string.Join(",", parts.Concat(new[] {"r"})));
       RaiseReceive(new XElement("REJOIN", t));
     }
-
-    /// <summary>
-    /// Is raised in response to Send.
-    /// </summary>
-    public event EventHandler<ReceivedMessageEventArgs> Receive;
 
     private void RaiseReceive(XElement message)
     {
@@ -112,25 +144,6 @@ namespace Spines.Tenhou.Client
       {
         Receive(this, new ReceivedMessageEventArgs(message));
       }
-    }
-
-    private void FakeReceiveHelo()
-    {
-      var uname = new XAttribute("uname", "%71%77%64%66%65%72%67%68");
-      var auth = new XAttribute("auth", "20141229-cc32e3fd");
-      var expire = new XAttribute("expire", "20141230");
-      var days = new XAttribute("expiredays", "2");
-      var scale = new XAttribute("ratingscale",
-        "PF3=1.000000&PF4=1.000000&PF01C=0.582222&PF02C=0.501632&PF03C=0.414869&PF11C=0.823386&PF12C=0.709416&PF13C=0.586714&PF23C=0.378722&PF33C=0.535594&PF1C00=8.000000");
-      RaiseReceive(new XElement("HELO", uname, auth, expire, days, scale));
-    }
-
-    private void FakeReceiveLn()
-    {
-      var n = new XAttribute("n", "Buf1Bke1kV1Hd");
-      var j = new XAttribute("j", "C1B3C3C1C4C8D3C1D4B9C3D12C4D8B1C1C1C2C3C2C1B11B");
-      var g = new XAttribute("g", "DY1Q2s1Js1Y2Bk1DE4w8IU1I2k1EE4M8Fg4Bs4E8o4M8n1By2BR2z2J1BL1BI1e1h2b9G26E");
-      RaiseReceive(new XElement("LN", n, j, g));
     }
   }
 }

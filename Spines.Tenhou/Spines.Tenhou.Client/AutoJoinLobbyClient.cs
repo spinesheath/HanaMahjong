@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.ILobbyClient.cs
+﻿// Spines.Tenhou.Client.AutoJoinLobbyClient.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -18,25 +18,51 @@
 namespace Spines.Tenhou.Client
 {
   /// <summary>
-  /// A client for the tenhou lobby.
+  /// Lobby client that automatically tries to join a match.
   /// </summary>
-  public interface ILobbyClient
+  internal class AutoJoinLobbyClient : ILobbyClient
   {
+    private readonly TenhouSender _sender;
+    private bool _joinedOnce;
+
+    /// <summary>
+    /// Creates a new instance of AutoJoinLobbyClient.
+    /// </summary>
+    /// <param name="sender">Used to send messages to the server.</param>
+    internal AutoJoinLobbyClient(TenhouSender sender)
+    {
+      _sender = sender;
+    }
+
     /// <summary>
     /// Called when the client is logged on.
     /// </summary>
     /// <param name="accountInformation">Information about the account.</param>
-    void LoggedOn(AccountInformation accountInformation);
+    public void LoggedOn(AccountInformation accountInformation)
+    {
+      _sender.Authenticate(accountInformation);
+      if(!_joinedOnce)
+      {
+        _sender.RequestMatch();
+        _joinedOnce = true;
+      }
+    }
 
     /// <summary>
     /// Called when a match is started.
     /// </summary>
     /// <param name="matchInformation">Information about the match.</param>
-    void MatchStarted(MatchInformation matchInformation);
+    public void MatchStarted(MatchInformation matchInformation)
+    {
+      
+    }
 
     /// <summary>
     /// Called when the connection to the server has been established.
     /// </summary>
-    void Connected();
+    public void Connected()
+    {
+      _sender.LogOn();
+    }
   }
 }

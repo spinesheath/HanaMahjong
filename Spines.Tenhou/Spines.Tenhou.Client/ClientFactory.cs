@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.ReceivedMessageEventArgs.cs
+﻿// Spines.Tenhou.Client.ClientFactory.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,28 +15,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Xml.Linq;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client
 {
   /// <summary>
-  /// Carries the message recieved by an XML client.
+  /// Creates clients for tenhou.net.
   /// </summary>
-  internal class ReceivedMessageEventArgs : EventArgs
+  public static class ClientFactory
   {
     /// <summary>
-    /// Initializes the message.
+    /// Creates a client that is connected to a dummy server.
     /// </summary>
-    /// <param name="message">The message that was received.</param>
-    public ReceivedMessageEventArgs(XElement message)
+    public static ITenhouReceiver CreateDummyClient()
     {
-      Message = message;
+      var logger = new ConsoleLogger();
+      var server = new DummyTenhouTcpClient(logger);
+      var logOnInformation = new LogOnInformation("ID0160262B-SG8PcR2h", "M", 0);
+      var sender = new TenhouSender(server, logOnInformation);
+      var ai = new TsumokiriAI(sender);
+      var lobbyClient = new AutoJoinLobbyClient(sender);
+      var receiver = new TenhouReceiver(server, sender, lobbyClient, ai);
+      server.Connect();
+      return receiver;
     }
-
-    /// <summary>
-    /// The message that was received.
-    /// </summary>
-    public XElement Message { get; private set; }
   }
 }

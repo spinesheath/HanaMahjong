@@ -23,7 +23,7 @@ namespace Spines.Tenhou.Client
   /// <summary>
   /// Interface for a TcpClient connected to tenhou.net.
   /// </summary>
-  public interface ITenhouTcpClient
+  internal interface ITenhouTcpClient
   {
     /// <summary>
     /// Sends a message to the server.
@@ -35,5 +35,10 @@ namespace Spines.Tenhou.Client
     /// Is raised every time a message from the server is received.
     /// </summary>
     event EventHandler<ReceivedMessageEventArgs> Receive;
+
+    /// <summary>
+    /// Is raised once the client successfully connected to the server.
+    /// </summary>
+    event EventHandler<EventArgs> Connected;
   }
 }

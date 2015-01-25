@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.ReceivedMessageEventArgs.cs
+﻿// Spines.Tenhou.Client.ITenhouReceiver.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,28 +15,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Xml.Linq;
-
 namespace Spines.Tenhou.Client
 {
   /// <summary>
-  /// Carries the message recieved by an XML client.
+  /// Recieves and translates messages from the tenhou.net server.
   /// </summary>
-  internal class ReceivedMessageEventArgs : EventArgs
+  public interface ITenhouReceiver
   {
     /// <summary>
-    /// Initializes the message.
+    /// Adds a listener for lobby messages.
     /// </summary>
-    /// <param name="message">The message that was received.</param>
-    public ReceivedMessageEventArgs(XElement message)
-    {
-      Message = message;
-    }
+    /// <param name="listener">The listener.</param>
+    void AddLobbyListener(ILobbyClient listener);
 
     /// <summary>
-    /// The message that was received.
+    /// Adds a listener for match messages.
     /// </summary>
-    public XElement Message { get; private set; }
+    /// <param name="listener">The listener.</param>
+    void AddMatchListener(IMatchClient listener);
   }
 }

@@ -23,10 +23,10 @@ namespace Spines.Tenhou.Client
   /// <summary>
   /// Translates and sends messages to tenhou.net.
   /// </summary>
-  public class TenhouSender
+  internal class TenhouSender
   {
-    private readonly ITenhouTcpClient _server;
     private readonly LogOnInformation _logOnInformation;
+    private readonly ITenhouTcpClient _server;
 
     /// <summary>
     /// Instantiates a new instance of TenhouSender.
@@ -40,51 +40,14 @@ namespace Spines.Tenhou.Client
     }
 
     /// <summary>
-    /// Requests a match from the server.
-    /// </summary>
-    public void RequestMatch()
-    {
-      var value = InvariantConvert.ToString(_logOnInformation.Lobby) + "," + "9";
-      _server.Send(new XElement("JOIN", new XAttribute("t", value)));
-    }
-
-    /// <summary>
     /// Accepts a proposed match.
     /// </summary>
     /// <param name="proposal">The proposed match.</param>
     public void AcceptMatch(MatchProposal proposal)
     {
-      var t = new XAttribute("t", string.Format("{0},{1},r", proposal.Lobby, proposal.MatchType));
+      Validate.NotNull(proposal, "proposal");
+      var t = new XAttribute("t", InvariantConvert.Format("{0},{1},r", proposal.Lobby, proposal.MatchType.TypeId));
       _server.Send(new XElement("JOIN", t));
-    }
-
-    /// <summary>
-    /// Logs a user in.
-    /// </summary>
-    public void LogOn()
-    {
-      var idAttribute = new XAttribute("nodeName", _logOnInformation.TenhouId.Replace("-", "%2D"));
-      var lobbyAttribute = new XAttribute("tid", InvariantConvert.ToString(_logOnInformation.Lobby, "D4"));
-      var genderAttribute = new XAttribute("sx", _logOnInformation.Gender);
-      _server.Send(new XElement("HELO", idAttribute, lobbyAttribute, genderAttribute));
-    }
-
-    /// <summary>
-    /// Discards a tile.
-    /// </summary>
-    /// <param name="tile">The tile to discard.</param>
-    public void Discard(Tile tile)
-    {
-      Validate.NotNull(tile, "tile");
-      _server.Send(new XElement("D", new XAttribute("p", tile.Id)));
-    }
-
-    /// <summary>
-    /// Denies the last proposed call.
-    /// </summary>
-    public void DenyCall()
-    {
-      _server.Send(new XElement("N"));
     }
 
     /// <summary>
@@ -100,6 +63,55 @@ namespace Spines.Tenhou.Client
       var hai0 = new XAttribute("hai0", tile0.Id);
       var hai1 = new XAttribute("hai1", tile1.Id);
       _server.Send(new XElement("N", type, hai0, hai1));
+    }
+
+    /// <summary>
+    /// Denies the last proposed call.
+    /// </summary>
+    public void DenyCall()
+    {
+      _server.Send(new XElement("N"));
+    }
+
+    /// <summary>
+    /// Discards a tile.
+    /// </summary>
+    /// <param name="tile">The tile to discard.</param>
+    public void Discard(Tile tile)
+    {
+      Validate.NotNull(tile, "tile");
+      _server.Send(new XElement("D", new XAttribute("p", tile.Id)));
+    }
+
+    /// <summary>
+    /// Logs a user in.
+    /// </summary>
+    public void LogOn()
+    {
+      var idAttribute = new XAttribute("nodeName", _logOnInformation.TenhouId.Replace("-", "%2D"));
+      var lobbyAttribute = new XAttribute("tid", InvariantConvert.ToString(_logOnInformation.Lobby, "D4"));
+      var genderAttribute = new XAttribute("sx", _logOnInformation.Gender);
+      _server.Send(new XElement("HELO", idAttribute, lobbyAttribute, genderAttribute));
+    }
+
+    /// <summary>
+    /// Requests a match from the server.
+    /// </summary>
+    public void RequestMatch()
+    {
+      var value = InvariantConvert.ToString(_logOnInformation.Lobby) + "," + "9";
+      _server.Send(new XElement("JOIN", new XAttribute("t", value)));
+    }
+
+    /// <summary>
+    /// Authenticates the account.
+    /// </summary>
+    /// <param name="accountInformation">The account to authenticate.</param>
+    public void Authenticate(AccountInformation accountInformation)
+    {
+      var transformed = Authenticator.Transform(accountInformation.AuthenticationString);
+      var valAttribute = new XAttribute("val", transformed);
+      _server.Send(new XElement("AUTH", valAttribute));
     }
   }
 }

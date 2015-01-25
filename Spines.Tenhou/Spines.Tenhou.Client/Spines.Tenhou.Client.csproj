@@ -50,10 +50,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Authenticator.cs" />
+    <Compile Include="AutoJoinLobbyClient.cs" />
     <Compile Include="ClientException.cs" />
+    <Compile Include="ClientFactory.cs" />
     <Compile Include="DiscardInformation.cs" />
     <Compile Include="ILobbyClient.cs" />
     <Compile Include="IMatchClient.cs" />
+    <Compile Include="ITenhouReceiver.cs" />
     <Compile Include="LogOnInformation.cs" />
     <Compile Include="MatchInformation.cs" />
     <Compile Include="MatchProposal.cs" />
@@ -73,7 +76,7 @@
     <Compile Include="TenhouSender.cs" />
     <Compile Include="TenhouTcpClient.cs" />
     <Compile Include="Tile.cs" />
-    <Compile Include="TsumokiriAi.cs" />
+    <Compile Include="TsumokiriAI.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />

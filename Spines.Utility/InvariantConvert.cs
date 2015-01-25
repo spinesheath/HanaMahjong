@@ -56,10 +56,10 @@ namespace Spines.Utility
     }
 
     /// <summary>
-    /// Converts the value to a string using a format string.
+    /// Converts the value to a string using a template string.
     /// </summary>
     /// <param name="value">The value to convert.</param>
-    /// <param name="format">The format of the result.</param>
+    /// <param name="format">The template of the result.</param>
     /// <returns>The converted value.</returns>
     public static string ToString(int value, string format)
     {
@@ -84,6 +84,18 @@ namespace Spines.Utility
     public static decimal ToDecimal(string value)
     {
       return Convert.ToDecimal(value, CultureInfo.InvariantCulture);
+    }
+
+    /// <summary>
+    /// Creates a formatted string.
+    /// </summary>
+    /// <param name="template">The template of the string.</param>
+    /// <param name="args">The values to replace the placeholders with.</param>
+    /// <returns>The formatted string.</returns>
+    public static string Format(string template, params object[] args)
+    {
+      // TODO use resharper annotations
+      return string.Format(CultureInfo.InvariantCulture, template, args);
     }
   }
 }

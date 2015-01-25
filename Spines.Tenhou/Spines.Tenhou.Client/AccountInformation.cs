@@ -15,12 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Spines.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client
 {
@@ -35,7 +35,10 @@ namespace Spines.Tenhou.Client
       ExpireDays = GetExpireDays(message);
       ExpireDate = GetExpireDate(message);
       UserName = GetUserName(message);
+      AuthenticationString = GetAuthenticationString(message);
     }
+
+    internal string AuthenticationString { get; private set; }
 
     /// <summary>
     /// The username of the account that was logged on.
@@ -62,6 +65,11 @@ namespace Spines.Tenhou.Client
       var encodedCharacters = encodedName.Split(new[] {'%'}, StringSplitOptions.RemoveEmptyEntries);
       var decodedCharacters = encodedCharacters.Select(c => Convert.ToByte(c, 16)).ToArray();
       return new UTF8Encoding().GetString(decodedCharacters);
+    }
+
+    private static string GetAuthenticationString(XElement message)
+    {
+      return message.Attribute("auth").Value;
     }
 
     private static DateTime GetExpireDate(XElement message)

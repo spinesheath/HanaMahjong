@@ -30,7 +30,7 @@ namespace Spines.Tenhou.Client
     /// </summary>
     internal MatchInformation(XElement message)
     {
-      MatchType = new MatchType(message.Attribute("type").Value);
+      MatchType = new MatchType(InvariantConvert.ToInt32(message.Attribute("type").Value));
       Lobby = InvariantConvert.ToInt32(message.Attribute("lobby").Value);
       MatchId = message.Attribute("gpid").Value;
     }

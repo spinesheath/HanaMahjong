@@ -22,10 +22,16 @@ namespace Spines.Tenhou.Client
   /// </summary>
   public class MatchType
   {
-    internal MatchType(string typeId)
+    internal MatchType(int typeId)
     {
-      AkaAri = typeId == "9";
+      AkaAri = typeId == 9;
+      TypeId = typeId;
     }
+
+    /// <summary>
+    /// The id of the match type as used by tenhou.net.
+    /// </summary>
+    internal int TypeId { get; set; }
 
     /// <summary>
     /// True if the match is played with 3 red fives.

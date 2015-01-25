@@ -30,7 +30,7 @@ namespace Spines.Tenhou.Client
   /// <summary>
   /// A TcpClient connected to tenhou.net.
   /// </summary>
-  public class TenhouTcpClient : ITenhouTcpClient, IDisposable
+  internal class TenhouTcpClient : ITenhouTcpClient, IDisposable
   {
     private const int Port = 10080;
     private readonly IPAddress _address = IPAddress.Parse("133.242.10.78");
@@ -61,6 +61,11 @@ namespace Spines.Tenhou.Client
     /// Is raised every time a message from the server is received.
     /// </summary>
     public event EventHandler<ReceivedMessageEventArgs> Receive;
+
+    /// <summary>
+    /// Is raised once the client successfully connected to the server.
+    /// </summary>
+    public event EventHandler<EventArgs> Connected;
 
     /// <summary>
     /// Sends a message to the server.
@@ -106,6 +111,7 @@ namespace Spines.Tenhou.Client
     {
       _client = new TcpClient();
       _client.Connect(_address, Port);
+      EventUtility.CheckAndRaise(Connected, this, new EventArgs());
       var stream = _client.GetStream();
       stream.ReadTimeout = 1000;
       RecieveMessagesAsync(stream);

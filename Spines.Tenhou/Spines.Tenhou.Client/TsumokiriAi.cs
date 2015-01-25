@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.TsumokiriAi.cs
+﻿// Spines.Tenhou.Client.TsumokiriAI.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -16,21 +16,22 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client
 {
   /// <summary>
   /// An AI that always discards the drawn tile and nothing else.
   /// </summary>
-  public class TsumokiriAi : IMatchClient
+  internal class TsumokiriAI : IMatchClient
   {
     private readonly TenhouSender _sender;
 
     /// <summary>
-    /// Creates a new instance of TsumokiriAi.
+    /// Creates a new instance of TsumokiriAI.
     /// </summary>
     /// <param name="sender">Used to send messages to the server.</param>
-    public TsumokiriAi(TenhouSender sender)
+    internal TsumokiriAI(TenhouSender sender)
     {
       _sender = sender;
     }
@@ -99,7 +100,11 @@ namespace Spines.Tenhou.Client
     /// <param name="discardInformation">Information about the discard.</param>
     public void Discard(DiscardInformation discardInformation)
     {
-      throw new System.NotImplementedException();
+      Validate.NotNull(discardInformation, "discardInformation");
+      if (discardInformation.Callable)
+      {
+        _sender.DenyCall();
+      }
     }
   }
 }

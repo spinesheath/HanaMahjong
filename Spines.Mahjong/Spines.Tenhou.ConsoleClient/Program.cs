@@ -1,12 +1,28 @@
-﻿using System;
+﻿// Spines.Tenhou.ConsoleClient.Program.cs
+// 
+// Copyright (C) 2014  Johannes Heckl
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using Spines.Tenhou.Client;
-using Spines.Utility;
 
 namespace Spines.Tenhou.ConsoleClient
 {
-  class Program
+  internal class Program
   {
-    static void Main()
+    private static void Main()
     {
       //var l = new ConsoleLogger();
       //using (var t = new TenhouTcpClient(l))
@@ -20,14 +36,7 @@ namespace Spines.Tenhou.ConsoleClient
       //}
       //Console.ReadKey();
 
-      var l = new ConsoleLogger();
-      var t = new DummyTenhouTcpClient(l);
-      var i = new LogOnInformation("ID0160262B-SG8PcR2h", "M", 0);
-      var s = new TenhouSender(t, i);
-      var a = new TsumokiriAi(s);
-      var c = new TenhouReceiver(t, s, null, a);
-      s.LogOn();
-      s.RequestMatch();
+      var r = ClientFactory.CreateDummyClient();
       Console.ReadKey();
     }
   }
