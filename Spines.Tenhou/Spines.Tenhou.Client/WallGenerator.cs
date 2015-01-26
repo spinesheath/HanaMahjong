@@ -43,7 +43,7 @@ namespace Spines.Tenhou.Client
         var seedText = seed.Substring(delimiterPos + 1);
         if (seed.IndexOf("mt19937ar-sha512-n288-base64", StringComparison.Ordinal) == 0)
         {
-          _seedValues = BytesToInts(Convert.FromBase64String(seedText));
+          _seedValues = BytesToInts(Convert.FromBase64String(seedText)).ToArray();
         }
         else
         {
@@ -57,7 +57,7 @@ namespace Spines.Tenhou.Client
     /// <param name="gameIndex">The index of the game within the match.</param>
     public void Generate(int gameIndex)
     {
-      var rnd = GetRandomValues(gameIndex);
+      var rnd = GetRandomValues(gameIndex).Select(v => unchecked ((uint)v)).ToArray();
       _wall = Enumerable.Range(0, 136).ToArray();
 
       // Shuffle!
@@ -80,39 +80,32 @@ namespace Spines.Tenhou.Client
     /// <summary>
     /// </summary>
     /// <returns></returns>
-    public int[] GetDice()
+    public IEnumerable<int> GetDice()
     {
-      var temp = new int[2];
-      for (var i = 0; i < _dice.Length; i++)
-      {
-        temp[i] = _dice[i];
-      }
-      return temp;
+      return _dice;
     }
+
+    // TODO store List of walls/dice and add new walls if one is requested that hasn't been built yet, use instance varaible of shuffler, don't skip
 
     /// <summary>
     /// </summary>
     /// <returns></returns>
     public IEnumerable<int> GetWall()
     {
-      var temp = new int[136];
-      for (var i = 0; i < _wall.Length; i++)
-      {
-        temp[i] = _wall[i];
-      }
-      return temp;
+      return _wall;
     }
 
     /// <summary>
-    /// Converts an array of n*4 bytes into an array of n ints using Buffer.BlockCopy.
+    /// Converts n*4 bytes into n ints using Buffer.BlockCopy.
     /// </summary>
-    /// <param name="bytes">The source bytes.</param>
+    /// <param name="source">The source bytes.</param>
     /// <returns>The resulting ints.</returns>
-    private static int[] BytesToInts(byte[] bytes)
+    private static IEnumerable<int> BytesToInts(IEnumerable<byte> source)
     {
-      var numberOfInts = bytes.Length * sizeof (byte) / sizeof (int);
+      var array = source.ToArray();
+      var numberOfInts = array.Length * sizeof(byte) / sizeof(int);
       var t = new int[numberOfInts];
-      Buffer.BlockCopy(bytes, 0, t, 0, numberOfInts * sizeof (int));
+      Buffer.BlockCopy(array, 0, t, 0, numberOfInts * sizeof(int));
       return t;
     }
 
@@ -123,65 +116,52 @@ namespace Spines.Tenhou.Client
     /// <returns></returns>
     private static int[] DecompositeHexList(string text)
     {
-      unchecked
+      var temp = text.Split(new[] {","}, StringSplitOptions.None);
+      var result = new int[temp.Length];
+      for (var i = 0; i < temp.Length; i++)
       {
-        string[] delimiter = {","};
-
-        if (text == null)
+        var index = temp[i].IndexOf('.');
+        if (index >= 0)
         {
-          return null;
+          temp[i] = temp[i].Substring(0, index);
         }
-
-        var temp = text.Split(delimiter, StringSplitOptions.None);
-        var result = new int[temp.Length];
-
-        for (var i = 0; i < temp.Length; i++)
-        {
-          var index = temp[i].IndexOf('.');
-          if (index >= 0)
-          {
-            temp[i] = temp[i].Substring(0, index);
-          }
-
-          result[i] = unchecked ((int) Convert.ToUInt32(temp[i], 16));
-        }
-
-        return result;
+        result[i] = unchecked ((int) Convert.ToUInt32(temp[i], 16));
       }
+      return result;
     }
 
     /// <summary>
-    /// Converts an array of n*4 bytes into an array of n ints using Buffer.BlockCopy.
+    /// Converts n ints into n*4 bytes using Buffer.BlockCopy.
     /// </summary>
-    /// <param name="ints">The source bytes.</param>
-    /// <returns>The resulting ints.</returns>
-    private static byte[] IntsToBytes(int[] ints)
+    /// <param name="source">The source ints.</param>
+    /// <returns>The resulting bytes.</returns>
+    private static IEnumerable<byte> IntsToBytes(IEnumerable<int> source)
     {
-      var numberOfBytes = ints.Length * sizeof (int) / sizeof (byte);
+      var array = source.ToArray();
+      var numberOfBytes = array.Length * sizeof (int) / sizeof (byte);
       var t = new byte[numberOfBytes];
-      Buffer.BlockCopy(ints, 0, t, 0, numberOfBytes * sizeof (byte));
+      Buffer.BlockCopy(array, 0, t, 0, numberOfBytes * sizeof (byte));
       return t;
     }
 
-    private uint[] GetRandomValues(int gameIndex)
+    private IEnumerable<int> GetRandomValues(int gameIndex)
     {
       var shuffler = new TenhouShuffler(_seedValues);
-      var values =
-        Enumerable.Repeat(0, (gameIndex + 1) * 16 * 9 * 2).Select(n => shuffler.GetNext()).Skip(gameIndex * 16 * 9 * 2);
-      var srcbyte = IntsToBytes(values.ToArray()); // 128 * 9 bytes
-      var rnd = new uint[16 * 9];
-      for (var i = 0; i < 9; ++i)
+      var values = Enumerable.Repeat(0, (gameIndex + 1) * 288).Select(n => shuffler.GetNext()).Skip(gameIndex * 288);
+      return CreateChunks(IntsToBytes(values), 128).SelectMany(ComputeHash);
+    }
+
+    private static IEnumerable<int> ComputeHash(IEnumerable<byte> chunk)
+    {
+      using (var context = new SHA512Managed())
       {
-        using (var context = new SHA512Managed())
-        {
-          var hash = BytesToInts(context.ComputeHash(srcbyte.Skip(i * 128).Take(128).ToArray()));
-          for (var k = 0; k < 16; k++)
-          {
-            rnd[i * 16 + k] = unchecked ((uint) hash[k]);
-          }
-        }
+        return BytesToInts(context.ComputeHash(chunk.ToArray()));
       }
-      return rnd;
+    }
+
+    private static IEnumerable<IEnumerable<T>> CreateChunks<T>(IEnumerable<T> source, int chunkSize)
+    {
+      return source.Select((s, i) => new { Value = s, Index = i }).GroupBy(item => item.Index / chunkSize, item => item.Value);
     }
   }
 }
