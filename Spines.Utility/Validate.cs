@@ -46,12 +46,28 @@ namespace Spines.Utility
     /// <param name="value">The tested value.</param>
     /// <param name="min">The smallest allowed value.</param>
     /// <param name="max">The largest allowed value.</param>
+    /// <param name="argumentName">The name of the argument that is to be tested.</param>
     /// <returns>The value that was passed into the method.</returns>
-    public static int InRange(int value, int min, int max)
+    public static int InRange(int value, int min, int max, string argumentName)
     {
       if (value < min || value > max)
       {
-        throw new ArgumentOutOfRangeException("Value must be between " + min + " and " + max);
+        throw new ArgumentOutOfRangeException(argumentName, value, "Value must be between " + min + " and " + max + ".");
+      }
+      return value;
+    }
+
+    /// <summary>
+    /// Throws an ArgumentOutOfRangeException if value is less than 0.
+    /// </summary>
+    /// <param name="value">The tested value.</param>
+    /// /// <param name="argumentName">The name of the argument that is to be tested.</param>
+    /// <returns>The value that was passed into the method.</returns>
+    public static int NotNegative(int value, string argumentName)
+    {
+      if (value < 0)
+      {
+        throw new ArgumentOutOfRangeException(argumentName, value, "Value must not be negative.");
       }
       return value;
     }

@@ -27,72 +27,50 @@ namespace Spines.Tenhou.Client
   /// </summary>
   public class WallGenerator
   {
-    private readonly int[] _dice = new int[2];
-    private readonly int[] _seedValues;
-    private int[] _wall;
+    private readonly IList<IEnumerable<int>> _dice = new List<IEnumerable<int>>();
+    private readonly TenhouShuffler _shuffler;
+    private readonly IList<IEnumerable<int>> _walls = new List<IEnumerable<int>>();
 
     /// <summary>
+    /// Creates a new instance of WallGenerator.
     /// </summary>
-    /// <param name="seed"></param>
+    /// <param name="seed">The seed that is used to initialize the shuffler.</param>
     public WallGenerator(string seed)
     {
       Validate.NotNull(seed, "seed");
-      unchecked
-      {
-        var delimiterPos = seed.IndexOf(",", StringComparison.Ordinal);
-        var seedText = seed.Substring(delimiterPos + 1);
-        if (seed.IndexOf("mt19937ar-sha512-n288-base64", StringComparison.Ordinal) == 0)
-        {
-          _seedValues = BytesToInts(Convert.FromBase64String(seedText)).ToArray();
-        }
-        else
-        {
-          _seedValues = DecompositeHexList(seedText);
-        }
-      }
+      _shuffler = new TenhouShuffler(CreateSeeds(seed));
     }
 
     /// <summary>
+    /// Gets the dice for a game.
     /// </summary>
     /// <param name="gameIndex">The index of the game within the match.</param>
-    public void Generate(int gameIndex)
+    /// <returns>A sequence of 2 dice.</returns>
+    public IEnumerable<int> GetDice(int gameIndex)
     {
-      var rnd = GetRandomValues(gameIndex).Select(v => unchecked ((uint)v)).ToArray();
-      _wall = Enumerable.Range(0, 136).ToArray();
-
-      // Shuffle!
-      for (var i = 0; i < _wall.Length - 1; i++)
+      Validate.NotNegative(gameIndex, "gameIndex");
+      while (_dice.Count <= gameIndex)
       {
-        var src = i;
-        var dst = i + Convert.ToInt16(rnd[i] % (136 - i));
-
-        // Swap 2 tiles
-        var swp = _wall[src];
-        _wall[src] = _wall[dst];
-        _wall[dst] = swp;
+        Generate();
       }
-
-      // Dice!
-      _dice[0] = 1 + Convert.ToInt16(rnd[135] % 6);
-      _dice[1] = 1 + Convert.ToInt16(rnd[136] % 6);
+      return _dice[gameIndex];
     }
 
     /// <summary>
+    /// Gets the wall of a game. The tiles 0 through 13 in the sequence form the dead wall.
+    /// 5,7,9,11 are dora indicators, 4,6,8,10 are ura indicators.
+    /// The dealer gets the last 4 tiles, the next player the second to last 4 tiles and so on.
     /// </summary>
-    /// <returns></returns>
-    public IEnumerable<int> GetDice()
+    /// <param name="gameIndex">The index of the game within the match.</param>
+    /// <returns>A sequence of 136 tiles.</returns>
+    public IEnumerable<int> GetWall(int gameIndex)
     {
-      return _dice;
-    }
-
-    // TODO store List of walls/dice and add new walls if one is requested that hasn't been built yet, use instance varaible of shuffler, don't skip
-
-    /// <summary>
-    /// </summary>
-    /// <returns></returns>
-    public IEnumerable<int> GetWall()
-    {
-      return _wall;
+      Validate.NotNegative(gameIndex, "gameIndex");
+      while (_walls.Count <= gameIndex)
+      {
+        Generate();
+      }
+      return _walls[gameIndex];
     }
 
     /// <summary>
@@ -103,31 +81,45 @@ namespace Spines.Tenhou.Client
     private static IEnumerable<int> BytesToInts(IEnumerable<byte> source)
     {
       var array = source.ToArray();
-      var numberOfInts = array.Length * sizeof(byte) / sizeof(int);
+      var numberOfInts = array.Length * sizeof (byte) / sizeof (int);
       var t = new int[numberOfInts];
-      Buffer.BlockCopy(array, 0, t, 0, numberOfInts * sizeof(int));
+      Buffer.BlockCopy(array, 0, t, 0, numberOfInts * sizeof (int));
       return t;
     }
 
-    /// <summary>
-    /// Old style seed value
-    /// </summary>
-    /// <param name="text"></param>
-    /// <returns></returns>
-    private static int[] DecompositeHexList(string text)
+    private static IEnumerable<int> ComputeHash(IEnumerable<byte> chunk)
     {
-      var temp = text.Split(new[] {","}, StringSplitOptions.None);
-      var result = new int[temp.Length];
-      for (var i = 0; i < temp.Length; i++)
+      using (var context = new SHA512Managed())
       {
-        var index = temp[i].IndexOf('.');
-        if (index >= 0)
-        {
-          temp[i] = temp[i].Substring(0, index);
-        }
-        result[i] = unchecked ((int) Convert.ToUInt32(temp[i], 16));
+        return BytesToInts(context.ComputeHash(chunk.ToArray()));
       }
-      return result;
+    }
+
+    private static IEnumerable<IEnumerable<T>> CreateChunks<T>(IEnumerable<T> source, int chunkSize)
+    {
+      var indexedValues = source.Select((s, i) => new {Value = s, Index = i});
+      return indexedValues.GroupBy(item => item.Index / chunkSize, item => item.Value);
+    }
+
+    private static IEnumerable<int> CreateSeeds(string seed)
+    {
+      var parts = seed.Split(new[] {','}, StringSplitOptions.None);
+      if (parts.Length == 2 && parts[0] == "mt19937ar-sha512-n288-base64")
+      {
+        return BytesToInts(Convert.FromBase64String(parts[1]));
+      }
+      return ConvertOldSeed(parts.Skip(1));
+    }
+
+    /// <summary>
+    /// Converts the old style seed value (I've never even seen that one).
+    /// </summary>
+    /// <param name="parts">The original seed string split at each ',', skipping the first part of the split.</param>
+    /// <returns>A sequence of ints.</returns>
+    private static IEnumerable<int> ConvertOldSeed(IEnumerable<string> parts)
+    {
+      var prefixes = parts.Select(s => s.Split(new[] {'.'}, StringSplitOptions.None).First());
+      return prefixes.Select(s => unchecked ((int) Convert.ToUInt32(s, 16)));
     }
 
     /// <summary>
@@ -144,24 +136,32 @@ namespace Spines.Tenhou.Client
       return t;
     }
 
-    private IEnumerable<int> GetRandomValues(int gameIndex)
+    private void Generate()
     {
-      var shuffler = new TenhouShuffler(_seedValues);
-      var values = Enumerable.Repeat(0, (gameIndex + 1) * 288).Select(n => shuffler.GetNext()).Skip(gameIndex * 288);
-      return CreateChunks(IntsToBytes(values), 128).SelectMany(ComputeHash);
-    }
+      var rnd = GetRandomValues().Select(v => unchecked ((uint) v)).ToArray();
 
-    private static IEnumerable<int> ComputeHash(IEnumerable<byte> chunk)
-    {
-      using (var context = new SHA512Managed())
+      var wall = Enumerable.Range(0, 136).ToArray();
+      // Shuffle!
+      for (var i = 0; i < wall.Length - 1; i++)
       {
-        return BytesToInts(context.ComputeHash(chunk.ToArray()));
+        var src = i;
+        var dst = i + Convert.ToInt16(rnd[i] % (136 - i));
+        // Swap 2 tiles
+        var swp = wall[src];
+        wall[src] = wall[dst];
+        wall[dst] = swp;
       }
+      _walls.Add(wall);
+
+      var d1 = 1 + Convert.ToInt16(rnd[135] % 6);
+      var d2 = 1 + Convert.ToInt16(rnd[136] % 6);
+      _dice.Add(new[] {d1, d2});
     }
 
-    private static IEnumerable<IEnumerable<T>> CreateChunks<T>(IEnumerable<T> source, int chunkSize)
+    private IEnumerable<int> GetRandomValues()
     {
-      return source.Select((s, i) => new { Value = s, Index = i }).GroupBy(item => item.Index / chunkSize, item => item.Value);
+      var values = Enumerable.Repeat(0, 288).Select(n => _shuffler.GetNext());
+      return CreateChunks(IntsToBytes(values), 128).SelectMany(ComputeHash);
     }
   }
 }

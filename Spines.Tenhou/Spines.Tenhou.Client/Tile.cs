@@ -30,7 +30,7 @@ namespace Spines.Tenhou.Client
     /// <param name="id">The id of the tile, from 0 to 135.</param>
     public Tile(int id)
     {
-      Id = Validate.InRange(id, 0, 135);
+      Id = Validate.InRange(id, 0, 135, "id");
     }
 
     /// <summary>

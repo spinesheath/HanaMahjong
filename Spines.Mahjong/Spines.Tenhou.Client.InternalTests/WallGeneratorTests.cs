@@ -84,15 +84,13 @@ namespace Spines.Tenhou.Client.InternalTests
     public void TestWallGenerator()
     {
       var w = new WallGenerator(Seed);
-      w.Generate(0);
-      Assert.AreEqual(5, w.GetDice().ToList()[0], "dice 0");
-      Assert.AreEqual(5, w.GetDice().ToList()[1], "dice 1");
-      Assert.IsTrue(_tileIdsGame0.SequenceEqual(w.GetWall().Reverse().Take(13 * 4)), "wall");
+      Assert.AreEqual(5, w.GetDice(0).ToList()[0], "dice 0");
+      Assert.AreEqual(5, w.GetDice(0).ToList()[1], "dice 1");
+      Assert.IsTrue(_tileIdsGame0.SequenceEqual(w.GetWall(0).Reverse().Take(13 * 4)), "wall");
 
-      w.Generate(1);
-      Assert.AreEqual(1, w.GetDice().ToList()[0], "dice 0");
-      Assert.AreEqual(3, w.GetDice().ToList()[1], "dice 1");
-      Assert.IsTrue(_tileIdsGame1.SequenceEqual(w.GetWall().Reverse().Take(13 * 4)), "wall");
+      Assert.AreEqual(1, w.GetDice(1).ToList()[0], "dice 0");
+      Assert.AreEqual(3, w.GetDice(1).ToList()[1], "dice 1");
+      Assert.IsTrue(_tileIdsGame1.SequenceEqual(w.GetWall(1).Reverse().Take(13 * 4)), "wall");
     }
   }
 }
