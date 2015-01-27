@@ -74,7 +74,7 @@
     </CodeAnalysisDictionary>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Spines.Tenhou\Spines.Tenhou.Client\Spines.Tenhou.Client.csproj">
+    <ProjectReference Include="..\Spines.Tenhou.Client\Spines.Tenhou.Client.csproj">
       <Project>{4F66968A-36E4-423D-9D0E-8AC5DC8C9B18}</Project>
       <Name>Spines.Tenhou.Client</Name>
     </ProjectReference>
