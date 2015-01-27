@@ -68,8 +68,8 @@
     <Compile Include="MeldTile.cs" />
     <Compile Include="MeldTileType.cs" />
     <Compile Include="MeldType.cs" />
-    <Compile Include="DummyTenhouTcpClient.cs" />
-    <Compile Include="ITenhouTcpClient.cs" />
+    <Compile Include="DummyTenhouServer.cs" />
+    <Compile Include="ITenhouServer.cs" />
     <Compile Include="AccountInformation.cs" />
     <Compile Include="PlayerInformation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -78,7 +78,7 @@
     <Compile Include="TenhouReceiver.cs" />
     <Compile Include="TenhouSender.cs" />
     <Compile Include="TenhouShuffler.cs" />
-    <Compile Include="TenhouTcpClient.cs" />
+    <Compile Include="TenhouServer.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="TsumokiriAI.cs" />
     <Compile Include="WallGenerator.cs" />

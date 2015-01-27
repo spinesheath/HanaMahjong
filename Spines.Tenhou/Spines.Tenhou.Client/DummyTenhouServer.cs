@@ -26,7 +26,7 @@ namespace Spines.Tenhou.Client
   /// <summary>
   /// A dummy implementation of ITenhouTcpClient that doesn't connect to tenhou.net.
   /// </summary>
-  internal class DummyTenhouTcpClient : ITenhouTcpClient
+  internal class DummyTenhouServer : ITenhouServer
   {
     private readonly ILogger _logger;
 
@@ -34,7 +34,7 @@ namespace Spines.Tenhou.Client
     /// Creates a new instance of DummyTenhouTcpClient.
     /// </summary>
     /// <param name="logger">A logger.</param>
-    public DummyTenhouTcpClient(ILogger logger)
+    public DummyTenhouServer(ILogger logger)
     {
       _logger = logger;
     }
@@ -45,7 +45,6 @@ namespace Spines.Tenhou.Client
     /// <param name="message">Used to determine the next fake message to receive.</param>
     public void Send(XElement message)
     {
-      Validate.NotNull(message, "message");
       _logger.Trace("O: " + message);
       if (message.Name == "HELO")
       {
@@ -140,10 +139,7 @@ namespace Spines.Tenhou.Client
     private void RaiseReceive(XElement message)
     {
       _logger.Trace("I: " + message);
-      if (null != Receive)
-      {
-        Receive(this, new ReceivedMessageEventArgs(message));
-      }
+      EventUtility.CheckAndRaise(Receive, this, new ReceivedMessageEventArgs(message));
     }
   }
 }

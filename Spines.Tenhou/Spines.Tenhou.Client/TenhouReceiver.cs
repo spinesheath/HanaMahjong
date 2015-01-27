@@ -32,7 +32,7 @@ namespace Spines.Tenhou.Client
     private readonly IList<IMatchClient> _matchListeners = new List<IMatchClient>();
     private readonly Dictionary<string, Action<XElement>> _messageActions = new Dictionary<string, Action<XElement>>();
     private readonly TenhouSender _sender;
-    private readonly ITenhouTcpClient _server;
+    private readonly ITenhouServer _server;
 
     /// <summary>
     /// Creates a new Instance of TenhouReceiver using the specified ITenhouTcpClient.
@@ -41,7 +41,7 @@ namespace Spines.Tenhou.Client
     /// <param name="sender">Used to send messages to the server.</param>
     /// <param name="lobbyClient">A client for the tenhou lobby.</param>
     /// <param name="matchClient">A match client.</param>
-    internal TenhouReceiver(ITenhouTcpClient client, TenhouSender sender, ILobbyClient lobbyClient,
+    internal TenhouReceiver(ITenhouServer client, TenhouSender sender, ILobbyClient lobbyClient,
       IMatchClient matchClient)
     {
       _server = Validate.NotNull(client, "client");

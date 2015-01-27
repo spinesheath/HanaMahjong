@@ -30,7 +30,7 @@ namespace Spines.Tenhou.Client
     public static ITenhouReceiver CreateDummyClient()
     {
       var logger = new ConsoleLogger();
-      var server = new DummyTenhouTcpClient(logger);
+      var server = new DummyTenhouServer(logger);
       var logOnInformation = new LogOnInformation("ID0160262B-SG8PcR2h", "M", 0);
       var sender = new TenhouSender(server, logOnInformation);
       var ai = new TsumokiriAI(sender);

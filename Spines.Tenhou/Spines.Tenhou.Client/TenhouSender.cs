@@ -26,14 +26,14 @@ namespace Spines.Tenhou.Client
   internal class TenhouSender
   {
     private readonly LogOnInformation _logOnInformation;
-    private readonly ITenhouTcpClient _server;
+    private readonly ITenhouServer _server;
 
     /// <summary>
     /// Instantiates a new instance of TenhouSender.
     /// </summary>
     /// <param name="server">The server to send the messages to.</param>
     /// <param name="logOnInformation">Information necessary to log onto the server.</param>
-    public TenhouSender(ITenhouTcpClient server, LogOnInformation logOnInformation)
+    public TenhouSender(ITenhouServer server, LogOnInformation logOnInformation)
     {
       _server = server;
       _logOnInformation = logOnInformation;

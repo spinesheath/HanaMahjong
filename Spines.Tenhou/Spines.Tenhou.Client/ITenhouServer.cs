@@ -21,9 +21,9 @@ using System.Xml.Linq;
 namespace Spines.Tenhou.Client
 {
   /// <summary>
-  /// Interface for a TcpClient connected to tenhou.net.
+  /// A server following the tenhou.net protocol.
   /// </summary>
-  internal interface ITenhouTcpClient
+  internal interface ITenhouServer
   {
     /// <summary>
     /// Sends a message to the server.

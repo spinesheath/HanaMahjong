@@ -30,7 +30,7 @@ namespace Spines.Tenhou.Client
   /// <summary>
   /// A TcpClient connected to tenhou.net.
   /// </summary>
-  internal class TenhouTcpClient : ITenhouTcpClient, IDisposable
+  internal class TenhouServer : ITenhouServer, IDisposable
   {
     private const int Port = 10080;
     private readonly IPAddress _address = IPAddress.Parse("133.242.10.78");
@@ -43,7 +43,7 @@ namespace Spines.Tenhou.Client
     /// Creates a new instance of TenhouTcpClient.
     /// </summary>
     /// <param name="logger">A logger.</param>
-    public TenhouTcpClient(ILogger logger)
+    public TenhouServer(ILogger logger)
     {
       _logger = logger;
     }
