@@ -1,6 +1,6 @@
-﻿// Spines.Tenhou.ConsoleClient.Program.cs
+﻿// Spines.Tenhou.Client.ISeedGenerator.cs
 // 
-// Copyright (C) 2014  Johannes Heckl
+// Copyright (C) 2015  Johannes Heckl
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,29 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using Spines.Tenhou.Client;
-
-namespace Spines.Tenhou.ConsoleClient
+namespace Spines.Tenhou.Client
 {
-  internal class Program
+  internal interface ISeedGenerator
   {
-    private static void Main()
-    {
-      //var l = new ConsoleLogger();
-      //using (var t = new TenhouTcpClient(l))
-      //{
-      //  t.Connect();
-      //  var c = new TenhouReceiver(t, "ID0160262B-SG8PcR2h", "M", 0);
-      //  c.LogOn();
-      //  Console.ReadKey();
-      //  //c.RequestMatch();
-      //  Console.ReadKey();
-      //}
-      //Console.ReadKey();
-
-      //var r = ClientFactory.CreateDummyClient();
-      Console.ReadKey();
-    }
+    string CreateSeed();
   }
 }

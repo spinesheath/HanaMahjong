@@ -26,7 +26,7 @@ namespace Spines.Tenhou.Client
   /// <summary>
   /// Creates walls and dice.
   /// </summary>
-  public class WallGenerator
+  internal class WallGenerator
   {
     private readonly IList<IEnumerable<int>> _dice = new List<IEnumerable<int>>();
     private readonly TenhouShuffler _shuffler;
