@@ -24,6 +24,7 @@ using Spines.Utility;
 namespace Spines.Tenhou.Client
 {
   /// <summary>
+  /// Creates walls and dice.
   /// </summary>
   public class WallGenerator
   {
@@ -95,10 +96,26 @@ namespace Spines.Tenhou.Client
       }
     }
 
+    /// <summary>
+    /// Converts the old style seed value (I've never even seen that one).
+    /// </summary>
+    /// <param name="parts">The original seed string split at each ',', skipping the first part of the split.</param>
+    /// <returns>A sequence of ints.</returns>
+    private static IEnumerable<int> ConvertOldSeed(IEnumerable<string> parts)
+    {
+      var prefixes = parts.Select(s => s.Split(new[] {'.'}, StringSplitOptions.None).First());
+      return prefixes.Select(s => unchecked ((int) Convert.ToUInt32(s, 16)));
+    }
+
     private static IEnumerable<IEnumerable<T>> CreateChunks<T>(IEnumerable<T> source, int chunkSize)
     {
       var indexedValues = source.Select((s, i) => new {Value = s, Index = i});
       return indexedValues.GroupBy(item => item.Index / chunkSize, item => item.Value);
+    }
+
+    private static int CreateDice(uint randomValue)
+    {
+      return 1 + Convert.ToInt16(randomValue % 6);
     }
 
     private static IEnumerable<int> CreateSeeds(string seed)
@@ -109,17 +126,6 @@ namespace Spines.Tenhou.Client
         return BytesToInts(Convert.FromBase64String(parts[1]));
       }
       return ConvertOldSeed(parts.Skip(1));
-    }
-
-    /// <summary>
-    /// Converts the old style seed value (I've never even seen that one).
-    /// </summary>
-    /// <param name="parts">The original seed string split at each ',', skipping the first part of the split.</param>
-    /// <returns>A sequence of ints.</returns>
-    private static IEnumerable<int> ConvertOldSeed(IEnumerable<string> parts)
-    {
-      var prefixes = parts.Select(s => s.Split(new[] {'.'}, StringSplitOptions.None).First());
-      return prefixes.Select(s => unchecked ((int) Convert.ToUInt32(s, 16)));
     }
 
     /// <summary>
@@ -136,32 +142,34 @@ namespace Spines.Tenhou.Client
       return t;
     }
 
-    private void Generate()
+    private static void Swap(IList<int> wall, int index1, int index2)
     {
-      var rnd = GetRandomValues().Select(v => unchecked ((uint) v)).ToArray();
-
-      var wall = Enumerable.Range(0, 136).ToArray();
-      // Shuffle!
-      for (var i = 0; i < wall.Length - 1; i++)
-      {
-        var src = i;
-        var dst = i + Convert.ToInt16(rnd[i] % (136 - i));
-        // Swap 2 tiles
-        var swp = wall[src];
-        wall[src] = wall[dst];
-        wall[dst] = swp;
-      }
-      _walls.Add(wall);
-
-      var d1 = 1 + Convert.ToInt16(rnd[135] % 6);
-      var d2 = 1 + Convert.ToInt16(rnd[136] % 6);
-      _dice.Add(new[] {d1, d2});
+      var t = wall[index1];
+      wall[index1] = wall[index2];
+      wall[index2] = t;
     }
 
-    private IEnumerable<int> GetRandomValues()
+    /// <summary>
+    /// Creates 9 chunks, then creates 9 hashes of 64 bytes each, which are converted into a total of 144 ints.
+    /// </summary>
+    /// <returns>144 random integers.</returns>
+    private IEnumerable<int> Create144RandomValues()
     {
-      var values = Enumerable.Repeat(0, 288).Select(n => _shuffler.GetNext());
+      // ToList to make sure that the shuffler is actually called 288 times and not lazily because GetNext modifies the shuffler's state.
+      var values = Enumerable.Repeat(0, 288).Select(n => _shuffler.GetNext()).ToList();
       return CreateChunks(IntsToBytes(values), 128).SelectMany(ComputeHash);
+    }
+
+    private void Generate()
+    {
+      var rnd = Create144RandomValues().Select(v => unchecked ((uint) v)).ToList();
+      var wall = Enumerable.Range(0, 136).ToList();
+      for (var i = 0; i < wall.Count - 1; ++i)
+      {
+        Swap(wall, i, i + Convert.ToInt16(rnd[i] % (136 - i)));
+      }
+      _walls.Add(wall);
+      _dice.Add(new[] {CreateDice(rnd[135]), CreateDice(rnd[136])});
     }
   }
 }
