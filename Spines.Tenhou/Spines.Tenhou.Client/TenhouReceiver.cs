@@ -32,26 +32,26 @@ namespace Spines.Tenhou.Client
     private readonly IList<IMatchClient> _matchListeners = new List<IMatchClient>();
     private readonly Dictionary<string, Action<XElement>> _messageActions = new Dictionary<string, Action<XElement>>();
     private readonly TenhouSender _sender;
-    private readonly ITenhouServer _server;
+    private readonly ITenhouConnection _connection;
 
     /// <summary>
     /// Creates a new Instance of TenhouReceiver using the specified ITenhouTcpClient.
     /// </summary>
-    /// <param name="client">The ITenhouTcpClient used to connect to the server.</param>
-    /// <param name="sender">Used to send messages to the server.</param>
+    /// <param name="client">The ITenhouTcpClient used to connect to the connection.</param>
+    /// <param name="sender">Used to send messages to the connection.</param>
     /// <param name="lobbyClient">A client for the tenhou lobby.</param>
     /// <param name="matchClient">A match client.</param>
-    internal TenhouReceiver(ITenhouServer client, TenhouSender sender, ILobbyClient lobbyClient,
+    internal TenhouReceiver(ITenhouConnection client, TenhouSender sender, ILobbyClient lobbyClient,
       IMatchClient matchClient)
     {
-      _server = Validate.NotNull(client, "client");
+      _connection = Validate.NotNull(client, "client");
       _sender = Validate.NotNull(sender, "sender");
       _lobbyListeners.Add(Validate.NotNull(lobbyClient, "lobbyClient"));
       _matchListeners.Add(Validate.NotNull(matchClient, "matchClient"));
       InitializeMessageActions();
-      // TODO unsubscribe from server? Or just verify that server is disposed after receiver is gone?
-      _server.Receive += ReceiveMessage;
-      _server.Connected += OnConnected;
+      // TODO unsubscribe from connection? Or just verify that connection is disposed after receiver is gone?
+      _connection.ReceivedMessage += ReceivedMessageMessage;
+      _connection.Connected += OnConnected;
     }
 
     /// <summary>
@@ -169,20 +169,20 @@ namespace Spines.Tenhou.Client
     {
       if (message.Attributes().Any(a => a.Name == "owari"))
       {
-        _server.Send(new XElement("BYE"));
-        _server.Send(new XElement("BYE"));
+        _connection.Send(new XElement("BYE"));
+        _connection.Send(new XElement("BYE"));
         _sender.LogOn();
       }
       else
       {
-        _server.Send(new XElement("NEXTREADY"));
+        _connection.Send(new XElement("NEXTREADY"));
       }
     }
 
     private void OnReceivedGo(XElement message)
     {
-      _server.Send(new XElement("GOK"));
-      _server.Send(new XElement("NEXTREADY"));
+      _connection.Send(new XElement("GOK"));
+      _connection.Send(new XElement("NEXTREADY"));
       var matchInformation = new MatchInformation(message);
       Broadcast(client => client.Start(matchInformation));
       Broadcast(client => client.MatchStarted(matchInformation));
@@ -209,7 +209,7 @@ namespace Spines.Tenhou.Client
       Broadcast(client => client.UpdatePlayers(GetPlayers(message)));
     }
 
-    private void ReceiveMessage(object sender, ReceivedMessageEventArgs e)
+    private void ReceivedMessageMessage(object sender, ReceivedMessageEventArgs e)
     {
       var nodeName = e.Message.Name.LocalName;
       if (_messageActions.ContainsKey(nodeName))

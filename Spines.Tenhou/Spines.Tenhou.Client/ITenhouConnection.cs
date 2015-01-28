@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.ClientFactory.cs
+﻿// Spines.Tenhou.Client.ITenhouTcpClient.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,29 +15,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Spines.Utility;
+using System;
+using System.Xml.Linq;
 
 namespace Spines.Tenhou.Client
 {
   /// <summary>
-  /// Creates clients for tenhou.net.
+  /// A connection to a server following the tenhou.net protocol.
   /// </summary>
-  public static class ClientFactory
+  internal interface ITenhouConnection
   {
     /// <summary>
-    /// Creates a client that is connected to a dummy connection.
+    /// Sends a message to the server.
     /// </summary>
-    public static ITenhouReceiver CreateDummyClient()
-    {
-      var logger = new ConsoleLogger();
-      var server = new DummyTenhouConnection(logger);
-      var logOnInformation = new LogOnInformation("ID0160262B-SG8PcR2h", "M", 0);
-      var sender = new TenhouSender(server, logOnInformation);
-      var ai = new TsumokiriAI(sender);
-      var lobbyClient = new AutoJoinLobbyClient(sender);
-      var receiver = new TenhouReceiver(server, sender, lobbyClient, ai);
-      server.Connect();
-      return receiver;
-    }
+    /// <param name="message">The message to send.</param>
+    void Send(XElement message);
+
+    /// <summary>
+    /// Is raised every time a message from the server is received.
+    /// </summary>
+    event EventHandler<ReceivedMessageEventArgs> ReceivedMessage;
+
+    /// <summary>
+    /// Is raised once the connection successfully connected to the server.
+    /// </summary>
+    event EventHandler<EventArgs> Connected;
   }
 }

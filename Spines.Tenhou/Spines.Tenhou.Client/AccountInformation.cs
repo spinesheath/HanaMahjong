@@ -31,11 +31,11 @@ namespace Spines.Tenhou.Client
   {
     internal AccountInformation(XElement message)
     {
-      RatingScales = GetRatingScales2(message);
-      ExpireDays = GetExpireDays(message);
+      RatingScales = GetRatingScales(message);
+      ExpireDays = InvariantConvert.ToInt32(message.Attribute("expiredays").Value);
       ExpireDate = GetExpireDate(message);
-      UserName = GetUserName(message);
-      AuthenticationString = GetAuthenticationString(message);
+      UserName = new UserName(message.Attribute("uname").Value);
+      AuthenticationString = message.Attribute("auth").Value;
     }
 
     internal string AuthenticationString { get; private set; }
@@ -43,7 +43,7 @@ namespace Spines.Tenhou.Client
     /// <summary>
     /// The username of the account that was logged on.
     /// </summary>
-    public string UserName { get; private set; }
+    public UserName UserName { get; private set; }
 
     /// <summary>
     /// The date of expiry for the account.
@@ -60,18 +60,6 @@ namespace Spines.Tenhou.Client
     /// </summary>
     public IDictionary<string, double> RatingScales { get; private set; }
 
-    private static string DecodeName(string encodedName)
-    {
-      var encodedCharacters = encodedName.Split(new[] {'%'}, StringSplitOptions.RemoveEmptyEntries);
-      var decodedCharacters = encodedCharacters.Select(c => Convert.ToByte(c, 16)).ToArray();
-      return new UTF8Encoding().GetString(decodedCharacters);
-    }
-
-    private static string GetAuthenticationString(XElement message)
-    {
-      return message.Attribute("auth").Value;
-    }
-
     private static DateTime GetExpireDate(XElement message)
     {
       var value = message.Attribute("expire").Value;
@@ -81,21 +69,11 @@ namespace Spines.Tenhou.Client
       return new DateTime(year, month, day);
     }
 
-    private static int GetExpireDays(XElement message)
-    {
-      return InvariantConvert.ToInt32(message.Attribute("expiredays").Value);
-    }
-
-    private static Dictionary<string, double> GetRatingScales2(XElement message)
+    private static Dictionary<string, double> GetRatingScales(XElement message)
     {
       var entries = message.Attribute("ratingscale").Value.Split(new[] {"&"}, StringSplitOptions.RemoveEmptyEntries);
       var entryParts = entries.Select(entry => entry.Split(new[] {"="}, StringSplitOptions.RemoveEmptyEntries));
       return entryParts.ToDictionary(parts => parts[0], parts => InvariantConvert.ToDouble(parts[1]));
-    }
-
-    private static string GetUserName(XElement message)
-    {
-      return DecodeName(message.Attribute("uname").Value);
     }
   }
 }

@@ -26,7 +26,7 @@ namespace Spines.Tenhou.Client
   /// <summary>
   /// A dummy implementation of ITenhouTcpClient that doesn't connect to tenhou.net.
   /// </summary>
-  internal class DummyTenhouServer : ITenhouServer
+  internal class DummyTenhouConnection : ITenhouConnection
   {
     private readonly ILogger _logger;
 
@@ -34,13 +34,13 @@ namespace Spines.Tenhou.Client
     /// Creates a new instance of DummyTenhouTcpClient.
     /// </summary>
     /// <param name="logger">A logger.</param>
-    public DummyTenhouServer(ILogger logger)
+    public DummyTenhouConnection(ILogger logger)
     {
       _logger = logger;
     }
 
     /// <summary>
-    /// Emulates the tenhou.net server.
+    /// Emulates the tenhou.net connection.
     /// </summary>
     /// <param name="message">Used to determine the next fake message to receive.</param>
     public void Send(XElement message)
@@ -75,10 +75,10 @@ namespace Spines.Tenhou.Client
     /// <summary>
     /// Is raised in response to Send.
     /// </summary>
-    public event EventHandler<ReceivedMessageEventArgs> Receive;
+    public event EventHandler<ReceivedMessageEventArgs> ReceivedMessage;
 
     /// <summary>
-    /// Is raised once the client successfully connected to the server.
+    /// Is raised once the client successfully connected to the connection.
     /// </summary>
     public event EventHandler<EventArgs> Connected;
 
@@ -139,7 +139,7 @@ namespace Spines.Tenhou.Client
     private void RaiseReceive(XElement message)
     {
       _logger.Trace("I: " + message);
-      EventUtility.CheckAndRaise(Receive, this, new ReceivedMessageEventArgs(message));
+      EventUtility.CheckAndRaise(ReceivedMessage, this, new ReceivedMessageEventArgs(message));
     }
   }
 }

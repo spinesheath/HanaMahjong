@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.ITenhouTcpClient.cs
+﻿// Spines.Tenhou.Client.Username.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -16,29 +16,36 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Xml.Linq;
+using System.Linq;
+using System.Text;
 
 namespace Spines.Tenhou.Client
 {
   /// <summary>
-  /// A server following the tenhou.net protocol.
+  /// A username as used by tenhou.net.
   /// </summary>
-  internal interface ITenhouServer
+  public class UserName
   {
-    /// <summary>
-    /// Sends a message to the server.
-    /// </summary>
-    /// <param name="message">The message to send.</param>
-    void Send(XElement message);
+    internal UserName(string encodedName)
+    {
+      EncodedName = encodedName;
+    }
+
+    internal string EncodedName { get; private set; }
 
     /// <summary>
-    /// Is raised every time a message from the server is received.
+    /// The plain text name.
     /// </summary>
-    event EventHandler<ReceivedMessageEventArgs> Receive;
+    public string Name
+    {
+      get { return Decode(EncodedName); }
+    }
 
-    /// <summary>
-    /// Is raised once the client successfully connected to the server.
-    /// </summary>
-    event EventHandler<EventArgs> Connected;
+    private static string Decode(string encodedName)
+    {
+      var encodedCharacters = encodedName.Split(new[] {'%'}, StringSplitOptions.RemoveEmptyEntries);
+      var decodedCharacters = encodedCharacters.Select(c => Convert.ToByte(c, 16)).ToArray();
+      return new UTF8Encoding().GetString(decodedCharacters);
+    }
   }
 }

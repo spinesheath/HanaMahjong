@@ -30,7 +30,7 @@ namespace Spines.Tenhou.Client
   /// <summary>
   /// A TcpClient connected to tenhou.net.
   /// </summary>
-  internal class TenhouServer : ITenhouServer, IDisposable
+  internal class TenhouConnection : ITenhouConnection, IDisposable
   {
     private const int Port = 10080;
     private readonly IPAddress _address = IPAddress.Parse("133.242.10.78");
@@ -43,7 +43,7 @@ namespace Spines.Tenhou.Client
     /// Creates a new instance of TenhouTcpClient.
     /// </summary>
     /// <param name="logger">A logger.</param>
-    public TenhouServer(ILogger logger)
+    public TenhouConnection(ILogger logger)
     {
       _logger = logger;
     }
@@ -58,17 +58,17 @@ namespace Spines.Tenhou.Client
     }
 
     /// <summary>
-    /// Is raised every time a message from the server is received.
+    /// Is raised every time a message from the connection is received.
     /// </summary>
-    public event EventHandler<ReceivedMessageEventArgs> Receive;
+    public event EventHandler<ReceivedMessageEventArgs> ReceivedMessage;
 
     /// <summary>
-    /// Is raised once the client successfully connected to the server.
+    /// Is raised once the client successfully connected to the connection.
     /// </summary>
     public event EventHandler<EventArgs> Connected;
 
     /// <summary>
-    /// Sends a message to the server.
+    /// Sends a message to the connection.
     /// </summary>
     /// <param name="message">The message to send.</param>
     public void Send(XElement message)
@@ -140,7 +140,7 @@ namespace Spines.Tenhou.Client
       var xElements = parts.Select(XElement.Parse);
       foreach (var xElement in xElements)
       {
-        EventUtility.CheckAndRaise(Receive, this, new ReceivedMessageEventArgs(xElement));
+        EventUtility.CheckAndRaise(ReceivedMessage, this, new ReceivedMessageEventArgs(xElement));
       }
     }
 

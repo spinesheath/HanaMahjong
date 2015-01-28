@@ -54,11 +54,14 @@
     <Compile Include="ClientException.cs" />
     <Compile Include="ClientFactory.cs" />
     <Compile Include="DiscardInformation.cs" />
+    <Compile Include="LocalMatchServer.cs" />
+    <Compile Include="Username.cs" />
     <Compile Include="ILobbyClient.cs" />
     <Compile Include="IMatchClient.cs" />
     <Compile Include="ISeedGenerator.cs" />
     <Compile Include="ITenhouReceiver.cs" />
-    <Compile Include="LocalMahjongServer.cs" />
+    <Compile Include="LocalMahjongConnection.cs" />
+    <Compile Include="LocalLobbyServer.cs" />
     <Compile Include="LogOnInformation.cs" />
     <Compile Include="MatchInformation.cs" />
     <Compile Include="MatchProposal.cs" />
@@ -68,8 +71,8 @@
     <Compile Include="MeldTile.cs" />
     <Compile Include="MeldTileType.cs" />
     <Compile Include="MeldType.cs" />
-    <Compile Include="DummyTenhouServer.cs" />
-    <Compile Include="ITenhouServer.cs" />
+    <Compile Include="DummyTenhouConnection.cs" />
+    <Compile Include="ITenhouConnection.cs" />
     <Compile Include="AccountInformation.cs" />
     <Compile Include="PlayerInformation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -78,7 +81,7 @@
     <Compile Include="TenhouReceiver.cs" />
     <Compile Include="TenhouSender.cs" />
     <Compile Include="TenhouShuffler.cs" />
-    <Compile Include="TenhouServer.cs" />
+    <Compile Include="TenhouConnection.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="TsumokiriAI.cs" />
     <Compile Include="WallGenerator.cs" />
@@ -95,6 +98,7 @@
     <ProjectReference Include="..\..\Spines.Utility\Spines.Utility.csproj">
       <Project>{1ffe50e9-3d4b-418f-b4cd-3fa10ff4848f}</Project>
       <Name>Spines.Utility</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -26,16 +26,16 @@ namespace Spines.Tenhou.Client
   internal class TenhouSender
   {
     private readonly LogOnInformation _logOnInformation;
-    private readonly ITenhouServer _server;
+    private readonly ITenhouConnection _connection;
 
     /// <summary>
     /// Instantiates a new instance of TenhouSender.
     /// </summary>
-    /// <param name="server">The server to send the messages to.</param>
-    /// <param name="logOnInformation">Information necessary to log onto the server.</param>
-    public TenhouSender(ITenhouServer server, LogOnInformation logOnInformation)
+    /// <param name="connection">The connection to send the messages to.</param>
+    /// <param name="logOnInformation">Information necessary to log onto the connection.</param>
+    public TenhouSender(ITenhouConnection connection, LogOnInformation logOnInformation)
     {
-      _server = server;
+      _connection = connection;
       _logOnInformation = logOnInformation;
     }
 
@@ -47,7 +47,7 @@ namespace Spines.Tenhou.Client
     {
       Validate.NotNull(proposal, "proposal");
       var t = new XAttribute("t", InvariantConvert.Format("{0},{1},r", proposal.Lobby, proposal.MatchType.TypeId));
-      _server.Send(new XElement("JOIN", t));
+      _connection.Send(new XElement("JOIN", t));
     }
 
     /// <summary>
@@ -62,7 +62,7 @@ namespace Spines.Tenhou.Client
       var type = new XAttribute("type", "3");
       var hai0 = new XAttribute("hai0", tile0.Id);
       var hai1 = new XAttribute("hai1", tile1.Id);
-      _server.Send(new XElement("N", type, hai0, hai1));
+      _connection.Send(new XElement("N", type, hai0, hai1));
     }
 
     /// <summary>
@@ -70,7 +70,7 @@ namespace Spines.Tenhou.Client
     /// </summary>
     public void DenyCall()
     {
-      _server.Send(new XElement("N"));
+      _connection.Send(new XElement("N"));
     }
 
     /// <summary>
@@ -80,7 +80,7 @@ namespace Spines.Tenhou.Client
     public void Discard(Tile tile)
     {
       Validate.NotNull(tile, "tile");
-      _server.Send(new XElement("D", new XAttribute("p", tile.Id)));
+      _connection.Send(new XElement("D", new XAttribute("p", tile.Id)));
     }
 
     /// <summary>
@@ -91,16 +91,16 @@ namespace Spines.Tenhou.Client
       var idAttribute = new XAttribute("nodeName", _logOnInformation.TenhouId.Replace("-", "%2D"));
       var lobbyAttribute = new XAttribute("tid", InvariantConvert.ToString(_logOnInformation.Lobby, "D4"));
       var genderAttribute = new XAttribute("sx", _logOnInformation.Gender);
-      _server.Send(new XElement("HELO", idAttribute, lobbyAttribute, genderAttribute));
+      _connection.Send(new XElement("HELO", idAttribute, lobbyAttribute, genderAttribute));
     }
 
     /// <summary>
-    /// Requests a match from the server.
+    /// Requests a match from the connection.
     /// </summary>
     public void RequestMatch()
     {
       var value = InvariantConvert.ToString(_logOnInformation.Lobby) + "," + "9";
-      _server.Send(new XElement("JOIN", new XAttribute("t", value)));
+      _connection.Send(new XElement("JOIN", new XAttribute("t", value)));
     }
 
     /// <summary>
@@ -111,7 +111,7 @@ namespace Spines.Tenhou.Client
     {
       var transformed = Authenticator.Transform(accountInformation.AuthenticationString);
       var valAttribute = new XAttribute("val", transformed);
-      _server.Send(new XElement("AUTH", valAttribute));
+      _connection.Send(new XElement("AUTH", valAttribute));
     }
   }
 }
