@@ -98,7 +98,7 @@
     <ProjectReference Include="..\..\Spines.Utility\Spines.Utility.csproj">
       <Project>{1ffe50e9-3d4b-418f-b4cd-3fa10ff4848f}</Project>
       <Name>Spines.Utility</Name>
-      <Private>False</Private>
+      <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

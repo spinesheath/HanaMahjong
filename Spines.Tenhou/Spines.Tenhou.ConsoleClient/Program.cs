@@ -16,6 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using Spines.Tenhou.Client;
 
 namespace Spines.Tenhou.ConsoleClient
 {
@@ -35,7 +36,7 @@ namespace Spines.Tenhou.ConsoleClient
       //}
       //Console.ReadKey();
 
-      //var r = ClientFactory.CreateDummyClient();
+      var r = ClientFactory.CreateDummyClient();
       Console.ReadKey();
     }
   }
