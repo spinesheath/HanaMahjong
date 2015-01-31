@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.LocalMahjongConnection.cs
+﻿// Spines.Tenhou.Client.LocalConnection.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -19,14 +19,14 @@ using System;
 using System.Xml.Linq;
 using Spines.Utility;
 
-namespace Spines.Tenhou.Client
+namespace Spines.Tenhou.Client.LocalServer
 {
-  internal class LocalMahjongConnection : ITenhouConnection
+  internal class LocalConnection : ITenhouConnection
   {
     private readonly AccountInformation _accountInformation;
     private readonly LocalLobbyServer _server;
 
-    public LocalMahjongConnection(LocalLobbyServer server, AccountInformation accountInformation)
+    public LocalConnection(LocalLobbyServer server, AccountInformation accountInformation)
     {
       _server = server;
       _accountInformation = accountInformation;
@@ -46,7 +46,7 @@ namespace Spines.Tenhou.Client
 
     public void Connect()
     {
-      _server.Connect(this, _accountInformation);
+      _server.Send(this, new XElement("Z"));
       EventUtility.CheckAndRaise(Connected, this, new EventArgs());
     }
 

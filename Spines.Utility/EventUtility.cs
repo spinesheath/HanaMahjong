@@ -47,14 +47,13 @@ namespace Spines.Utility
     /// </summary>
     /// <param name="handler">The event handler that is raised.</param>
     /// <param name="sender">The sender of the event.</param>
-    /// <param name="e">The arguments of the event.</param>
-    public static void CheckAndRaise(EventHandler handler, object sender, EventArgs e)
+    public static void CheckAndRaise(EventHandler handler, object sender)
     {
       // Copy into a temporary variable to prevent race condition. This will not be optimized away in CLR 2.0.
       var h = handler;
       if (h != null)
       {
-        h(sender, e);
+        h(sender, new EventArgs());
       }
     }
   }
