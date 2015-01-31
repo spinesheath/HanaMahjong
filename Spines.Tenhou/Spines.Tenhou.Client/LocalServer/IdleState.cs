@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.ConnectionEstablishedState.cs
+﻿// Spines.Tenhou.Client.IdleState.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -19,15 +19,9 @@ using System.Xml.Linq;
 
 namespace Spines.Tenhou.Client.LocalServer
 {
-  /// <summary>
-  /// Connection to the server has been established, waiting for login.
-  /// </summary>
-  internal class ConnectionEstablishedState : LimitedTimeState<LobbyConnection>
+  internal class IdleState : LimitedTimeState<LobbyConnection>
   {
-    /// <summary>
-    /// Creates a new instance of ConnectionEstablishedState.
-    /// </summary>
-    public ConnectionEstablishedState()
+    public IdleState()
       : base(10000)
     {
     }
@@ -35,11 +29,8 @@ namespace Spines.Tenhou.Client.LocalServer
     public override IStateTransition<LobbyConnection> Process(XElement message)
     {
       ResetTimer();
-      if (message.Name == "HELO")
-      {
-        return new LogOnTransition(message.Attribute("name").Value);
-      }
-      return new DoNothingTransition<LobbyConnection>(this);
+      //return new DoNothingTransition<LobbyConnection>(this);
+      return new DoNothingTransition<LobbyConnection>(new FinalState<LobbyConnection>());
     }
 
     protected override IStateTransition<LobbyConnection> CreateTimeOutState()

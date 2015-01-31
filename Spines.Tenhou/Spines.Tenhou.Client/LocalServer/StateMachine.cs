@@ -54,7 +54,7 @@ namespace Spines.Tenhou.Client.LocalServer
       lock (_currentState)
       {
         var transition = transitionGetter(_currentState);
-        _currentState = transition.NextState;
+        _currentState = transition.GetNextState(_host);
         _transitions.Enqueue(transition);
       }
     }

@@ -19,12 +19,17 @@ namespace Spines.Tenhou.Client.LocalServer
 {
   internal class DoNothingTransition<THost> : IStateTransition<THost>
   {
+    private readonly IState<THost> _nextState;
+
     public DoNothingTransition(IState<THost> nextState)
     {
-      NextState = nextState;
+      _nextState = nextState;
     }
 
-    public IState<THost> NextState { get; private set; }
+    public IState<THost> GetNextState(THost host)
+    {
+      return _nextState;
+    }
 
     public void Execute(THost host)
     {

@@ -39,6 +39,6 @@ namespace Spines.Tenhou.Client
     /// <summary>
     /// Is raised once the connection successfully connected to the server.
     /// </summary>
-    event EventHandler<EventArgs> Connected;
+    event EventHandler Connected;
   }
 }

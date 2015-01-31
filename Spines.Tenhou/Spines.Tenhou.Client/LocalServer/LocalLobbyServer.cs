@@ -24,20 +24,10 @@ namespace Spines.Tenhou.Client.LocalServer
 {
   internal class LocalLobbyServer
   {
-    //private readonly IDictionary<LocalConnection, LocalMatchServer> _playersInMatches =
-    //  new Dictionary<LocalConnection, LocalMatchServer>();
-
-    /// <summary>
-    /// The connections that are currently trying to join a match.
-    /// </summary>
-    //private readonly ISet<LocalConnection> _matchQueue = new HashSet<LocalConnection>();
-
-    //private readonly IDictionary<LocalMatchServer, IEnumerable<LocalConnection>> _matchServers =
-    //  new Dictionary<LocalMatchServer, IEnumerable<LocalConnection>>();
     private readonly ISeedGenerator _seedGenerator;
 
-    private readonly IDictionary<LocalConnection, StateMachine<LocalConnection>> _stateMachines =
-      new Dictionary<LocalConnection, StateMachine<LocalConnection>>();
+    private readonly IDictionary<LocalConnection, StateMachine<LobbyConnection>> _stateMachines =
+      new Dictionary<LocalConnection, StateMachine<LobbyConnection>>();
 
     public LocalLobbyServer(ISeedGenerator seedGenerator)
     {
@@ -46,12 +36,13 @@ namespace Spines.Tenhou.Client.LocalServer
 
     public void Send(LocalConnection connection, XElement message)
     {
-      StateMachine<LocalConnection> stateMachine;
+      StateMachine<LobbyConnection> stateMachine;
       lock (_stateMachines)
       {
         if (!_stateMachines.ContainsKey(connection))
         {
-          stateMachine = new StateMachine<LocalConnection>(connection, new ConnectionEstablishedState());
+          var lobbyConnection = new LobbyConnection(connection, new RegistrationService(), new AuthenticationService());
+          stateMachine = new StateMachine<LobbyConnection>(lobbyConnection, new ConnectionEstablishedState());
           stateMachine.Finished += OnConnectionEnded;
           _stateMachines.Add(connection, stateMachine);
         }
@@ -65,7 +56,7 @@ namespace Spines.Tenhou.Client.LocalServer
 
     private void OnConnectionEnded(object sender, EventArgs e)
     {
-      var stateMachine = (StateMachine<LocalConnection>)sender;
+      var stateMachine = (StateMachine<LobbyConnection>)sender;
       stateMachine.Finished -= OnConnectionEnded;
       lock (_stateMachines)
       {

@@ -38,9 +38,10 @@ namespace Spines.Tenhou.Client
     /// Called when the client is logged on.
     /// </summary>
     /// <param name="accountInformation">Information about the account.</param>
-    public void LoggedOn(AccountInformation accountInformation)
+    /// <param name="authenticationString"></param>
+    public void LoggedOn(AccountInformation accountInformation, string authenticationString)
     {
-      _sender.Authenticate(accountInformation);
+      _sender.Authenticate(authenticationString);
       if(!_joinedOnce)
       {
         _sender.RequestMatch();

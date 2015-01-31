@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml.Linq;
 using Spines.Utility;
 
@@ -35,10 +34,16 @@ namespace Spines.Tenhou.Client
       ExpireDays = InvariantConvert.ToInt32(message.Attribute("expiredays").Value);
       ExpireDate = GetExpireDate(message);
       UserName = new UserName(message.Attribute("uname").Value);
-      AuthenticationString = message.Attribute("auth").Value;
     }
 
-    internal string AuthenticationString { get; private set; }
+    internal XElement ToMessage()
+    {
+      var uname = new XAttribute("uname", UserName.EncodedName);
+      var expire = new XAttribute("expire", InvariantConvert.Format("{0}{1}{2}", ExpireDate.Year, ExpireDate.Month, ExpireDate.Day));
+      var days = new XAttribute("expiredays", ExpireDays);
+      var scale = new XAttribute("ratingscale", string.Join("&", RatingScales.Select(p => InvariantConvert.Format("{0}={1}", p.Key, p.Value))));
+      return new XElement("HELO", uname, expire, days, scale);
+    }
 
     /// <summary>
     /// The username of the account that was logged on.

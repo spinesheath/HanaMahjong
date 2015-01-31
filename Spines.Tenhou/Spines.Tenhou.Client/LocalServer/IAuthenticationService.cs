@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.IStateTransition.cs
+﻿// Spines.Tenhou.Client.IAuthenticationService.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -17,9 +17,9 @@
 
 namespace Spines.Tenhou.Client.LocalServer
 {
-  internal interface IStateTransition<in THost>
+  internal interface IAuthenticationService
   {
-    IState<THost> GetNextState(THost host);
-    void Execute(THost host);
+    string GetAuthenticationString(string accountId);
+    bool IsValid(string accountId, string authenticatedString);
   }
 }

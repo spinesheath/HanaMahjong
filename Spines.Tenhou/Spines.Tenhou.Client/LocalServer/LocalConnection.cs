@@ -23,13 +23,11 @@ namespace Spines.Tenhou.Client.LocalServer
 {
   internal class LocalConnection : ITenhouConnection
   {
-    private readonly AccountInformation _accountInformation;
     private readonly LocalLobbyServer _server;
 
-    public LocalConnection(LocalLobbyServer server, AccountInformation accountInformation)
+    public LocalConnection(LocalLobbyServer server)
     {
       _server = server;
-      _accountInformation = accountInformation;
     }
 
     /// <summary>
@@ -42,12 +40,12 @@ namespace Spines.Tenhou.Client.LocalServer
     }
 
     public event EventHandler<ReceivedMessageEventArgs> ReceivedMessage;
-    public event EventHandler<EventArgs> Connected;
+    public event EventHandler Connected;
 
     public void Connect()
     {
       _server.Send(this, new XElement("Z"));
-      EventUtility.CheckAndRaise(Connected, this, new EventArgs());
+      EventUtility.CheckAndRaise(Connected, this);
     }
 
     /// <summary>

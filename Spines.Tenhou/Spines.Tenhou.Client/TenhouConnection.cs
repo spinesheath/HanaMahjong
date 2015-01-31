@@ -65,7 +65,7 @@ namespace Spines.Tenhou.Client
     /// <summary>
     /// Is raised once the client successfully connected to the connection.
     /// </summary>
-    public event EventHandler<EventArgs> Connected;
+    public event EventHandler Connected;
 
     /// <summary>
     /// Sends a message to the connection.
@@ -111,7 +111,7 @@ namespace Spines.Tenhou.Client
     {
       _client = new TcpClient();
       _client.Connect(_address, Port);
-      EventUtility.CheckAndRaise(Connected, this, new EventArgs());
+      EventUtility.CheckAndRaise(Connected, this);
       var stream = _client.GetStream();
       stream.ReadTimeout = 1000;
       RecieveMessagesAsync(stream);

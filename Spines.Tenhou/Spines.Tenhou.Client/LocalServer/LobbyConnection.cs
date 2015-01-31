@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.IStateTransition.cs
+﻿// Spines.Tenhou.Client.LobbyConnection.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,11 +15,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Xml.Linq;
+
 namespace Spines.Tenhou.Client.LocalServer
 {
-  internal interface IStateTransition<in THost>
+  internal class LobbyConnection
   {
-    IState<THost> GetNextState(THost host);
-    void Execute(THost host);
+    private readonly LocalConnection _connection;
+
+    public LobbyConnection(LocalConnection connection, IRegistrationService registrationService, IAuthenticationService authenticationService)
+    {
+      _connection = connection;
+      RegistrationService = registrationService;
+      AuthenticationService = authenticationService;
+    }
+
+    public IRegistrationService RegistrationService { get; private set; }
+    public IAuthenticationService AuthenticationService { get; private set; }
+
+    public void SendToClient(XElement message)
+    {
+      _connection.Receive(message);
+    }
   }
 }

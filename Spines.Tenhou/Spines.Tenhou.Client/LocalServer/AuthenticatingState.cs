@@ -15,29 +15,35 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Xml.Linq;
 
 namespace Spines.Tenhou.Client.LocalServer
 {
-  internal class AuthenticatingState : LimitedTimeState<LocalConnection>
+  internal class AuthenticatingState : LimitedTimeState<LobbyConnection>
   {
-    /// <summary>
-    /// Creates a new instance of LimitedTimeState.
-    /// </summary>
-    public AuthenticatingState()
+    private readonly string _accountId;
+    private readonly string _authenticationString;
+
+    public AuthenticatingState(string accountId, string authenticationString)
       : base(10000)
     {
+      _accountId = accountId;
+      _authenticationString = authenticationString;
     }
 
-    public override IStateTransition<LocalConnection> Process(XElement message)
+    public override IStateTransition<LobbyConnection> Process(XElement message)
     {
-      throw new NotImplementedException();
+      ResetTimer();
+      if (message.Name == "AUTH")
+      {
+        return new AuthenticatingTransition(_accountId, message.Attribute("val").Value);
+      }
+      return new DoNothingTransition<LobbyConnection>(this);
     }
 
-    protected override IStateTransition<LocalConnection> CreateTimeOutState()
+    protected override IStateTransition<LobbyConnection> CreateTimeOutState()
     {
-      throw new NotImplementedException();
+      return new DoNothingTransition<LobbyConnection>(new FinalState<LobbyConnection>());
     }
   }
 }

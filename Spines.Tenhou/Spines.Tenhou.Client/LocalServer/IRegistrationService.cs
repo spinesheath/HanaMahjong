@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.IStateTransition.cs
+﻿// Spines.Tenhou.Client.IRegistrationService.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -17,9 +17,9 @@
 
 namespace Spines.Tenhou.Client.LocalServer
 {
-  internal interface IStateTransition<in THost>
+  internal interface IRegistrationService
   {
-    IState<THost> GetNextState(THost host);
-    void Execute(THost host);
+    bool IsRegistered(string accountId);
+    AccountInformation GetAccountInformation(string accountId);
   }
 }

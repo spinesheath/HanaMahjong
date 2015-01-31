@@ -162,7 +162,8 @@ namespace Spines.Tenhou.Client
 
     private void OnLoggedOn(XElement message)
     {
-      Broadcast(client => client.LoggedOn(new AccountInformation(message)));
+      var authenticationString = message.Attribute("auth").Value;
+      Broadcast(client => client.LoggedOn(new AccountInformation(message), authenticationString));
     }
 
     private void OnReceivedAgariOrRyuukyoku(XElement message)

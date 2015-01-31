@@ -88,7 +88,7 @@ namespace Spines.Tenhou.Client
     /// </summary>
     public void LogOn()
     {
-      var idAttribute = new XAttribute("nodeName", _logOnInformation.TenhouId.Replace("-", "%2D"));
+      var idAttribute = new XAttribute("name", _logOnInformation.TenhouId.Replace("-", "%2D"));
       var lobbyAttribute = new XAttribute("tid", InvariantConvert.ToString(_logOnInformation.Lobby, "D4"));
       var genderAttribute = new XAttribute("sx", _logOnInformation.Gender);
       _connection.Send(new XElement("HELO", idAttribute, lobbyAttribute, genderAttribute));
@@ -106,10 +106,10 @@ namespace Spines.Tenhou.Client
     /// <summary>
     /// Authenticates the account.
     /// </summary>
-    /// <param name="accountInformation">The account to authenticate.</param>
-    public void Authenticate(AccountInformation accountInformation)
+    /// <param name="authenticationString">The authentication string.</param>
+    public void Authenticate(string authenticationString)
     {
-      var transformed = Authenticator.Transform(accountInformation.AuthenticationString);
+      var transformed = Authenticator.Transform(authenticationString);
       var valAttribute = new XAttribute("val", transformed);
       _connection.Send(new XElement("AUTH", valAttribute));
     }

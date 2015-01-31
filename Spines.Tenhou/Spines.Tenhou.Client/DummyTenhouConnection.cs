@@ -80,14 +80,14 @@ namespace Spines.Tenhou.Client
     /// <summary>
     /// Is raised once the client successfully connected to the connection.
     /// </summary>
-    public event EventHandler<EventArgs> Connected;
+    public event EventHandler Connected;
 
     /// <summary>
     /// Raises the Connected event.
     /// </summary>
     public void Connect()
     {
-      EventUtility.CheckAndRaise(Connected, this, new EventArgs());
+      EventUtility.CheckAndRaise(Connected, this);
     }
 
     private void FakeReceiveHelo()

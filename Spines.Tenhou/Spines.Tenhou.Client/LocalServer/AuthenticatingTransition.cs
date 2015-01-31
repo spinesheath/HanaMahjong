@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.LoggedInState.cs
+﻿// Spines.Tenhou.Client.AuthenticatingTransition.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,29 +15,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Xml.Linq;
-
 namespace Spines.Tenhou.Client.LocalServer
 {
-  internal class LoggedInState : LimitedTimeState<LocalConnection>
+  internal class AuthenticatingTransition : IStateTransition<LobbyConnection>
   {
-    /// <summary>
-    /// Creates a new instance of LimitedTimeState.
-    /// </summary>
-    public LoggedInState()
-      : base(10000)
+    private readonly string _accountId;
+    private readonly string _authenticatedString;
+
+    public AuthenticatingTransition(string accountId, string authenticatedString)
     {
+      _accountId = accountId;
+      _authenticatedString = authenticatedString;
     }
 
-    public override IStateTransition<LocalConnection> Process(XElement message)
+    public IState<LobbyConnection> GetNextState(LobbyConnection host)
     {
-      throw new NotImplementedException();
+      if (!host.AuthenticationService.IsValid(_accountId, _authenticatedString))
+      {
+        return new FinalState<LobbyConnection>();
+      }
+      return new IdleState();
     }
 
-    protected override IStateTransition<LocalConnection> CreateTimeOutState()
+    public void Execute(LobbyConnection host)
     {
-      throw new NotImplementedException();
     }
   }
 }
