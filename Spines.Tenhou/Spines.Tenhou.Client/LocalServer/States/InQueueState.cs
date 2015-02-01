@@ -17,8 +17,9 @@
 
 using System;
 using System.Xml.Linq;
+using Spines.Tenhou.Client.LocalServer.Transitions;
 
-namespace Spines.Tenhou.Client.LocalServer
+namespace Spines.Tenhou.Client.LocalServer.States
 {
   internal class InQueueState : LimitedTimeState<LobbyConnection>
   {
@@ -35,7 +36,6 @@ namespace Spines.Tenhou.Client.LocalServer
       ResetTimer();
       if (message.Name == "JOIN")
       {
-        
       }
       throw new NotImplementedException();
     }

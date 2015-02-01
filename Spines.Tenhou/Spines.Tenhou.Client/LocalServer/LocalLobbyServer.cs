@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using Spines.Tenhou.Client.LocalServer.States;
 
 namespace Spines.Tenhou.Client.LocalServer
 {

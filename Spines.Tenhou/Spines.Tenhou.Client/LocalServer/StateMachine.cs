@@ -20,6 +20,8 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Spines.Tenhou.Client.LocalServer.States;
+using Spines.Tenhou.Client.LocalServer.Transitions;
 using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer

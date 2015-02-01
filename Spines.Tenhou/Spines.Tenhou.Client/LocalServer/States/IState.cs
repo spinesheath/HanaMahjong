@@ -16,13 +16,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml.Linq;
+using Spines.Tenhou.Client.LocalServer.Transitions;
 
-namespace Spines.Tenhou.Client.LocalServer
+namespace Spines.Tenhou.Client.LocalServer.States
 {
   internal interface IState<in THost>
   {
-    IStateTransition<THost> Process(XElement message);
     bool IsFinal { get; }
+    IStateTransition<THost> Process(XElement message);
     IStateTransition<THost> ProcessEmpty();
   }
 }

@@ -17,8 +17,9 @@
 
 using System.Diagnostics;
 using System.Xml.Linq;
+using Spines.Tenhou.Client.LocalServer.Transitions;
 
-namespace Spines.Tenhou.Client.LocalServer
+namespace Spines.Tenhou.Client.LocalServer.States
 {
   /// <summary>
   /// Base class for states that can time out.

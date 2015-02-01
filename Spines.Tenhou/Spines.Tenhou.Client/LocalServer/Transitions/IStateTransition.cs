@@ -15,11 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace Spines.Tenhou.Client.LocalServer
+using Spines.Tenhou.Client.LocalServer.States;
+
+namespace Spines.Tenhou.Client.LocalServer.Transitions
 {
   internal interface IStateTransition<in THost>
   {
-    IState<THost> GetNextState(THost host);
     void Execute(THost host);
+    IState<THost> GetNextState(THost host);
   }
 }

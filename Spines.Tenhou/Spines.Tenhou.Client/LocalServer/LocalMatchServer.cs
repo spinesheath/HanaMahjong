@@ -17,6 +17,7 @@
 
 using System;
 using System.Xml.Linq;
+using Spines.Tenhou.Client.LocalServer.States;
 using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer

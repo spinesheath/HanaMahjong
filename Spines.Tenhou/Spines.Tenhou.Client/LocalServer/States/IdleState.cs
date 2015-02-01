@@ -16,9 +16,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml.Linq;
+using Spines.Tenhou.Client.LocalServer.Transitions;
 using Spines.Utility;
 
-namespace Spines.Tenhou.Client.LocalServer
+namespace Spines.Tenhou.Client.LocalServer.States
 {
   internal class IdleState : LimitedTimeState<LobbyConnection>
   {
@@ -34,7 +35,7 @@ namespace Spines.Tenhou.Client.LocalServer
       {
         return new DoNothingTransition<LobbyConnection>(this);
       }
-      var parts = message.Attribute("t").Value.Split(new []{','});
+      var parts = message.Attribute("t").Value.Split(new[] {','});
       var lobby = InvariantConvert.ToInt32(parts[0]);
       var typeId = InvariantConvert.ToInt32(parts[1]);
       return new QueueTransition(lobby, new MatchType(typeId));

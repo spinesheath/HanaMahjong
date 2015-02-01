@@ -16,8 +16,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Xml.Linq;
+using Spines.Tenhou.Client.LocalServer.Transitions;
 
-namespace Spines.Tenhou.Client.LocalServer
+namespace Spines.Tenhou.Client.LocalServer.States
 {
   /// <summary>
   /// Waits for all players to connect, then moves on to GettingReadyState.
