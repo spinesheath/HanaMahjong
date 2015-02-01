@@ -38,7 +38,7 @@ namespace Spines.Tenhou.Client.LocalServer.States
       _stopwatch.Start();
     }
 
-    public abstract IStateTransition<TSender, THost> Process(TSender sender, XElement message);
+    public abstract IStateTransition<TSender, THost> Process(XElement message);
 
     public bool IsFinal
     {

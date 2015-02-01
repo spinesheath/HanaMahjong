@@ -44,20 +44,16 @@ namespace Spines.Tenhou.Client.LocalServer
 
     public void ProcessMessage(TSender sender, XElement message)
     {
-      Process(s => s.Process(sender, message));
-    }
-
-    /// <summary>
-    /// Advances to the next state and stores the transition.
-    /// </summary>
-    /// <param name="transitionGetter">Used to get the state transmission from the current state.</param>
-    private void AdvanceState(Func<IState<TSender, THost>, IStateTransition<TSender, THost>> transitionGetter)
-    {
       lock (_currentState)
       {
-        var transition = transitionGetter(_currentState);
-        _currentState = transition.PrepareNextState(_host);
+        var transition = _currentState.Process(message);
+        _currentState = transition.PrepareNextState(sender, _host);
         _transitions.Enqueue(transition);
+      }
+      ExecuteTransitions();
+      if (_currentState.IsFinal)
+      {
+        EventUtility.CheckAndRaise(Finished, this);
       }
     }
 
@@ -91,20 +87,6 @@ namespace Spines.Tenhou.Client.LocalServer
     }
 
     /// <summary>
-    /// Advances the current state and executes transitions.
-    /// </summary>
-    /// <param name="transitionGetter">Used to get the state transmission from the current state.</param>
-    private void Process(Func<IState<TSender, THost>, IStateTransition<TSender, THost>> transitionGetter)
-    {
-      AdvanceState(transitionGetter);
-      ExecuteTransitions();
-      if (_currentState.IsFinal)
-      {
-        EventUtility.CheckAndRaise(Finished, this);
-      }
-    }
-
-    /// <summary>
     /// Repeatedly sends empty messages until a final state is reached.
     /// This is necessary to allow state transitions by timeout.
     /// </summary>
@@ -113,7 +95,17 @@ namespace Spines.Tenhou.Client.LocalServer
       while (!_currentState.IsFinal)
       {
         Thread.Sleep(500);
-        Process(s => s.ProcessEmpty());
+        lock (_currentState)
+        {
+          var transition = _currentState.ProcessEmpty();
+          _currentState = transition.PrepareNextStateEmpty(_host);
+          _transitions.Enqueue(transition);
+        }
+        ExecuteTransitions();
+        if (_currentState.IsFinal)
+        {
+          EventUtility.CheckAndRaise(Finished, this);
+        }
       }
     }
   }

@@ -46,14 +46,14 @@ namespace Spines.Tenhou.Client.LocalServer
       }
       if (nextFour.Count == 4)
       {
-        CreateNewMatch(nextFour);
+        CreateNewMatch(nextFour, lobby, matchType);
       }
     }
 
-    private void CreateNewMatch(List<LobbyConnection> players)
+    private void CreateNewMatch(List<LobbyConnection> players, int lobby, MatchType matchType)
     {
       var seed = _seedGenerator.CreateSeed();
-      var match = new Match(seed, players);
+      var match = new Match(seed, players, lobby, matchType);
       lock (_playerToMatch)
       {
         foreach (var player in players)
@@ -61,6 +61,7 @@ namespace Spines.Tenhou.Client.LocalServer
           _playerToMatch.Add(player, match);
         }
       }
+      match.InvitePlayers();
     }
 
     public bool CanEnterQueue(LobbyConnection player, int lobby, MatchType matchType)

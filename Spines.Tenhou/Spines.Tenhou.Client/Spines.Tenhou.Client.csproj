@@ -58,6 +58,7 @@
     <Compile Include="LocalServer\States\AuthenticatingState.cs" />
     <Compile Include="LocalServer\States\InMatchState.cs" />
     <Compile Include="LocalServer\States\PlayersConnectingState.cs" />
+    <Compile Include="LocalServer\States\PlayersGettingReadyState.cs" />
     <Compile Include="LocalServer\Transitions\AcceptMatchTransition.cs" />
     <Compile Include="LocalServer\Transitions\AuthenticatingTransition.cs" />
     <Compile Include="LocalServer\AuthenticationService.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="LocalServer\Transitions\LogOnTransition.cs" />
     <Compile Include="LocalServer\MatchServer.cs" />
     <Compile Include="LocalServer\Transitions\PassMessageToMatchTransition.cs" />
+    <Compile Include="LocalServer\Transitions\PlayerConnectedTransition.cs" />
     <Compile Include="LocalServer\Transitions\QueueTransition.cs" />
     <Compile Include="LocalServer\RegistrationService.cs" />
     <Compile Include="LocalServer\StateMachine.cs" />

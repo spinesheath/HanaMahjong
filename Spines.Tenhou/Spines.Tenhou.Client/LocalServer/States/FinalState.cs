@@ -22,7 +22,7 @@ namespace Spines.Tenhou.Client.LocalServer.States
 {
   internal class FinalState<TSender, THost> : IState<TSender, THost>
   {
-    public IStateTransition<TSender, THost> Process(TSender sender, XElement message)
+    public IStateTransition<TSender, THost> Process(XElement message)
     {
       return ProcessEmpty();
     }

@@ -16,21 +16,30 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 using Spines.Tenhou.Client.LocalServer.States;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer
 {
   internal class Match
   {
-    private readonly IEnumerable<LobbyConnection> _players;
+    private readonly int _lobby;
+    private readonly MatchType _matchType;
+    private readonly IDictionary<LobbyConnection, bool> _players = new Dictionary<LobbyConnection, bool>();
     private WallGenerator _shuffler;
     private readonly StateMachine<LobbyConnection, Match> _stateMachine;
 
-    public Match(string seed, IEnumerable<LobbyConnection> players)
+    public Match(string seed, IEnumerable<LobbyConnection> players, int lobby, MatchType matchType)
     {
+      _lobby = lobby;
+      _matchType = matchType;
       _shuffler = new WallGenerator(seed);
-      _players = players;
+      foreach (var player in players)
+      {
+        _players.Add(player, false);
+      }
       _stateMachine = new StateMachine<LobbyConnection, Match>(this, new PlayersConnectingState());
       // TODO subscribe to StateMachine.Finished
     }
@@ -40,41 +49,32 @@ namespace Spines.Tenhou.Client.LocalServer
       _stateMachine.ProcessMessage(sender, message);
     }
 
-    //private void SendGo()
-    //{
-    //  var type = new XAttribute("type", "9");
-    //  var lobby = new XAttribute("type", "0");
-    //  var gpid = new XAttribute("type", "7167A1C7-5FA3ECC6");
-    //  var message = new XElement("GO", type, lobby, gpid);
-    //  SendToAll(message);
-    //}
+    public void ConfirmPlayer(LobbyConnection sender, int lobby, MatchType matchType)
+    {
+      if (_players.ContainsKey(sender))
+      {
+        _players[sender] = true;
+      }
+    }
 
-    //private void SendTaikyoku()
-    //{
-    //  // TODO how is oya calculated? In replays it's always 0 at the start, in live matches not
-    //  SendToAll(new XElement("TAIKYOKU", new XAttribute("oya", 0)));
-    //}
+    public bool AllPlayersConfirmed()
+    {
+      return _players.All(p => p.Value);
+    }
 
-    //private void SendToAll(XElement message)
-    //{
-    //  var connectedPlayers = GetConnections();
-    //  foreach (var player in connectedPlayers)
-    //  {
-    //    player.Receive(message);
-    //  }
-    //}
+    public void SendToAll(XElement message)
+    {
+      foreach (var player in _players.Keys)
+      {
+        player.SendToClient(message);
+      }
+    }
 
-    //private void SendUn()
-    //{
-    //  var dan = new XAttribute("dan", "12,12,12,10");
-    //  var rate = new XAttribute("rate", "1704.57,1675.00,1701.91,1618.53");
-    //  var sx = new XAttribute("sx", "M,M,M,M");
-    //  var n0 = new XAttribute("n0", "player0");
-    //  var n1 = new XAttribute("n1", "player1");
-    //  var n2 = new XAttribute("n2", "player2");
-    //  var n3 = new XAttribute("n3", "player3");
-    //  SendToAll(new XElement("UN", n0, n1, n2, n3, dan, rate, sx));
-    //}
+    public void InvitePlayers()
+    {
+      var t = new XAttribute("t", InvariantConvert.Format("{0},{1},r", _lobby, _matchType.TypeId));
+      SendToAll(new XElement("REJOIN", t));
+    }
 
     //private void SendInit(int gameIndex)
     //{
@@ -97,22 +97,6 @@ namespace Spines.Tenhou.Client.LocalServer
     //    var process = new XElement("INIT", seed, ten, oya, hai);
     //    connectedPlayers[i].Key.Receive(process);
     //  }
-    //}
-
-    //private void SendUn()
-    //{
-    //  var dan = new XAttribute("dan", "12,12,12,10");
-    //  var rate = new XAttribute("rate", "1704.57,1675.00,1701.91,1618.53");
-    //  var sx = new XAttribute("sx", "M,M,M,M");
-    //  var un = new XElement("UN", dan, rate, sx);
-    //  var i = 0;
-    //  var connectedPlayers = GetConnectedPlayers();
-    //  foreach (var player in connectedPlayers)
-    //  {
-    //    un.Add(new XAttribute("n" + i, player.Value.Account.UserName.EncodedName));
-    //    i += 1;
-    //  }
-    //  SendToAll(un);
     //}
 
     //internal class MatchState

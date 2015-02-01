@@ -29,7 +29,12 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
       _accountId = accountId;
     }
 
-    public IState<LocalConnection, LobbyConnection> PrepareNextState(LobbyConnection host)
+    public IState<LocalConnection, LobbyConnection> PrepareNextState(LocalConnection sender, LobbyConnection host)
+    {
+      return PrepareNextStateEmpty(host);
+    }
+
+    public IState<LocalConnection, LobbyConnection> PrepareNextStateEmpty(LobbyConnection host)
     {
       if (!host.RegistrationService.IsRegistered(_accountId))
       {

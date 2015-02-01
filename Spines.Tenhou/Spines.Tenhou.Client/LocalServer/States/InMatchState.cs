@@ -22,7 +22,7 @@ namespace Spines.Tenhou.Client.LocalServer.States
 {
   internal class InMatchState : LimitedTimeState<LocalConnection, LobbyConnection>
   {
-    public override IStateTransition<LocalConnection, LobbyConnection> Process(LocalConnection sender, XElement message)
+    public override IStateTransition<LocalConnection, LobbyConnection> Process(XElement message)
     {
       ResetTimer();
       return new PassMessageToMatchTransition(message, this);

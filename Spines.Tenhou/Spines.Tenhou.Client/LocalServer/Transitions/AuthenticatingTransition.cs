@@ -30,17 +30,22 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
       _authenticatedString = authenticatedString;
     }
 
-    public IState<LocalConnection, LobbyConnection> PrepareNextState(LobbyConnection host)
+    public IState<LocalConnection, LobbyConnection> PrepareNextState(LocalConnection sender, LobbyConnection host)
+    {
+      return PrepareNextStateEmpty(host);
+    }
+
+    public void Execute(LobbyConnection host)
+    {
+    }
+
+    public IState<LocalConnection, LobbyConnection> PrepareNextStateEmpty(LobbyConnection host)
     {
       if (!host.AuthenticationService.IsValid(_accountId, _authenticatedString))
       {
         return new FinalState<LocalConnection, LobbyConnection>();
       }
       return new IdleState();
-    }
-
-    public void Execute(LobbyConnection host)
-    {
     }
   }
 }

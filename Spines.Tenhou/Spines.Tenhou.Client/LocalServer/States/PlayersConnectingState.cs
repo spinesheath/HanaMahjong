@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Xml.Linq;
 using Spines.Tenhou.Client.LocalServer.Transitions;
 
@@ -23,11 +22,14 @@ namespace Spines.Tenhou.Client.LocalServer.States
 {
   internal class PlayersConnectingState : LimitedTimeState<LobbyConnection, Match>
   {
-    public override IStateTransition<LobbyConnection, Match> Process(LobbyConnection sender, XElement message)
+    public override IStateTransition<LobbyConnection, Match> Process(XElement message)
     {
       ResetTimer();
-
-      throw new NotImplementedException();
+      if (message.Name == "JOIN")
+      {
+        return new PlayerConnectedTransition(message, this);
+      }
+      return new DoNothingTransition<LobbyConnection, Match>(this);
     }
 
     protected override IStateTransition<LobbyConnection, Match> CreateTimeOutTransition()

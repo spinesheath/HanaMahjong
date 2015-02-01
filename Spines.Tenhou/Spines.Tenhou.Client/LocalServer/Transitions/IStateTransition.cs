@@ -22,6 +22,7 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
   internal interface IStateTransition<in TSender, in THost>
   {
     void Execute(THost host);
-    IState<TSender, THost> PrepareNextState(THost host);
+    IState<TSender, THost> PrepareNextState(TSender sender, THost host);
+    IState<TSender, THost> PrepareNextStateEmpty(THost host);
   }
 }

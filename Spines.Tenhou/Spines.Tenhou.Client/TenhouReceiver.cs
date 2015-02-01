@@ -50,7 +50,7 @@ namespace Spines.Tenhou.Client
       _matchListeners.Add(Validate.NotNull(matchClient, "matchClient"));
       InitializeMessageActions();
       // TODO unsubscribe from connection? Or just verify that connection is disposed after receiver is gone?
-      _connection.ReceivedMessage += ReceivedMessageMessage;
+      _connection.ReceivedMessage += ReceivedMessage;
       _connection.Connected += OnConnected;
     }
 
@@ -72,11 +72,6 @@ namespace Spines.Tenhou.Client
       _matchListeners.Add(listener);
     }
 
-    /// <summary>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="listeners"></param>
-    /// <param name="action"></param>
     private static void Broadcast<T>(IEnumerable<T> listeners, Action<T> action)
     {
       foreach (var listener in listeners)
@@ -210,7 +205,7 @@ namespace Spines.Tenhou.Client
       Broadcast(client => client.UpdatePlayers(GetPlayers(message)));
     }
 
-    private void ReceivedMessageMessage(object sender, ReceivedMessageEventArgs e)
+    private void ReceivedMessage(object sender, ReceivedMessageEventArgs e)
     {
       var nodeName = e.Message.Name.LocalName;
       if (_messageActions.ContainsKey(nodeName))

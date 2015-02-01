@@ -23,7 +23,7 @@ namespace Spines.Tenhou.Client.LocalServer.States
 {
   internal class IdleState : LimitedTimeState<LocalConnection, LobbyConnection>
   {
-    public override IStateTransition<LocalConnection, LobbyConnection> Process(LocalConnection sender, XElement message)
+    public override IStateTransition<LocalConnection, LobbyConnection> Process(XElement message)
     {
       ResetTimer();
       if (message.Name != "JOIN")

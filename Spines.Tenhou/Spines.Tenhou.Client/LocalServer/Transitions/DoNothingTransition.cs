@@ -28,13 +28,18 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
       _nextState = nextState;
     }
 
-    public IState<TSender, THost> PrepareNextState(THost host)
-    {
-      return _nextState;
-    }
-
     public void Execute(THost host)
     {
+    }
+
+    public IState<TSender, THost> PrepareNextState(TSender sender, THost host)
+    {
+      return PrepareNextStateEmpty(host);
+    }
+
+    public IState<TSender, THost> PrepareNextStateEmpty(THost host)
+    {
+      return _nextState;
     }
   }
 }

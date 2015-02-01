@@ -36,7 +36,12 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
       host.MatchServer.ProcessMessage(host, _message);
     }
 
-    public IState<LocalConnection, LobbyConnection> PrepareNextState(LobbyConnection host)
+    public IState<LocalConnection, LobbyConnection> PrepareNextState(LocalConnection sender, LobbyConnection host)
+    {
+      return PrepareNextStateEmpty(host);
+    }
+
+    public IState<LocalConnection, LobbyConnection> PrepareNextStateEmpty(LobbyConnection host)
     {
       return _nextState;
     }

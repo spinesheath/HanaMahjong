@@ -24,10 +24,12 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
   internal class AcceptMatchTransition : IStateTransition<LocalConnection, LobbyConnection>
   {
     private readonly XElement _message;
+    private readonly IState<LocalConnection, LobbyConnection> _currentState;
 
-    public AcceptMatchTransition(XElement message)
+    public AcceptMatchTransition(XElement message, IState<LocalConnection, LobbyConnection> currentState)
     {
       _message = message;
+      _currentState = currentState;
     }
 
     public void Execute(LobbyConnection host)
@@ -35,9 +37,9 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
       host.MatchServer.ProcessMessage(host, _message);
     }
 
-    public IState<LocalConnection, LobbyConnection> PrepareNextState(LobbyConnection host)
+    public IState<LocalConnection, LobbyConnection> PrepareNextStateEmpty(LobbyConnection host)
     {
-      var parts = _message.Attribute("t").Value.Split(new[] { ',' });
+      var parts = _message.Attribute("t").Value.Split(new[] {','});
       var lobby = InvariantConvert.ToInt32(parts[0]);
       var matchType = new MatchType(InvariantConvert.ToInt32(parts[1]));
       if (host.MatchServer.IsInMatch(host, lobby, matchType))
@@ -46,9 +48,14 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
       }
       if (host.MatchServer.IsInQueue(host))
       {
-        return new InQueueState();
+        return _currentState;
       }
       return new IdleState();
+    }
+
+    public IState<LocalConnection, LobbyConnection> PrepareNextState(LocalConnection sender, LobbyConnection host)
+    {
+      return PrepareNextStateEmpty(host);
     }
   }
 }

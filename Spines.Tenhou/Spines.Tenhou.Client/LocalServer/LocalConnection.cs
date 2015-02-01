@@ -16,6 +16,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using Spines.Utility;
 
@@ -23,7 +27,10 @@ namespace Spines.Tenhou.Client.LocalServer
 {
   internal class LocalConnection : ITenhouConnection
   {
+    private readonly Queue<XElement> _messageQueue = new Queue<XElement>();
     private readonly LocalLobbyServer _server;
+    private CancellationTokenSource _receiverCancellationTokenSource;
+    private Task _receiverTask;
 
     public LocalConnection(LocalLobbyServer server)
     {
@@ -36,6 +43,7 @@ namespace Spines.Tenhou.Client.LocalServer
     /// <param name="message">The message to send.</param>
     public void Send(XElement message)
     {
+      Console.WriteLine("me: " + message);
       _server.Send(this, message);
     }
 
@@ -44,17 +52,70 @@ namespace Spines.Tenhou.Client.LocalServer
 
     public void Connect()
     {
-      _server.Send(this, new XElement("Z"));
+      RecieveMessagesAsync();
+      SendKeepAlivePing();
       EventUtility.CheckAndRaise(Connected, this);
     }
 
     /// <summary>
-    /// User by the server to send messages.
+    /// Used by the server to send messages.
     /// </summary>
     /// <param name="message">The message sent by the server.</param>
     public void Receive(XElement message)
     {
-      EventUtility.CheckAndRaise(ReceivedMessage, this, new ReceivedMessageEventArgs(message));
+      Console.WriteLine("amanda: " + message);
+      lock (_messageQueue)
+      {
+        _messageQueue.Enqueue(message);
+      }
+    }
+
+    private IEnumerable<XElement> GetMessages()
+    {
+      lock (_messageQueue)
+      {
+        var messages = _messageQueue.ToList();
+        _messageQueue.Clear();
+        return messages;
+      }
+    }
+
+    private void RecieveMessages(CancellationToken cancellationToken)
+    {
+      var sleepCounter = 0;
+      while (!cancellationToken.IsCancellationRequested)
+      {
+        if (sleepCounter > 40)
+        {
+          SendKeepAlivePing();
+          sleepCounter = 0;
+        }
+        foreach (var message in GetMessages())
+        {
+          EventUtility.CheckAndRaise(ReceivedMessage, this, new ReceivedMessageEventArgs(message));
+        }
+        Thread.Sleep(100);
+        sleepCounter += 1;
+      }
+      SendBye();
+    }
+
+    private async void RecieveMessagesAsync()
+    {
+      _receiverCancellationTokenSource = new CancellationTokenSource();
+      var token = _receiverCancellationTokenSource.Token;
+      _receiverTask = Task.Run(() => RecieveMessages(token), token);
+      await _receiverTask;
+    }
+
+    private void SendBye()
+    {
+      Send(new XElement("BYE"));
+    }
+
+    private void SendKeepAlivePing()
+    {
+      Send(new XElement("Z"));
     }
   }
 }

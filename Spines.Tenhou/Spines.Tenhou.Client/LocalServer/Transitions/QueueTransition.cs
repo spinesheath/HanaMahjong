@@ -30,7 +30,12 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
       _matchType = matchType;
     }
 
-    public IState<LocalConnection, LobbyConnection> PrepareNextState(LobbyConnection host)
+    public IState<LocalConnection, LobbyConnection> PrepareNextState(LocalConnection sender, LobbyConnection host)
+    {
+      return PrepareNextStateEmpty(host);
+    }
+
+    public IState<LocalConnection, LobbyConnection> PrepareNextStateEmpty(LobbyConnection host)
     {
       if (host.MatchServer.CanEnterQueue(host, _lobby, _matchType))
       {
