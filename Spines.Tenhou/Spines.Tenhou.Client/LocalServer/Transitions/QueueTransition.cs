@@ -16,6 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Spines.Tenhou.Client.LocalServer.States;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer.Transitions
 {
@@ -37,6 +38,7 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
 
     public IState<LocalConnection, LobbyConnection> PrepareNextStateEmpty(LobbyConnection host)
     {
+      Validate.NotNull(host, "host");
       if (host.MatchServer.CanEnterQueue(host, _lobby, _matchType))
       {
         return new InQueueState();
@@ -46,6 +48,7 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
 
     public void Execute(LobbyConnection host)
     {
+      Validate.NotNull(host, "host");
       if (host.MatchServer.CanEnterQueue(host, _lobby, _matchType))
       {
         host.MatchServer.EnterQueue(host, _lobby, _matchType);

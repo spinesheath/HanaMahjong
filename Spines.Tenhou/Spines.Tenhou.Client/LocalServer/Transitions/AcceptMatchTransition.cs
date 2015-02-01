@@ -34,11 +34,13 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
 
     public void Execute(LobbyConnection host)
     {
+      Validate.NotNull(host, "host");
       host.MatchServer.ProcessMessage(host, _message);
     }
 
     public IState<LocalConnection, LobbyConnection> PrepareNextStateEmpty(LobbyConnection host)
     {
+      Validate.NotNull(host, "host");
       var parts = _message.Attribute("t").Value.Split(new[] {','});
       var lobby = InvariantConvert.ToInt32(parts[0]);
       var matchType = new MatchType(InvariantConvert.ToInt32(parts[1]));

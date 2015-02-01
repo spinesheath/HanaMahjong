@@ -37,6 +37,7 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
 
     public void Execute(Match host)
     {
+      Validate.NotNull(host, "host");
       if (host.AllPlayersConfirmed())
       {
         SendGo(host);
@@ -47,16 +48,18 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
 
     public IState<LobbyConnection, Match> PrepareNextState(LobbyConnection sender, Match host)
     {
+      Validate.NotNull(host, "host");
       host.ConfirmPlayer(sender, _lobby, _matchType);
       return PrepareNextStateEmpty(host);
     }
 
     public IState<LobbyConnection, Match> PrepareNextStateEmpty(Match host)
     {
+      Validate.NotNull(host, "host");
       return host.AllPlayersConfirmed() ? new PlayersGettingReadyState() : _currentState;
     }
 
-    private void SendGo(Match host)
+    private static void SendGo(Match host)
     {
       var type = new XAttribute("type", "9");
       var lobby = new XAttribute("lobby", "0");
@@ -64,7 +67,7 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
       host.SendToAll(new XElement("GO", type, lobby, gpid));
     }
 
-    private void SendTaikyoku(Match host)
+    private static void SendTaikyoku(Match host)
     {
       // TODO how is oya calculated? In replays it's always 0 at the start, in live matches not
       var oya = new XAttribute("oya", 0);
@@ -72,7 +75,7 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
       host.SendToAll(new XElement("TAIKYOKU", oya, log));
     }
 
-    private void SendUn(Match host)
+    private static void SendUn(Match host)
     {
       var dan = new XAttribute("dan", "12,12,12,10");
       var rate = new XAttribute("rate", "1704.57,1675.00,1701.91,1618.53");

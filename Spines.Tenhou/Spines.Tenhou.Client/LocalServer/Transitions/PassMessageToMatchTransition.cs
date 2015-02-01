@@ -17,6 +17,7 @@
 
 using System.Xml.Linq;
 using Spines.Tenhou.Client.LocalServer.States;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer.Transitions
 {
@@ -33,6 +34,7 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
 
     public void Execute(LobbyConnection host)
     {
+      Validate.NotNull(host, "host");
       host.MatchServer.ProcessMessage(host, _message);
     }
 

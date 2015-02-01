@@ -17,6 +17,7 @@
 
 using System.Xml.Linq;
 using Spines.Tenhou.Client.LocalServer.Transitions;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer.States
 {
@@ -24,6 +25,7 @@ namespace Spines.Tenhou.Client.LocalServer.States
   {
     public override IStateTransition<LobbyConnection, Match> Process(XElement message)
     {
+      Validate.NotNull(message, "message");
       ResetTimer();
       if (message.Name == "JOIN")
       {

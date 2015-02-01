@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Xml.Linq;
 using Spines.Tenhou.Client.LocalServer.Transitions;
 
@@ -25,7 +24,6 @@ namespace Spines.Tenhou.Client.LocalServer.States
   {
     public override IStateTransition<LobbyConnection, Match> Process(XElement message)
     {
-      Console.WriteLine("Entered PlayersGettingReadyState.");
       return new DoNothingTransition<LobbyConnection, Match>(new FinalState<LobbyConnection, Match>());
     }
 

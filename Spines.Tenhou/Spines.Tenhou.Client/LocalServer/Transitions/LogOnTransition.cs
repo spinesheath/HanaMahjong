@@ -17,6 +17,7 @@
 
 using System.Xml.Linq;
 using Spines.Tenhou.Client.LocalServer.States;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer.Transitions
 {
@@ -36,6 +37,7 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
 
     public IState<LocalConnection, LobbyConnection> PrepareNextStateEmpty(LobbyConnection host)
     {
+      Validate.NotNull(host, "host");
       if (!host.RegistrationService.IsRegistered(_accountId))
       {
         return new FinalState<LocalConnection, LobbyConnection>();
@@ -45,6 +47,7 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
 
     public void Execute(LobbyConnection host)
     {
+      Validate.NotNull(host, "host");
       if (host.RegistrationService.IsRegistered(_accountId))
       {
         LogOn(host);

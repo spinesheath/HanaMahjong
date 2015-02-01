@@ -16,6 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Spines.Tenhou.Client.LocalServer.States;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer.Transitions
 {
@@ -41,6 +42,7 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
 
     public IState<LocalConnection, LobbyConnection> PrepareNextStateEmpty(LobbyConnection host)
     {
+      Validate.NotNull(host, "host");
       if (!host.AuthenticationService.IsValid(_accountId, _authenticatedString))
       {
         return new FinalState<LocalConnection, LobbyConnection>();

@@ -26,8 +26,8 @@ namespace Spines.Tenhou.Client
     /// Called when the client is logged on.
     /// </summary>
     /// <param name="accountInformation">Information about the account.</param>
-    /// <param name="authenticationString"></param>
-    void LoggedOn(AccountInformation accountInformation, string authenticationString);
+    /// <param name="authenticationValue">The value to authenticate.</param>
+    void LoggedOn(AccountInformation accountInformation, string authenticationValue);
 
     /// <summary>
     /// Called when a match is started.
