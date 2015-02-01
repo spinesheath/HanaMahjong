@@ -31,6 +31,10 @@ namespace Spines.Tenhou.Client.LocalServer.States
       {
         return new DoNothingTransition<LocalConnection, LobbyConnection>(this);
       }
+      if (message.Name == "BYE")
+      {
+        return new DoNothingTransition<LocalConnection, LobbyConnection>(new ConnectionEstablishedState());
+      }
       var parts = message.Attribute("t").Value.Split(new[] {','});
       var lobby = InvariantConvert.ToInt32(parts[0]);
       var matchType = new MatchType(InvariantConvert.ToInt32(parts[1]));

@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
@@ -28,8 +29,8 @@ namespace Spines.Tenhou.Client.LocalServer
     private readonly int _lobby;
     private readonly MatchType _matchType;
     private readonly IDictionary<LobbyConnection, bool> _players = new Dictionary<LobbyConnection, bool>();
-    private WallGenerator _shuffler;
     private readonly StateMachine<LobbyConnection, Match> _stateMachine;
+    private WallGenerator _shuffler;
 
     public Match(string seed, IEnumerable<LobbyConnection> players, int lobby, MatchType matchType)
     {
@@ -41,12 +42,19 @@ namespace Spines.Tenhou.Client.LocalServer
         _players.Add(player, false);
       }
       _stateMachine = new StateMachine<LobbyConnection, Match>(this, new PlayersConnectingState());
-      // TODO subscribe to StateMachine.Finished
+      _stateMachine.Finished += OnFinished;
     }
 
-    public void ProcessMessage(LobbyConnection sender, XElement message)
+    public IEnumerable<LobbyConnection> Players
     {
-      _stateMachine.ProcessMessage(sender, message);
+      get { return _players.Keys; }
+    }
+
+    public event EventHandler Finished;
+
+    public bool AllPlayersConfirmed()
+    {
+      return _players.All(p => p.Value);
     }
 
     public void ConfirmPlayer(LobbyConnection sender, int lobby, MatchType matchType)
@@ -57,9 +65,15 @@ namespace Spines.Tenhou.Client.LocalServer
       }
     }
 
-    public bool AllPlayersConfirmed()
+    public void InvitePlayers()
     {
-      return _players.All(p => p.Value);
+      var t = new XAttribute("t", InvariantConvert.Format("{0},{1},r", _lobby, _matchType.TypeId));
+      SendToAll(new XElement("REJOIN", t));
+    }
+
+    public void ProcessMessage(LobbyConnection sender, XElement message)
+    {
+      _stateMachine.ProcessMessage(sender, message);
     }
 
     public void SendToAll(XElement message)
@@ -70,10 +84,11 @@ namespace Spines.Tenhou.Client.LocalServer
       }
     }
 
-    public void InvitePlayers()
+    private void OnFinished(object sender, EventArgs e)
     {
-      var t = new XAttribute("t", InvariantConvert.Format("{0},{1},r", _lobby, _matchType.TypeId));
-      SendToAll(new XElement("REJOIN", t));
+      var stateMachine = (StateMachine<LobbyConnection, Match>) sender;
+      stateMachine.Finished -= OnFinished;
+      EventUtility.CheckAndRaise(Finished, this);
     }
 
     //private void SendInit(int gameIndex)

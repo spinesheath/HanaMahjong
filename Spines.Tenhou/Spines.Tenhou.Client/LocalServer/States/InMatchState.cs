@@ -25,6 +25,10 @@ namespace Spines.Tenhou.Client.LocalServer.States
     public override IStateTransition<LocalConnection, LobbyConnection> Process(XElement message)
     {
       ResetTimer();
+      if (message.Name == "BYE")
+      {
+        return new DoNothingTransition<LocalConnection, LobbyConnection>(new IdleState());
+      }
       return new PassMessageToMatchTransition(message, this);
     }
 

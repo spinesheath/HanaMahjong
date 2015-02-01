@@ -37,19 +37,19 @@ namespace Spines.Tenhou.Client
     /// <summary>
     /// Creates a new Instance of TenhouReceiver using the specified ITenhouTcpClient.
     /// </summary>
-    /// <param name="client">The ITenhouTcpClient used to connect to the connection.</param>
+    /// <param name="connection">The ITenhouTcpClient used to connect to the connection.</param>
     /// <param name="sender">Used to send messages to the connection.</param>
-    /// <param name="lobbyClient">A client for the tenhou lobby.</param>
-    /// <param name="matchClient">A match client.</param>
-    internal TenhouReceiver(ITenhouConnection client, TenhouSender sender, ILobbyClient lobbyClient,
+    /// <param name="lobbyClient">A connection for the tenhou lobby.</param>
+    /// <param name="matchClient">A match connection.</param>
+    internal TenhouReceiver(ITenhouConnection connection, TenhouSender sender, ILobbyClient lobbyClient,
       IMatchClient matchClient)
     {
-      _connection = Validate.NotNull(client, "client");
+      _connection = Validate.NotNull(connection, "connection");
       _sender = Validate.NotNull(sender, "sender");
       _lobbyListeners.Add(Validate.NotNull(lobbyClient, "lobbyClient"));
       _matchListeners.Add(Validate.NotNull(matchClient, "matchClient"));
       InitializeMessageActions();
-      // TODO unsubscribe from connection? Or just verify that connection is disposed after receiver is gone?
+      // No need to unsubscribe as the connection doen't live longer than the reveiver.
       _connection.ReceivedMessage += ReceivedMessage;
       _connection.Connected += OnConnected;
     }

@@ -23,13 +23,18 @@ namespace Spines.Tenhou.Client.LocalServer
 {
   internal class MatchServer
   {
-    private readonly ISeedGenerator _seedGenerator;
-    private readonly ISet<LobbyConnection> _queue = new HashSet<LobbyConnection>();
     private readonly IDictionary<LobbyConnection, Match> _playerToMatch = new Dictionary<LobbyConnection, Match>();
+    private readonly ISet<LobbyConnection> _queue = new HashSet<LobbyConnection>();
+    private readonly ISeedGenerator _seedGenerator;
 
     public MatchServer(ISeedGenerator seedGenerator)
     {
       _seedGenerator = seedGenerator;
+    }
+
+    public bool CanEnterQueue(LobbyConnection player, int lobby, MatchType matchType)
+    {
+      return !IsInQueue(player);
     }
 
     public void EnterQueue(LobbyConnection player, int lobby, MatchType matchType)
@@ -50,23 +55,12 @@ namespace Spines.Tenhou.Client.LocalServer
       }
     }
 
-    private void CreateNewMatch(List<LobbyConnection> players, int lobby, MatchType matchType)
+    public bool IsInMatch(LobbyConnection player, int lobby, MatchType matchType)
     {
-      var seed = _seedGenerator.CreateSeed();
-      var match = new Match(seed, players, lobby, matchType);
       lock (_playerToMatch)
       {
-        foreach (var player in players)
-        {
-          _playerToMatch.Add(player, match);
-        }
+        return _playerToMatch.ContainsKey(player);
       }
-      match.InvitePlayers();
-    }
-
-    public bool CanEnterQueue(LobbyConnection player, int lobby, MatchType matchType)
-    {
-      return !IsInQueue(player);
     }
 
     public bool IsInQueue(LobbyConnection player)
@@ -74,14 +68,6 @@ namespace Spines.Tenhou.Client.LocalServer
       lock (_queue)
       {
         return _queue.Contains(player);
-      }
-    }
-
-    public bool IsInMatch(LobbyConnection player, int lobby, MatchType matchType)
-    {
-      lock (_playerToMatch)
-      {
-        return _playerToMatch.ContainsKey(player);
       }
     }
 
@@ -95,11 +81,39 @@ namespace Spines.Tenhou.Client.LocalServer
       GetMatch(sender).ProcessMessage(sender, message);
     }
 
+    private void CreateNewMatch(List<LobbyConnection> players, int lobby, MatchType matchType)
+    {
+      var seed = _seedGenerator.CreateSeed();
+      var match = new Match(seed, players, lobby, matchType);
+      match.Finished += OnMatchFinished;
+      lock (_playerToMatch)
+      {
+        foreach (var player in players)
+        {
+          _playerToMatch.Add(player, match);
+        }
+      }
+      match.InvitePlayers();
+    }
+
     private Match GetMatch(LobbyConnection player)
     {
       lock (_playerToMatch)
       {
         return _playerToMatch[player];
+      }
+    }
+
+    private void OnMatchFinished(object sender, EventArgs e)
+    {
+      var match = (Match) sender;
+      match.Finished -= OnMatchFinished;
+      lock (_playerToMatch)
+      {
+        foreach (var player in match.Players)
+        {
+          _playerToMatch.Remove(player);
+        }
       }
     }
   }
