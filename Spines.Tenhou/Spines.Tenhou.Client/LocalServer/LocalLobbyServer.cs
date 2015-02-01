@@ -25,27 +25,25 @@ namespace Spines.Tenhou.Client.LocalServer
 {
   internal class LocalLobbyServer
   {
-    private readonly ISeedGenerator _seedGenerator;
+    private readonly IDictionary<LocalConnection, StateMachine<LocalConnection, LobbyConnection>> _stateMachines =
+      new Dictionary<LocalConnection, StateMachine<LocalConnection, LobbyConnection>>();
 
-    private readonly IDictionary<LocalConnection, StateMachine<LobbyConnection>> _stateMachines =
-      new Dictionary<LocalConnection, StateMachine<LobbyConnection>>();
-
-    private readonly MatchService _matchService = new MatchService();
+    private readonly MatchServer _matchServer;
 
     public LocalLobbyServer(ISeedGenerator seedGenerator)
     {
-      _seedGenerator = seedGenerator;
+      _matchServer = new MatchServer(seedGenerator);
     }
 
     public void Send(LocalConnection connection, XElement message)
     {
-      StateMachine<LobbyConnection> stateMachine;
+      StateMachine<LocalConnection, LobbyConnection> stateMachine;
       lock (_stateMachines)
       {
         if (!_stateMachines.ContainsKey(connection))
         {
-          var lobbyConnection = new LobbyConnection(connection, _matchService);
-          stateMachine = new StateMachine<LobbyConnection>(lobbyConnection, new ConnectionEstablishedState());
+          var lobbyConnection = new LobbyConnection(connection, _matchServer);
+          stateMachine = new StateMachine<LocalConnection, LobbyConnection>(lobbyConnection, new ConnectionEstablishedState());
           stateMachine.Finished += OnConnectionEnded;
           _stateMachines.Add(connection, stateMachine);
         }
@@ -54,12 +52,12 @@ namespace Spines.Tenhou.Client.LocalServer
           stateMachine = _stateMachines[connection];
         }
       }
-      stateMachine.ProcessMessage(message);
+      stateMachine.ProcessMessage(connection, message);
     }
 
     private void OnConnectionEnded(object sender, EventArgs e)
     {
-      var stateMachine = (StateMachine<LobbyConnection>)sender;
+      var stateMachine = (StateMachine<LocalConnection, LobbyConnection>)sender;
       stateMachine.Finished -= OnConnectionEnded;
       lock (_stateMachines)
       {

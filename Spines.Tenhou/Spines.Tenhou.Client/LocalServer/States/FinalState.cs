@@ -20,9 +20,9 @@ using Spines.Tenhou.Client.LocalServer.Transitions;
 
 namespace Spines.Tenhou.Client.LocalServer.States
 {
-  internal class FinalState<THost> : IState<THost>
+  internal class FinalState<TSender, THost> : IState<TSender, THost>
   {
-    public IStateTransition<THost> Process(XElement message)
+    public IStateTransition<TSender, THost> Process(TSender sender, XElement message)
     {
       return ProcessEmpty();
     }
@@ -32,9 +32,9 @@ namespace Spines.Tenhou.Client.LocalServer.States
       get { return true; }
     }
 
-    public IStateTransition<THost> ProcessEmpty()
+    public IStateTransition<TSender, THost> ProcessEmpty()
     {
-      return new DoNothingTransition<THost>(this);
+      return new DoNothingTransition<TSender, THost>(this);
     }
   }
 }

@@ -20,31 +20,28 @@ using Spines.Tenhou.Client.LocalServer.Transitions;
 
 namespace Spines.Tenhou.Client.LocalServer.States
 {
-  internal class AuthenticatingState : LimitedTimeState<LobbyConnection>
+  internal class AuthenticatingState : LimitedTimeState<LocalConnection, LobbyConnection>
   {
     private readonly string _accountId;
-    private readonly string _authenticationString;
 
-    public AuthenticatingState(string accountId, string authenticationString)
-      : base(10000)
+    public AuthenticatingState(string accountId)
     {
       _accountId = accountId;
-      _authenticationString = authenticationString;
     }
 
-    public override IStateTransition<LobbyConnection> Process(XElement message)
+    public override IStateTransition<LocalConnection, LobbyConnection> Process(LocalConnection sender, XElement message)
     {
       ResetTimer();
       if (message.Name == "AUTH")
       {
         return new AuthenticatingTransition(_accountId, message.Attribute("val").Value);
       }
-      return new DoNothingTransition<LobbyConnection>(this);
+      return new DoNothingTransition<LocalConnection, LobbyConnection>(this);
     }
 
-    protected override IStateTransition<LobbyConnection> CreateTimeOutState()
+    protected override IStateTransition<LocalConnection, LobbyConnection> CreateTimeOutTransition()
     {
-      return new DoNothingTransition<LobbyConnection>(new FinalState<LobbyConnection>());
+      return new CloseConnectionTransition();
     }
   }
 }

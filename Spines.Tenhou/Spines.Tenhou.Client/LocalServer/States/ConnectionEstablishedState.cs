@@ -23,29 +23,21 @@ namespace Spines.Tenhou.Client.LocalServer.States
   /// <summary>
   /// Connection to the server has been established, waiting for login.
   /// </summary>
-  internal class ConnectionEstablishedState : LimitedTimeState<LobbyConnection>
+  internal class ConnectionEstablishedState : LimitedTimeState<LocalConnection, LobbyConnection>
   {
-    /// <summary>
-    /// Creates a new instance of ConnectionEstablishedState.
-    /// </summary>
-    public ConnectionEstablishedState()
-      : base(10000)
-    {
-    }
-
-    public override IStateTransition<LobbyConnection> Process(XElement message)
+    public override IStateTransition<LocalConnection, LobbyConnection> Process(LocalConnection sender, XElement message)
     {
       ResetTimer();
       if (message.Name == "HELO")
       {
         return new LogOnTransition(message.Attribute("name").Value);
       }
-      return new DoNothingTransition<LobbyConnection>(this);
+      return new DoNothingTransition<LocalConnection, LobbyConnection>(this);
     }
 
-    protected override IStateTransition<LobbyConnection> CreateTimeOutState()
+    protected override IStateTransition<LocalConnection, LobbyConnection> CreateTimeOutTransition()
     {
-      return new DoNothingTransition<LobbyConnection>(new FinalState<LobbyConnection>());
+      return new CloseConnectionTransition();
     }
   }
 }

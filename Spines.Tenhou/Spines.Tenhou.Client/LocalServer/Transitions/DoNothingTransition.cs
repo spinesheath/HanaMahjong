@@ -19,16 +19,16 @@ using Spines.Tenhou.Client.LocalServer.States;
 
 namespace Spines.Tenhou.Client.LocalServer.Transitions
 {
-  internal class DoNothingTransition<THost> : IStateTransition<THost>
+  internal class DoNothingTransition<TSender, THost> : IStateTransition<TSender, THost>
   {
-    private readonly IState<THost> _nextState;
+    private readonly IState<TSender, THost> _nextState;
 
-    public DoNothingTransition(IState<THost> nextState)
+    public DoNothingTransition(IState<TSender, THost> nextState)
     {
       _nextState = nextState;
     }
 
-    public IState<THost> GetNextState(THost host)
+    public IState<TSender, THost> PrepareNextState(THost host)
     {
       return _nextState;
     }

@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.IMatchService.cs
+﻿// Spines.Tenhou.Client.CloseConnectionTransition.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,10 +15,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace Spines.Tenhou.Client.LocalServer
+using Spines.Tenhou.Client.LocalServer.States;
+
+namespace Spines.Tenhou.Client.LocalServer.Transitions
 {
-  internal interface IMatchService
+  internal class CloseConnectionTransition : IStateTransition<LocalConnection, LobbyConnection>
   {
-    void EnterQueue(LobbyConnection connection, int lobby, MatchType matchType);
+    public void Execute(LobbyConnection host)
+    {
+      host.MatchServer.LeaveAll(host);
+    }
+
+    public IState<LocalConnection, LobbyConnection> PrepareNextState(LobbyConnection host)
+    {
+      return new FinalState<LocalConnection, LobbyConnection>();
+    }
   }
 }

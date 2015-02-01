@@ -24,34 +24,33 @@ namespace Spines.Tenhou.Client.LocalServer.States
   /// <summary>
   /// Base class for states that can time out.
   /// </summary>
-  internal abstract class LimitedTimeState<THost> : IState<THost>
+  internal abstract class LimitedTimeState<TSender, THost> : IState<TSender, THost>
   {
     private readonly int _milliseconds;
     private readonly Stopwatch _stopwatch = new Stopwatch();
 
     /// <summary>
-    /// Creates a new instance of LimitedTimeState.
+    /// Creates a new instance of LimitedTimeState that times out after 10 seconds.
     /// </summary>
-    /// <param name="milliseconds">Milliseconds until the state will time out.</param>
-    protected LimitedTimeState(int milliseconds)
+    protected LimitedTimeState()
     {
-      _milliseconds = milliseconds;
+      _milliseconds = 10000;
       _stopwatch.Start();
     }
 
-    public abstract IStateTransition<THost> Process(XElement message);
+    public abstract IStateTransition<TSender, THost> Process(TSender sender, XElement message);
 
     public bool IsFinal
     {
       get { return false; }
     }
 
-    public IStateTransition<THost> ProcessEmpty()
+    public IStateTransition<TSender, THost> ProcessEmpty()
     {
-      return IsTimedOut() ? CreateTimeOutState() : new DoNothingTransition<THost>(this);
+      return IsTimedOut() ? CreateTimeOutTransition() : new DoNothingTransition<TSender, THost>(this);
     }
 
-    protected abstract IStateTransition<THost> CreateTimeOutState();
+    protected abstract IStateTransition<TSender, THost> CreateTimeOutTransition();
 
     /// <summary>
     /// Resets the timer of the state.

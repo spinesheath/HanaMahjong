@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.MatchService.cs
+﻿// Spines.Tenhou.Client.InMatchState.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,20 +15,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
+using System.Xml.Linq;
+using Spines.Tenhou.Client.LocalServer.Transitions;
 
-namespace Spines.Tenhou.Client.LocalServer
+namespace Spines.Tenhou.Client.LocalServer.States
 {
-  internal class MatchService : IMatchService
+  internal class InMatchState : LimitedTimeState<LocalConnection, LobbyConnection>
   {
-    private readonly ISet<LobbyConnection> _players = new HashSet<LobbyConnection>();
-
-    public void EnterQueue(LobbyConnection connection, int lobby, MatchType matchType)
+    public override IStateTransition<LocalConnection, LobbyConnection> Process(LocalConnection sender, XElement message)
     {
-      lock (_players)
-      {
-        _players.Add(connection);
-      }
+      ResetTimer();
+      return new PassMessageToMatchTransition(message, this);
+    }
+
+    protected override IStateTransition<LocalConnection, LobbyConnection> CreateTimeOutTransition()
+    {
+      return new CloseConnectionTransition();
     }
   }
 }

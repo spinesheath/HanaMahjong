@@ -19,7 +19,7 @@ using Spines.Tenhou.Client.LocalServer.States;
 
 namespace Spines.Tenhou.Client.LocalServer.Transitions
 {
-  internal class QueueTransition : IStateTransition<LobbyConnection>
+  internal class QueueTransition : IStateTransition<LocalConnection, LobbyConnection>
   {
     private readonly int _lobby;
     private readonly MatchType _matchType;
@@ -30,14 +30,21 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
       _matchType = matchType;
     }
 
-    public IState<LobbyConnection> GetNextState(LobbyConnection host)
+    public IState<LocalConnection, LobbyConnection> PrepareNextState(LobbyConnection host)
     {
-      return new InQueueState();
+      if (host.MatchServer.CanEnterQueue(host, _lobby, _matchType))
+      {
+        return new InQueueState();
+      }
+      return new IdleState();
     }
 
     public void Execute(LobbyConnection host)
     {
-      host.EnterQueue(_lobby, _matchType);
+      if (host.MatchServer.CanEnterQueue(host, _lobby, _matchType))
+      {
+        host.MatchServer.EnterQueue(host, _lobby, _matchType);
+      }
     }
   }
 }

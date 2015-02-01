@@ -19,9 +19,9 @@ using Spines.Tenhou.Client.LocalServer.States;
 
 namespace Spines.Tenhou.Client.LocalServer.Transitions
 {
-  internal interface IStateTransition<in THost>
+  internal interface IStateTransition<in TSender, in THost>
   {
     void Execute(THost host);
-    IState<THost> GetNextState(THost host);
+    IState<TSender, THost> PrepareNextState(THost host);
   }
 }

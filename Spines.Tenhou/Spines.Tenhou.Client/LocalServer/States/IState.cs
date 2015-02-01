@@ -20,10 +20,10 @@ using Spines.Tenhou.Client.LocalServer.Transitions;
 
 namespace Spines.Tenhou.Client.LocalServer.States
 {
-  internal interface IState<in THost>
+  internal interface IState<in TSender, in THost>
   {
     bool IsFinal { get; }
-    IStateTransition<THost> Process(XElement message);
-    IStateTransition<THost> ProcessEmpty();
+    IStateTransition<TSender, THost> Process(TSender sender, XElement message);
+    IStateTransition<TSender, THost> ProcessEmpty();
   }
 }

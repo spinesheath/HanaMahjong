@@ -20,7 +20,7 @@ using Spines.Tenhou.Client.LocalServer.States;
 
 namespace Spines.Tenhou.Client.LocalServer.Transitions
 {
-  internal class LogOnTransition : IStateTransition<LobbyConnection>
+  internal class LogOnTransition : IStateTransition<LocalConnection, LobbyConnection>
   {
     private readonly string _accountId;
 
@@ -29,14 +29,13 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
       _accountId = accountId;
     }
 
-    public IState<LobbyConnection> GetNextState(LobbyConnection host)
+    public IState<LocalConnection, LobbyConnection> PrepareNextState(LobbyConnection host)
     {
       if (!host.RegistrationService.IsRegistered(_accountId))
       {
-        return new FinalState<LobbyConnection>();
+        return new FinalState<LocalConnection, LobbyConnection>();
       }
-      var authenticationString = host.AuthenticationService.GetAuthenticationString(_accountId);
-      return new AuthenticatingState(_accountId, authenticationString);
+      return new AuthenticatingState(_accountId);
     }
 
     public void Execute(LobbyConnection host)

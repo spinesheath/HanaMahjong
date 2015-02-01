@@ -26,14 +26,14 @@ using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer
 {
-  internal class StateMachine<THost>
+  internal class StateMachine<TSender, THost>
   {
-    private readonly ConcurrentQueue<IStateTransition<THost>> _transitions =
-      new ConcurrentQueue<IStateTransition<THost>>();
+    private readonly ConcurrentQueue<IStateTransition<TSender, THost>> _transitions =
+      new ConcurrentQueue<IStateTransition<TSender, THost>>();
     private readonly THost _host;
-    private IState<THost> _currentState;
+    private IState<TSender, THost> _currentState;
 
-    public StateMachine(THost host, IState<THost> firstState)
+    public StateMachine(THost host, IState<TSender, THost> firstState)
     {
       _host = host;
       _currentState = firstState;
@@ -42,21 +42,21 @@ namespace Spines.Tenhou.Client.LocalServer
 
     public event EventHandler Finished;
 
-    public void ProcessMessage(XElement message)
+    public void ProcessMessage(TSender sender, XElement message)
     {
-      Process(s => s.Process(message));
+      Process(s => s.Process(sender, message));
     }
 
     /// <summary>
     /// Advances to the next state and stores the transition.
     /// </summary>
     /// <param name="transitionGetter">Used to get the state transmission from the current state.</param>
-    private void AdvanceState(Func<IState<THost>, IStateTransition<THost>> transitionGetter)
+    private void AdvanceState(Func<IState<TSender, THost>, IStateTransition<TSender, THost>> transitionGetter)
     {
       lock (_currentState)
       {
         var transition = transitionGetter(_currentState);
-        _currentState = transition.GetNextState(_host);
+        _currentState = transition.PrepareNextState(_host);
         _transitions.Enqueue(transition);
       }
     }
@@ -80,7 +80,7 @@ namespace Spines.Tenhou.Client.LocalServer
       {
         while (!_transitions.IsEmpty)
         {
-          IStateTransition<THost> transition;
+          IStateTransition<TSender, THost> transition;
           if (!_transitions.TryDequeue(out transition))
           {
             break;
@@ -94,7 +94,7 @@ namespace Spines.Tenhou.Client.LocalServer
     /// Advances the current state and executes transitions.
     /// </summary>
     /// <param name="transitionGetter">Used to get the state transmission from the current state.</param>
-    private void Process(Func<IState<THost>, IStateTransition<THost>> transitionGetter)
+    private void Process(Func<IState<TSender, THost>, IStateTransition<TSender, THost>> transitionGetter)
     {
       AdvanceState(transitionGetter);
       ExecuteTransitions();
@@ -112,7 +112,7 @@ namespace Spines.Tenhou.Client.LocalServer
     {
       while (!_currentState.IsFinal)
       {
-        Thread.Sleep(100);
+        Thread.Sleep(500);
         Process(s => s.ProcessEmpty());
       }
     }

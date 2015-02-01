@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.InQueueState.cs
+﻿// Spines.Tenhou.Client.PlayersConnectingState.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,26 +15,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Xml.Linq;
 using Spines.Tenhou.Client.LocalServer.Transitions;
 
 namespace Spines.Tenhou.Client.LocalServer.States
 {
-  internal class InQueueState : LimitedTimeState<LocalConnection, LobbyConnection>
+  internal class PlayersConnectingState : LimitedTimeState<LobbyConnection, Match>
   {
-    public override IStateTransition<LocalConnection, LobbyConnection> Process(LocalConnection sender, XElement message)
+    public override IStateTransition<LobbyConnection, Match> Process(LobbyConnection sender, XElement message)
     {
       ResetTimer();
-      if (message.Name != "JOIN")
-      {
-        return new DoNothingTransition<LocalConnection, LobbyConnection>(this);
-      }
-      return new AcceptMatchTransition(message);
+
+      throw new NotImplementedException();
     }
 
-    protected override IStateTransition<LocalConnection, LobbyConnection> CreateTimeOutTransition()
+    protected override IStateTransition<LobbyConnection, Match> CreateTimeOutTransition()
     {
-      return new CloseConnectionTransition();
+      return new DoNothingTransition<LobbyConnection, Match>(new FinalState<LobbyConnection, Match>());
     }
   }
 }

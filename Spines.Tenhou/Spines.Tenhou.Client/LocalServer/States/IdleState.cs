@@ -3,7 +3,7 @@
 // Copyright (C) 2015  Johannes Heckl
 // 
 // This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
+// it under the terms of the GNU General Public License as published byLocalConnection, LobbyConnection
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
@@ -21,29 +21,24 @@ using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer.States
 {
-  internal class IdleState : LimitedTimeState<LobbyConnection>
+  internal class IdleState : LimitedTimeState<LocalConnection, LobbyConnection>
   {
-    public IdleState()
-      : base(10000)
-    {
-    }
-
-    public override IStateTransition<LobbyConnection> Process(XElement message)
+    public override IStateTransition<LocalConnection, LobbyConnection> Process(LocalConnection sender, XElement message)
     {
       ResetTimer();
       if (message.Name != "JOIN")
       {
-        return new DoNothingTransition<LobbyConnection>(this);
+        return new DoNothingTransition<LocalConnection, LobbyConnection>(this);
       }
       var parts = message.Attribute("t").Value.Split(new[] {','});
       var lobby = InvariantConvert.ToInt32(parts[0]);
-      var typeId = InvariantConvert.ToInt32(parts[1]);
-      return new QueueTransition(lobby, new MatchType(typeId));
+      var matchType = new MatchType(InvariantConvert.ToInt32(parts[1]));
+      return new QueueTransition(lobby, matchType);
     }
 
-    protected override IStateTransition<LobbyConnection> CreateTimeOutState()
+    protected override IStateTransition<LocalConnection, LobbyConnection> CreateTimeOutTransition()
     {
-      return new DoNothingTransition<LobbyConnection>(new FinalState<LobbyConnection>());
+      return new CloseConnectionTransition();
     }
   }
 }
