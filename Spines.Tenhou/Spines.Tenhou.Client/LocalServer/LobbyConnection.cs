@@ -22,12 +22,14 @@ namespace Spines.Tenhou.Client.LocalServer
   internal class LobbyConnection
   {
     private readonly LocalConnection _connection;
+    private readonly MatchService _matchService;
 
-    public LobbyConnection(LocalConnection connection, IRegistrationService registrationService, IAuthenticationService authenticationService)
+    public LobbyConnection(LocalConnection connection, MatchService matchService)
     {
       _connection = connection;
-      RegistrationService = registrationService;
-      AuthenticationService = authenticationService;
+      RegistrationService = new RegistrationService();
+      AuthenticationService = new AuthenticationService();
+      _matchService = matchService;
     }
 
     public IRegistrationService RegistrationService { get; private set; }
@@ -36,6 +38,11 @@ namespace Spines.Tenhou.Client.LocalServer
     public void SendToClient(XElement message)
     {
       _connection.Receive(message);
+    }
+
+    public void EnterQueue(int lobby, MatchType matchType)
+    {
+      _matchService.EnterQueue(this, lobby, matchType);
     }
   }
 }

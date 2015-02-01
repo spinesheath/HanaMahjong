@@ -62,6 +62,8 @@
     <Compile Include="LocalServer\FinalState.cs" />
     <Compile Include="LocalServer\IAuthenticationService.cs" />
     <Compile Include="LocalServer\IdleState.cs" />
+    <Compile Include="LocalServer\IMatchService.cs" />
+    <Compile Include="LocalServer\InQueueState.cs" />
     <Compile Include="LocalServer\IRegistrationService.cs" />
     <Compile Include="LocalServer\IState.cs" />
     <Compile Include="LocalServer\IStateTransition.cs" />
@@ -70,6 +72,8 @@
     <Compile Include="LocalServer\LocalMatchServer.cs" />
     <Compile Include="LocalServer\ConnectingToMatchState.cs" />
     <Compile Include="LocalServer\LogOnTransition.cs" />
+    <Compile Include="LocalServer\MatchService.cs" />
+    <Compile Include="LocalServer\QueueTransition.cs" />
     <Compile Include="LocalServer\RegistrationService.cs" />
     <Compile Include="LocalServer\StateMachine.cs" />
     <Compile Include="Username.cs" />

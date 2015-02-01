@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.IdleState.cs
+﻿// Spines.Tenhou.Client.InQueueState.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,14 +15,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Xml.Linq;
-using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer
 {
-  internal class IdleState : LimitedTimeState<LobbyConnection>
+  internal class InQueueState : LimitedTimeState<LobbyConnection>
   {
-    public IdleState()
+    /// <summary>
+    /// Creates a new instance of LimitedTimeState.
+    /// </summary>
+    public InQueueState()
       : base(10000)
     {
     }
@@ -30,14 +33,11 @@ namespace Spines.Tenhou.Client.LocalServer
     public override IStateTransition<LobbyConnection> Process(XElement message)
     {
       ResetTimer();
-      if (message.Name != "JOIN")
+      if (message.Name == "JOIN")
       {
-        return new DoNothingTransition<LobbyConnection>(this);
+        
       }
-      var parts = message.Attribute("t").Value.Split(new []{','});
-      var lobby = InvariantConvert.ToInt32(parts[0]);
-      var typeId = InvariantConvert.ToInt32(parts[1]);
-      return new QueueTransition(lobby, new MatchType(typeId));
+      throw new NotImplementedException();
     }
 
     protected override IStateTransition<LobbyConnection> CreateTimeOutState()

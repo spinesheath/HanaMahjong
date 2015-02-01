@@ -29,6 +29,8 @@ namespace Spines.Tenhou.Client.LocalServer
     private readonly IDictionary<LocalConnection, StateMachine<LobbyConnection>> _stateMachines =
       new Dictionary<LocalConnection, StateMachine<LobbyConnection>>();
 
+    private readonly MatchService _matchService = new MatchService();
+
     public LocalLobbyServer(ISeedGenerator seedGenerator)
     {
       _seedGenerator = seedGenerator;
@@ -41,7 +43,7 @@ namespace Spines.Tenhou.Client.LocalServer
       {
         if (!_stateMachines.ContainsKey(connection))
         {
-          var lobbyConnection = new LobbyConnection(connection, new RegistrationService(), new AuthenticationService());
+          var lobbyConnection = new LobbyConnection(connection, _matchService);
           stateMachine = new StateMachine<LobbyConnection>(lobbyConnection, new ConnectionEstablishedState());
           stateMachine.Finished += OnConnectionEnded;
           _stateMachines.Add(connection, stateMachine);
