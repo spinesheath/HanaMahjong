@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.PlayersGettingReadyState.cs
+﻿// Spines.Tenhou.Client.PlayerActiveState.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,33 +15,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Xml.Linq;
 using Spines.Tenhou.Client.LocalServer.Transitions;
-using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer.States
 {
-  internal class PlayersGettingReadyState : LimitedTimeState<LobbyConnection, Match>
+  internal class PlayerActiveState : LimitedTimeState<LobbyConnection, Match>
   {
+    public PlayerActiveState(int milliseconds)
+      : base(milliseconds)
+    {
+    }
+
     public override IStateTransition<LobbyConnection, Match> Process(XElement message)
     {
-      Validate.NotNull(message, "message");
-      // TODO if timer runs out, start match anyways
-      ResetTimer();
-      if (message.Name == "GOK")
+      if (message.Name == "D")
       {
-        return new ConfirmGoTransition(this);
-      }
-      if (message.Name == "NEXTREADY")
-      {
-        return new PlayerReadyTransition(this);
+        return new DiscardTransition(this);
       }
       return new DoNothingTransition<LobbyConnection, Match>(this);
     }
 
     protected override IStateTransition<LobbyConnection, Match> CreateTimeOutTransition()
     {
-      return new DoNothingTransition<LobbyConnection, Match>(new FinalState<LobbyConnection, Match>());
+      throw new NotImplementedException();
     }
   }
 }

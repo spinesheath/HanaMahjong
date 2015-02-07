@@ -26,20 +26,34 @@ namespace Spines.Tenhou.Client.LocalServer
 {
   internal class Match
   {
+    private const int CurrentNagareCount = 0;
+    private const int CurrentHonbaCount = 0;
+    private readonly int _firstOyaIndex;
     private readonly int _lobby;
     private readonly MatchType _matchType;
-    private readonly IDictionary<LobbyConnection, bool> _players = new Dictionary<LobbyConnection, bool>();
+
+    private readonly IDictionary<LobbyConnection, PlayerStatus> _players =
+      new Dictionary<LobbyConnection, PlayerStatus>();
+
+    private readonly WallGenerator _shuffler;
     private readonly StateMachine<LobbyConnection, Match> _stateMachine;
-    private WallGenerator _shuffler;
+    private int _currentGameIndex = 0;
+    // roundNumber = seed[0] / 4
+    // gameNumber = seed[0] % 4
+    private Wall _currentWall;
+    private int _timesOyaChanged = 0;
 
     public Match(string seed, IEnumerable<LobbyConnection> players, int lobby, MatchType matchType)
     {
       _lobby = lobby;
       _matchType = matchType;
       _shuffler = new WallGenerator(seed);
+      _firstOyaIndex = _shuffler.GetDice(0).First() % 4;
+      var playerIndex = 0;
       foreach (var player in players)
       {
-        _players.Add(player, false);
+        _players.Add(player, new PlayerStatus(playerIndex));
+        playerIndex += 1;
       }
       _stateMachine = new StateMachine<LobbyConnection, Match>(this, new PlayersConnectingState());
       _stateMachine.Finished += OnFinished;
@@ -50,19 +64,71 @@ namespace Spines.Tenhou.Client.LocalServer
       get { return _players.Keys; }
     }
 
-    public event EventHandler Finished;
-
-    public bool AllPlayersConfirmed()
+    /// <summary>
+    /// Milliseconds per turn.
+    /// </summary>
+    public int TimePerTurn
     {
-      return _players.All(p => p.Value);
+      get { return 5000; }
     }
 
-    public void ConfirmPlayer(LobbyConnection sender, int lobby, MatchType matchType)
+    public event EventHandler Finished;
+
+    public bool AreAllPlayersParticipating()
     {
-      if (_players.ContainsKey(sender))
+      return _players.All(p => p.Value.IsParticipating);
+    }
+
+    /// <summary>
+    /// Checks if all players are ready for the next game.
+    /// </summary>
+    /// <returns>True if all players sent NEXTREADY after the GO message or the end of the last game.</returns>
+    public bool AreAllPlayersReadyForNextGame()
+    {
+      return _players.All(p => p.Value.IsReadyForNextGame);
+    }
+
+    /// <summary>
+    /// Confirms that a player sent a GOK message after the GO message.
+    /// </summary>
+    /// <param name="player">The player that sent the message.</param>
+    public void ConfirmGo(LobbyConnection player)
+    {
+      if (_players.ContainsKey(player))
       {
-        _players[sender] = true;
+        _players[player].AcceptedGo = true;
       }
+    }
+
+    /// <summary>
+    /// Confirms that the player participates in the match.
+    /// </summary>
+    /// <param name="player">The participating player.</param>
+    /// <param name="lobby">The lobby of the match.</param>
+    /// <param name="matchType">The type of the match.</param>
+    public void ConfirmPlayerAsParticipant(LobbyConnection player, int lobby, MatchType matchType)
+    {
+      if (_players.ContainsKey(player))
+      {
+        _players[player].IsParticipating = true;
+      }
+    }
+
+    public void ConfirmPlayerIsReady(LobbyConnection player)
+    {
+      if (_players.ContainsKey(player))
+      {
+        _players[player].IsReadyForNextGame = true;
+      }
+    }
+
+    /// <summary>
+    /// Returns the remaining extra time for the active player.
+    /// </summary>
+    /// <returns>The remaining extra time for the active player</returns>
+    public int GetRemainingExtraTime()
+    {
+      return 0;
     }
 
     public void InvitePlayers()
@@ -84,6 +150,27 @@ namespace Spines.Tenhou.Client.LocalServer
       }
     }
 
+    public void StartNextGame()
+    {
+      var dice = _shuffler.GetDice(_currentGameIndex).ToList();
+      _currentWall = new Wall(_shuffler.GetWall(_currentGameIndex));
+      var firstDora = _currentWall.GetDora(0);
+      var seedValues = new[] {_timesOyaChanged, CurrentHonbaCount, CurrentNagareCount, dice[0], dice[1], firstDora};
+      var seed = new XAttribute("seed", string.Join(",", seedValues));
+      var points = Enumerable.Repeat(250, 4);
+      var ten = new XAttribute("ten", string.Join(",", points));
+      var oyaIndex = (_firstOyaIndex + _timesOyaChanged) % 4;
+      var oya = new XAttribute("oya", oyaIndex);
+      foreach (var player in _players)
+      {
+        var tiles = _currentWall.GetStartingHand(oyaIndex, player.Value.PlayerIndex);
+        var hai = new XAttribute("hai", string.Join(",", tiles));
+        var message = new XElement("INIT", seed, ten, oya, hai);
+        player.Key.SendToClient(message);
+      }
+      SendDraw(oyaIndex);
+    }
+
     private void OnFinished(object sender, EventArgs e)
     {
       var stateMachine = (StateMachine<LobbyConnection, Match>) sender;
@@ -91,95 +178,22 @@ namespace Spines.Tenhou.Client.LocalServer
       EventUtility.CheckAndRaise(Finished, this);
     }
 
-    //private void SendInit(int gameIndex)
-    //{
-    //  // roundNumber = seed[0] / 4
-    //  // gameNumber = seed[0] % 4
-    //  // timesTheOyaChanged = seed[0]
-    //  // honba = seed[1]
-    //  // nagare/riichi = seed[2]
-    //  const int timesTheOyaChanged = 0;
-    //  var seedValues = new[] { timesTheOyaChanged, 0, 0, _matchState.GetDice(0), _matchState.GetDice(1), _matchState.GetDora(0) };
-    //  var seed = new XAttribute("seed", string.Join(",", seedValues));
-    //  var points = Enumerable.Repeat(250, 4);
-    //  var ten = new XAttribute("ten", string.Join(",", points));
-    //  var oya = new XAttribute("oya", timesTheOyaChanged % 4);
-    //  var connectedPlayers = GetConnectedPlayers().ToList();
-    //  for (var i = 0; i < connectedPlayers.Count; ++i)
-    //  {
-    //    var tiles = _matchState.GetCurrentHand(i);
-    //    var hai = new XAttribute("ten", string.Join(",", tiles));
-    //    var process = new XElement("INIT", seed, ten, oya, hai);
-    //    connectedPlayers[i].Key.Receive(process);
-    //  }
-    //}
-
-    //internal class MatchState
-    //{
-    //  private readonly WallGenerator _shuffler;
-    //  private readonly IList<PlayerState> _players;
-
-    //  public MatchState(string seed, IEnumerable<PlayerState> playerStates)
-    //  {
-    //    _shuffler = new WallGenerator(seed);
-    //    CurrentGameIndex = 0;
-    //    CurrentOyaIndex = 0;
-    //    _players = playerStates.ToList();
-    //    LoadStartingHands();
-    //  }
-
-    //  private void LoadStartingHands()
-    //  {
-    //    for (var i = 0; i < 4; ++i)
-    //    {
-    //      _players[i].CurrentHand = GetStartingHand(i);
-    //    }
-    //  }
-
-    //  public int CurrentGameIndex { get; private set; }
-
-    //  public int FirstOyaIndex { get { return 0; } }
-
-    //  public int CurrentOyaIndex { get; private set; }
-
-    //  public PlayerState ActivePlayer { get; private set; }
-
-    //  public int GetDice(int diceIndex)
-    //  {
-    //    Validate.InRange(diceIndex, 0, 1, "diceIndex");
-    //    return _shuffler.GetDice(CurrentGameIndex).ToList()[diceIndex];
-    //  }
-
-    //  public int GetDora(int doraIndex)
-    //  {
-    //    Validate.InRange(doraIndex, 0, 4, "doraIndex");
-    //    return _shuffler.GetWall(CurrentGameIndex).Skip(5 + 2 * doraIndex).First();
-    //  }
-
-    //  public IEnumerable<int> GetCurrentHand(int playerIndex)
-    //  {
-    //    Validate.InRange(playerIndex, 0, 3, "playerIndex");
-    //    return _players[playerIndex].CurrentHand;
-    //  }
-
-    //  private IEnumerable<int> GetStartingHand(int playerIndex)
-    //  {
-    //    var wall = _shuffler.GetWall(CurrentGameIndex).ToList();
-    //    var drawOrderIndex = (4 + playerIndex - CurrentOyaIndex) % 4;
-    //    yield return wall[135 - drawOrderIndex * 4];
-    //    yield return wall[134 - drawOrderIndex * 4];
-    //    yield return wall[133 - drawOrderIndex * 4];
-    //    yield return wall[132 - drawOrderIndex * 4];
-    //    yield return wall[135 - 16 - drawOrderIndex * 4];
-    //    yield return wall[134 - 16 - drawOrderIndex * 4];
-    //    yield return wall[133 - 16 - drawOrderIndex * 4];
-    //    yield return wall[132 - 16 - drawOrderIndex * 4];
-    //    yield return wall[135 - 32 - drawOrderIndex * 4];
-    //    yield return wall[134 - 32 - drawOrderIndex * 4];
-    //    yield return wall[133 - 32 - drawOrderIndex * 4];
-    //    yield return wall[132 - 32 - drawOrderIndex * 4];
-    //    yield return wall[135 - 48 - drawOrderIndex * 4];
-    //  }
-    //}
+    private void SendDraw(int playerIndex)
+    {
+      var tile = _currentWall.PopDraw();
+      const string characters = "TUVW";
+      foreach (var player in _players)
+      {
+        if (player.Value.PlayerIndex == playerIndex)
+        {
+          player.Key.SendToClient(new XElement("T" + tile));
+        }
+        else
+        {
+          var characterIndex = (4 + playerIndex - player.Value.PlayerIndex) % 4;
+          player.Key.SendToClient(new XElement(characters.Substring(characterIndex, 1)));
+        }
+      }
+    }
   }
 }

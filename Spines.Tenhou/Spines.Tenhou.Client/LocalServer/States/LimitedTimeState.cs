@@ -38,6 +38,16 @@ namespace Spines.Tenhou.Client.LocalServer.States
       _stopwatch.Start();
     }
 
+    /// <summary>
+    /// Creates a new instance of LimitedTimeState that times out after a given amount of time.
+    /// </summary>
+    /// <param name="milliseconds">Milliseconds until timeout.</param>
+    protected LimitedTimeState(int milliseconds)
+    {
+      _milliseconds = milliseconds;
+      _stopwatch.Start();
+    }
+
     public abstract IStateTransition<TSender, THost> Process(XElement message);
 
     public bool IsFinal

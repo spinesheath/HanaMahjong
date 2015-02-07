@@ -38,7 +38,7 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
     public void Execute(Match host)
     {
       Validate.NotNull(host, "host");
-      if (host.AllPlayersConfirmed())
+      if (host.AreAllPlayersParticipating())
       {
         SendGo(host);
         SendTaikyoku(host);
@@ -49,14 +49,14 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
     public IState<LobbyConnection, Match> PrepareNextState(LobbyConnection sender, Match host)
     {
       Validate.NotNull(host, "host");
-      host.ConfirmPlayer(sender, _lobby, _matchType);
+      host.ConfirmPlayerAsParticipant(sender, _lobby, _matchType);
       return PrepareNextStateEmpty(host);
     }
 
     public IState<LobbyConnection, Match> PrepareNextStateEmpty(Match host)
     {
       Validate.NotNull(host, "host");
-      return host.AllPlayersConfirmed() ? new PlayersGettingReadyState() : _currentState;
+      return host.AreAllPlayersParticipating() ? new PlayersGettingReadyState() : _currentState;
     }
 
     private static void SendGo(Match host)

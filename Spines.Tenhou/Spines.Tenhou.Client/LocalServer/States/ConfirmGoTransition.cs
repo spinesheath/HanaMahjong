@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.PlayersGettingReadyState.cs
+﻿// Spines.Tenhou.Client.ConfirmGoTransition.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,33 +15,34 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Xml.Linq;
 using Spines.Tenhou.Client.LocalServer.Transitions;
 using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer.States
 {
-  internal class PlayersGettingReadyState : LimitedTimeState<LobbyConnection, Match>
+  internal class ConfirmGoTransition : IStateTransition<LobbyConnection, Match>
   {
-    public override IStateTransition<LobbyConnection, Match> Process(XElement message)
+    private readonly IState<LobbyConnection, Match> _currentState;
+
+    public ConfirmGoTransition(IState<LobbyConnection, Match> currentState)
     {
-      Validate.NotNull(message, "message");
-      // TODO if timer runs out, start match anyways
-      ResetTimer();
-      if (message.Name == "GOK")
-      {
-        return new ConfirmGoTransition(this);
-      }
-      if (message.Name == "NEXTREADY")
-      {
-        return new PlayerReadyTransition(this);
-      }
-      return new DoNothingTransition<LobbyConnection, Match>(this);
+      _currentState = currentState;
     }
 
-    protected override IStateTransition<LobbyConnection, Match> CreateTimeOutTransition()
+    public void Execute(Match host)
     {
-      return new DoNothingTransition<LobbyConnection, Match>(new FinalState<LobbyConnection, Match>());
+    }
+
+    public IState<LobbyConnection, Match> PrepareNextState(LobbyConnection sender, Match host)
+    {
+      Validate.NotNull(host, "host");
+      host.ConfirmGo(sender);
+      return PrepareNextStateEmpty(host);
+    }
+
+    public IState<LobbyConnection, Match> PrepareNextStateEmpty(Match host)
+    {
+      return _currentState;
     }
   }
 }

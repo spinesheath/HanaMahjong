@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.InMatchState.cs
+﻿// Spines.Tenhou.Client.DiscardTransition.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,28 +15,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Xml.Linq;
 using Spines.Tenhou.Client.LocalServer.Transitions;
-using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer.States
 {
-  internal class InMatchState : LimitedTimeState<LocalConnection, LobbyConnection>
+  internal class DiscardTransition : IStateTransition<LobbyConnection, Match>
   {
-    public override IStateTransition<LocalConnection, LobbyConnection> Process(XElement message)
+    private readonly IState<LobbyConnection, Match> _currentState;
+
+    public DiscardTransition(IState<LobbyConnection, Match> currentState)
     {
-      Validate.NotNull(message, "message");
-      ResetTimer();
-      if (message.Name == "BYE")
-      {
-        return new DoNothingTransition<LocalConnection, LobbyConnection>(new IdleState());
-      }
-      return new PassMessageToMatchTransition(message, this);
+      _currentState = currentState;
     }
 
-    protected override IStateTransition<LocalConnection, LobbyConnection> CreateTimeOutTransition()
+    public void Execute(Match host)
     {
-      return new CloseConnectionTransition();
+    }
+
+    public IState<LobbyConnection, Match> PrepareNextState(LobbyConnection sender, Match host)
+    {
+      return PrepareNextStateEmpty(host);
+    }
+
+    public IState<LobbyConnection, Match> PrepareNextStateEmpty(Match host)
+    {
+      return _currentState;
     }
   }
 }
