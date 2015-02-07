@@ -42,13 +42,14 @@ namespace Spines.Tenhou.Client.LocalServer
     // gameNumber = seed[0] % 4
     private Wall _currentWall;
     private int _timesOyaChanged = 0;
+    private int _currentActivePlayerIndex;
 
     public Match(string seed, IEnumerable<LobbyConnection> players, int lobby, MatchType matchType)
     {
       _lobby = lobby;
       _matchType = matchType;
       _shuffler = new WallGenerator(seed);
-      _firstOyaIndex = _shuffler.GetDice(0).First() % 4;
+      _firstOyaIndex = _shuffler.GetWall(0).First().Id % 4;
       var playerIndex = 0;
       foreach (var player in players)
       {
@@ -122,6 +123,19 @@ namespace Spines.Tenhou.Client.LocalServer
       }
     }
 
+    public void SendDiscard(Tile tile)
+    {
+      // TODO discard from hand or tsumokiri
+      const string characters = "defg";
+      foreach (var player in _players)
+      { 
+        var characterIndex = (4 + _currentActivePlayerIndex - player.Value.PlayerIndex) % 4;
+        player.Key.SendToClient(new XElement(characters.Substring(characterIndex, 1) + tile.Id));
+      }
+
+      _currentActivePlayerIndex = (_currentActivePlayerIndex + 1) % 4;
+    }
+
     /// <summary>
     /// Returns the remaining extra time for the active player.
     /// </summary>
@@ -129,6 +143,11 @@ namespace Spines.Tenhou.Client.LocalServer
     public int GetRemainingExtraTime()
     {
       return 0;
+    }
+
+    public bool HasTileInClosedHand(LobbyConnection player, Tile tile)
+    {
+      return _players[player].HasTileInClosedHand(tile);
     }
 
     public void InvitePlayers()
@@ -142,20 +161,41 @@ namespace Spines.Tenhou.Client.LocalServer
       _stateMachine.ProcessMessage(sender, message);
     }
 
-    public void SendToAll(XElement message)
+    public void SendGo()
     {
-      foreach (var player in _players.Keys)
-      {
-        player.SendToClient(message);
-      }
+      var type = new XAttribute("type", "9");
+      var lobby = new XAttribute("lobby", "0");
+      var gpid = new XAttribute("gpid", "7167A1C7-5FA3ECC6");
+      SendToAll(new XElement("GO", type, lobby, gpid));
+    }
+
+    public void SendTaikyoku()
+    {
+      // TODO how is oya calculated? In replays it's always 0 at the start, in live matches not
+      var oya = new XAttribute("oya", 0);
+      var log = new XAttribute("log", "2012102722gm-0009-0000-9e067f8e");
+      SendToAll(new XElement("TAIKYOKU", oya, log));
+    }
+
+    public void SendUn()
+    {
+      var dan = new XAttribute("dan", "12,12,12,10");
+      var rate = new XAttribute("rate", "1704.57,1675.00,1701.91,1618.53");
+      var sx = new XAttribute("sx", "M,M,M,M");
+      var n0 = new XAttribute("n0", "player0");
+      var n1 = new XAttribute("n1", "player1");
+      var n2 = new XAttribute("n2", "player2");
+      var n3 = new XAttribute("n3", "player3");
+      SendToAll(new XElement("UN", n0, n1, n2, n3, dan, rate, sx));
     }
 
     public void StartNextGame()
     {
       var dice = _shuffler.GetDice(_currentGameIndex).ToList();
       _currentWall = new Wall(_shuffler.GetWall(_currentGameIndex));
+      _currentActivePlayerIndex = _firstOyaIndex;
       var firstDora = _currentWall.GetDora(0);
-      var seedValues = new[] {_timesOyaChanged, CurrentHonbaCount, CurrentNagareCount, dice[0], dice[1], firstDora};
+      var seedValues = new[] {_timesOyaChanged, CurrentHonbaCount, CurrentNagareCount, dice[0], dice[1], firstDora.Id};
       var seed = new XAttribute("seed", string.Join(",", seedValues));
       var points = Enumerable.Repeat(250, 4);
       var ten = new XAttribute("ten", string.Join(",", points));
@@ -168,7 +208,7 @@ namespace Spines.Tenhou.Client.LocalServer
         var message = new XElement("INIT", seed, ten, oya, hai);
         player.Key.SendToClient(message);
       }
-      SendDraw(oyaIndex);
+      SendDraw();
     }
 
     private void OnFinished(object sender, EventArgs e)
@@ -178,22 +218,46 @@ namespace Spines.Tenhou.Client.LocalServer
       EventUtility.CheckAndRaise(Finished, this);
     }
 
-    private void SendDraw(int playerIndex)
+    public void SendDraw()
     {
       var tile = _currentWall.PopDraw();
       const string characters = "TUVW";
       foreach (var player in _players)
       {
-        if (player.Value.PlayerIndex == playerIndex)
+        if (player.Value.PlayerIndex == _currentActivePlayerIndex)
         {
-          player.Key.SendToClient(new XElement("T" + tile));
+          player.Value.AddTile(tile);
+          player.Key.SendToClient(new XElement("T" + tile.Id));
         }
         else
         {
-          var characterIndex = (4 + playerIndex - player.Value.PlayerIndex) % 4;
+          var characterIndex = (4 + _currentActivePlayerIndex - player.Value.PlayerIndex) % 4;
           player.Key.SendToClient(new XElement(characters.Substring(characterIndex, 1)));
         }
       }
+    }
+
+    private void SendToAll(XElement message)
+    {
+      foreach (var player in _players.Keys)
+      {
+        player.SendToClient(message);
+      }
+    }
+
+    public bool IsActive(LobbyConnection player)
+    {
+      return _players[player].PlayerIndex == _currentActivePlayerIndex;
+    }
+
+    public bool CanDraw()
+    {
+      return _currentWall.HasNextDraw;
+    }
+
+    public void SendRyuukyoku()
+    {
+      // TODO send ryuukyoku
     }
   }
 }

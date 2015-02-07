@@ -15,25 +15,45 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Spines.Tenhou.Client.LocalServer.Transitions;
+using System.Xml.Linq;
+using Spines.Tenhou.Client.LocalServer.States;
+using Spines.Utility;
 
-namespace Spines.Tenhou.Client.LocalServer.States
+namespace Spines.Tenhou.Client.LocalServer.Transitions
 {
   internal class DiscardTransition : IStateTransition<LobbyConnection, Match>
   {
     private readonly IState<LobbyConnection, Match> _currentState;
+    private readonly Tile _tile;
+    private LobbyConnection _sender;
 
-    public DiscardTransition(IState<LobbyConnection, Match> currentState)
+    public DiscardTransition(IState<LobbyConnection, Match> currentState, XElement message)
     {
       _currentState = currentState;
+      _tile = new Tile(InvariantConvert.ToInt32(message.Attribute("p").Value));
     }
 
     public void Execute(Match host)
     {
+      if (!host.IsActive(_sender) || !host.HasTileInClosedHand(_sender, _tile))
+      {
+        return;
+      }
+      host.SendDiscard(_tile);
+      if (host.CanDraw())
+      {
+        host.SendDraw();
+      }
+      else
+      {
+        host.SendRyuukyoku();
+      }
     }
 
     public IState<LobbyConnection, Match> PrepareNextState(LobbyConnection sender, Match host)
     {
+      // TODO clean this up, don't want to hold sender across method calls.
+      _sender = sender;
       return PrepareNextStateEmpty(host);
     }
 

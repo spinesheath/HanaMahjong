@@ -22,26 +22,27 @@ namespace Spines.Tenhou.Client.LocalServer
 {
   internal class Wall
   {
-    private readonly LinkedList<int> _draws;
-    private readonly Stack<int> _rinshanDraws;
-    private readonly IList<int> _doras;
-    private readonly IList<int> _uraDoras;
+    private readonly IList<Tile> _doras;
+    private readonly LinkedList<Tile> _draws;
+    private readonly Stack<Tile> _rinshanDraws;
 
-    private readonly IList<IList<int>> _startingHands = new List<IList<int>>
+    private readonly IList<IList<Tile>> _startingHands = new List<IList<Tile>>
     {
-      new List<int>(),
-      new List<int>(),
-      new List<int>(),
-      new List<int>()
+      new List<Tile>(),
+      new List<Tile>(),
+      new List<Tile>(),
+      new List<Tile>()
     };
 
-    public Wall(IEnumerable<int> tiles)
+    private readonly IList<Tile> _uraDoras;
+
+    public Wall(IEnumerable<Tile> tiles)
     {
       var tileList = tiles.ToList();
-      _draws = new LinkedList<int>(tileList.Skip(14));
-      _rinshanDraws = new Stack<int>(new[] {tileList[2], tileList[3], tileList[0], tileList[1]});
-      _doras = new List<int>(new[] { tileList[5], tileList[7], tileList[9], tileList[11] });
-      _uraDoras = new List<int>(new[] { tileList[4], tileList[6], tileList[8], tileList[10] });
+      _draws = new LinkedList<Tile>(tileList.Skip(14));
+      _rinshanDraws = new Stack<Tile>(new[] {tileList[2], tileList[3], tileList[0], tileList[1]});
+      _doras = new List<Tile>(new[] {tileList[5], tileList[7], tileList[9], tileList[11]});
+      _uraDoras = new List<Tile>(new[] {tileList[4], tileList[6], tileList[8], tileList[10]});
       for (var i = 0; i < 12 * 4; ++i)
       {
         var drawOrderIndex = (i / 4) % 4;
@@ -53,33 +54,38 @@ namespace Spines.Tenhou.Client.LocalServer
       }
     }
 
-    public int PopDraw()
+    public bool HasNextDraw
+    {
+      get { return _draws.Count > 0; }
+    }
+
+    public Tile GetDora(int index)
+    {
+      return _doras[index];
+    }
+
+    public IEnumerable<Tile> GetStartingHand(int oyaIndex, int playerIndex)
+    {
+      var drawOrderIndex = (4 + playerIndex - oyaIndex) % 4;
+      return _startingHands[drawOrderIndex];
+    }
+
+    public Tile GetUraDora(int index)
+    {
+      return _uraDoras[index];
+    }
+
+    public Tile PopDraw()
     {
       var tile = _draws.Last.Value;
       _draws.RemoveLast();
       return tile;
     }
 
-    public int PopRinshanDraw()
+    public Tile PopRinshanDraw()
     {
       _draws.RemoveFirst();
       return _rinshanDraws.Pop();
-    }
-
-    public int GetDora(int index)
-    {
-      return _doras[index];
-    }
-
-    public IEnumerable<int> GetStartingHand(int oyaIndex, int playerIndex)
-    {
-      var drawOrderIndex = (4 + playerIndex - oyaIndex) % 4;
-      return _startingHands[drawOrderIndex];
-    }
-
-    public int GetUraDora(int index)
-    {
-      return _uraDoras[index];
     }
   }
 }

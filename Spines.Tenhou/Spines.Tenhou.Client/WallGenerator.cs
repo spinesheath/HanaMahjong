@@ -30,7 +30,7 @@ namespace Spines.Tenhou.Client
   {
     private readonly IList<IEnumerable<int>> _dice = new List<IEnumerable<int>>();
     private readonly TenhouShuffler _shuffler;
-    private readonly IList<IEnumerable<int>> _walls = new List<IEnumerable<int>>();
+    private readonly IList<IEnumerable<Tile>> _walls = new List<IEnumerable<Tile>>();
 
     /// <summary>
     /// Creates a new instance of WallGenerator.
@@ -64,7 +64,7 @@ namespace Spines.Tenhou.Client
     /// </summary>
     /// <param name="gameIndex">The index of the game within the match.</param>
     /// <returns>A sequence of 136 tiles.</returns>
-    public IEnumerable<int> GetWall(int gameIndex)
+    public IEnumerable<Tile> GetWall(int gameIndex)
     {
       Validate.NotNegative(gameIndex, "gameIndex");
       while (_walls.Count <= gameIndex)
@@ -142,7 +142,7 @@ namespace Spines.Tenhou.Client
       return t;
     }
 
-    private static void Swap(IList<int> wall, int index1, int index2)
+    private static void Swap<T>(IList<T> wall, int index1, int index2)
     {
       var t = wall[index1];
       wall[index1] = wall[index2];
@@ -163,7 +163,7 @@ namespace Spines.Tenhou.Client
     private void Generate()
     {
       var rnd = Create144RandomValues().Select(v => unchecked ((uint) v)).ToList();
-      var wall = Enumerable.Range(0, 136).ToList();
+      var wall = Enumerable.Range(0, 136).Select(t => new Tile(t)).ToList();
       for (var i = 0; i < wall.Count - 1; ++i)
       {
         Swap(wall, i, i + Convert.ToInt16(rnd[i] % (136 - i)));

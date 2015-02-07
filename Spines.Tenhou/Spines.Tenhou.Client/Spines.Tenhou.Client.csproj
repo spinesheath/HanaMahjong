@@ -57,11 +57,11 @@
     <Compile Include="LocalServer\PlayerStatus.cs" />
     <Compile Include="LocalServer\Match.cs" />
     <Compile Include="LocalServer\States\AuthenticatingState.cs" />
-    <Compile Include="LocalServer\States\ConfirmGoTransition.cs" />
-    <Compile Include="LocalServer\States\DiscardTransition.cs" />
+    <Compile Include="LocalServer\Transitions\ConfirmGoTransition.cs" />
+    <Compile Include="LocalServer\Transitions\DiscardTransition.cs" />
     <Compile Include="LocalServer\States\InMatchState.cs" />
     <Compile Include="LocalServer\States\PlayerActiveState.cs" />
-    <Compile Include="LocalServer\States\PlayerReadyTransition.cs" />
+    <Compile Include="LocalServer\Transitions\PlayerReadyTransition.cs" />
     <Compile Include="LocalServer\States\PlayersConnectingState.cs" />
     <Compile Include="LocalServer\States\PlayersGettingReadyState.cs" />
     <Compile Include="LocalServer\Transitions\AcceptMatchTransition.cs" />

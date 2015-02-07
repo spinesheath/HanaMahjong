@@ -40,9 +40,9 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
       Validate.NotNull(host, "host");
       if (host.AreAllPlayersParticipating())
       {
-        SendGo(host);
-        SendTaikyoku(host);
-        SendUn(host);
+        host.SendGo();
+        host.SendTaikyoku();
+        host.SendUn();
       }
     }
 
@@ -57,34 +57,6 @@ namespace Spines.Tenhou.Client.LocalServer.Transitions
     {
       Validate.NotNull(host, "host");
       return host.AreAllPlayersParticipating() ? new PlayersGettingReadyState() : _currentState;
-    }
-
-    private static void SendGo(Match host)
-    {
-      var type = new XAttribute("type", "9");
-      var lobby = new XAttribute("lobby", "0");
-      var gpid = new XAttribute("gpid", "7167A1C7-5FA3ECC6");
-      host.SendToAll(new XElement("GO", type, lobby, gpid));
-    }
-
-    private static void SendTaikyoku(Match host)
-    {
-      // TODO how is oya calculated? In replays it's always 0 at the start, in live matches not
-      var oya = new XAttribute("oya", 0);
-      var log = new XAttribute("log", "2012102722gm-0009-0000-9e067f8e");
-      host.SendToAll(new XElement("TAIKYOKU", oya, log));
-    }
-
-    private static void SendUn(Match host)
-    {
-      var dan = new XAttribute("dan", "12,12,12,10");
-      var rate = new XAttribute("rate", "1704.57,1675.00,1701.91,1618.53");
-      var sx = new XAttribute("sx", "M,M,M,M");
-      var n0 = new XAttribute("n0", "player0");
-      var n1 = new XAttribute("n1", "player1");
-      var n2 = new XAttribute("n2", "player2");
-      var n3 = new XAttribute("n3", "player3");
-      host.SendToAll(new XElement("UN", n0, n1, n2, n3, dan, rate, sx));
     }
   }
 }

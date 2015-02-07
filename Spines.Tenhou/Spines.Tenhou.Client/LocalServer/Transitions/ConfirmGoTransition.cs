@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.PlayerReadyTransition.cs
+﻿// Spines.Tenhou.Client.ConfirmGoTransition.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,46 +15,34 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Spines.Tenhou.Client.LocalServer.Transitions;
+using Spines.Tenhou.Client.LocalServer.States;
 using Spines.Utility;
 
-namespace Spines.Tenhou.Client.LocalServer.States
+namespace Spines.Tenhou.Client.LocalServer.Transitions
 {
-  internal class PlayerReadyTransition : IStateTransition<LobbyConnection, Match>
+  internal class ConfirmGoTransition : IStateTransition<LobbyConnection, Match>
   {
     private readonly IState<LobbyConnection, Match> _currentState;
 
-    public PlayerReadyTransition(IState<LobbyConnection, Match> currentState)
+    public ConfirmGoTransition(IState<LobbyConnection, Match> currentState)
     {
       _currentState = currentState;
     }
 
     public void Execute(Match host)
     {
-      Validate.NotNull(host, "host");
-      if (host.AreAllPlayersReadyForNextGame())
-      {
-        host.StartNextGame();
-      }
     }
 
     public IState<LobbyConnection, Match> PrepareNextState(LobbyConnection sender, Match host)
     {
       Validate.NotNull(host, "host");
-      host.ConfirmPlayerIsReady(sender);
+      host.ConfirmGo(sender);
       return PrepareNextStateEmpty(host);
     }
 
     public IState<LobbyConnection, Match> PrepareNextStateEmpty(Match host)
     {
-      Validate.NotNull(host, "host");
-      if (!host.AreAllPlayersReadyForNextGame())
-      {
-        return _currentState;
-      }
-      var timePerTurn = host.TimePerTurn;
-      var extraTime = host.GetRemainingExtraTime();
-      return new PlayerActiveState(timePerTurn + extraTime);
+      return _currentState;
     }
   }
 }

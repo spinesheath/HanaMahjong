@@ -87,12 +87,12 @@ namespace Spines.Tenhou.Client.InternalTests
       Assert.AreEqual(5, w.GetDice(0).ToList()[0], "dice 0");
       Assert.AreEqual(5, w.GetDice(0).ToList()[1], "dice 1");
       Assert.AreEqual(11, w.GetWall(0).ToList()[5], "dora 0");
-      Assert.IsTrue(_tileIdsGame0.SequenceEqual(w.GetWall(0).Reverse().Take(13 * 4)), "wall");
+      Assert.IsTrue(_tileIdsGame0.SequenceEqual(w.GetWall(0).Select(t => t.Id).Reverse().Take(13 * 4)), "wall");
 
       Assert.AreEqual(1, w.GetDice(1).ToList()[0], "dice 0");
       Assert.AreEqual(3, w.GetDice(1).ToList()[1], "dice 1");
       Assert.AreEqual(109, w.GetWall(1).ToList()[5], "dora 0");
-      Assert.IsTrue(_tileIdsGame1.SequenceEqual(w.GetWall(1).Reverse().Take(13 * 4)), "wall");
+      Assert.IsTrue(_tileIdsGame1.SequenceEqual(w.GetWall(1).Select(t => t.Id).Reverse().Take(13 * 4)), "wall");
     }
   }
 }

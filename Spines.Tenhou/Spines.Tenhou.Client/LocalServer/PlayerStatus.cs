@@ -15,10 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
+
 namespace Spines.Tenhou.Client.LocalServer
 {
   internal class PlayerStatus
   {
+    private readonly ISet<Tile> _closedHand = new HashSet<Tile>();
+
     public PlayerStatus(int playerIndex)
     {
       PlayerIndex = playerIndex;
@@ -43,5 +47,20 @@ namespace Spines.Tenhou.Client.LocalServer
     /// Whether the player sent the NEXTREADY message after the GO message or the most recent game.
     /// </summary>
     public bool IsReadyForNextGame { get; set; }
+
+    public void AddTile(Tile tile)
+    {
+      _closedHand.Add(tile);
+    }
+
+    public bool HasTileInClosedHand(Tile tile)
+    {
+      return _closedHand.Contains(tile);
+    }
+
+    public void RemoveTile(Tile tile)
+    {
+      _closedHand.Remove(tile);
+    }
   }
 }

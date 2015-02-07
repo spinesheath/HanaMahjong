@@ -32,7 +32,7 @@ namespace Spines.Tenhou.Client.LocalServer.States
     {
       if (message.Name == "D")
       {
-        return new DiscardTransition(this);
+        return new DiscardTransition(this, message);
       }
       return new DoNothingTransition<LobbyConnection, Match>(this);
     }
