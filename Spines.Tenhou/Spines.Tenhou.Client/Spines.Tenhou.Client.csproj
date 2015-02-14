@@ -54,6 +54,7 @@
     <Compile Include="ClientException.cs" />
     <Compile Include="ClientFactory.cs" />
     <Compile Include="DiscardInformation.cs" />
+    <Compile Include="LocalServer\NewStateMachine.cs" />
     <Compile Include="LocalServer\PlayerStatus.cs" />
     <Compile Include="LocalServer\Match.cs" />
     <Compile Include="LocalServer\States\AuthenticatingState.cs" />
