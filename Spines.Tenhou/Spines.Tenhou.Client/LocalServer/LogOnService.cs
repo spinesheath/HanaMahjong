@@ -45,5 +45,13 @@ namespace Spines.Tenhou.Client.LocalServer
         }
       }
     }
+
+    public void LogOff(string accountId)
+    {
+      lock (_accounts)
+      {
+        _accounts.Remove(accountId);
+      }
+    }
   }
 }

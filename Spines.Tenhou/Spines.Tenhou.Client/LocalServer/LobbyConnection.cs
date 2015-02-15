@@ -56,5 +56,10 @@ namespace Spines.Tenhou.Client.LocalServer
     {
       _connection.Receive(message);
     }
+
+    public void LogOff(string accountId)
+    {
+      _logOnService.LogOff(accountId);
+    }
   }
 }

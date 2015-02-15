@@ -35,6 +35,7 @@ namespace Spines.Tenhou.Client.LocalServer.States
       RestartTimer();
       if (message.Content.Name == "BYE")
       {
+        _connection.LogOff(_accountId);
         return new ConnectionEstablishedState(_connection);
       }
       if (message.Content.Name != "JOIN")

@@ -24,6 +24,10 @@ using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer
 {
+  // TODO why do the initial messages joins take so long
+
+
+
   internal class Match
   {
     private const int CurrentNagareCount = 0;
@@ -202,8 +206,13 @@ namespace Spines.Tenhou.Client.LocalServer
 
     public void SendRyuukyoku()
     {
-      // TODO send ryuukyoku
+      var ba = new XAttribute("ba", "0,2");
+      var sc = new XAttribute("sc", "250,0,250,0,250,0,250,0");
+      var owari = new XAttribute("owari", "526,63.0,-55,-56.0,23,-38.0,506,31.0");
+      SendToAll(new XElement("RYUUKYOKU", ba, sc, owari));
     }
+
+    // TODO Send Owari
 
     public void SendTaikyoku()
     {
