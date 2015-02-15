@@ -24,8 +24,107 @@ using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer.States
 {
+  internal class NewPlayerActiveState : NewStateBase
+  {
+    private readonly Match _match;
+
+    public NewPlayerActiveState(Match match, int milliseconds)
+      : base(milliseconds)
+    {
+      _match = match;
+    }
+
+    public override INewState Process(Message message)
+    {
+      if (message.Content.Name == "D")
+      {
+        var tile = new Tile(InvariantConvert.ToInt32(message.Content.Attribute("p").Value));
+        if (!_match.IsActive(message.SenderId) || !_match.HasTileInClosedHand(message.SenderId, tile))
+        {
+          return this;
+        }
+        _match.SendDiscard(tile);
+        if (_match.CanDraw())
+        {
+          _match.SendDraw();
+        }
+        else
+        {
+          _match.SendRyuukyoku();
+        }
+      }
+      return this;
+    }
+  }
+
+  internal class NewPlayersGettingReadyState : NewStateBase
+  {
+    private readonly Match _match;
+
+    public NewPlayersGettingReadyState(Match match)
+    {
+      _match = match;
+    }
+
+    public override INewState Process(Message message)
+    {
+      // TODO if timer runs out, start match anyways
+      RestartTimer();
+      if (message.Content.Name == "GOK")
+      {
+        _match.ConfirmGo(message.SenderId);
+        return this;
+      }
+      if (message.Content.Name == "NEXTREADY")
+      {
+        _match.ConfirmPlayerIsReady(message.SenderId);
+        if (!_match.AreAllPlayersReadyForNextGame())
+        {
+          return this;
+        }
+        _match.StartNextGame();
+        var timePerTurn = _match.TimePerTurn;
+        var extraTime = _match.GetRemainingExtraTime();
+        return new NewPlayerActiveState(_match, timePerTurn + extraTime);
+      }
+      return this;
+    }
+  }
+
+  internal class NewPlayersConnectingState : NewStateBase
+  {
+    private readonly Match _match;
+
+    public NewPlayersConnectingState(Match match)
+    {
+      _match = match;
+    }
+
+    public override INewState Process(Message message)
+    {
+      RestartTimer();
+      if (message.Content.Name != "JOIN")
+      {
+        return this;
+      }
+      var parts = message.Content.Attribute("t").Value.Split(new[] { ',' });
+      var lobby = InvariantConvert.ToInt32(parts[0]);
+      var matchType = new MatchType(InvariantConvert.ToInt32(parts[1]));
+      _match.ConfirmPlayerAsParticipant(message.SenderId, lobby, matchType);
+      if (!_match.AreAllPlayersParticipating())
+      {
+        return this;
+      }
+      _match.SendGo();
+      _match.SendTaikyoku();
+      _match.SendUn();
+      return new NewPlayersGettingReadyState(_match);
+    }
+  }
+
   internal class NewInMatchState : NewStateBase
   {
+    // TODO use LogOnService in LobbyStates too
     private readonly LobbyConnection _connection;
     private readonly string _accountId;
 
@@ -42,7 +141,7 @@ namespace Spines.Tenhou.Client.LocalServer.States
       {
         return new NewIdleState(_connection, _accountId);
       }
-      _connection.MatchServer.ProcessMessage(_connection, message.Content);
+      _connection.MatchServer.ProcessMessage(new Message(_accountId, message.Content));
       return this;
     }
   }
@@ -68,12 +167,12 @@ namespace Spines.Tenhou.Client.LocalServer.States
       var parts = message.Content.Attribute("t").Value.Split(new[] { ',' });
       var lobby = InvariantConvert.ToInt32(parts[0]);
       var matchType = new MatchType(InvariantConvert.ToInt32(parts[1]));
-      if (_connection.MatchServer.IsInMatch(_connection, lobby, matchType))
+      if (_connection.MatchServer.IsInMatch(_accountId, lobby, matchType))
       {
-        _connection.MatchServer.ProcessMessage(_connection, message.Content);
+        _connection.MatchServer.ProcessMessage(new Message(_accountId, message.Content));
         return new NewInMatchState(_connection, _accountId);
       }
-      if (_connection.MatchServer.IsInQueue(_connection))
+      if (_connection.MatchServer.IsInQueue(_accountId))
       {
         return this;
       }
@@ -107,11 +206,11 @@ namespace Spines.Tenhou.Client.LocalServer.States
       var lobby = InvariantConvert.ToInt32(parts[0]);
       var matchType = new MatchType(InvariantConvert.ToInt32(parts[1]));
       // TODO switch connection to accountId in matchQueue
-      if (!_connection.MatchServer.CanEnterQueue(_connection, lobby, matchType))
+      if (!_connection.MatchServer.CanEnterQueue(_accountId, lobby, matchType))
       {
         return this;
       }
-      _connection.MatchServer.EnterQueue(_connection, lobby, matchType);
+      _connection.MatchServer.EnterQueue(_accountId, lobby, matchType);
       return new NewInQueueState(_connection, _accountId);
     }
   }
@@ -177,6 +276,7 @@ namespace Spines.Tenhou.Client.LocalServer.States
       var message = accountInformation.ToMessage();
       message.Add(new XAttribute("auth", authenticationString));
       _connection.SendToClient(message);
+      _connection.LogOn(accountId);
     }
   }
 

@@ -73,7 +73,7 @@ namespace Spines.Tenhou.Client
     }
 
     /// <summary>
-    /// Is raised in response to Send.
+    /// Is raised in response to Process.
     /// </summary>
     public event EventHandler<ReceivedMessageEventArgs> ReceivedMessage;
 

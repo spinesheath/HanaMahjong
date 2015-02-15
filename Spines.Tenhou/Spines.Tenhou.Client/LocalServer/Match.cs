@@ -31,12 +31,13 @@ namespace Spines.Tenhou.Client.LocalServer
     private readonly int _firstOyaIndex;
     private readonly int _lobby;
     private readonly MatchType _matchType;
+    private readonly LogOnService _logOnService;
 
-    private readonly IDictionary<LobbyConnection, PlayerStatus> _players =
-      new Dictionary<LobbyConnection, PlayerStatus>();
+    private readonly IDictionary<string, PlayerStatus> _players =
+      new Dictionary<string, PlayerStatus>();
 
     private readonly WallGenerator _shuffler;
-    private readonly StateMachine<LobbyConnection, Match> _stateMachine;
+    private readonly NewStateMachine _stateMachine;
     private int _currentGameIndex = 0;
     // roundNumber = seed[0] / 4
     // gameNumber = seed[0] % 4
@@ -44,23 +45,24 @@ namespace Spines.Tenhou.Client.LocalServer
     private int _timesOyaChanged = 0;
     private int _currentActivePlayerIndex;
 
-    public Match(string seed, IEnumerable<LobbyConnection> players, int lobby, MatchType matchType)
+    public Match(string seed, IEnumerable<string> accountIds, int lobby, MatchType matchType, LogOnService logOnService)
     {
       _lobby = lobby;
       _matchType = matchType;
+      _logOnService = logOnService;
       _shuffler = new WallGenerator(seed);
       _firstOyaIndex = _shuffler.GetWall(0).First().Id % 4;
       var playerIndex = 0;
-      foreach (var player in players)
+      foreach (var player in accountIds)
       {
         _players.Add(player, new PlayerStatus(playerIndex));
         playerIndex += 1;
       }
-      _stateMachine = new StateMachine<LobbyConnection, Match>(this, new PlayersConnectingState());
+      _stateMachine = new NewStateMachine(new NewPlayersConnectingState(this));
       _stateMachine.Finished += OnFinished;
     }
 
-    public IEnumerable<LobbyConnection> Players
+    public IEnumerable<string> Players
     {
       get { return _players.Keys; }
     }
@@ -92,34 +94,34 @@ namespace Spines.Tenhou.Client.LocalServer
     /// <summary>
     /// Confirms that a player sent a GOK message after the GO message.
     /// </summary>
-    /// <param name="player">The player that sent the message.</param>
-    public void ConfirmGo(LobbyConnection player)
+    /// <param name="accountId">The player that sent the message.</param>
+    public void ConfirmGo(string accountId)
     {
-      if (_players.ContainsKey(player))
+      if (_players.ContainsKey(accountId))
       {
-        _players[player].AcceptedGo = true;
+        _players[accountId].AcceptedGo = true;
       }
     }
 
     /// <summary>
     /// Confirms that the player participates in the match.
     /// </summary>
-    /// <param name="player">The participating player.</param>
+    /// <param name="accountId">The participating player.</param>
     /// <param name="lobby">The lobby of the match.</param>
     /// <param name="matchType">The type of the match.</param>
-    public void ConfirmPlayerAsParticipant(LobbyConnection player, int lobby, MatchType matchType)
+    public void ConfirmPlayerAsParticipant(string accountId, int lobby, MatchType matchType)
     {
-      if (_players.ContainsKey(player))
+      if (_players.ContainsKey(accountId))
       {
-        _players[player].IsParticipating = true;
+        _players[accountId].IsParticipating = true;
       }
     }
 
-    public void ConfirmPlayerIsReady(LobbyConnection player)
+    public void ConfirmPlayerIsReady(string accountId)
     {
-      if (_players.ContainsKey(player))
+      if (_players.ContainsKey(accountId))
       {
-        _players[player].IsReadyForNextGame = true;
+        _players[accountId].IsReadyForNextGame = true;
       }
     }
 
@@ -130,7 +132,7 @@ namespace Spines.Tenhou.Client.LocalServer
       foreach (var player in _players)
       { 
         var characterIndex = (4 + _currentActivePlayerIndex - player.Value.PlayerIndex) % 4;
-        player.Key.SendToClient(new XElement(characters.Substring(characterIndex, 1) + tile.Id));
+        _logOnService.Send(player.Key, new XElement(characters.Substring(characterIndex, 1) + tile.Id));
       }
 
       _currentActivePlayerIndex = (_currentActivePlayerIndex + 1) % 4;
@@ -145,9 +147,9 @@ namespace Spines.Tenhou.Client.LocalServer
       return 0;
     }
 
-    public bool HasTileInClosedHand(LobbyConnection player, Tile tile)
+    public bool HasTileInClosedHand(string accountId, Tile tile)
     {
-      return _players[player].HasTileInClosedHand(tile);
+      return _players[accountId].HasTileInClosedHand(tile);
     }
 
     public void InvitePlayers()
@@ -156,9 +158,9 @@ namespace Spines.Tenhou.Client.LocalServer
       SendToAll(new XElement("REJOIN", t));
     }
 
-    public void ProcessMessage(LobbyConnection sender, XElement message)
+    public void ProcessMessage(Message message)
     {
-      _stateMachine.ProcessMessage(sender, message);
+      _stateMachine.Process(message);
     }
 
     public void SendGo()
@@ -206,14 +208,15 @@ namespace Spines.Tenhou.Client.LocalServer
         var tiles = _currentWall.GetStartingHand(oyaIndex, player.Value.PlayerIndex);
         var hai = new XAttribute("hai", string.Join(",", tiles));
         var message = new XElement("INIT", seed, ten, oya, hai);
-        player.Key.SendToClient(message);
+
+        _logOnService.Send(player.Key, message);
       }
       SendDraw();
     }
 
     private void OnFinished(object sender, EventArgs e)
     {
-      var stateMachine = (StateMachine<LobbyConnection, Match>) sender;
+      var stateMachine = (NewStateMachine) sender;
       stateMachine.Finished -= OnFinished;
       EventUtility.CheckAndRaise(Finished, this);
     }
@@ -227,27 +230,27 @@ namespace Spines.Tenhou.Client.LocalServer
         if (player.Value.PlayerIndex == _currentActivePlayerIndex)
         {
           player.Value.AddTile(tile);
-          player.Key.SendToClient(new XElement("T" + tile.Id));
+          _logOnService.Send(player.Key, new XElement("T" + tile.Id));
         }
         else
         {
           var characterIndex = (4 + _currentActivePlayerIndex - player.Value.PlayerIndex) % 4;
-          player.Key.SendToClient(new XElement(characters.Substring(characterIndex, 1)));
+          _logOnService.Send(player.Key, new XElement(characters.Substring(characterIndex, 1)));
         }
       }
     }
 
     private void SendToAll(XElement message)
     {
-      foreach (var player in _players.Keys)
+      foreach (var player in _players)
       {
-        player.SendToClient(message);
+        _logOnService.Send(player.Key, message);
       }
     }
 
-    public bool IsActive(LobbyConnection player)
+    public bool IsActive(string accountId)
     {
-      return _players[player].PlayerIndex == _currentActivePlayerIndex;
+      return _players[accountId].PlayerIndex == _currentActivePlayerIndex;
     }
 
     public bool CanDraw()

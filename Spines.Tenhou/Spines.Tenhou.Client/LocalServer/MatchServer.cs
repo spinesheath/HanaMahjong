@@ -17,33 +17,34 @@
 
 using System;
 using System.Collections.Generic;
-using System.Xml.Linq;
 
 namespace Spines.Tenhou.Client.LocalServer
 {
   internal class MatchServer
   {
-    private readonly IDictionary<LobbyConnection, Match> _playerToMatch = new Dictionary<LobbyConnection, Match>();
-    private readonly ISet<LobbyConnection> _queue = new HashSet<LobbyConnection>();
+    private readonly IDictionary<string, Match> _accountIdToMatch = new Dictionary<string, Match>();
+    private readonly ISet<string> _queue = new HashSet<string>();
     private readonly ISeedGenerator _seedGenerator;
+    private readonly LogOnService _logOnService;
 
-    public MatchServer(ISeedGenerator seedGenerator)
+    public MatchServer(ISeedGenerator seedGenerator, LogOnService logOnService)
     {
       _seedGenerator = seedGenerator;
+      _logOnService = logOnService;
     }
 
-    public bool CanEnterQueue(LobbyConnection player, int lobby, MatchType matchType)
+    public bool CanEnterQueue(string accountId, int lobby, MatchType matchType)
     {
-      return !IsInQueue(player);
+      return !IsInQueue(accountId);
     }
 
-    public void EnterQueue(LobbyConnection player, int lobby, MatchType matchType)
+    public void EnterQueue(string accountId, int lobby, MatchType matchType)
     {
-      Console.WriteLine("Someone entered the match queue.");
-      var nextFour = new List<LobbyConnection>();
+      Console.WriteLine(accountId + " entered the match queue.");
+      var nextFour = new List<string>();
       lock (_queue)
       {
-        _queue.Add(player);
+        _queue.Add(accountId);
         if (_queue.Count == 4)
         {
           nextFour.AddRange(_queue);
@@ -56,52 +57,52 @@ namespace Spines.Tenhou.Client.LocalServer
       }
     }
 
-    public bool IsInMatch(LobbyConnection player, int lobby, MatchType matchType)
+    public bool IsInMatch(string accountId, int lobby, MatchType matchType)
     {
-      lock (_playerToMatch)
+      lock (_accountIdToMatch)
       {
-        return _playerToMatch.ContainsKey(player);
+        return _accountIdToMatch.ContainsKey(accountId);
       }
     }
 
-    public bool IsInQueue(LobbyConnection player)
+    public bool IsInQueue(string accountId)
     {
       lock (_queue)
       {
-        return _queue.Contains(player);
+        return _queue.Contains(accountId);
       }
     }
 
-    public void LeaveAll(LobbyConnection player)
+    public void LeaveAll(string accountId)
     {
       throw new NotImplementedException();
     }
 
-    public void ProcessMessage(LobbyConnection sender, XElement message)
+    public void ProcessMessage(Message message)
     {
-      GetMatch(sender).ProcessMessage(sender, message);
+      GetMatch(message.SenderId).ProcessMessage(message);
     }
 
-    private void CreateNewMatch(List<LobbyConnection> players, int lobby, MatchType matchType)
+    private void CreateNewMatch(List<string> accountIds, int lobby, MatchType matchType)
     {
       var seed = _seedGenerator.CreateSeed();
-      var match = new Match(seed, players, lobby, matchType);
+      var match = new Match(seed, accountIds, lobby, matchType, _logOnService);
       match.Finished += OnMatchFinished;
-      lock (_playerToMatch)
+      lock (_accountIdToMatch)
       {
-        foreach (var player in players)
+        foreach (var player in accountIds)
         {
-          _playerToMatch.Add(player, match);
+          _accountIdToMatch.Add(player, match);
         }
       }
       match.InvitePlayers();
     }
 
-    private Match GetMatch(LobbyConnection player)
+    private Match GetMatch(string accountId)
     {
-      lock (_playerToMatch)
+      lock (_accountIdToMatch)
       {
-        return _playerToMatch[player];
+        return _accountIdToMatch[accountId];
       }
     }
 
@@ -109,11 +110,11 @@ namespace Spines.Tenhou.Client.LocalServer
     {
       var match = (Match) sender;
       match.Finished -= OnMatchFinished;
-      lock (_playerToMatch)
+      lock (_accountIdToMatch)
       {
         foreach (var player in match.Players)
         {
-          _playerToMatch.Remove(player);
+          _accountIdToMatch.Remove(player);
         }
       }
     }

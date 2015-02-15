@@ -31,19 +31,22 @@ namespace Spines.Tenhou.Client.LocalServer
     private readonly IDictionary<LocalConnection, NewStateMachine> _stateMachines =
       new Dictionary<LocalConnection, NewStateMachine>();
 
+    private readonly LogOnService _logOnService;
+
     public LocalLobbyServer(ISeedGenerator seedGenerator)
     {
-      _matchServer = new MatchServer(seedGenerator);
+      _logOnService = new LogOnService();
+      _matchServer = new MatchServer(seedGenerator, _logOnService);
     }
 
-    public void Send(LocalConnection connection, XElement message)
+    public void Process(LocalConnection connection, XElement message)
     {
       NewStateMachine stateMachine;
       lock (_stateMachines)
       {
         if (!_stateMachines.ContainsKey(connection))
         {
-          var lobbyConnection = new LobbyConnection(connection, _matchServer);
+          var lobbyConnection = new LobbyConnection(connection, _matchServer, _logOnService);
           stateMachine = new NewStateMachine(new NewConnectionEstablishedState(lobbyConnection));
           stateMachine.Finished += OnConnectionEnded;
           _stateMachines.Add(connection, stateMachine);

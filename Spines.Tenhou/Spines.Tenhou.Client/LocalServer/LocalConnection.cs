@@ -44,7 +44,7 @@ namespace Spines.Tenhou.Client.LocalServer
     public void Send(XElement message)
     {
       Console.WriteLine("me: " + InvariantConvert.ToString(GetHashCode()) + " " + message.Name);
-      _server.Send(this, message);
+      _server.Process(this, message);
     }
 
     public event EventHandler<ReceivedMessageEventArgs> ReceivedMessage;

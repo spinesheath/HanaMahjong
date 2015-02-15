@@ -22,13 +22,20 @@ namespace Spines.Tenhou.Client.LocalServer
   internal class LobbyConnection
   {
     private readonly LocalConnection _connection;
+    private readonly LogOnService _logOnService;
 
-    public LobbyConnection(LocalConnection connection, MatchServer matchServer)
+    public LobbyConnection(LocalConnection connection, MatchServer matchServer, LogOnService logOnService)
     {
       _connection = connection;
+      _logOnService = logOnService;
       RegistrationService = new RegistrationService();
       AuthenticationService = new AuthenticationService();
       MatchServer = matchServer;
+    }
+
+    public void LogOn(string accountId)
+    {
+      _logOnService.LogOn(accountId, _connection);
     }
 
     public MatchServer MatchServer { get; private set; }

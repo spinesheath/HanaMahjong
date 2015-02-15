@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.PlayersConnectingState.cs
+﻿// Spines.Tenhou.Client.LogOnService.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,28 +15,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using System.Xml.Linq;
-using Spines.Tenhou.Client.LocalServer.Transitions;
-using Spines.Utility;
 
-namespace Spines.Tenhou.Client.LocalServer.States
+namespace Spines.Tenhou.Client.LocalServer
 {
-  internal class PlayersConnectingState : LimitedTimeState<LobbyConnection, Match>
+  internal class LogOnService
   {
-    public override IStateTransition<LobbyConnection, Match> Process(XElement message)
+    private readonly IDictionary<string, LocalConnection> _accounts = new Dictionary<string, LocalConnection>();
+
+    public void LogOn(string accountId, LocalConnection connection)
     {
-      Validate.NotNull(message, "message");
-      ResetTimer();
-      if (message.Name == "JOIN")
+      // TODO check if already logged on etc
+      lock(_accounts)
       {
-        return new PlayerConnectedTransition(message, this);
+        _accounts.Add(accountId, connection);
       }
-      return new DoNothingTransition<LobbyConnection, Match>(this);
     }
 
-    protected override IStateTransition<LobbyConnection, Match> CreateTimeOutTransition()
+    public void Send(string accountId, XElement message)
     {
-      return new DoNothingTransition<LobbyConnection, Match>(new FinalState<LobbyConnection, Match>());
+      // TODO check id logged on etc.
+      lock (_accounts)
+      {
+        _accounts[accountId].Receive(message);
+      }
     }
   }
 }
