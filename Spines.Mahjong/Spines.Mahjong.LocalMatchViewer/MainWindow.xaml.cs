@@ -15,14 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Windows;
-
 namespace Spines.Mahjong.LocalMatchViewer
 {
   /// <summary>
   /// Interaction logic for MainWindow.xaml
   /// </summary>
-  public partial class MainWindow : Window
+  internal partial class MainWindow
   {
     /// <summary>
     /// Creates a new instance of MainWindow.
