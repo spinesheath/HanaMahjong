@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.StateTimedOutEventArgs.cs
+﻿// Spines.Tenhou.Client.IState.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -16,17 +16,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using Spines.Tenhou.Client.LocalServer.States;
 
-namespace Spines.Tenhou.Client.LocalServer
+namespace Spines.Tenhou.Client.LocalServer.States
 {
-  internal class StateTimedOutEventArgs : EventArgs
+  internal interface IState
   {
-    public StateTimedOutEventArgs(IState nextState)
-    {
-      NextState = nextState;
-    }
-
-    public IState NextState { get; private set; }
+    bool IsFinal { get; }
+    event EventHandler<StateTimedOutEventArgs> TimedOut;
+    IState Process(Message message);
   }
 }

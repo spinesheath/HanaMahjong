@@ -28,8 +28,8 @@ namespace Spines.Tenhou.Client.LocalServer
   {
     private readonly MatchServer _matchServer;
 
-    private readonly IDictionary<LocalConnection, NewStateMachine> _stateMachines =
-      new Dictionary<LocalConnection, NewStateMachine>();
+    private readonly IDictionary<LocalConnection, StateMachine> _stateMachines =
+      new Dictionary<LocalConnection, StateMachine>();
 
     private readonly LogOnService _logOnService;
 
@@ -41,13 +41,13 @@ namespace Spines.Tenhou.Client.LocalServer
 
     public void Process(LocalConnection connection, XElement message)
     {
-      NewStateMachine stateMachine;
+      StateMachine stateMachine;
       lock (_stateMachines)
       {
         if (!_stateMachines.ContainsKey(connection))
         {
           var lobbyConnection = new LobbyConnection(connection, _matchServer, _logOnService);
-          stateMachine = new NewStateMachine(new NewConnectionEstablishedState(lobbyConnection));
+          stateMachine = new StateMachine(new ConnectionEstablishedState(lobbyConnection));
           stateMachine.Finished += OnConnectionEnded;
           _stateMachines.Add(connection, stateMachine);
         }
@@ -61,7 +61,7 @@ namespace Spines.Tenhou.Client.LocalServer
 
     private void OnConnectionEnded(object sender, EventArgs e)
     {
-      var stateMachine = (NewStateMachine) sender;
+      var stateMachine = (StateMachine) sender;
       stateMachine.Finished -= OnConnectionEnded;
       lock (_stateMachines)
       {

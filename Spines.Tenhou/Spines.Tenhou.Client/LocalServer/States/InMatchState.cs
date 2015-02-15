@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.StateTimedOutEventArgs.cs
+﻿// Spines.Tenhou.Client.InMatchState.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,18 +15,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using Spines.Tenhou.Client.LocalServer.States;
-
-namespace Spines.Tenhou.Client.LocalServer
+namespace Spines.Tenhou.Client.LocalServer.States
 {
-  internal class StateTimedOutEventArgs : EventArgs
+  internal class InMatchState : StateBase
   {
-    public StateTimedOutEventArgs(IState nextState)
+    // TODO use LogOnService in LobbyStates too
+    private readonly string _accountId;
+    private readonly LobbyConnection _connection;
+
+    public InMatchState(LobbyConnection connection, string accountId)
     {
-      NextState = nextState;
+      _connection = connection;
+      _accountId = accountId;
     }
 
-    public IState NextState { get; private set; }
+    public override IState Process(Message message)
+    {
+      RestartTimer();
+      if (message.Content.Name == "BYE")
+      {
+        return new IdleState(_connection, _accountId);
+      }
+      _connection.MatchServer.ProcessMessage(new Message(_accountId, message.Content));
+      return this;
+    }
   }
 }

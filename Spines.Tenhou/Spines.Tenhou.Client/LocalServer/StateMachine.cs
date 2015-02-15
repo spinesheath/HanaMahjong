@@ -1,4 +1,4 @@
-﻿// Spines.Tenhou.Client.NewStateMachine.cs
+﻿// Spines.Tenhou.Client.StateMachine.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -22,12 +22,12 @@ using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer
 {
-  internal class NewStateMachine
+  internal class StateMachine
   {
     private readonly ConcurrentQueue<Message> _messages = new ConcurrentQueue<Message>();
-    private INewState _currentState;
+    private IState _currentState;
 
-    public NewStateMachine(INewState firstState)
+    public StateMachine(IState firstState)
     {
       _currentState = firstState;
       _currentState.TimedOut += OnTimedOut;
@@ -76,7 +76,7 @@ namespace Spines.Tenhou.Client.LocalServer
       }
     }
 
-    private void UpdateCurrentState(INewState nextState)
+    private void UpdateCurrentState(IState nextState)
     {
       _currentState.TimedOut -= OnTimedOut;
       _currentState = nextState;

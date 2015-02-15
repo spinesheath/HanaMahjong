@@ -30,20 +30,20 @@ namespace Spines.Tenhou.Client.LocalServer
     private const int CurrentHonbaCount = 0;
     private readonly int _firstOyaIndex;
     private readonly int _lobby;
-    private readonly MatchType _matchType;
     private readonly LogOnService _logOnService;
+    private readonly MatchType _matchType;
 
     private readonly IDictionary<string, PlayerStatus> _players =
       new Dictionary<string, PlayerStatus>();
 
     private readonly WallGenerator _shuffler;
-    private readonly NewStateMachine _stateMachine;
+    private readonly StateMachine _stateMachine;
+    private int _currentActivePlayerIndex;
     private int _currentGameIndex = 0;
     // roundNumber = seed[0] / 4
     // gameNumber = seed[0] % 4
     private Wall _currentWall;
     private int _timesOyaChanged = 0;
-    private int _currentActivePlayerIndex;
 
     public Match(string seed, IEnumerable<string> accountIds, int lobby, MatchType matchType, LogOnService logOnService)
     {
@@ -58,7 +58,7 @@ namespace Spines.Tenhou.Client.LocalServer
         _players.Add(player, new PlayerStatus(playerIndex));
         playerIndex += 1;
       }
-      _stateMachine = new NewStateMachine(new NewPlayersConnectingState(this));
+      _stateMachine = new StateMachine(new PlayersConnectingState(this));
       _stateMachine.Finished += OnFinished;
     }
 
@@ -89,6 +89,11 @@ namespace Spines.Tenhou.Client.LocalServer
     public bool AreAllPlayersReadyForNextGame()
     {
       return _players.All(p => p.Value.IsReadyForNextGame);
+    }
+
+    public bool CanDraw()
+    {
+      return _currentWall.HasNextDraw;
     }
 
     /// <summary>
@@ -125,19 +130,6 @@ namespace Spines.Tenhou.Client.LocalServer
       }
     }
 
-    public void SendDiscard(Tile tile)
-    {
-      // TODO discard from hand or tsumokiri
-      const string characters = "defg";
-      foreach (var player in _players)
-      { 
-        var characterIndex = (4 + _currentActivePlayerIndex - player.Value.PlayerIndex) % 4;
-        _logOnService.Send(player.Key, new XElement(characters.Substring(characterIndex, 1) + tile.Id));
-      }
-
-      _currentActivePlayerIndex = (_currentActivePlayerIndex + 1) % 4;
-    }
-
     /// <summary>
     /// Returns the remaining extra time for the active player.
     /// </summary>
@@ -158,9 +150,46 @@ namespace Spines.Tenhou.Client.LocalServer
       SendToAll(new XElement("REJOIN", t));
     }
 
+    public bool IsActive(string accountId)
+    {
+      return _players[accountId].PlayerIndex == _currentActivePlayerIndex;
+    }
+
     public void ProcessMessage(Message message)
     {
       _stateMachine.Process(message);
+    }
+
+    public void SendDiscard(Tile tile)
+    {
+      // TODO discard from hand or tsumokiri
+      const string characters = "defg";
+      foreach (var player in _players)
+      {
+        var characterIndex = (4 + _currentActivePlayerIndex - player.Value.PlayerIndex) % 4;
+        _logOnService.Send(player.Key, new XElement(characters.Substring(characterIndex, 1) + tile.Id));
+      }
+
+      _currentActivePlayerIndex = (_currentActivePlayerIndex + 1) % 4;
+    }
+
+    public void SendDraw()
+    {
+      var tile = _currentWall.PopDraw();
+      const string characters = "TUVW";
+      foreach (var player in _players)
+      {
+        if (player.Value.PlayerIndex == _currentActivePlayerIndex)
+        {
+          player.Value.AddTile(tile);
+          _logOnService.Send(player.Key, new XElement("T" + tile.Id));
+        }
+        else
+        {
+          var characterIndex = (4 + _currentActivePlayerIndex - player.Value.PlayerIndex) % 4;
+          _logOnService.Send(player.Key, new XElement(characters.Substring(characterIndex, 1)));
+        }
+      }
     }
 
     public void SendGo()
@@ -169,6 +198,11 @@ namespace Spines.Tenhou.Client.LocalServer
       var lobby = new XAttribute("lobby", "0");
       var gpid = new XAttribute("gpid", "7167A1C7-5FA3ECC6");
       SendToAll(new XElement("GO", type, lobby, gpid));
+    }
+
+    public void SendRyuukyoku()
+    {
+      // TODO send ryuukyoku
     }
 
     public void SendTaikyoku()
@@ -216,28 +250,9 @@ namespace Spines.Tenhou.Client.LocalServer
 
     private void OnFinished(object sender, EventArgs e)
     {
-      var stateMachine = (NewStateMachine) sender;
+      var stateMachine = (StateMachine) sender;
       stateMachine.Finished -= OnFinished;
       EventUtility.CheckAndRaise(Finished, this);
-    }
-
-    public void SendDraw()
-    {
-      var tile = _currentWall.PopDraw();
-      const string characters = "TUVW";
-      foreach (var player in _players)
-      {
-        if (player.Value.PlayerIndex == _currentActivePlayerIndex)
-        {
-          player.Value.AddTile(tile);
-          _logOnService.Send(player.Key, new XElement("T" + tile.Id));
-        }
-        else
-        {
-          var characterIndex = (4 + _currentActivePlayerIndex - player.Value.PlayerIndex) % 4;
-          _logOnService.Send(player.Key, new XElement(characters.Substring(characterIndex, 1)));
-        }
-      }
     }
 
     private void SendToAll(XElement message)
@@ -246,21 +261,6 @@ namespace Spines.Tenhou.Client.LocalServer
       {
         _logOnService.Send(player.Key, message);
       }
-    }
-
-    public bool IsActive(string accountId)
-    {
-      return _players[accountId].PlayerIndex == _currentActivePlayerIndex;
-    }
-
-    public bool CanDraw()
-    {
-      return _currentWall.HasNextDraw;
-    }
-
-    public void SendRyuukyoku()
-    {
-      // TODO send ryuukyoku
     }
   }
 }
