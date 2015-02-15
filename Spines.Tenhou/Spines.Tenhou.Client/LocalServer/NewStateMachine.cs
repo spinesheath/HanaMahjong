@@ -17,112 +17,11 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+using Spines.Tenhou.Client.LocalServer.States;
 using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer
 {
-  internal interface INewState
-  {
-    bool IsFinal { get; }
-    event EventHandler<StateTimedOutEventArgs> TimedOut;
-    NewState Process(Message message);
-  }
-
-  internal class Message
-  {
-    public Message(string senderId, XElement content)
-    {
-      Content = content;
-      SenderId = senderId;
-    }
-
-    public XElement Content { get; private set; }
-    public string SenderId { get; private set; }
-  }
-
-  internal sealed class NewFinalState : INewState
-  {
-    public bool IsFinal
-    {
-      get { return true; }
-    }
-
-    public NewState Process(Message message)
-    {
-      throw new InvalidOperationException("FinalState can't process any messages.");
-    }
-
-    public event EventHandler<StateTimedOutEventArgs> TimedOut;
-  }
-
-  internal abstract class NewState : INewState
-  {
-    private readonly int _milliseconds;
-    private readonly Stopwatch _stopwatch = new Stopwatch();
-
-    protected NewState(int milliseconds)
-    {
-      _milliseconds = milliseconds;
-      WaitForTimeOutAsync();
-    }
-
-    public bool IsFinal
-    {
-      get { return false; }
-    }
-
-    public abstract NewState Process(Message message);
-
-    public event EventHandler<StateTimedOutEventArgs> TimedOut;
-    protected abstract INewState GetTimedOutState();
-
-    protected void RestartTimer()
-    {
-      lock (_stopwatch)
-      {
-        _stopwatch.Restart();
-      }
-    }
-
-    private void WaitForTimeOut()
-    {
-      while (true)
-      {
-        int remaining;
-        lock (_stopwatch)
-        {
-          remaining = (int) (_milliseconds - _stopwatch.ElapsedMilliseconds);
-        }
-        if (remaining <= 0)
-        {
-          EventUtility.CheckAndRaise(TimedOut, this, new StateTimedOutEventArgs(GetTimedOutState()));
-          break;
-        }
-        Thread.Sleep(remaining);
-      }
-    }
-
-    private async void WaitForTimeOutAsync()
-    {
-      RestartTimer();
-      await Task.Run(() => WaitForTimeOut());
-    }
-  }
-
-  internal class StateTimedOutEventArgs : EventArgs
-  {
-    public StateTimedOutEventArgs(INewState nextState)
-    {
-      NextState = nextState;
-    }
-
-    public INewState NextState { get; private set; }
-  }
-
   internal class NewStateMachine
   {
     private readonly ConcurrentQueue<Message> _messages = new ConcurrentQueue<Message>();
@@ -139,7 +38,7 @@ namespace Spines.Tenhou.Client.LocalServer
     public void Process(Message message)
     {
       _messages.Enqueue(message);
-      DequeueOneAsync();
+      DequeueOne();
     }
 
     private void DequeueOne()
@@ -154,7 +53,7 @@ namespace Spines.Tenhou.Client.LocalServer
         Message m;
         if (_messages.TryDequeue(out m))
         {
-          _currentState = _currentState.Process(m);
+          UpdateCurrentState(_currentState.Process(m));
         }
         else
         {
@@ -164,23 +63,24 @@ namespace Spines.Tenhou.Client.LocalServer
       }
       if (isFinal)
       {
+        // TODO cleanup, like leaving queues and matches
         EventUtility.CheckAndRaise(Finished, this);
       }
-    }
-
-    private async void DequeueOneAsync()
-    {
-      await Task.Run(() => DequeueOne());
     }
 
     private void OnTimedOut(object sender, StateTimedOutEventArgs e)
     {
       lock (_currentState)
       {
-        _currentState.TimedOut -= OnTimedOut;
-        _currentState = e.NextState;
-        _currentState.TimedOut += OnTimedOut;
+        UpdateCurrentState(e.NextState);
       }
+    }
+
+    private void UpdateCurrentState(INewState nextState)
+    {
+      _currentState.TimedOut -= OnTimedOut;
+      _currentState = nextState;
+      _currentState.TimedOut += OnTimedOut;
     }
   }
 }

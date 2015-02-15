@@ -39,6 +39,7 @@ namespace Spines.Tenhou.Client.LocalServer
 
     public void EnterQueue(LobbyConnection player, int lobby, MatchType matchType)
     {
+      Console.WriteLine("Someone entered the match queue.");
       var nextFour = new List<LobbyConnection>();
       lock (_queue)
       {

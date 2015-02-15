@@ -54,10 +54,13 @@
     <Compile Include="ClientException.cs" />
     <Compile Include="ClientFactory.cs" />
     <Compile Include="DiscardInformation.cs" />
+    <Compile Include="LocalServer\Message.cs" />
     <Compile Include="LocalServer\NewStateMachine.cs" />
     <Compile Include="LocalServer\PlayerStatus.cs" />
     <Compile Include="LocalServer\Match.cs" />
     <Compile Include="LocalServer\States\AuthenticatingState.cs" />
+    <Compile Include="LocalServer\States\INewState.cs" />
+    <Compile Include="LocalServer\StateTimedOutEventArgs.cs" />
     <Compile Include="LocalServer\Transitions\ConfirmGoTransition.cs" />
     <Compile Include="LocalServer\Transitions\DiscardTransition.cs" />
     <Compile Include="LocalServer\States\InMatchState.cs" />

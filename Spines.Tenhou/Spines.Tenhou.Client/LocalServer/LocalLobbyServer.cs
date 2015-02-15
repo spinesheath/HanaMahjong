@@ -20,15 +20,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using Spines.Tenhou.Client.LocalServer.States;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer
 {
   internal class LocalLobbyServer
   {
-    private readonly IDictionary<LocalConnection, StateMachine<LocalConnection, LobbyConnection>> _stateMachines =
-      new Dictionary<LocalConnection, StateMachine<LocalConnection, LobbyConnection>>();
-
     private readonly MatchServer _matchServer;
+
+    private readonly IDictionary<LocalConnection, NewStateMachine> _stateMachines =
+      new Dictionary<LocalConnection, NewStateMachine>();
 
     public LocalLobbyServer(ISeedGenerator seedGenerator)
     {
@@ -37,13 +38,13 @@ namespace Spines.Tenhou.Client.LocalServer
 
     public void Send(LocalConnection connection, XElement message)
     {
-      StateMachine<LocalConnection, LobbyConnection> stateMachine;
+      NewStateMachine stateMachine;
       lock (_stateMachines)
       {
         if (!_stateMachines.ContainsKey(connection))
         {
           var lobbyConnection = new LobbyConnection(connection, _matchServer);
-          stateMachine = new StateMachine<LocalConnection, LobbyConnection>(lobbyConnection, new ConnectionEstablishedState());
+          stateMachine = new NewStateMachine(new NewConnectionEstablishedState(lobbyConnection));
           stateMachine.Finished += OnConnectionEnded;
           _stateMachines.Add(connection, stateMachine);
         }
@@ -52,12 +53,12 @@ namespace Spines.Tenhou.Client.LocalServer
           stateMachine = _stateMachines[connection];
         }
       }
-      stateMachine.ProcessMessage(connection, message);
+      stateMachine.Process(new Message(InvariantConvert.ToString(connection.GetHashCode()), message));
     }
 
     private void OnConnectionEnded(object sender, EventArgs e)
     {
-      var stateMachine = (StateMachine<LocalConnection, LobbyConnection>)sender;
+      var stateMachine = (NewStateMachine) sender;
       stateMachine.Finished -= OnConnectionEnded;
       lock (_stateMachines)
       {
@@ -65,91 +66,5 @@ namespace Spines.Tenhou.Client.LocalServer
         _stateMachines.Remove(keyValuePair);
       }
     }
-
-    //private IEnumerable<LocalConnection> AddPlayerAndTake4(LocalConnection connection)
-    //{
-    //  lock (_playersInMatches)
-    //  {
-    //    if (_playersInMatches.ContainsKey(connection))
-    //    {
-    //      return Enumerable.Empty<LocalConnection>();
-    //    }
-    //  }
-    //  lock (_matchQueue)
-    //  {
-    //    _matchQueue.Add(connection);
-    //    if (_matchQueue.Count <= 3)
-    //    {
-    //      return Enumerable.Empty<LocalConnection>();
-    //    }
-    //    var players = _matchQueue.Take(4).ToList();
-    //    foreach (var localMahjongConnection in players)
-    //    {
-    //      _matchQueue.Remove(localMahjongConnection);
-    //    }
-    //    return players;
-    //  }
-    //}
-
-    //private void OnMatchFinished(object sender, EventArgs e)
-    //{
-    //  var localMatchServer = (LocalMatchServer) sender;
-    //  localMatchServer.Finished -= OnMatchFinished;
-    //  var players = Enumerable.Empty<LocalConnection>();
-    //  lock (_matchServers)
-    //  {
-    //    if (_matchServers.ContainsKey(localMatchServer))
-    //    {
-    //      players = _matchServers[localMatchServer];
-    //      _matchServers.Remove(localMatchServer);
-    //    }
-    //  }
-    //  lock (_playersInMatches)
-    //  {
-    //    foreach (var localMahjongConnection in players)
-    //    {
-    //      _playersInMatches.Remove(localMahjongConnection);
-    //    }
-    //  }
-    //}
-
-    //private void AcceptMatch(LocalConnection connection, AccountInformation account)
-    //{
-    //  lock (_playersInMatches)
-    //  {
-    //    if (_playersInMatches.ContainsKey(connection))
-    //    {
-    //      _playersInMatches[connection].AcceptMatch(connection, account);
-    //    }
-    //  }
-    //}
-
-    //private void ProposeMatch(LocalConnection connection)
-    //{
-    //  var players = AddPlayerAndTake4(connection).ToList();
-    //  if (players.Count < 4)
-    //  {
-    //    return;
-    //  }
-    //  var seed = _seedGenerator.CreateSeed();
-    //  var localMatchServer = new LocalMatchServer(seed);
-    //  lock (_playersInMatches)
-    //  {
-    //    foreach (var localMahjongConnection in players)
-    //    {
-    //      _playersInMatches.Add(localMahjongConnection, localMatchServer);
-    //    }
-    //  }
-    //  localMatchServer.Finished += OnMatchFinished;
-    //  localMatchServer.Start();
-    //  lock (_matchServers)
-    //  {
-    //    _matchServers.Add(localMatchServer, players);
-    //  }
-    //  foreach (var localMahjongConnection in players)
-    //  {
-    //    localMahjongConnection.Receive(new XElement("REJOIN", new XAttribute("t", "0,9,r")));
-    //  }
-    //}
   }
 }

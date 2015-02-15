@@ -43,7 +43,7 @@ namespace Spines.Tenhou.Client.LocalServer
     /// <param name="message">The message to send.</param>
     public void Send(XElement message)
     {
-      Console.WriteLine("me: " + message);
+      Console.WriteLine("me: " + InvariantConvert.ToString(GetHashCode()) + " " + message.Name);
       _server.Send(this, message);
     }
 
@@ -63,7 +63,7 @@ namespace Spines.Tenhou.Client.LocalServer
     /// <param name="message">The message sent by the server.</param>
     public void Receive(XElement message)
     {
-      Console.WriteLine("amanda: " + message);
+      Console.WriteLine("amanda: " + InvariantConvert.ToString(GetHashCode()) + " " + message.Name);
       lock (_messageQueue)
       {
         _messageQueue.Enqueue(message);
