@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Xml.Linq;
-
 namespace Spines.Tenhou.Client.LocalServer.States
 {
   internal class ConnectionEstablishedState : StateBase
@@ -37,23 +35,11 @@ namespace Spines.Tenhou.Client.LocalServer.States
         return this;
       }
       var accountId = message.Content.Attribute("name").Value;
-      if (!_connection.RegistrationService.IsRegistered(accountId))
+      if (_connection.TryLogOn(accountId))
       {
-        return new FinalState();
+        return new AuthenticatingState(_connection, accountId);
       }
-      LogOn(accountId);
-      return new AuthenticatingState(_connection, accountId);
-    }
-
-    // TODO move this elsewhere, for example let authentication service create the message, or a translator class
-    private void LogOn(string accountId)
-    {
-      var accountInformation = _connection.RegistrationService.GetAccountInformation(accountId);
-      var authenticationString = _connection.AuthenticationService.GetAuthenticationString(accountId);
-      var message = accountInformation.ToMessage();
-      message.Add(new XAttribute("auth", authenticationString));
-      _connection.SendToClient(message);
-      _connection.LogOn(accountId);
+      return new FinalState();
     }
   }
 }

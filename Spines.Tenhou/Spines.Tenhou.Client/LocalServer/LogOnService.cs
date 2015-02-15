@@ -24,21 +24,25 @@ namespace Spines.Tenhou.Client.LocalServer
   {
     private readonly IDictionary<string, LocalConnection> _accounts = new Dictionary<string, LocalConnection>();
 
-    public void LogOn(string accountId, LocalConnection connection)
+    public bool TryLogOn(string accountId, LocalConnection connection)
     {
-      // TODO check if already logged on etc
       lock(_accounts)
       {
+        if(_accounts.ContainsKey(accountId))
+          return false;
         _accounts.Add(accountId, connection);
+        return true;
       }
     }
 
     public void Send(string accountId, XElement message)
     {
-      // TODO check id logged on etc.
       lock (_accounts)
       {
-        _accounts[accountId].Receive(message);
+        if(_accounts.ContainsKey(accountId))
+        {
+          _accounts[accountId].Receive(message);
+        }
       }
     }
   }
