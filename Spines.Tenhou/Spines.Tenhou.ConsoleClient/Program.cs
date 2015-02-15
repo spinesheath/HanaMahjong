@@ -17,7 +17,6 @@
 
 using System;
 using System.Linq;
-using System.Threading;
 using Spines.Tenhou.Client;
 
 namespace Spines.Tenhou.ConsoleClient

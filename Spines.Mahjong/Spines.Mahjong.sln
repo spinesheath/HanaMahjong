@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Tenhou.ConsoleClient
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Tenhou.Client.InternalTests", "..\Spines.Tenhou\Spines.Tenhou.Client.InternalTests\Spines.Tenhou.Client.InternalTests.csproj", "{3EE6118D-CA00-49C7-B2FD-150A9EED7DA4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Mahjong.LocalMatchViewer", "Spines.Mahjong.LocalMatchViewer\Spines.Mahjong.LocalMatchViewer.csproj", "{62D9179E-1865-432B-B4A9-831E8FEA6D72}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{3EE6118D-CA00-49C7-B2FD-150A9EED7DA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3EE6118D-CA00-49C7-B2FD-150A9EED7DA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3EE6118D-CA00-49C7-B2FD-150A9EED7DA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62D9179E-1865-432B-B4A9-831E8FEA6D72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62D9179E-1865-432B-B4A9-831E8FEA6D72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62D9179E-1865-432B-B4A9-831E8FEA6D72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62D9179E-1865-432B-B4A9-831E8FEA6D72}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
