@@ -28,7 +28,7 @@ namespace Spines.Tenhou.Client.LocalServer.States
 
     public IState Process(Message message)
     {
-      throw new InvalidOperationException("FinalState can't process any messages.");
+      throw new InvalidOperationException();
     }
 
     public event EventHandler<StateTimedOutEventArgs> TimedOut

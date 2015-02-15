@@ -45,7 +45,7 @@ namespace Spines.Tenhou.Client.LocalServer.States
       var parts = message.Content.Attribute("t").Value.Split(new[] {','});
       var lobby = InvariantConvert.ToInt32(parts[0]);
       var matchType = new MatchType(InvariantConvert.ToInt32(parts[1]));
-      if (!_connection.MatchServer.CanEnterQueue(_accountId, lobby, matchType))
+      if (!_connection.MatchServer.CanEnterQueue(_accountId))
       {
         return this;
       }

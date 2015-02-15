@@ -33,14 +33,13 @@ namespace Spines.Tenhou.Client.LocalServer
       _logOnService = logOnService;
     }
 
-    public bool CanEnterQueue(string accountId, int lobby, MatchType matchType)
+    public bool CanEnterQueue(string accountId)
     {
       return !IsInQueue(accountId);
     }
 
     public void EnterQueue(string accountId, int lobby, MatchType matchType)
     {
-      Console.WriteLine(accountId + " entered the match queue.");
       var nextFour = new List<string>();
       lock (_queue)
       {
@@ -57,7 +56,7 @@ namespace Spines.Tenhou.Client.LocalServer
       }
     }
 
-    public bool IsInMatch(string accountId, int lobby, MatchType matchType)
+    public bool IsInMatch(string accountId)
     {
       lock (_accountIdToMatch)
       {
@@ -71,11 +70,6 @@ namespace Spines.Tenhou.Client.LocalServer
       {
         return _queue.Contains(accountId);
       }
-    }
-
-    public void LeaveAll(string accountId)
-    {
-      throw new NotImplementedException();
     }
 
     public void ProcessMessage(Message message)

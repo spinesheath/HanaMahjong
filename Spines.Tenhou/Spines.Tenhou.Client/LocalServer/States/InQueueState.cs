@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Spines.Utility;
-
 namespace Spines.Tenhou.Client.LocalServer.States
 {
   internal class InQueueState : StateBase
@@ -37,10 +35,7 @@ namespace Spines.Tenhou.Client.LocalServer.States
       {
         return this;
       }
-      var parts = message.Content.Attribute("t").Value.Split(new[] {','});
-      var lobby = InvariantConvert.ToInt32(parts[0]);
-      var matchType = new MatchType(InvariantConvert.ToInt32(parts[1]));
-      if (_connection.MatchServer.IsInMatch(_accountId, lobby, matchType))
+      if (_connection.MatchServer.IsInMatch(_accountId))
       {
         _connection.MatchServer.ProcessMessage(new Message(_accountId, message.Content));
         return new InMatchState(_connection, _accountId);

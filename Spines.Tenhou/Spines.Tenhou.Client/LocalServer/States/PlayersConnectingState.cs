@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Spines.Utility;
-
 namespace Spines.Tenhou.Client.LocalServer.States
 {
   internal class PlayersConnectingState : StateBase
@@ -35,10 +33,7 @@ namespace Spines.Tenhou.Client.LocalServer.States
       {
         return this;
       }
-      var parts = message.Content.Attribute("t").Value.Split(new[] {','});
-      var lobby = InvariantConvert.ToInt32(parts[0]);
-      var matchType = new MatchType(InvariantConvert.ToInt32(parts[1]));
-      _match.ConfirmPlayerAsParticipant(message.SenderId, lobby, matchType);
+      _match.ConfirmPlayerAsParticipant(message.SenderId);
       if (!_match.AreAllPlayersParticipating())
       {
         return this;

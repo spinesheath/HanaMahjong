@@ -116,9 +116,7 @@ namespace Spines.Tenhou.Client.LocalServer
     /// Confirms that the player participates in the match.
     /// </summary>
     /// <param name="accountId">The participating player.</param>
-    /// <param name="lobby">The lobby of the match.</param>
-    /// <param name="matchType">The type of the match.</param>
-    public void ConfirmPlayerAsParticipant(string accountId, int lobby, MatchType matchType)
+    public void ConfirmPlayerAsParticipant(string accountId)
     {
       if (_players.ContainsKey(accountId))
       {
