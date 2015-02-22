@@ -54,7 +54,7 @@ namespace Spines.Tenhou.Client.LocalServer
     {
       RecieveMessagesAsync();
       SendKeepAlivePing();
-      EventChecker.Invoke(Connected, this);
+      Validate.InvokeSafely(Connected, this);
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ namespace Spines.Tenhou.Client.LocalServer
         }
         foreach (var message in GetMessages())
         {
-          EventChecker.Invoke(ReceivedMessage, this, new ReceivedMessageEventArgs(message));
+          Validate.InvokeSafely(ReceivedMessage, this, new ReceivedMessageEventArgs(message));
         }
         Thread.Sleep(100);
         sleepCounter += 1;

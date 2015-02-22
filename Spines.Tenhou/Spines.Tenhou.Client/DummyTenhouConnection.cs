@@ -87,7 +87,7 @@ namespace Spines.Tenhou.Client
     /// </summary>
     public void Connect()
     {
-      EventChecker.Invoke(Connected, this);
+      Validate.InvokeSafely(Connected, this);
     }
 
     private void FakeReceiveHelo()
@@ -139,7 +139,7 @@ namespace Spines.Tenhou.Client
     private void RaiseReceive(XElement message)
     {
       _logger.Trace("I: " + message);
-      EventChecker.Invoke(ReceivedMessage, this, new ReceivedMessageEventArgs(message));
+      Validate.InvokeSafely(ReceivedMessage, this, new ReceivedMessageEventArgs(message));
     }
   }
 }

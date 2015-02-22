@@ -29,7 +29,7 @@ namespace Spines.Mahjong.LocalMatchViewer
     [NotifyPropertyChangedInvocator]
     protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
-      EventChecker.Invoke(PropertyChanged, this, propertyName);
+      Validate.InvokeSafely(PropertyChanged, this, propertyName);
     }
   }
 }

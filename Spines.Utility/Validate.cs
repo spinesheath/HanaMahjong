@@ -16,6 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.ComponentModel;
 
 namespace Spines.Utility
 {
@@ -61,7 +62,8 @@ namespace Spines.Utility
     /// Throws an ArgumentOutOfRangeException if value is less than 0.
     /// </summary>
     /// <param name="value">The tested value.</param>
-    /// /// <param name="argumentName">The name of the argument that is to be tested.</param>
+    /// ///
+    /// <param name="argumentName">The name of the argument that is to be tested.</param>
     /// <returns>The value that was passed into the method.</returns>
     public static int NotNegative(int value, string argumentName)
     {
@@ -70,6 +72,70 @@ namespace Spines.Utility
         throw new ArgumentOutOfRangeException(argumentName, value, "Value must not be negative.");
       }
       return value;
+    }
+
+    /// <summary>
+    /// Raises the event if there are any subscribers.
+    /// </summary>
+    /// <param name="handler">The event handler that is raised.</param>
+    /// <param name="sender">The sender of the event.</param>
+    public static void InvokeSafely(EventHandler handler, object sender)
+    {
+      ThreadSafeCheckAndRaise(handler, h => h(sender, new EventArgs()));
+    }
+
+    /// <summary>
+    /// Raises the event if there are any subscribers.
+    /// </summary>
+    /// <param name="handler">The event handler that is raised.</param>
+    /// <param name="sender">The sender of the event.</param>
+    /// <param name="e">The arguments of the event.</param>
+    /// <typeparam name="TEventArgs">The type of the event args.</typeparam>
+    public static void InvokeSafely<TEventArgs>(EventHandler<TEventArgs> handler, object sender, TEventArgs e)
+      where TEventArgs : EventArgs
+    {
+      ThreadSafeCheckAndRaise(handler, h => h(sender, e));
+    }
+
+    /// <summary>
+    /// Raises the event if there are any subscribers.
+    /// </summary>
+    /// <param name="handler">The event handler that is raised.</param>
+    /// <param name="sender">The sender of the event.</param>
+    /// <param name="arguments">The arguments of the event.</param>
+    /// <typeparam name="TSender">The type of the sender.</typeparam>
+    /// <typeparam name="TEventArgs">The type of the event args.</typeparam>
+    public static void InvokeSafely<TSender, TEventArgs>(TypedEventHandler<TSender, TEventArgs> handler, TSender sender,
+      TEventArgs arguments)
+      where TEventArgs : EventArgs
+    {
+      ThreadSafeCheckAndRaise(handler, h => h(sender, arguments));
+    }
+
+    /// <summary>
+    /// Raises the event if there are any subscribers.
+    /// </summary>
+    /// <param name="handler">The event handler that is raised.</param>
+    /// <param name="sender">The sender of the event.</param>
+    /// <param name="propertyName">The name of the changed property.</param>
+    public static void InvokeSafely(PropertyChangedEventHandler handler, object sender, string propertyName)
+    {
+      ThreadSafeCheckAndRaise(handler, h => h(sender, new PropertyChangedEventArgs(propertyName)));
+    }
+
+    /// <summary>
+    /// Copies the handler into a temporary variable to prevent race condition. This will not be optimized away in CLR 2.0.
+    /// </summary>
+    /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
+    /// <param name="handler">The event handler.</param>
+    /// <param name="invoker">The action that invokes the event handler. Called if the handler is not null.</param>
+    private static void ThreadSafeCheckAndRaise<TEventHandler>(TEventHandler handler, Action<TEventHandler> invoker)
+    {
+      var h = handler;
+      if (h != null)
+      {
+        invoker(h);
+      }
     }
   }
 }

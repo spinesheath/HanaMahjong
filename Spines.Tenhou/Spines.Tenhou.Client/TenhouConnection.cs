@@ -111,7 +111,7 @@ namespace Spines.Tenhou.Client
     {
       _client = new TcpClient();
       _client.Connect(_address, Port);
-      EventChecker.Invoke(Connected, this);
+      Validate.InvokeSafely(Connected, this);
       var stream = _client.GetStream();
       stream.ReadTimeout = 1000;
       RecieveMessagesAsync(stream);
@@ -140,7 +140,7 @@ namespace Spines.Tenhou.Client
       var xElements = parts.Select(XElement.Parse);
       foreach (var xElement in xElements)
       {
-        EventChecker.Invoke(ReceivedMessage, this, new ReceivedMessageEventArgs(xElement));
+        Validate.InvokeSafely(ReceivedMessage, this, new ReceivedMessageEventArgs(xElement));
       }
     }
 

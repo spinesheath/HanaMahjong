@@ -64,7 +64,7 @@ namespace Spines.Tenhou.Client.LocalServer
       if (isFinal)
       {
         // TODO cleanup, like leaving queues and matches
-        EventChecker.Invoke(Finished, this);
+        Validate.InvokeSafely(Finished, this);
       }
     }
 
