@@ -18,6 +18,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Spines.Utility;
 
 namespace Spines.Mahjong.LocalMatchViewer
 {
@@ -28,11 +29,7 @@ namespace Spines.Mahjong.LocalMatchViewer
     [NotifyPropertyChangedInvocator]
     protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
-      var handler = PropertyChanged;
-      if (handler != null)
-      {
-        handler(this, new PropertyChangedEventArgs(propertyName));
-      }
+      EventChecker.Invoke(PropertyChanged, this, propertyName);
     }
   }
 }

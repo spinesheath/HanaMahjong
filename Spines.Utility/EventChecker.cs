@@ -1,4 +1,4 @@
-// Spines.Utility.EventUtility.cs
+// Spines.Utility.EventChecker.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -16,14 +16,25 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.ComponentModel;
 
 namespace Spines.Utility
 {
   /// <summary>
-  /// Utility Methods for eventing.
+  /// Used for raising events safely.
   /// </summary>
-  public static class EventUtility
+  public static class EventChecker
   {
+    /// <summary>
+    /// Raises the event if there are any subscribers.
+    /// </summary>
+    /// <param name="handler">The event handler that is raised.</param>
+    /// <param name="sender">The sender of the event.</param>
+    public static void Invoke(EventHandler handler, object sender)
+    {
+      ThreadSafeCheckAndRaise(handler, h => h(sender, new EventArgs()));
+    }
+
     /// <summary>
     /// Raises the event if there are any subscribers.
     /// </summary>
@@ -31,16 +42,10 @@ namespace Spines.Utility
     /// <param name="sender">The sender of the event.</param>
     /// <param name="e">The arguments of the event.</param>
     /// <typeparam name="TEventArgs">The type of the event args.</typeparam>
-    public static void CheckAndRaise<TEventArgs>(EventHandler<TEventArgs> handler, object sender, TEventArgs e)
+    public static void Invoke<TEventArgs>(EventHandler<TEventArgs> handler, object sender, TEventArgs e)
       where TEventArgs : EventArgs
     {
-      // TODO get rid of this?
-      // Copy into a temporary variable to prevent race condition. This will not be optimized away in CLR 2.0.
-      var h = handler;
-      if (h != null)
-      {
-        h(sender, e);
-      }
+      ThreadSafeCheckAndRaise(handler, h => h(sender, e));
     }
 
     /// <summary>
@@ -49,20 +54,13 @@ namespace Spines.Utility
     /// <param name="handler">The event handler that is raised.</param>
     /// <param name="sender">The sender of the event.</param>
     /// <param name="arguments">The arguments of the event.</param>
-    /// ///
     /// <typeparam name="TSender">The type of the sender.</typeparam>
     /// <typeparam name="TEventArgs">The type of the event args.</typeparam>
-    public static void CheckAndRaise<TSender, TEventArgs>(TypedEventHandler<TSender, TEventArgs> handler, TSender sender,
+    public static void Invoke<TSender, TEventArgs>(TypedEventHandler<TSender, TEventArgs> handler, TSender sender,
       TEventArgs arguments)
       where TEventArgs : EventArgs
     {
-      // TODO merge this and PropertyChangedEventHandler
-      // Copy into a temporary variable to prevent race condition. This will not be optimized away in CLR 2.0.
-      var h = handler;
-      if (h != null)
-      {
-        h(sender, arguments);
-      }
+      ThreadSafeCheckAndRaise(handler, h => h(sender, arguments));
     }
 
     /// <summary>
@@ -70,13 +68,25 @@ namespace Spines.Utility
     /// </summary>
     /// <param name="handler">The event handler that is raised.</param>
     /// <param name="sender">The sender of the event.</param>
-    public static void CheckAndRaise(EventHandler handler, object sender)
+    /// <param name="propertyName">The name of the changed property.</param>
+    public static void Invoke(PropertyChangedEventHandler handler, object sender, string propertyName)
     {
-      // Copy into a temporary variable to prevent race condition. This will not be optimized away in CLR 2.0.
+      ThreadSafeCheckAndRaise(handler, h => h(sender, new PropertyChangedEventArgs(propertyName)));
+    }
+
+    /// <summary>
+    /// Copies the handler into a temporary variable to prevent race condition. This will not be optimized away in CLR 2.0.
+    /// </summary>
+    /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
+    /// <param name="handler">The event handler.</param>
+    /// <param name="invoker">The action that invokes the event handler. Called if the handler is not null.</param>
+    private static void ThreadSafeCheckAndRaise<TEventHandler>(TEventHandler handler, Action<TEventHandler> invoker)
+    {
+      // TODO merge this and PropertyChangedEventHandler
       var h = handler;
       if (h != null)
       {
-        h(sender, new EventArgs());
+        invoker(h);
       }
     }
   }

@@ -259,7 +259,7 @@ namespace Spines.Tenhou.Client.LocalServer
     {
       var stateMachine = (StateMachine) sender;
       stateMachine.Finished -= OnFinished;
-      EventUtility.CheckAndRaise(Finished, this);
+      EventChecker.Invoke(Finished, this);
     }
 
     private void SendToAll(XElement message)

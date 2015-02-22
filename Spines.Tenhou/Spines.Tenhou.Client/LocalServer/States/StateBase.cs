@@ -72,7 +72,7 @@ namespace Spines.Tenhou.Client.LocalServer.States
         }
         if (remaining <= 0)
         {
-          EventUtility.CheckAndRaise(TimedOut, this, new StateTimedOutEventArgs(GetTimedOutState()));
+          EventChecker.Invoke(TimedOut, this, new StateTimedOutEventArgs(GetTimedOutState()));
           break;
         }
         Thread.Sleep(remaining);
