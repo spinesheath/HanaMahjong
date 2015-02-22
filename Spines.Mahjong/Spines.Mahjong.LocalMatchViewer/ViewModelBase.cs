@@ -17,7 +17,7 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Spines.Utility;
+using JetBrains.Annotations;
 
 namespace Spines.Mahjong.LocalMatchViewer
 {
