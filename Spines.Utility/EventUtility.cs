@@ -34,12 +34,34 @@ namespace Spines.Utility
     public static void CheckAndRaise<TEventArgs>(EventHandler<TEventArgs> handler, object sender, TEventArgs e)
       where TEventArgs : EventArgs
     {
-      // TODO merge this and PropertyChangedEventHandler
+      // TODO get rid of this?
       // Copy into a temporary variable to prevent race condition. This will not be optimized away in CLR 2.0.
       var h = handler;
       if (h != null)
       {
         h(sender, e);
+      }
+    }
+
+    /// <summary>
+    /// Raises the event if there are any subscribers.
+    /// </summary>
+    /// <param name="handler">The event handler that is raised.</param>
+    /// <param name="sender">The sender of the event.</param>
+    /// <param name="arguments">The arguments of the event.</param>
+    /// ///
+    /// <typeparam name="TSender">The type of the sender.</typeparam>
+    /// <typeparam name="TEventArgs">The type of the event args.</typeparam>
+    public static void CheckAndRaise<TSender, TEventArgs>(TypedEventHandler<TSender, TEventArgs> handler, TSender sender,
+      TEventArgs arguments)
+      where TEventArgs : EventArgs
+    {
+      // TODO merge this and PropertyChangedEventHandler
+      // Copy into a temporary variable to prevent race condition. This will not be optimized away in CLR 2.0.
+      var h = handler;
+      if (h != null)
+      {
+        h(sender, arguments);
       }
     }
 

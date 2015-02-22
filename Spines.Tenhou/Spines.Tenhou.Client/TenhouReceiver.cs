@@ -205,24 +205,24 @@ namespace Spines.Tenhou.Client
       Broadcast(client => client.UpdatePlayers(GetPlayers(message)));
     }
 
-    private void ReceivedMessage(object sender, ReceivedMessageEventArgs e)
+    private void ReceivedMessage(ITenhouConnection sender, ReceivedMessageEventArgs arguments)
     {
-      var nodeName = e.Message.Name.LocalName;
+      var nodeName = arguments.Message.Name.LocalName;
       if (_messageActions.ContainsKey(nodeName))
       {
-        _messageActions[nodeName](e.Message);
+        _messageActions[nodeName](arguments.Message);
       }
       else if (IsPlayerDraw(nodeName))
       {
-        Broadcast(client => client.DrawTile(CreateTileFromDrawOrDiscard(e.Message)));
+        Broadcast(client => client.DrawTile(CreateTileFromDrawOrDiscard(arguments.Message)));
       }
       else if (IsOpponentDraw(nodeName))
       {
-        Broadcast(client => client.OpponentDrawTile(GetPlayerIndexFromDrawOrDiscard(e.Message)));
+        Broadcast(client => client.OpponentDrawTile(GetPlayerIndexFromDrawOrDiscard(arguments.Message)));
       }
       else if (IsDiscard(nodeName))
       {
-        Broadcast(client => client.Discard(new DiscardInformation(e.Message)));
+        Broadcast(client => client.Discard(new DiscardInformation(arguments.Message)));
       }
     }
   }

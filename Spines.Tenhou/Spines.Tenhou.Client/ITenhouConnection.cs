@@ -17,6 +17,8 @@
 
 using System;
 using System.Xml.Linq;
+using Spines.Tenhou.Client.LocalServer;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client
 {
@@ -34,7 +36,7 @@ namespace Spines.Tenhou.Client
     /// <summary>
     /// Is raised every time a message from the server is received.
     /// </summary>
-    event EventHandler<ReceivedMessageEventArgs> ReceivedMessage;
+    event TypedEventHandler<ITenhouConnection, ReceivedMessageEventArgs> ReceivedMessage;
 
     /// <summary>
     /// Is raised once the connection successfully connected to the server.

@@ -47,7 +47,7 @@ namespace Spines.Tenhou.Client.LocalServer
       _server.Process(this, message);
     }
 
-    public event EventHandler<ReceivedMessageEventArgs> ReceivedMessage;
+    public event TypedEventHandler<ITenhouConnection, ReceivedMessageEventArgs> ReceivedMessage;
     public event EventHandler Connected;
 
     public void Connect()

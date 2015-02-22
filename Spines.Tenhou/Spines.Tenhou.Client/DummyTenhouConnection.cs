@@ -75,7 +75,7 @@ namespace Spines.Tenhou.Client
     /// <summary>
     /// Is raised in response to Process.
     /// </summary>
-    public event EventHandler<ReceivedMessageEventArgs> ReceivedMessage;
+    public event TypedEventHandler<ITenhouConnection, ReceivedMessageEventArgs> ReceivedMessage;
 
     /// <summary>
     /// Is raised once the client successfully connected to the connection.
