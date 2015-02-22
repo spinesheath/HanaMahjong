@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.LocalMatchViewer.MainWindow.xaml.cs
+﻿// Spines.Mahjong.LocalMatchViewer.MainViewModel.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -17,17 +17,7 @@
 
 namespace Spines.Mahjong.LocalMatchViewer
 {
-  /// <summary>
-  /// Interaction logic for MainWindow.xaml
-  /// </summary>
-  internal partial class MainWindow
+  internal class MainViewModel : ViewModelBase
   {
-    /// <summary>
-    /// Creates a new instance of MainWindow.
-    /// </summary>
-    public MainWindow()
-    {
-      InitializeComponent();
-    }
   }
 }

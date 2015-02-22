@@ -47,6 +47,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Annotations.cs" />
     <Compile Include="BitField.cs" />
     <Compile Include="ConsoleLogger.cs" />
     <Compile Include="EventUtility.cs" />

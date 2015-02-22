@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.LocalMatchViewer.App.xaml.cs
+﻿// Spines.Mahjong.LocalMatchViewer.MainView.xaml.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,16 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Windows;
-
 namespace Spines.Mahjong.LocalMatchViewer
 {
-  internal partial class App
+  internal partial class MainView
   {
-    private void App_OnStartup(object sender, StartupEventArgs e)
+    public MainView()
     {
-      var w = new MainView {DataContext = new MainViewModel()};
-      w.Show();
+      InitializeComponent();
     }
   }
 }

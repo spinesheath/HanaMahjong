@@ -34,6 +34,7 @@ namespace Spines.Utility
     public static void CheckAndRaise<TEventArgs>(EventHandler<TEventArgs> handler, object sender, TEventArgs e)
       where TEventArgs : EventArgs
     {
+      // TODO merge this and PropertyChangedEventHandler
       // Copy into a temporary variable to prevent race condition. This will not be optimized away in CLR 2.0.
       var h = handler;
       if (h != null)
