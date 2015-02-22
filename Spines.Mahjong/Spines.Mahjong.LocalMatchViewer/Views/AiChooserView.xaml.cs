@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.LocalMatchViewer.MainView.xaml.cs
+﻿// Spines.Mahjong.LocalMatchViewer.AiChooserView.xaml.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,11 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace Spines.Mahjong.LocalMatchViewer
+namespace Spines.Mahjong.LocalMatchViewer.Views
 {
-  internal partial class MainView
+  /// <summary>
+  /// Interaction logic for AiChooserView.xaml
+  /// </summary>
+  internal partial class AiChooserView
   {
-    public MainView()
+    public AiChooserView()
     {
       InitializeComponent();
     }

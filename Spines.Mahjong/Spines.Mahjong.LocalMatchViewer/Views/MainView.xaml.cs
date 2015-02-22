@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.LocalMatchViewer.ViewModelBase.cs
+﻿// Spines.Mahjong.LocalMatchViewer.MainView.xaml.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,21 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
-using Spines.Utility;
-
-namespace Spines.Mahjong.LocalMatchViewer
+namespace Spines.Mahjong.LocalMatchViewer.Views
 {
-  internal class ViewModelBase : INotifyPropertyChanged
+  internal partial class MainView
   {
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    [NotifyPropertyChangedInvocator]
-    protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    public MainView()
     {
-      Validate.InvokeSafely(PropertyChanged, this, propertyName);
+      InitializeComponent();
     }
   }
 }

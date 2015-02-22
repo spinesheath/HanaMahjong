@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.LocalMatchViewer.App.xaml.cs
+﻿// Spines.Mahjong.LocalMatchViewer.AiChooserViewModel.cs
 // 
 // Copyright (C) 2015  Johannes Heckl
 // 
@@ -15,18 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Windows;
-using Spines.Mahjong.LocalMatchViewer.ViewModels;
-using Spines.Mahjong.LocalMatchViewer.Views;
-
-namespace Spines.Mahjong.LocalMatchViewer
+namespace Spines.Mahjong.LocalMatchViewer.ViewModels
 {
-  internal partial class App
+  // TODO ViewBase with typed datacontext
+  internal class AiChooserViewModel : ViewModelBase
   {
-    private void App_OnStartup(object sender, StartupEventArgs e)
-    {
-      var w = new MainView {DataContext = new MainViewModel()};
-      w.Show();
-    }
   }
 }

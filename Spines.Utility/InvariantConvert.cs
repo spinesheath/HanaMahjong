@@ -17,6 +17,7 @@
 
 using System;
 using System.Globalization;
+using JetBrains.Annotations;
 
 namespace Spines.Utility
 {
@@ -92,9 +93,9 @@ namespace Spines.Utility
     /// <param name="template">The template of the string.</param>
     /// <param name="args">The values to replace the placeholders with.</param>
     /// <returns>The formatted string.</returns>
+    [StringFormatMethod("template")]
     public static string Format(string template, params object[] args)
     {
-      // TODO use resharper annotations
       return string.Format(CultureInfo.InvariantCulture, template, args);
     }
   }
