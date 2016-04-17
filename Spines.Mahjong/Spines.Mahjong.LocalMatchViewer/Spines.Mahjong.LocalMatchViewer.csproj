@@ -44,12 +44,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -62,15 +58,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ViewModels\AiChooserViewModel.cs" />
-    <Compile Include="Views\AiChooserView.xaml.cs">
-      <DependentUpon>AiChooserView.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="Model\Match.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
-    <Page Include="Views\AiChooserView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\MainView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -119,10 +108,14 @@
     </CodeAnalysisDictionary>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Spines.Tenhou\Spines.Tenhou.Client\Spines.Tenhou.Client.csproj">
+      <Project>{4F66968A-36E4-423D-9D0E-8AC5DC8C9B18}</Project>
+      <Name>Spines.Tenhou.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Spines.Utility\Spines.Utility.csproj">
       <Project>{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}</Project>
       <Name>Spines.Utility</Name>
-      <Private>False</Private>
+      <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

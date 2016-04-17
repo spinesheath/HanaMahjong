@@ -6,13 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         xmlns:viewModels="clr-namespace:Spines.Mahjong.LocalMatchViewer.ViewModels"
-        xmlns:views="clr-namespace:Spines.Mahjong.LocalMatchViewer.Views"
         d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel, IsDesignTimeCreatable=False}"
         Title="MainView" Height="350" Width="525">
-    <Window.Resources>
-        <DataTemplate DataType="{x:Type viewModels:AiChooserViewModel}">
-            <views:AiChooserView/>
-        </DataTemplate>
-    </Window.Resources>
-    <ContentControl Content="{Binding AiChooser}"/>
+    <ListView ItemsSource="{Binding Messages}"/>
 </Window>

@@ -22,6 +22,7 @@ using Spines.Utility;
 
 namespace Spines.Tenhou.Client.LocalServer
 {
+  // TODO get rid of thread stuff here and use a message queue between this and the senders
   internal class StateMachine
   {
     private readonly ConcurrentQueue<Message> _messages = new ConcurrentQueue<Message>();
