@@ -24,33 +24,58 @@ namespace Spines.Mahjong.Analysis.InternalTests
   [TestClass]
   public class SuitCombinationTest
   {
-    // 0: 1
-    // 1: 5
-    // 2: 25
-    // 3: 85
-    // 4: 255
-    // 5: 649
-    // 6: 1481
-    // 7: 3042
-    // 8: 5739
-    // 9: 9987
-    // 10: 16196
-    // 11: 24551
-    // 12: 34988
-    // 13: 46976
-    // 14: 59618
-    // 15: 71606
-    // 16: 81564
-    // 17: 88138
-    // 18: 90453
-    // 19: 88138
-    // 20: 81564
+    /// <summary>
+    /// Number of combinations of melds in a single suit.
+    /// </summary>
+    [TestMethod]
+    public void TestMeldCombinations()
+    {
+      VerifyMeldCombinationCount(0, 1);
+      VerifyMeldCombinationCount(1, 25);
+      VerifyMeldCombinationCount(2, 284);
+      VerifyMeldCombinationCount(3, 1914);
+      VerifyMeldCombinationCount(4, 8439);
+    }
 
+    private static void VerifyMeldCombinationCount(int numberOfMelds, int numberOfCombinations)
+    {
+      var combinations = SuitCombinationFactory.CreateMeldedCombinations(numberOfMelds);
+      Assert.AreEqual(numberOfCombinations, combinations.Count(), "Count of meld combinations was wrong");
+    }
+
+    /// <summary>
+    /// Number of combinations of tiles in a single suit, no melds.
+    /// </summary>
     [TestMethod]
     public void TestSuitCombinations()
     {
-      var combinations = SuitCombinationFactory.CreateCombinations(5);
-      Assert.AreEqual(649, combinations.Count(), "Count of combinations was wrong");
+      VerifyCombinationCount(0, 1);
+      VerifyCombinationCount(1, 5);
+      VerifyCombinationCount(2, 25);
+      VerifyCombinationCount(3, 85);
+      VerifyCombinationCount(4, 255);
+      //VerifyCombinationCount(5, 649);
+      //VerifyCombinationCount(6, 1481);
+      //VerifyCombinationCount(7, 3042);
+      //VerifyCombinationCount(8, 5739);
+      //VerifyCombinationCount(9, 9987);
+      //VerifyCombinationCount(10, 16196);
+      //VerifyCombinationCount(11, 24551);
+      //VerifyCombinationCount(12, 34988);
+      //VerifyCombinationCount(13, 46976);
+      //VerifyCombinationCount(14, 59618);
+      //VerifyCombinationCount(15, 71606);
+      //VerifyCombinationCount(16, 81564);
+      //VerifyCombinationCount(17, 88138);
+      //VerifyCombinationCount(18, 90453);
+      //VerifyCombinationCount(19, 88138);
+      //VerifyCombinationCount(20, 81564);
+    }
+
+    private static void VerifyCombinationCount(int numberOfTiles, int numberOfCombinations)
+    {
+      var combinations = SuitCombinationFactory.CreateCombinations(numberOfTiles);
+      Assert.AreEqual(numberOfCombinations, combinations.Count(), "Count of combinations was wrong");
     }
   }
 }

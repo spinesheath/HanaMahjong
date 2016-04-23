@@ -28,36 +28,104 @@ namespace Spines.Mahjong.Analysis
   internal static class SuitCombinationFactory
   {
     /// <summary>
+    /// Creates all possible combinations of used tiles for a number of melds in a single suit.
+    /// </summary>
+    public static IEnumerable<Combination> CreateMeldedCombinations(int numberOfMelds)
+    {
+      Validate.NotNegative(numberOfMelds, nameof(numberOfMelds));
+      return CreateMeldedCombinations(new int[9], numberOfMelds, 9);
+    }
+
+    /// <summary>
+    /// Creates all possible combinations of used tiles for a number of melds in a single suit.
+    /// </summary>
+    private static IEnumerable<Combination> CreateMeldedCombinations(IList<int> accumulator, int remainingMelds, int remainingTypes)
+    {
+      if (remainingTypes == 0)
+      {
+        // All melds used, return the current used tiles.
+        if (remainingMelds == 0)
+        {
+          yield return new Combination(accumulator.ToList());
+        }
+      }
+      else
+      {
+        var index = 9 - remainingTypes;
+        if (accumulator[index] <= 4 - 3)
+        {
+          accumulator[index] += 3;
+          foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds - 1, remainingTypes))
+          {
+            yield return combination;
+          }
+          accumulator[index] -= 3;
+        }
+        if (accumulator[index] <= 4 - 4)
+        {
+          accumulator[index] += 4;
+          foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds - 1, remainingTypes))
+          {
+            yield return combination;
+          }
+          accumulator[index] -= 4;
+        }
+        if (index < 7 && accumulator[index] <= 4 - 1 && accumulator[index + 1] <= 4 - 1 &&
+            accumulator[index + 2] <= 4 - 1)
+        {
+          accumulator[index] += 1;
+          accumulator[index + 1] += 1;
+          accumulator[index + 2] += 1;
+          foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds - 1, remainingTypes))
+          {
+            yield return combination;
+          }
+          accumulator[index] -= 1;
+          accumulator[index + 1] -= 1;
+          accumulator[index + 2] -= 1;
+        }
+        foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds, remainingTypes - 1))
+        {
+          yield return combination;
+        }
+      }
+    }
+
+    /// <summary>
     /// Creates all possible semantically unique combinations for a suit and a given number of tiles.
     /// </summary>
     public static IEnumerable<Combination> CreateCombinations(int numberOfTiles)
     {
       Validate.NotNegative(numberOfTiles, nameof(numberOfTiles));
-
-      const int tileTypes = 9;
-      var accumulator = new int[tileTypes];
-      return CreateCombinations(accumulator, numberOfTiles, tileTypes);
+      return CreateCombinations(new int[9], numberOfTiles, 9);
     }
 
     /// <summary>
     /// Calculates the weight of a set of tiles in one suit.
+    /// The weight of a combination balanced around the middle is 0.
+    /// More tiles to the left has positive weight, more to the right has negative weight.
     /// </summary>
     private static int GetWeight(IList<int> source)
     {
-      var sum = 0;
-      for (var i = 0; i < 9; ++i)
-      {
-        var shift = Math.Abs(4 - i) * 2;
-        var factor = Math.Sign(4 - i);
-        sum += (1 << shift) * source[i] * factor;
-      }
-      return sum;
+      return Enumerable.Range(0, 9).Sum(i => GetWeight(i, source[i]));
+    }
+
+    /// <summary>
+    /// Calculates the weight of a single tile type and count.
+    /// TileTypes to the left have positive weight, to the right have negative.
+    /// </summary>
+    private static int GetWeight(int tileTypeIndex, int tileCount)
+    {
+      var shift = Math.Abs(4 - tileTypeIndex) * 2;
+      var factor = Math.Sign(4 - tileTypeIndex);
+      return (1 << shift) * tileCount * factor;
     }
 
     /// <summary>
     /// Recursively creates possible combinations in one suit.
     /// </summary>
-    private static IEnumerable<Combination> CreateCombinations(IList<int> accumulator, int remainingTiles, int remainingTypes)
+    private static IEnumerable<Combination> CreateCombinations(IList<int> accumulator, int remainingTiles,
+      int remainingTypes)
     {
       // If all types have been tried we are done.
       if (remainingTypes == 0)
