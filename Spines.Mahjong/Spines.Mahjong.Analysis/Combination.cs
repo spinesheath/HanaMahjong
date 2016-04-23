@@ -16,6 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Spines.Mahjong.Analysis
 {
@@ -27,14 +28,14 @@ namespace Spines.Mahjong.Analysis
     /// <summary>
     /// Constructs a new Combination for a given number of types.
     /// </summary>
-    public Combination()
+    public Combination(IEnumerable<int> counts)
     {
-      Counts = new int[7];
+      Counts = counts.ToList();
     }
 
     /// <summary>
     /// The counts for each tile type in the Combination.
     /// </summary>
-    public IEnumerable<int> Counts { get; private set; }
+    public IReadOnlyCollection<int> Counts { get; }
   }
 }

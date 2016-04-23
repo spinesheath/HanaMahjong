@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Mahjong.Analysis", "Spines.Mahjong.Analysis\Spines.Mahjong.Analysis.csproj", "{9203DC32-F5B6-47F7-9C66-CB98937534A5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Utility", "..\Spines.Utility\Spines.Utility.csproj", "{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}"
@@ -12,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Tenhou.Client.InternalTests", "..\Spines.Tenhou\Spines.Tenhou.Client.InternalTests\Spines.Tenhou.Client.InternalTests.csproj", "{3EE6118D-CA00-49C7-B2FD-150A9EED7DA4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Mahjong.LocalMatchViewer", "Spines.Mahjong.LocalMatchViewer\Spines.Mahjong.LocalMatchViewer.csproj", "{62D9179E-1865-432B-B4A9-831E8FEA6D72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Mahjong.Analysis.InternalTests", "Spines.Mahjong.Analysis.InternalTests\Spines.Mahjong.Analysis.InternalTests.csproj", "{C232FC4A-10D7-48F3-B2C8-F97A4F9CFE2C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +47,10 @@ Global
 		{62D9179E-1865-432B-B4A9-831E8FEA6D72}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62D9179E-1865-432B-B4A9-831E8FEA6D72}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62D9179E-1865-432B-B4A9-831E8FEA6D72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C232FC4A-10D7-48F3-B2C8-F97A4F9CFE2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C232FC4A-10D7-48F3-B2C8-F97A4F9CFE2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C232FC4A-10D7-48F3-B2C8-F97A4F9CFE2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C232FC4A-10D7-48F3-B2C8-F97A4F9CFE2C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
