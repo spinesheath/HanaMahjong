@@ -39,30 +39,18 @@ namespace Spines.Mahjong.Analysis
     /// <summary>
     /// Creates all possible combinations of used tiles for a number of melds in a single suit.
     /// </summary>
-    private static IEnumerable<Combination> CreateMeldedCombinations(IList<int> accumulator, int remainingMelds, int currentIndex)
+    private static IEnumerable<Combination> CreateMeldedCombinations(IList<int> accumulator, int remainingMelds,
+      int currentIndex)
     {
       // All melds used, return the current used tiles.
       if (remainingMelds == 0)
       {
-        yield return new Combination(accumulator.ToList());
+        return new Combination(accumulator.ToList()).Yield();
       }
-      else
-      {
-        foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds, currentIndex, 1, 3))
-        {
-          yield return combination;
-        }
-
-        foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds, currentIndex, 1, 4))
-        {
-          yield return combination;
-        }
-
-        foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds, currentIndex, 3, 1))
-        {
-          yield return combination;
-        }
-      }
+      var withKoutsu = CreateMeldedCombinations(accumulator, remainingMelds, currentIndex, 1, 3);
+      var withKantsu = CreateMeldedCombinations(accumulator, remainingMelds, currentIndex, 1, 4);
+      var withShuntsu = CreateMeldedCombinations(accumulator, remainingMelds, currentIndex, 3, 1);
+      return withKoutsu.Concat(withKantsu).Concat(withShuntsu);
     }
 
     /// <summary>
@@ -76,7 +64,9 @@ namespace Spines.Mahjong.Analysis
     private static bool CanAddMeld(IEnumerable<int> accumulator, int index, int stride, int amount)
     {
       if (index > 9 - stride)
+      {
         return false;
+      }
       var max = 4 - amount;
       return accumulator.Skip(index).Take(stride).All(i => i <= max);
     }
