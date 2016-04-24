@@ -41,21 +41,19 @@ namespace Spines.Mahjong.Analysis
     /// </summary>
     private static IEnumerable<Combination> CreateMeldedCombinations(IList<int> accumulator, int remainingMelds, int remainingTypes)
     {
-      if (remainingTypes == 0)
+      // All melds used, return the current used tiles.
+      if (remainingMelds == 0)
       {
-        // All melds used, return the current used tiles.
-        if (remainingMelds == 0)
-        {
-          yield return new Combination(accumulator.ToList());
-        }
+        yield return new Combination(accumulator.ToList());
       }
-      else
+
+      for(var t = remainingTypes; t > 0; --t)
       {
-        var index = 9 - remainingTypes;
+        var index = 9 - t;
         if (accumulator[index] <= 4 - 3)
         {
           accumulator[index] += 3;
-          foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds - 1, remainingTypes))
+          foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds - 1, t))
           {
             yield return combination;
           }
@@ -64,7 +62,7 @@ namespace Spines.Mahjong.Analysis
         if (accumulator[index] <= 4 - 4)
         {
           accumulator[index] += 4;
-          foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds - 1, remainingTypes))
+          foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds - 1, t))
           {
             yield return combination;
           }
@@ -76,17 +74,13 @@ namespace Spines.Mahjong.Analysis
           accumulator[index] += 1;
           accumulator[index + 1] += 1;
           accumulator[index + 2] += 1;
-          foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds - 1, remainingTypes))
+          foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds - 1, t))
           {
             yield return combination;
           }
           accumulator[index] -= 1;
           accumulator[index + 1] -= 1;
           accumulator[index + 2] -= 1;
-        }
-        foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds, remainingTypes - 1))
-        {
-          yield return combination;
         }
       }
     }
