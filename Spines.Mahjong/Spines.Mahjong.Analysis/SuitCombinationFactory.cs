@@ -47,39 +47,59 @@ namespace Spines.Mahjong.Analysis
         yield return new Combination(accumulator.ToList());
       }
 
-      for(var index = currentIndex; index < 9; ++index)
+      foreach (var combination in CreateMeldedCombinationsKoutsu(accumulator, remainingMelds, currentIndex, 3))
       {
-        if (accumulator[index] <= 4 - 3)
-        {
-          accumulator[index] += 3;
-          foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds - 1, index))
-          {
-            yield return combination;
-          }
-          accumulator[index] -= 3;
-        }
-        if (accumulator[index] <= 4 - 4)
-        {
-          accumulator[index] += 4;
-          foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds - 1, index))
-          {
-            yield return combination;
-          }
-          accumulator[index] -= 4;
-        }
+        yield return combination;
+      }
+
+      foreach (var combination in CreateMeldedCombinationsKoutsu(accumulator, remainingMelds, currentIndex, 4))
+      {
+        yield return combination;
+      }
+
+      for (var index = currentIndex; index < 9; ++index)
+      {
         if (index < 7 && accumulator[index] <= 4 - 1 && accumulator[index + 1] <= 4 - 1 &&
             accumulator[index + 2] <= 4 - 1)
         {
-          accumulator[index] += 1;
-          accumulator[index + 1] += 1;
-          accumulator[index + 2] += 1;
+          AdjustAccumulator(accumulator, index, 3, 1);
           foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds - 1, index))
           {
             yield return combination;
           }
-          accumulator[index] -= 1;
-          accumulator[index + 1] -= 1;
-          accumulator[index + 2] -= 1;
+          AdjustAccumulator(accumulator, index, 3, -1);
+        }
+      }
+    }
+
+    /// <summary>
+    /// Adds an amount to multiple entries in the accumulator.
+    /// </summary>
+    /// <param name="accumulator">The modified accumulator.</param>
+    /// <param name="index">The index of the first entry to adjust.</param>
+    /// <param name="stride">The number of entries to adjust.</param>
+    /// <param name="amount">The amount that is added to each entry.</param>
+    private static void AdjustAccumulator(IList<int> accumulator, int index, int stride, int amount)
+    {
+      for (var i = 0; i < stride; ++i)
+      {
+        accumulator[index + i] += amount;
+      }
+    }
+
+    private static IEnumerable<Combination> CreateMeldedCombinationsKoutsu(IList<int> accumulator, int remainingMelds,
+      int currentIndex, int koutsuTileCount)
+    {
+      for (var index = currentIndex; index < 9; ++index)
+      {
+        if (accumulator[index] <= 4 - koutsuTileCount)
+        {
+          AdjustAccumulator(accumulator, index, 1, koutsuTileCount);
+          foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds - 1, index))
+          {
+            yield return combination;
+          }
+          AdjustAccumulator(accumulator, index, 1, -koutsuTileCount);
         }
       }
     }
