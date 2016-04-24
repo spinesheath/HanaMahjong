@@ -46,29 +46,57 @@ namespace Spines.Mahjong.Analysis
       {
         yield return new Combination(accumulator.ToList());
       }
-
-      foreach (var combination in CreateMeldedCombinationsKoutsu(accumulator, remainingMelds, currentIndex, 3))
+      else
       {
-        yield return combination;
-      }
-
-      foreach (var combination in CreateMeldedCombinationsKoutsu(accumulator, remainingMelds, currentIndex, 4))
-      {
-        yield return combination;
-      }
-
-      for (var index = currentIndex; index < 9; ++index)
-      {
-        if (index < 7 && accumulator[index] <= 4 - 1 && accumulator[index + 1] <= 4 - 1 &&
-            accumulator[index + 2] <= 4 - 1)
+        foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds, currentIndex, 1, 3))
         {
-          AdjustAccumulator(accumulator, index, 3, 1);
-          foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds - 1, index))
-          {
-            yield return combination;
-          }
-          AdjustAccumulator(accumulator, index, 3, -1);
+          yield return combination;
         }
+
+        foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds, currentIndex, 1, 4))
+        {
+          yield return combination;
+        }
+
+        foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds, currentIndex, 3, 1))
+        {
+          yield return combination;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Can a meld be added to the current accumulator?
+    /// </summary>
+    /// <param name="accumulator">The accumulator to check against.</param>
+    /// <param name="index">The index at which the meld is to be added.</param>
+    /// <param name="stride">The stride of the meld; 1 for koutsu/kantsu, 3 for shuntsu.</param>
+    /// <param name="amount">The number of tiles per entry, 3 for koutsu, 4 for kantsu, 1 for shuntsu.</param>
+    /// <returns>True if a meld can be added, false otherwise.</returns>
+    private static bool CanAddMeld(IEnumerable<int> accumulator, int index, int stride, int amount)
+    {
+      if (index > 9 - stride)
+        return false;
+      var max = 4 - amount;
+      return accumulator.Skip(index).Take(stride).All(i => i <= max);
+    }
+
+    /// <summary>
+    /// Creates all possible combinations of used tiles for a number of melds in a single suit by adding a specific meld.
+    /// </summary>
+    private static IEnumerable<Combination> CreateMeldedCombinations(IList<int> accumulator, int remainingMelds,
+      int currentIndex, int stride, int amount)
+    {
+      var indices = Enumerable.Range(currentIndex, 9 - currentIndex);
+      var freeIndices = indices.Where(i => CanAddMeld(accumulator, i, stride, amount));
+      foreach (var index in freeIndices)
+      {
+        AdjustAccumulator(accumulator, index, stride, amount);
+        foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds - 1, index))
+        {
+          yield return combination;
+        }
+        AdjustAccumulator(accumulator, index, stride, -amount);
       }
     }
 
@@ -84,23 +112,6 @@ namespace Spines.Mahjong.Analysis
       for (var i = 0; i < stride; ++i)
       {
         accumulator[index + i] += amount;
-      }
-    }
-
-    private static IEnumerable<Combination> CreateMeldedCombinationsKoutsu(IList<int> accumulator, int remainingMelds,
-      int currentIndex, int koutsuTileCount)
-    {
-      for (var index = currentIndex; index < 9; ++index)
-      {
-        if (accumulator[index] <= 4 - koutsuTileCount)
-        {
-          AdjustAccumulator(accumulator, index, 1, koutsuTileCount);
-          foreach (var combination in CreateMeldedCombinations(accumulator, remainingMelds - 1, index))
-          {
-            yield return combination;
-          }
-          AdjustAccumulator(accumulator, index, 1, -koutsuTileCount);
-        }
       }
     }
 
