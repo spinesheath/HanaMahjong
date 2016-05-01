@@ -48,37 +48,37 @@ namespace Spines.Mahjong.Analysis.Combinations
         return CreateCurrentCombination().Yield();
       }
 
-      return MeldShape.MeldShapes.SelectMany(m => Create(remainingMelds, currentIndex, m));
+      return Mentsu.All.SelectMany(m => Create(remainingMelds, currentIndex, m));
     }
 
     /// <summary>
     /// Can a meld be added to the current accumulator?
     /// </summary>
-    private bool CanAddMeld(int index, MeldShape meldShape)
+    private bool CanAddMeld(int index, Mentsu mentsu)
     {
-      if (index > TypesInSuit - meldShape.Stride)
+      if (index > TypesInSuit - mentsu.Stride)
       {
         return false;
       }
-      var max = TilesPerType - meldShape.Amount;
-      return Accumulator.Skip(index).Take(meldShape.Stride).All(i => i <= max);
+      var max = TilesPerType - mentsu.Amount;
+      return Accumulator.Skip(index).Take(mentsu.Stride).All(i => i <= max);
     }
 
     /// <summary>
     /// Creates all possible combinations of used tiles for a number of melds in a single suit by adding a specific meld.
     /// </summary>
-    private IEnumerable<Combination> Create(int remainingMelds, int currentIndex, MeldShape meldShape)
+    private IEnumerable<Combination> Create(int remainingMelds, int currentIndex, Mentsu mentsu)
     {
       var indices = Enumerable.Range(currentIndex, TypesInSuit - currentIndex);
-      var freeIndices = indices.Where(i => CanAddMeld(i, meldShape));
+      var freeIndices = indices.Where(i => CanAddMeld(i, mentsu));
       foreach (var index in freeIndices)
       {
-        AddToAccumulator(index, meldShape.Stride, meldShape.Amount);
+        AddToAccumulator(index, mentsu.Stride, mentsu.Amount);
         foreach (var combination in Create(remainingMelds - 1, index))
         {
           yield return combination;
         }
-        AddToAccumulator(index, meldShape.Stride, -meldShape.Amount);
+        AddToAccumulator(index, mentsu.Stride, -mentsu.Amount);
       }
     }
 

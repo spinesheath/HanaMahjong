@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.Analysis.MeldShape.cs
+﻿// Spines.Mahjong.Analysis.Mentsu.cs
 // 
 // Copyright (C) 2016  Johannes Heckl
 // 
@@ -22,27 +22,27 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// <summary>
   /// Defines the shape of a meld.
   /// </summary>
-  internal class MeldShape
+  internal class Mentsu
   {
     /// <summary>
     /// 3 consecutive tiles.
     /// </summary>
-    public static readonly MeldShape Chii = new MeldShape(3, 1);
+    public static readonly Mentsu Shuntsu = new Mentsu(3, 1);
 
     /// <summary>
     /// 3 tiles of one type.
     /// </summary>
-    public static readonly MeldShape Pon = new MeldShape(1, 3);
+    public static readonly Mentsu Koutsu = new Mentsu(1, 3);
 
     /// <summary>
     /// 4 tiles of one type.
     /// </summary>
-    public static readonly MeldShape Kan = new MeldShape(1, 4);
+    public static readonly Mentsu Kantsu = new Mentsu(1, 4);
 
     /// <summary>
-    /// Creates an instance of MeldShape.
+    /// Creates an instance of Mentsu.
     /// </summary>
-    private MeldShape(int stride, int amount)
+    private Mentsu(int stride, int amount)
     {
       Stride = stride;
       Amount = amount;
@@ -58,13 +58,13 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// </summary>
     public int Amount { get; }
 
-    public static IEnumerable<MeldShape> MeldShapes
+    public static IEnumerable<Mentsu> All
     {
       get
       {
-        yield return Chii;
-        yield return Pon;
-        yield return Kan;
+        yield return Shuntsu;
+        yield return Koutsu;
+        yield return Kantsu;
       }
     }
   }
