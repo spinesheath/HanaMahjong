@@ -55,7 +55,7 @@ namespace Spines.Mahjong.Analysis.Combinations
         // The maximum amount of tiles that can be used for the current type.
         var max = Math.Min(remainingTiles, TilesPerType);
         // Add 0 to max tiles of the current type and accumulate results.
-        for (var i = max; i >= 0; --i)
+        for (var i = 0; i <= max; ++i)
         {
           Accumulator[TypesInSuit - remainingTypes] = i;
           foreach (var gd in CreateCombinations(remainingTiles - i, remainingTypes - 1))
