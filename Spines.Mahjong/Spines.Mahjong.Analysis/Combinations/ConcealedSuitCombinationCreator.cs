@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.Analysis.SuitCombinationCreator.cs
+﻿// Spines.Mahjong.Analysis.ConcealedSuitCombinationCreator.cs
 // 
 // Copyright (C) 2016  Johannes Heckl
 // 
@@ -25,62 +25,68 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// <summary>
   /// Creates possible combinations of tiles in one suit.
   /// </summary>
-  internal class SuitCombinationCreator
+  internal class ConcealedSuitCombinationCreator
   {
+    private const int TilesPerType = 4;
+    private const int TypesInSuit = 9;
+    private int[] _accumulator;
+
     /// <summary>
     /// Creates all possible semantically unique concealed combinations for a suit and a given number of tiles.
     /// </summary>
-    public IEnumerable<Combination> CreateConcealedCombinations(int numberOfTiles)
+    public IEnumerable<Combination> CreateCombinations(int numberOfTiles)
     {
       Validate.NotNegative(numberOfTiles, nameof(numberOfTiles));
-      return CreateConcealedCombinations(new int[9], numberOfTiles, 9);
+      _accumulator = new int[TypesInSuit];
+      return CreateCombinations(numberOfTiles, TypesInSuit);
     }
 
     /// <summary>
-    /// Calculates the weight of a set of tiles in one suit.
+    /// Calculates the conbined weight of all tiles.
     /// The weight of a combination balanced around the middle is 0.
-    /// More tiles to the left has positive weight, more to the right has negative weight.
+    /// Tiles to the left have positive weight, tiles to the right have negative weight.
     /// </summary>
-    private int GetWeight(IList<int> source)
+    private int GetWeight()
     {
-      return Enumerable.Range(0, 9).Sum(i => GetWeight(i, source[i]));
+      return Enumerable.Range(0, TypesInSuit).Sum(GetWeight);
     }
 
     /// <summary>
     /// Calculates the weight of a single tile type and count.
     /// TileTypes to the left have positive weight, to the right have negative.
     /// </summary>
-    private int GetWeight(int tileTypeIndex, int tileCount)
+    private int GetWeight(int tileTypeIndex)
     {
-      var shift = Math.Abs(4 - tileTypeIndex) * 2;
-      var factor = Math.Sign(4 - tileTypeIndex);
+      var tileCount = _accumulator[tileTypeIndex];
+      const int centerIndex = (TypesInSuit - TypesInSuit % 1) / 2;
+      var shift = Math.Abs(centerIndex - tileTypeIndex) * 2;
+      var factor = Math.Sign(centerIndex - tileTypeIndex);
       return (1 << shift) * tileCount * factor;
     }
 
     /// <summary>
     /// Recursively creates possible concealed combinations in one suit.
     /// </summary>
-    private IEnumerable<Combination> CreateConcealedCombinations(IList<int> accumulator, int remainingTiles,
-      int remainingTypes)
+    private IEnumerable<Combination> CreateCombinations(int remainingTiles, int remainingTypes)
     {
       // If all types have been tried we are done.
       if (remainingTypes == 0)
       {
-        var weight = GetWeight(accumulator);
+        var weight = GetWeight();
         if (remainingTiles == 0 && weight >= 0)
         {
-          yield return new Combination(accumulator.ToList());
+          yield return new Combination(_accumulator.ToList());
         }
       }
       else
       {
         // The maximum amount of tiles that can be used for the current type.
-        var max = Math.Min(remainingTiles, 4);
+        var max = Math.Min(remainingTiles, TilesPerType);
         // Add 0 to max tiles of the current type and accumulate results.
         for (var i = max; i >= 0; --i)
         {
-          accumulator[9 - remainingTypes] = i;
-          foreach (var gd in CreateConcealedCombinations(accumulator, remainingTiles - i, remainingTypes - 1))
+          _accumulator[TypesInSuit - remainingTypes] = i;
+          foreach (var gd in CreateCombinations(remainingTiles - i, remainingTypes - 1))
           {
             yield return gd;
           }

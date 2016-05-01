@@ -52,7 +52,7 @@
     <Compile Include="Combinations\MeldedSuitCombinationsCreator.cs" />
     <Compile Include="Combinations\MeldShape.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Combinations\SuitCombinationCreator.cs" />
+    <Compile Include="Combinations\ConcealedSuitCombinationCreator.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\..\CommonResources\CustomDictionary.xml">
