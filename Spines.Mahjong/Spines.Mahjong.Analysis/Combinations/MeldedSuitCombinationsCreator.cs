@@ -47,44 +47,37 @@ namespace Spines.Mahjong.Analysis.Combinations
         return CreateCurrentCombination().Yield();
       }
 
-      // TODO use MeldShape as Parameter.
-      return
-        MeldShape.MeldShapes.SelectMany(m => CreateMeldedCombinations(remainingMelds, currentIndex, m.Stride, m.Amount));
+      return MeldShape.MeldShapes.SelectMany(m => CreateMeldedCombinations(remainingMelds, currentIndex, m));
     }
 
     /// <summary>
     /// Can a meld be added to the current accumulator?
     /// </summary>
-    /// <param name="index">The index at which the meld is to be added.</param>
-    /// <param name="stride">The stride of the meld; 1 for koutsu/kantsu, 3 for shuntsu.</param>
-    /// <param name="amount">The number of tiles per entry, 3 for koutsu, 4 for kantsu, 1 for shuntsu.</param>
-    /// <returns>True if a meld can be added, false otherwise.</returns>
-    private bool CanAddMeld(int index, int stride, int amount)
+    private bool CanAddMeld(int index, MeldShape meldShape)
     {
-      if (index > TypesInSuit - stride)
+      if (index > TypesInSuit - meldShape.Stride)
       {
         return false;
       }
-      var max = TilesPerType - amount;
-      return Accumulator.Skip(index).Take(stride).All(i => i <= max);
+      var max = TilesPerType - meldShape.Amount;
+      return Accumulator.Skip(index).Take(meldShape.Stride).All(i => i <= max);
     }
 
     /// <summary>
     /// Creates all possible combinations of used tiles for a number of melds in a single suit by adding a specific meld.
     /// </summary>
-    private IEnumerable<Combination> CreateMeldedCombinations(int remainingMelds, int currentIndex, int stride,
-      int amount)
+    private IEnumerable<Combination> CreateMeldedCombinations(int remainingMelds, int currentIndex, MeldShape meldShape)
     {
       var indices = Enumerable.Range(currentIndex, TypesInSuit - currentIndex);
-      var freeIndices = indices.Where(i => CanAddMeld(i, stride, amount));
+      var freeIndices = indices.Where(i => CanAddMeld(i, meldShape));
       foreach (var index in freeIndices)
       {
-        AddToAccumulator(index, stride, amount);
+        AddToAccumulator(index, meldShape.Stride, meldShape.Amount);
         foreach (var combination in CreateMeldedCombinations(remainingMelds - 1, index))
         {
           yield return combination;
         }
-        AddToAccumulator(index, stride, -amount);
+        AddToAccumulator(index, meldShape.Stride, -meldShape.Amount);
       }
     }
 
