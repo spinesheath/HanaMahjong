@@ -29,17 +29,17 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// <summary>
     /// Creates all possible combinations of used tiles for a number of melds in a single suit.
     /// </summary>
-    public IEnumerable<Combination> CreateMeldedCombinations(int numberOfMelds)
+    public IEnumerable<Combination> Create(int numberOfMelds)
     {
       Validate.NotNegative(numberOfMelds, nameof(numberOfMelds));
       Clear();
-      return CreateMeldedCombinations(numberOfMelds, 0);
+      return Create(numberOfMelds, 0);
     }
 
     /// <summary>
     /// Creates all possible combinations of used tiles for a number of melds in a single suit.
     /// </summary>
-    private IEnumerable<Combination> CreateMeldedCombinations(int remainingMelds, int currentIndex)
+    private IEnumerable<Combination> Create(int remainingMelds, int currentIndex)
     {
       // All melds used, return the current used tiles.
       if (remainingMelds == 0)
@@ -47,7 +47,7 @@ namespace Spines.Mahjong.Analysis.Combinations
         return CreateCurrentCombination().Yield();
       }
 
-      return MeldShape.MeldShapes.SelectMany(m => CreateMeldedCombinations(remainingMelds, currentIndex, m));
+      return MeldShape.MeldShapes.SelectMany(m => Create(remainingMelds, currentIndex, m));
     }
 
     /// <summary>
@@ -66,14 +66,14 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// <summary>
     /// Creates all possible combinations of used tiles for a number of melds in a single suit by adding a specific meld.
     /// </summary>
-    private IEnumerable<Combination> CreateMeldedCombinations(int remainingMelds, int currentIndex, MeldShape meldShape)
+    private IEnumerable<Combination> Create(int remainingMelds, int currentIndex, MeldShape meldShape)
     {
       var indices = Enumerable.Range(currentIndex, TypesInSuit - currentIndex);
       var freeIndices = indices.Where(i => CanAddMeld(i, meldShape));
       foreach (var index in freeIndices)
       {
         AddToAccumulator(index, meldShape.Stride, meldShape.Amount);
-        foreach (var combination in CreateMeldedCombinations(remainingMelds - 1, index))
+        foreach (var combination in Create(remainingMelds - 1, index))
         {
           yield return combination;
         }

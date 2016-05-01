@@ -29,17 +29,17 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// <summary>
     /// Creates all possible semantically unique concealed combinations for a suit and a given number of tiles.
     /// </summary>
-    public IEnumerable<Combination> CreateCombinations(int numberOfTiles)
+    public IEnumerable<Combination> Create(int numberOfTiles)
     {
       Validate.NotNegative(numberOfTiles, nameof(numberOfTiles));
       Clear();
-      return CreateCombinations(numberOfTiles, TypesInSuit);
+      return Create(numberOfTiles, TypesInSuit);
     }
 
     /// <summary>
     /// Recursively creates possible concealed combinations in one suit.
     /// </summary>
-    private IEnumerable<Combination> CreateCombinations(int remainingTiles, int remainingTypes)
+    private IEnumerable<Combination> Create(int remainingTiles, int remainingTypes)
     {
       // If all types have been tried we are done.
       if (remainingTypes == 0)
@@ -58,7 +58,7 @@ namespace Spines.Mahjong.Analysis.Combinations
         for (var i = 0; i <= max; ++i)
         {
           Accumulator[TypesInSuit - remainingTypes] = i;
-          foreach (var gd in CreateCombinations(remainingTiles - i, remainingTypes - 1))
+          foreach (var gd in Create(remainingTiles - i, remainingTypes - 1))
           {
             yield return gd;
           }
