@@ -55,28 +55,5 @@ namespace Spines.Mahjong.Analysis.Combinations
     {
       return new Combination(Accumulator.ToList());
     }
-
-    /// <summary>
-    /// Calculates the conbined weight of all tiles.
-    /// The weight of a combination balanced around the middle is 0.
-    /// Tiles to the left have positive weight, tiles to the right have negative weight.
-    /// </summary>
-    protected int GetWeight()
-    {
-      return Enumerable.Range(0, TypesInSuit).Sum(GetWeight);
-    }
-
-    /// <summary>
-    /// Calculates the weight of a single tile type and count.
-    /// TileTypes to the left have positive weight, to the right have negative.
-    /// </summary>
-    private int GetWeight(int tileTypeIndex)
-    {
-      var tileCount = Accumulator[tileTypeIndex];
-      const int centerIndex = (TypesInSuit - TypesInSuit % 1) / 2;
-      var shift = Math.Abs(centerIndex - tileTypeIndex) * 2;
-      var factor = Math.Sign(centerIndex - tileTypeIndex);
-      return (1 << shift) * tileCount * factor;
-    }
   }
 }
