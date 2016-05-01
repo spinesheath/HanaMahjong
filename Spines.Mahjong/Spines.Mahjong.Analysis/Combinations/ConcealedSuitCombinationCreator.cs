@@ -45,6 +45,7 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// <param name="meldedTiles">The tiles used in the melded part of the hand.</param>
     public IEnumerable<Combination> Create(int numberOfTiles, Combination meldedTiles)
     {
+      // TODO weight needs to consider melds too?
       Validate.NotNegative(numberOfTiles, nameof(numberOfTiles));
       Clear();
       _tilesUsedInMelds = meldedTiles.Counts.ToArray();

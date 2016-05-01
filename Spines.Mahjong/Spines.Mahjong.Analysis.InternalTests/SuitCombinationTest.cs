@@ -86,11 +86,21 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [TestMethod]
     public void TestMixedSuitCombinations()
     {
-      VerifyMixed(0, 0, 1);
-      VerifyMixed(1, 0, 25);
-      VerifyMixed(2, 0, 284);
-      VerifyMixed(3, 0, 1914);
-      VerifyMixed(4, 0, 8439);
+      VerifyMixed(1, 1, 120);
+      VerifyMixed(1, 2, 575);
+      //VerifyMixed(1, 3, 1875);
+      //VerifyMixed(1, 4, 5389);
+      //VerifyMixed(1, 5, 13130);
+      //VerifyMixed(1, 6, 28625);
+      //VerifyMixed(1, 7, 56026);
+      //VerifyMixed(1, 8, 100612);
+      //VerifyMixed(1, 9, 166132);
+      //VerifyMixed(1, 10, 254926);
+      //VerifyMixed(1, 11, 364558);
+
+      //VerifyMixed(2, 1, 1300);
+      //VerifyMixed(3, 1, 8302);
+      //VerifyMixed(4, 1, 34435);
     }
 
     private static void VerifyMixed(int numberOfMelds, int numberOfTiles, int numberOfCombinations)
