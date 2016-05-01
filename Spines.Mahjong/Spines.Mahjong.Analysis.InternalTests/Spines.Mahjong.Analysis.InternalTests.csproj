@@ -72,6 +72,10 @@
     </CodeAnalysisDictionary>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Spines.Utility\Spines.Utility.csproj">
+      <Project>{1ffe50e9-3d4b-418f-b4cd-3fa10ff4848f}</Project>
+      <Name>Spines.Utility</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Spines.Mahjong.Analysis\Spines.Mahjong.Analysis.csproj">
       <Project>{9203DC32-F5B6-47F7-9C66-CB98937534A5}</Project>
       <Name>Spines.Mahjong.Analysis</Name>

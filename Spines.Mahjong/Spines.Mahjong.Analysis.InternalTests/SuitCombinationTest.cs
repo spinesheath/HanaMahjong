@@ -86,28 +86,46 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [TestMethod]
     public void TestMixedSuitCombinations()
     {
-      VerifyMixed(1, 1, 120);
-      VerifyMixed(1, 2, 575);
-      //VerifyMixed(1, 3, 1875);
-      //VerifyMixed(1, 4, 5389);
-      //VerifyMixed(1, 5, 13130);
-      //VerifyMixed(1, 6, 28625);
-      //VerifyMixed(1, 7, 56026);
-      //VerifyMixed(1, 8, 100612);
-      //VerifyMixed(1, 9, 166132);
-      //VerifyMixed(1, 10, 254926);
-      //VerifyMixed(1, 11, 364558);
+      VerifyMixed(1, 1, 112);
+      VerifyMixed(1, 2, 531);
+      VerifyMixed(1, 3, 1846);
+      //VerifyMixed(1, 4, 5290);
+      //VerifyMixed(1, 5, 13039);
+      //VerifyMixed(1, 6, 28432);
+      //VerifyMixed(1, 7, 55887);
+      //VerifyMixed(1, 8, 100289);
+      //VerifyMixed(1, 9, 165876);
+      //VerifyMixed(1, 10, 254510);
+      //VerifyMixed(1, 11, 364253);
+      //VerifyMixed(1, 12, 488084);
 
-      //VerifyMixed(2, 1, 1300);
-      //VerifyMixed(3, 1, 8302);
-      //VerifyMixed(4, 1, 34435);
+      VerifyMixed(2, 1, 1195);
+      VerifyMixed(2, 2, 5432);
+      //VerifyMixed(2, 3, 18145);
+      //VerifyMixed(2, 4, 49662);
+      //VerifyMixed(2, 5, 116643);
+      //VerifyMixed(2, 6, 241712);
+      //VerifyMixed(2, 7, 449994);
+      //VerifyMixed(2, 8, 762682);
+      //VerifyMixed(2, 9, 1186998);
+
+      VerifyMixed(3, 1, 7612);
+      //VerifyMixed(3, 2, 32935);
+      //VerifyMixed(3, 3, 104636);
+      //VerifyMixed(3, 4, 271414);
+      //VerifyMixed(3, 5, 602474);
+      //VerifyMixed(3, 6, 1175440);
+
+      //VerifyMixed(4, 1, 31814);
+      //VerifyMixed(4, 2, 129749);
+      //VerifyMixed(4, 3, 388080);
     }
 
     private static void VerifyMixed(int numberOfMelds, int numberOfTiles, int numberOfCombinations)
     {
       var meldCreator = new MeldedSuitCombinationsCreator();
       var concealedCreator = new ConcealedSuitCombinationCreator();
-      var meldedCombinations = meldCreator.Create(numberOfMelds);
+      var meldedCombinations = meldCreator.Create(numberOfMelds).ToList();
       var mixedCombinations = meldedCombinations.SelectMany(c => concealedCreator.Create(numberOfTiles, c));
       Assert.AreEqual(numberOfCombinations, mixedCombinations.Count(), "Count of mixed combinations was wrong");
     }
