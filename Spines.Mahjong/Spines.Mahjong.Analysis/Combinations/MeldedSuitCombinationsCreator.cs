@@ -24,19 +24,15 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// <summary>
   /// Creates possible combinations of tiles used in melds in one suit.
   /// </summary>
-  internal class MeldedSuitCombinationsCreator
+  internal class MeldedSuitCombinationsCreator : CombinationCreatorBase
   {
-    private const int TilesPerType = 4;
-    private const int TypesInSuit = 9;
-    private int[] _accumulator;
-
     /// <summary>
     /// Creates all possible combinations of used tiles for a number of melds in a single suit.
     /// </summary>
     public IEnumerable<Combination> CreateMeldedCombinations(int numberOfMelds)
     {
       Validate.NotNegative(numberOfMelds, nameof(numberOfMelds));
-      _accumulator = new int[TypesInSuit];
+      Clear();
       return CreateMeldedCombinations(numberOfMelds, 0);
     }
 
@@ -48,9 +44,10 @@ namespace Spines.Mahjong.Analysis.Combinations
       // All melds used, return the current used tiles.
       if (remainingMelds == 0)
       {
-        return new Combination(_accumulator.ToList()).Yield();
+        return CreateCurrentCombination().Yield();
       }
 
+      // TODO use MeldShape as Parameter.
       return
         MeldShape.MeldShapes.SelectMany(m => CreateMeldedCombinations(remainingMelds, currentIndex, m.Stride, m.Amount));
     }
@@ -69,7 +66,7 @@ namespace Spines.Mahjong.Analysis.Combinations
         return false;
       }
       var max = TilesPerType - amount;
-      return _accumulator.Skip(index).Take(stride).All(i => i <= max);
+      return Accumulator.Skip(index).Take(stride).All(i => i <= max);
     }
 
     /// <summary>
@@ -82,12 +79,12 @@ namespace Spines.Mahjong.Analysis.Combinations
       var freeIndices = indices.Where(i => CanAddMeld(i, stride, amount));
       foreach (var index in freeIndices)
       {
-        AdjustAccumulator(index, stride, amount);
+        AddToAccumulator(index, stride, amount);
         foreach (var combination in CreateMeldedCombinations(remainingMelds - 1, index))
         {
           yield return combination;
         }
-        AdjustAccumulator(index, stride, -amount);
+        AddToAccumulator(index, stride, -amount);
       }
     }
 
@@ -97,11 +94,11 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// <param name="index">The index of the first entry to adjust.</param>
     /// <param name="stride">The number of entries to adjust.</param>
     /// <param name="amount">The amount that is added to each entry.</param>
-    private void AdjustAccumulator(int index, int stride, int amount)
+    private void AddToAccumulator(int index, int stride, int amount)
     {
       for (var i = 0; i < stride; ++i)
       {
-        _accumulator[index + i] += amount;
+        Accumulator[index + i] += amount;
       }
     }
   }

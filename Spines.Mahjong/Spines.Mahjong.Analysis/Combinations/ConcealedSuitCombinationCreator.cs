@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.Combinations
@@ -25,43 +24,16 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// <summary>
   /// Creates possible combinations of tiles in one suit.
   /// </summary>
-  internal class ConcealedSuitCombinationCreator
+  internal class ConcealedSuitCombinationCreator : CombinationCreatorBase
   {
-    private const int TilesPerType = 4;
-    private const int TypesInSuit = 9;
-    private int[] _accumulator;
-
     /// <summary>
     /// Creates all possible semantically unique concealed combinations for a suit and a given number of tiles.
     /// </summary>
     public IEnumerable<Combination> CreateCombinations(int numberOfTiles)
     {
       Validate.NotNegative(numberOfTiles, nameof(numberOfTiles));
-      _accumulator = new int[TypesInSuit];
+      Clear();
       return CreateCombinations(numberOfTiles, TypesInSuit);
-    }
-
-    /// <summary>
-    /// Calculates the conbined weight of all tiles.
-    /// The weight of a combination balanced around the middle is 0.
-    /// Tiles to the left have positive weight, tiles to the right have negative weight.
-    /// </summary>
-    private int GetWeight()
-    {
-      return Enumerable.Range(0, TypesInSuit).Sum(GetWeight);
-    }
-
-    /// <summary>
-    /// Calculates the weight of a single tile type and count.
-    /// TileTypes to the left have positive weight, to the right have negative.
-    /// </summary>
-    private int GetWeight(int tileTypeIndex)
-    {
-      var tileCount = _accumulator[tileTypeIndex];
-      const int centerIndex = (TypesInSuit - TypesInSuit % 1) / 2;
-      var shift = Math.Abs(centerIndex - tileTypeIndex) * 2;
-      var factor = Math.Sign(centerIndex - tileTypeIndex);
-      return (1 << shift) * tileCount * factor;
     }
 
     /// <summary>
@@ -75,7 +47,7 @@ namespace Spines.Mahjong.Analysis.Combinations
         var weight = GetWeight();
         if (remainingTiles == 0 && weight >= 0)
         {
-          yield return new Combination(_accumulator.ToList());
+          yield return CreateCurrentCombination();
         }
       }
       else
@@ -85,7 +57,7 @@ namespace Spines.Mahjong.Analysis.Combinations
         // Add 0 to max tiles of the current type and accumulate results.
         for (var i = max; i >= 0; --i)
         {
-          _accumulator[TypesInSuit - remainingTypes] = i;
+          Accumulator[TypesInSuit - remainingTypes] = i;
           foreach (var gd in CreateCombinations(remainingTiles - i, remainingTypes - 1))
           {
             yield return gd;
