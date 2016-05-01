@@ -30,14 +30,14 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [TestMethod]
     public void TestMeldCombinations()
     {
-      VerifyMeldCombinationCount(0, 1);
-      VerifyMeldCombinationCount(1, 25);
-      VerifyMeldCombinationCount(2, 284);
-      VerifyMeldCombinationCount(3, 1914);
-      VerifyMeldCombinationCount(4, 8439);
+      VerifyMeld(0, 1);
+      VerifyMeld(1, 25);
+      VerifyMeld(2, 284);
+      VerifyMeld(3, 1914);
+      VerifyMeld(4, 8439);
     }
 
-    private static void VerifyMeldCombinationCount(int numberOfMelds, int numberOfCombinations)
+    private static void VerifyMeld(int numberOfMelds, int numberOfCombinations)
     {
       var creator = new MeldedSuitCombinationsCreator();
       var combinations = creator.Create(numberOfMelds);
@@ -50,34 +50,56 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [TestMethod]
     public void TestConcealedSuitCombinations()
     {
-      VerifyCombinationCount(0, 1);
-      VerifyCombinationCount(1, 5);
-      VerifyCombinationCount(2, 25);
-      VerifyCombinationCount(3, 85);
-      VerifyCombinationCount(4, 255);
-      //VerifyCombinationCount(5, 649);
-      //VerifyCombinationCount(6, 1481);
-      //VerifyCombinationCount(7, 3042);
-      //VerifyCombinationCount(8, 5739);
-      //VerifyCombinationCount(9, 9987);
-      //VerifyCombinationCount(10, 16196);
-      //VerifyCombinationCount(11, 24551);
-      //VerifyCombinationCount(12, 34988);
-      //VerifyCombinationCount(13, 46976);
-      //VerifyCombinationCount(14, 59618);
-      //VerifyCombinationCount(15, 71606);
-      //VerifyCombinationCount(16, 81564);
-      //VerifyCombinationCount(17, 88138);
-      //VerifyCombinationCount(18, 90453);
-      //VerifyCombinationCount(19, 88138);
-      //VerifyCombinationCount(20, 81564);
+      VerifyConcealed(0, 1);
+      VerifyConcealed(1, 5);
+      VerifyConcealed(2, 25);
+      VerifyConcealed(3, 85);
+      VerifyConcealed(4, 255);
+      //VerifyConcealed(5, 649);
+      //VerifyConcealed(6, 1481);
+      //VerifyConcealed(7, 3042);
+      //VerifyConcealed(8, 5739);
+      //VerifyConcealed(9, 9987);
+      //VerifyConcealed(10, 16196);
+      //VerifyConcealed(11, 24551);
+      //VerifyConcealed(12, 34988);
+      //VerifyConcealed(13, 46976);
+      //VerifyConcealed(14, 59618);
+      //VerifyConcealed(15, 71606);
+      //VerifyConcealed(16, 81564);
+      //VerifyConcealed(17, 88138);
+      //VerifyConcealed(18, 90453);
+      //VerifyConcealed(19, 88138);
+      //VerifyConcealed(20, 81564);
     }
 
-    private static void VerifyCombinationCount(int numberOfTiles, int numberOfCombinations)
+    private static void VerifyConcealed(int numberOfTiles, int numberOfCombinations)
     {
       var creator = new ConcealedSuitCombinationCreator();
       var combinations = creator.Create(numberOfTiles);
-      Assert.AreEqual(numberOfCombinations, combinations.Count(), "Count of combinations was wrong");
+      Assert.AreEqual(numberOfCombinations, combinations.Count(), "Count of concealed combinations was wrong");
+    }
+
+    /// <summary>
+    /// Number of combinations in a single suit with concealed and melded tiles.
+    /// </summary>
+    [TestMethod]
+    public void TestMixedSuitCombinations()
+    {
+      VerifyMixed(0, 0, 1);
+      VerifyMixed(1, 0, 25);
+      VerifyMixed(2, 0, 284);
+      VerifyMixed(3, 0, 1914);
+      VerifyMixed(4, 0, 8439);
+    }
+
+    private static void VerifyMixed(int numberOfMelds, int numberOfTiles, int numberOfCombinations)
+    {
+      var meldCreator = new MeldedSuitCombinationsCreator();
+      var concealedCreator = new ConcealedSuitCombinationCreator();
+      var meldedCombinations = meldCreator.Create(numberOfMelds);
+      var mixedCombinations = meldedCombinations.SelectMany(c => concealedCreator.Create(numberOfTiles, c));
+      Assert.AreEqual(numberOfCombinations, mixedCombinations.Count(), "Count of mixed combinations was wrong");
     }
   }
 }

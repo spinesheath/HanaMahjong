@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.Combinations
@@ -26,15 +27,29 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// </summary>
   internal class ConcealedSuitCombinationCreator : CombinationCreatorBase
   {
+    private int[] _tilesUsedInMelds;
+
     /// <summary>
-    /// Creates all possible semantically unique concealed combinations for a suit and a given number of tiles.
+    /// Creates all possible semantically unique concealed combinations for a given number of tiles.
     /// </summary>
     public IEnumerable<Combination> Create(int numberOfTiles)
     {
+      var noMeldedTiles = new Combination(new int[TypesInSuit]);
+      return Create(numberOfTiles, noMeldedTiles);
+    }
+
+    /// <summary>
+    /// Creates all possible semantically unique concealed combinations for a given number of tiles and a set of tiles already used in melds.
+    /// </summary>
+    /// <param name="numberOfTiles">The number of tiles in the concealed part of the hand.</param>
+    /// <param name="meldedTiles">The tiles used in the melded part of the hand.</param>
+    public IEnumerable<Combination> Create(int numberOfTiles, Combination meldedTiles)
+    {
       Validate.NotNegative(numberOfTiles, nameof(numberOfTiles));
       Clear();
+      _tilesUsedInMelds = meldedTiles.Counts.ToArray();
       return Create(numberOfTiles, TypesInSuit);
-    }
+    } 
 
     /// <summary>
     /// Recursively creates possible concealed combinations in one suit.
@@ -52,12 +67,14 @@ namespace Spines.Mahjong.Analysis.Combinations
       }
       else
       {
+        var index = TypesInSuit - remainingTypes;
+        var freeTiles = TilesPerType - _tilesUsedInMelds[index];
         // The maximum amount of tiles that can be used for the current type.
-        var max = Math.Min(remainingTiles, TilesPerType);
+        var max = Math.Min(remainingTiles, freeTiles);
         // Add 0 to max tiles of the current type and accumulate results.
         for (var i = 0; i <= max; ++i)
         {
-          Accumulator[TypesInSuit - remainingTypes] = i;
+          Accumulator[index] = i;
           foreach (var gd in Create(remainingTiles - i, remainingTypes - 1))
           {
             yield return gd;
