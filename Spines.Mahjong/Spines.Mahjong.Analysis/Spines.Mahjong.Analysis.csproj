@@ -50,6 +50,7 @@
     <Compile Include="AnalysisException.cs" />
     <Compile Include="Combinations\Combination.cs" />
     <Compile Include="Combinations\MeldedSuitCombinationsCreator.cs" />
+    <Compile Include="Combinations\MeldShape.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Combinations\SuitCombinationFactory.cs" />
   </ItemGroup>

@@ -11,7 +11,7 @@ namespace Spines.Mahjong.Analysis.Combinations
   {
     private int[] _accumulator;
     private const int TilesPerType = 4;
-    private const int TypesInSuit = 9;
+    private const int TypesInSuit = 9;  
 
     /// <summary>
     /// Creates all possible combinations of used tiles for a number of melds in a single suit.
@@ -33,10 +33,8 @@ namespace Spines.Mahjong.Analysis.Combinations
       {
         return new Combination(_accumulator.ToList()).Yield();
       }
-      var withKoutsu = CreateMeldedCombinations(remainingMelds, currentIndex, 1, 3);
-      var withKantsu = CreateMeldedCombinations(remainingMelds, currentIndex, 1, 4);
-      var withShuntsu = CreateMeldedCombinations(remainingMelds, currentIndex, 3, 1);
-      return withKoutsu.Concat(withKantsu).Concat(withShuntsu);
+
+      return MeldShape.MeldShapes.SelectMany(m => CreateMeldedCombinations(remainingMelds, currentIndex, m.Stride, m.Amount));
     }
 
     /// <summary>
