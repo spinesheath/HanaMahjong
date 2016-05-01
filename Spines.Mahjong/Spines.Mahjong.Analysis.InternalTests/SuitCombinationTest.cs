@@ -75,7 +75,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
 
     private static void VerifyCombinationCount(int numberOfTiles, int numberOfCombinations)
     {
-      var combinations = SuitCombinationFactory.CreateConcealedCombinations(numberOfTiles);
+      var creator = new SuitCombinationCreator();
+      var combinations = creator.CreateConcealedCombinations(numberOfTiles);
       Assert.AreEqual(numberOfCombinations, combinations.Count(), "Count of combinations was wrong");
     }
   }

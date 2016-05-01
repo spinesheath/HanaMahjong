@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.Analysis.SuitCombinationFactory.cs
+﻿// Spines.Mahjong.Analysis.SuitCombinationCreator.cs
 // 
 // Copyright (C) 2016  Johannes Heckl
 // 
@@ -25,12 +25,12 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// <summary>
   /// Creates possible combinations of tiles in one suit.
   /// </summary>
-  internal static class SuitCombinationFactory
+  internal class SuitCombinationCreator
   {
     /// <summary>
     /// Creates all possible semantically unique concealed combinations for a suit and a given number of tiles.
     /// </summary>
-    public static IEnumerable<Combination> CreateConcealedCombinations(int numberOfTiles)
+    public IEnumerable<Combination> CreateConcealedCombinations(int numberOfTiles)
     {
       Validate.NotNegative(numberOfTiles, nameof(numberOfTiles));
       return CreateConcealedCombinations(new int[9], numberOfTiles, 9);
@@ -41,7 +41,7 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// The weight of a combination balanced around the middle is 0.
     /// More tiles to the left has positive weight, more to the right has negative weight.
     /// </summary>
-    private static int GetWeight(IList<int> source)
+    private int GetWeight(IList<int> source)
     {
       return Enumerable.Range(0, 9).Sum(i => GetWeight(i, source[i]));
     }
@@ -50,7 +50,7 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// Calculates the weight of a single tile type and count.
     /// TileTypes to the left have positive weight, to the right have negative.
     /// </summary>
-    private static int GetWeight(int tileTypeIndex, int tileCount)
+    private int GetWeight(int tileTypeIndex, int tileCount)
     {
       var shift = Math.Abs(4 - tileTypeIndex) * 2;
       var factor = Math.Sign(4 - tileTypeIndex);
@@ -60,7 +60,7 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// <summary>
     /// Recursively creates possible concealed combinations in one suit.
     /// </summary>
-    private static IEnumerable<Combination> CreateConcealedCombinations(IList<int> accumulator, int remainingTiles,
+    private IEnumerable<Combination> CreateConcealedCombinations(IList<int> accumulator, int remainingTiles,
       int remainingTypes)
     {
       // If all types have been tried we are done.
@@ -80,7 +80,7 @@ namespace Spines.Mahjong.Analysis.Combinations
         for (var i = max; i >= 0; --i)
         {
           accumulator[9 - remainingTypes] = i;
-          foreach (var gd in SuitCombinationFactory.CreateConcealedCombinations(accumulator, remainingTiles - i, remainingTypes - 1))
+          foreach (var gd in CreateConcealedCombinations(accumulator, remainingTiles - i, remainingTypes - 1))
           {
             yield return gd;
           }

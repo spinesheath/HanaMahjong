@@ -1,3 +1,20 @@
+// Spines.Mahjong.Analysis.MeldedSuitCombinationsCreator.cs
+// 
+// Copyright (C) 2016  Johannes Heckl
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System.Collections.Generic;
 using System.Linq;
 using Spines.Utility;
@@ -9,9 +26,9 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// </summary>
   internal class MeldedSuitCombinationsCreator
   {
-    private int[] _accumulator;
     private const int TilesPerType = 4;
-    private const int TypesInSuit = 9;  
+    private const int TypesInSuit = 9;
+    private int[] _accumulator;
 
     /// <summary>
     /// Creates all possible combinations of used tiles for a number of melds in a single suit.
@@ -34,7 +51,8 @@ namespace Spines.Mahjong.Analysis.Combinations
         return new Combination(_accumulator.ToList()).Yield();
       }
 
-      return MeldShape.MeldShapes.SelectMany(m => CreateMeldedCombinations(remainingMelds, currentIndex, m.Stride, m.Amount));
+      return
+        MeldShape.MeldShapes.SelectMany(m => CreateMeldedCombinations(remainingMelds, currentIndex, m.Stride, m.Amount));
     }
 
     /// <summary>
@@ -57,7 +75,8 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// <summary>
     /// Creates all possible combinations of used tiles for a number of melds in a single suit by adding a specific meld.
     /// </summary>
-    private IEnumerable<Combination> CreateMeldedCombinations(int remainingMelds, int currentIndex, int stride, int amount)
+    private IEnumerable<Combination> CreateMeldedCombinations(int remainingMelds, int currentIndex, int stride,
+      int amount)
     {
       var indices = Enumerable.Range(currentIndex, TypesInSuit - currentIndex);
       var freeIndices = indices.Where(i => CanAddMeld(i, stride, amount));
