@@ -18,7 +18,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Spines.Mahjong.Analysis
+namespace Spines.Mahjong.Analysis.Combinations
 {
   /// <summary>
   /// A combination of tiles.

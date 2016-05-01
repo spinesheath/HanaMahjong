@@ -15,9 +15,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Spines.Mahjong.Analysis.Combinations;
 
 namespace Spines.Mahjong.Analysis.InternalTests
 {
@@ -39,7 +39,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
 
     private static void VerifyMeldCombinationCount(int numberOfMelds, int numberOfCombinations)
     {
-      var combinations = SuitCombinationFactory.CreateMeldedCombinations(numberOfMelds);
+      var creator = new MeldedSuitCombinationsCreator();
+      var combinations = creator.CreateMeldedCombinations(numberOfMelds);
       Assert.AreEqual(numberOfCombinations, combinations.Count(), "Count of meld combinations was wrong");
     }
 

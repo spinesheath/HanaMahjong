@@ -48,9 +48,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnalysisException.cs" />
-    <Compile Include="Combination.cs" />
+    <Compile Include="Combinations\Combination.cs" />
+    <Compile Include="Combinations\MeldedSuitCombinationsCreator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SuitCombinationFactory.cs" />
+    <Compile Include="Combinations\SuitCombinationFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\..\CommonResources\CustomDictionary.xml">
