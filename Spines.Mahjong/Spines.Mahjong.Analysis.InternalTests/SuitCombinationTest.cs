@@ -47,7 +47,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     /// Number of combinations of tiles in a single suit, no melds.
     /// </summary>
     [TestMethod]
-    public void TestSuitCombinations()
+    public void TestConcealedSuitCombinations()
     {
       VerifyCombinationCount(0, 1);
       VerifyCombinationCount(1, 5);
@@ -74,7 +74,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
 
     private static void VerifyCombinationCount(int numberOfTiles, int numberOfCombinations)
     {
-      var combinations = SuitCombinationFactory.CreateCombinations(numberOfTiles);
+      var combinations = SuitCombinationFactory.CreateConcealedCombinations(numberOfTiles);
       Assert.AreEqual(numberOfCombinations, combinations.Count(), "Count of combinations was wrong");
     }
   }

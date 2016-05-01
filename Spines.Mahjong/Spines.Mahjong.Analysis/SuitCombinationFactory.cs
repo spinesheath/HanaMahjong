@@ -106,12 +106,12 @@ namespace Spines.Mahjong.Analysis
     }
 
     /// <summary>
-    /// Creates all possible semantically unique combinations for a suit and a given number of tiles.
+    /// Creates all possible semantically unique concealed combinations for a suit and a given number of tiles.
     /// </summary>
-    public static IEnumerable<Combination> CreateCombinations(int numberOfTiles)
+    public static IEnumerable<Combination> CreateConcealedCombinations(int numberOfTiles)
     {
       Validate.NotNegative(numberOfTiles, nameof(numberOfTiles));
-      return CreateCombinations(new int[9], numberOfTiles, 9);
+      return CreateConcealedCombinations(new int[9], numberOfTiles, 9);
     }
 
     /// <summary>
@@ -136,9 +136,9 @@ namespace Spines.Mahjong.Analysis
     }
 
     /// <summary>
-    /// Recursively creates possible combinations in one suit.
+    /// Recursively creates possible concealed combinations in one suit.
     /// </summary>
-    private static IEnumerable<Combination> CreateCombinations(IList<int> accumulator, int remainingTiles,
+    private static IEnumerable<Combination> CreateConcealedCombinations(IList<int> accumulator, int remainingTiles,
       int remainingTypes)
     {
       // If all types have been tried we are done.
@@ -158,7 +158,7 @@ namespace Spines.Mahjong.Analysis
         for (var i = max; i >= 0; --i)
         {
           accumulator[9 - remainingTypes] = i;
-          foreach (var gd in CreateCombinations(accumulator, remainingTiles - i, remainingTypes - 1))
+          foreach (var gd in CreateConcealedCombinations(accumulator, remainingTiles - i, remainingTypes - 1))
           {
             yield return gd;
           }
