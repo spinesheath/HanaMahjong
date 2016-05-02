@@ -7,7 +7,7 @@
         Title="MainWindow" 
         Height="350" 
         Width="525">
-    <Grid>
-        
-    </Grid>
+    <DockPanel>
+        <Button Click="CreateCombinations">Create Combinations</Button>
+    </DockPanel>
 </Window>

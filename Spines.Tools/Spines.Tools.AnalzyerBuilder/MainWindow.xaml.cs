@@ -16,6 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Windows;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace Spines.Tools.AnalyzerBuilder
 {
@@ -30,6 +31,13 @@ namespace Spines.Tools.AnalyzerBuilder
     public MainWindow()
     {
       InitializeComponent();
+    }
+
+    private void CreateCombinations(object sender, RoutedEventArgs e)
+    {
+      var dialog = new CommonOpenFileDialog();
+      dialog.IsFolderPicker = true;
+      var result = dialog.ShowDialog(this);
     }
   }
 }
