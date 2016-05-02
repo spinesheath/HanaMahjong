@@ -1,16 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9203DC32-F5B6-47F7-9C66-CB98937534A5}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{4F66968A-36E4-423D-9D0E-8AC5DC8C9B18}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Spines.Mahjong.Analysis</RootNamespace>
-    <AssemblyName>Spines.Mahjong.Analysis</AssemblyName>
+    <RootNamespace>Spines.Tools.AnalyzerBuilder</RootNamespace>
+    <AssemblyName>Spines.Tools.AnalyzerBuilder</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,19 +43,30 @@
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>CommonResources\Spines.TenView.StrongNameKeyFile.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.XML" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnalysisException.cs" />
-    <Compile Include="Combinations\Arrangement.cs" />
-    <Compile Include="Combinations\Combination.cs" />
-    <Compile Include="Combinations\CombinationCreatorBase.cs" />
-    <Compile Include="Combinations\MeldedSuitCombinationsCreator.cs" />
-    <Compile Include="Combinations\Mentsu.cs" />
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Combinations\ConcealedSuitCombinationCreator.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\..\CommonResources\CustomDictionary.xml">
@@ -62,13 +74,16 @@
     </CodeAnalysisDictionary>
   </ItemGroup>
   <ItemGroup>
-    <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Spines.Utility\Spines.Utility.csproj">
-      <Project>{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}</Project>
-      <Name>Spines.Utility</Name>
-    </ProjectReference>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
