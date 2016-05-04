@@ -30,5 +30,13 @@
                 Content="Melds"
                 DockPanel.Dock="Top"/>
 
+        <Button Click="CreateMixedCombinations" 
+                Width="Auto" 
+                Height="Auto" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center"
+                Content="Mixed"
+                DockPanel.Dock="Top"/>
+
     </DockPanel>
 </Window>

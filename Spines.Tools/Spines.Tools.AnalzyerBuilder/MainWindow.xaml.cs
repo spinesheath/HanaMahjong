@@ -34,20 +34,22 @@ namespace Spines.Tools.AnalyzerBuilder
     private readonly IDictionary<CreationType, int> _creationCounts = new Dictionary<CreationType, int>
     {
       {CreationType.Concealed, 15},
-      {CreationType.Melded, 5}
+      {CreationType.Melded, 5},
+      {CreationType.Mixed, 15}
     };
 
-    private readonly IDictionary<CreationType, Func<int, IEnumerable<Combination>>> _creatorFuncs = new Dictionary
-      <CreationType, Func<int, IEnumerable<Combination>>>
+    private readonly IDictionary<CreationType, Func<int, IEnumerable<string>>> _creatorFuncs = new Dictionary<CreationType, Func<int, IEnumerable<string>>>
     {
       {CreationType.Concealed, CreateConcealedCombinations},
-      {CreationType.Melded, CreateMeldedCombinations}
+      {CreationType.Melded, CreateMeldedCombinations},
+      {CreationType.Mixed, CreateMixedCombinations}
     };
 
     private readonly IDictionary<CreationType, string> _prefixes = new Dictionary<CreationType, string>
     {
       {CreationType.Concealed, "ConcealedSuitCombinations"},
-      {CreationType.Melded, "MeldedSuitCombinations"}
+      {CreationType.Melded, "MeldedSuitCombinations"},
+      {CreationType.Mixed, "MixedSuitCombinations"}
     };
 
     /// <summary>
@@ -56,11 +58,6 @@ namespace Spines.Tools.AnalyzerBuilder
     public MainWindow()
     {
       InitializeComponent();
-    }
-
-    private void CreateConcealedCombinations(object sender, RoutedEventArgs e)
-    {
-      Create(CreationType.Concealed);
     }
 
     private void Create(CreationType creationType)
@@ -91,28 +88,52 @@ namespace Spines.Tools.AnalyzerBuilder
 
     private void CreateCombinationFile(int count, string workingDirectory, CreationType creationType)
     {
-      var combinations = _creatorFuncs[creationType].Invoke(count);
-      WriteToFile(combinations, workingDirectory, _prefixes[creationType], count);
+      var lines = _creatorFuncs[creationType].Invoke(count);
+      var prefix = _prefixes[creationType];
+      WriteToFile(workingDirectory, prefix, count, lines);
       IncrementProgressBar();
     }
 
-    private static IEnumerable<Combination> CreateConcealedCombinations(int count)
+    private static void WriteToFile(string workingDirectory, string prefix, int count, IEnumerable<string> lines)
     {
-      return new ConcealedSuitCombinationCreator().Create(count);
-    }
-
-    private static IEnumerable<Combination> CreateMeldedCombinations(int count)
-    {
-      return new MeldedSuitCombinationsCreator().Create(count);
-    }
-
-    private static void WriteToFile(IEnumerable<Combination> combinations, string workingDirectory, string prefix,
-      int count)
-    {
-      var lines = combinations.Select(c => string.Join(string.Empty, c.Counts));
       var fileName = $"{prefix}_{count}.txt";
       var path = Path.Combine(workingDirectory, fileName);
       File.WriteAllLines(path, lines);
+    }
+
+    private static IEnumerable<string> CreateLines(IEnumerable<Combination> combinations)
+    {
+      return combinations.Select(c => string.Join(string.Empty, c.Counts));
+    }
+
+    private static IEnumerable<string> CreateConcealedCombinations(int count)
+    {
+      return CreateLines(new ConcealedSuitCombinationCreator().Create(count));
+    }
+
+    private static IEnumerable<string> CreateMeldedCombinations(int count)
+    {
+      return CreateLines(new MeldedSuitCombinationsCreator().Create(count));
+    }
+
+    private static IEnumerable<string> CreateMixedCombinations(int count)
+    {
+      var maxMelds = (14 - count) / 3;
+      for (var meldCount = 0; meldCount <= maxMelds; ++meldCount)
+      {
+        var meldedCreator = new MeldedSuitCombinationsCreator();
+        var meldedCombinations = meldedCreator.Create(meldCount);
+        foreach (var meldedCombination in meldedCombinations)
+        {
+          var m = meldCount;
+          var concealedCreator = new ConcealedSuitCombinationCreator();
+          var combinations = concealedCreator.Create(count, meldedCombination);
+          foreach (var combination in combinations)
+          {
+            yield return $"{m}{string.Join("", meldedCombination.Counts)}{string.Join("", combination.Counts)}";
+          }
+        }
+      }
     }
 
     private void IncrementProgressBar()
@@ -120,9 +141,19 @@ namespace Spines.Tools.AnalyzerBuilder
       Dispatcher.Invoke(() => ProgressBar.Value += 1);
     }
 
+    private void CreateConcealedCombinations(object sender, RoutedEventArgs e)
+    {
+      Create(CreationType.Concealed);
+    }
+
     private void CreateMeldedCombinations(object sender, RoutedEventArgs e)
     {
       Create(CreationType.Melded);
+    }
+
+    private void CreateMixedCombinations(object sender, RoutedEventArgs e)
+    {
+      Create(CreationType.Mixed);
     }
   }
 }
