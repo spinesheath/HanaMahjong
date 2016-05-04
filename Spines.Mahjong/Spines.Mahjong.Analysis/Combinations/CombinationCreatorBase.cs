@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Spines.Mahjong.Analysis.Combinations
@@ -38,7 +38,7 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// <summary>
     /// Represents the number of tiles in the suit.
     /// </summary>
-    protected int[] Accumulator;
+    protected IList<int> Accumulator { get; private set; }
 
     /// <summary>
     /// Resets the accumulator.

@@ -46,6 +46,7 @@ namespace Spines.Mahjong.Analysis.Combinations
     public IEnumerable<Combination> Create(int numberOfTiles, Combination meldedTiles)
     {
       Validate.NotNegative(numberOfTiles, nameof(numberOfTiles));
+      Validate.NotNull(meldedTiles, nameof(meldedTiles));
       Clear();
       _tilesUsedInMelds = meldedTiles.Counts.ToArray();
       return Create(numberOfTiles, TypesInSuit);

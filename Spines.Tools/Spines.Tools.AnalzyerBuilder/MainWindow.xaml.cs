@@ -17,7 +17,6 @@
 
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.WindowsAPICodePack.Dialogs;
@@ -44,16 +43,18 @@ namespace Spines.Tools.AnalyzerBuilder
       ProgressBar.Maximum = 15;
       ProgressBar.Value = 0;
 
-      var dialog = new CommonOpenFileDialog();
-      dialog.IsFolderPicker = true;
-      dialog.EnsurePathExists = true;
-      var result = dialog.ShowDialog(this);
-      if (result != CommonFileDialogResult.Ok)
+      using (var dialog = new CommonOpenFileDialog())
       {
-        return;
+        dialog.IsFolderPicker = true;
+        dialog.EnsurePathExists = true;
+        var result = dialog.ShowDialog(this);
+        if (result != CommonFileDialogResult.Ok)
+        {
+          return;
+        }
+        var workingDirectory = dialog.FileNames.Single();
+        CreateCombinationsAsync(workingDirectory);
       }
-      var workingDirectory = dialog.FileNames.Single();
-      CreateCombinationsAsync(workingDirectory);
     }
 
     private async void CreateCombinationsAsync(string workingDirectory)
