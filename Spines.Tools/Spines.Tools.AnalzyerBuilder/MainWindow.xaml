@@ -7,20 +7,28 @@
         Title="MainWindow" 
         Height="350" 
         Width="525">
-    <DockPanel LastChildFill="False">
+    <DockPanel LastChildFill="False" Margin="10">
         
         <ProgressBar Height="20" 
                      HorizontalAlignment="Stretch" 
                      DockPanel.Dock="Bottom"
                      x:Name="ProgressBar"/>
         
-        <Button Click="CreateCombinations" 
+        <Button Click="CreateConcealedCombinations" 
                 Width="Auto" 
                 Height="Auto" 
                 HorizontalAlignment="Center" 
                 VerticalAlignment="Center"
-                Content="Create Combinations"
+                Content="Concealed"
                 DockPanel.Dock="Top"/>
-        
+
+        <Button Click="CreateMeldedCombinations" 
+                Width="Auto" 
+                Height="Auto" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center"
+                Content="Melds"
+                DockPanel.Dock="Top"/>
+
     </DockPanel>
 </Window>

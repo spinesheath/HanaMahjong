@@ -25,7 +25,7 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// <summary>
   /// Creates possible combinations of tiles used in melds in one suit.
   /// </summary>
-  internal class MeldedSuitCombinationsCreator : CombinationCreatorBase
+  public class MeldedSuitCombinationsCreator : CombinationCreatorBase
   {
     /// <summary>
     /// Creates all possible combinations of used tiles for a number of melds in a single suit.
