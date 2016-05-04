@@ -23,7 +23,7 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// <summary>
   /// Base class for combination creators.
   /// </summary>
-  internal class CombinationCreatorBase
+  public class CombinationCreatorBase
   {
     /// <summary>
     /// There are 4 tiles of each type.

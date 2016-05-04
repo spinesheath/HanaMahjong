@@ -15,8 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Spines.Mahjong.Analysis.Combinations;
 
 namespace Spines.Tools.AnalyzerBuilder
 {
@@ -35,9 +40,43 @@ namespace Spines.Tools.AnalyzerBuilder
 
     private void CreateCombinations(object sender, RoutedEventArgs e)
     {
+      ProgressBar.Minimum = 0;
+      ProgressBar.Maximum = 15;
+      ProgressBar.Value = 0;
+
       var dialog = new CommonOpenFileDialog();
       dialog.IsFolderPicker = true;
+      dialog.EnsurePathExists = true;
       var result = dialog.ShowDialog(this);
+      if (result != CommonFileDialogResult.Ok)
+      {
+        return;
+      }
+      var workingDirectory = dialog.FileNames.Single();
+      CreateCombinationsAsync(workingDirectory);
+    }
+
+    private async void CreateCombinationsAsync(string workingDirectory)
+    {
+      var counts = Enumerable.Range(0, 15);
+      await Task.Run(() => Parallel.ForEach(counts, c => CreateCombinationFile(c, workingDirectory)));
+    }
+
+    private void CreateCombinationFile(int count, string workingDirectory)
+    {
+      var creator = new ConcealedSuitCombinationCreator();
+      var combinations = creator.Create(count);
+      var text = string.Join(string.Empty, combinations.SelectMany(c => c.Counts));
+      var fileName = $"ConcealedSuitCombinations_{count}.txt";
+      var path = Path.Combine(workingDirectory, fileName);
+      File.WriteAllText(path, text);
+
+      IncrementProgressBar();
+    }
+
+    private void IncrementProgressBar()
+    {
+      Dispatcher.Invoke(() => ProgressBar.Value += 1);
     }
   }
 }

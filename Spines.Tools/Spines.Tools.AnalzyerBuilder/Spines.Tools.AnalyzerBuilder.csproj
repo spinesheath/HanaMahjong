@@ -125,6 +125,12 @@
       <Link>CommonResources\CustomDictionary.xml</Link>
     </Resource>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Spines.Mahjong\Spines.Mahjong.Analysis\Spines.Mahjong.Analysis.csproj">
+      <Project>{9203DC32-F5B6-47F7-9C66-CB98937534A5}</Project>
+      <Name>Spines.Mahjong.Analysis</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

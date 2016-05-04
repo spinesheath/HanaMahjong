@@ -25,7 +25,7 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// <summary>
   /// Creates possible combinations of tiles in one suit.
   /// </summary>
-  internal class ConcealedSuitCombinationCreator : CombinationCreatorBase
+  public class ConcealedSuitCombinationCreator : CombinationCreatorBase
   {
     private int[] _tilesUsedInMelds;
 
