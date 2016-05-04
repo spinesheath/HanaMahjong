@@ -67,10 +67,10 @@ namespace Spines.Tools.AnalyzerBuilder
     {
       var creator = new ConcealedSuitCombinationCreator();
       var combinations = creator.Create(count);
-      var text = string.Join(string.Empty, combinations.SelectMany(c => c.Counts));
+      var lines = combinations.Select(c => string.Join(string.Empty, c.Counts));
       var fileName = $"ConcealedSuitCombinations_{count}.txt";
       var path = Path.Combine(workingDirectory, fileName);
-      File.WriteAllText(path, text);
+      File.WriteAllLines(path, lines);
 
       IncrementProgressBar();
     }
