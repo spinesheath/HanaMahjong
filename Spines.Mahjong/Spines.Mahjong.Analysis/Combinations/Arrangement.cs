@@ -54,6 +54,24 @@ namespace Spines.Mahjong.Analysis.Combinations
     public int Value { get; }
 
     /// <summary>
+    /// Creates a new instance of Arrangement with an added jantou.
+    /// </summary>
+    public Arrangement AddJantou(int value)
+    {
+      Validate.InRange(value, 0, 3, nameof(value));
+      return new Arrangement(Jantou + 1, Mentsu, Value + value);
+    }
+
+    /// <summary>
+    /// Creates a new instance of Arrangement with an added mentsu.
+    /// </summary>
+    public Arrangement AddMentsu(int value)
+    {
+      Validate.InRange(value, 0, 3, nameof(value));
+      return new Arrangement(Jantou, Mentsu + 1, Value + value);
+    }
+
+    /// <summary>
     /// Determines whether an arrangement is worse than another.
     /// Correctness pending.
     /// </summary>
