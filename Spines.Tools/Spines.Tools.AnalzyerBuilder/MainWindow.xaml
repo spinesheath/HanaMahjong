@@ -38,5 +38,13 @@
                 Content="Mixed"
                 DockPanel.Dock="Top"/>
 
+        <Button Click="AnlyzeCombinations" 
+                Width="Auto" 
+                Height="Auto" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center"
+                Content="Analyze"
+                DockPanel.Dock="Top"/>
+
     </DockPanel>
 </Window>

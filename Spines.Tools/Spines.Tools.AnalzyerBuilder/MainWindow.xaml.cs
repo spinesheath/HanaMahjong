@@ -60,6 +60,11 @@ namespace Spines.Tools.AnalyzerBuilder
       InitializeComponent();
     }
 
+    private void AnlyzeCombinations(object sender, RoutedEventArgs e)
+    {
+      
+    }
+
     private void Create(CreationType creationType)
     {
       using (var dialog = new CommonOpenFileDialog())
