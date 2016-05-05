@@ -47,7 +47,6 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnalysisException.cs" />
     <Compile Include="Combinations\Arrangement.cs" />
     <Compile Include="Combinations\Combination.cs" />
     <Compile Include="Combinations\CombinationCreatorBase.cs" />
