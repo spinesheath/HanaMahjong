@@ -22,7 +22,7 @@ using Spines.Mahjong.Analysis.Combinations;
 namespace Spines.Mahjong.Analysis.InternalTests
 {
   [TestClass]
-  public class SuitCombinationTest
+  public class SuitCombinationTests
   {
     /// <summary>
     /// Number of combinations of melds in a single suit.

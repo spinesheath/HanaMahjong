@@ -27,75 +27,76 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// <summary>
     /// A full jantou.
     /// </summary>
-    public static ProtoGroup Jantou = new ProtoGroup(2, new MentsuInsertChecker(2, 2));
+    public static readonly ProtoGroup Jantou2 = new ProtoGroup(2, new MentsuProtoGroupInserter(2, 2), true);
 
     /// <summary>
     /// A jantou missing one tile.
     /// </summary>
-    public static ProtoGroup JantouMinusOne = new ProtoGroup(1, new MentsuInsertChecker(1, 2));
+    public static readonly ProtoGroup Jantou1 = new ProtoGroup(1, new MentsuProtoGroupInserter(1, 2), true);
 
     /// <summary>
     /// A full koutsu.
     /// </summary>
-    public static ProtoGroup Koutsu = new ProtoGroup(3, new MentsuInsertChecker(3, 3));
+    public static readonly ProtoGroup Koutsu3 = new ProtoGroup(3, new MentsuProtoGroupInserter(3, 3));
 
     /// <summary>
     /// A koutsu missing one tile.
     /// </summary>
-    public static ProtoGroup KoutsuMinusOne = new ProtoGroup(2, new MentsuInsertChecker(2, 3));
+    public static readonly ProtoGroup Koutsu2 = new ProtoGroup(2, new MentsuProtoGroupInserter(2, 3));
 
     /// <summary>
     /// A koutsu missing two tiles.
     /// </summary>
-    public static ProtoGroup KoutsuMinuesTwo = new ProtoGroup(1, new MentsuInsertChecker(1, 3));
+    public static readonly ProtoGroup Koutsu1 = new ProtoGroup(1, new MentsuProtoGroupInserter(1, 3));
 
     /// <summary>
     /// A full shuntsu.
     /// </summary>
-    public static ProtoGroup Shuntsu = new ProtoGroup(3, new ShuntsuInsertChecker(1, 1, 1));
+    public static readonly ProtoGroup Shuntsu111 = new ProtoGroup(3, new ShuntsuProtoGroupInserter(1, 1, 1));
 
     /// <summary>
     /// A shuntsu missing the middle tile.
     /// </summary>
-    public static ProtoGroup ShuntsuMinusMiddle = new ProtoGroup(2, new ShuntsuInsertChecker(1, 0, 1));
+    public static readonly ProtoGroup Shuntsu101 = new ProtoGroup(2, new ShuntsuProtoGroupInserter(1, 0, 1));
 
     /// <summary>
     /// A shuntsu missing the left tile.
     /// </summary>
-    public static ProtoGroup ShuntsuMinusLeft = new ProtoGroup(2, new ShuntsuInsertChecker(0, 1, 1));
+    public static readonly ProtoGroup Shuntsu011 = new ProtoGroup(2, new ShuntsuProtoGroupInserter(0, 1, 1));
 
     /// <summary>
     /// A shuntsu missing the right tile.
     /// </summary>
-    public static ProtoGroup ShuntsuMinusRight = new ProtoGroup(2, new ShuntsuInsertChecker(1, 1, 0));
+    public static readonly ProtoGroup Shuntsu110 = new ProtoGroup(2, new ShuntsuProtoGroupInserter(1, 1, 0));
 
     /// <summary>
     /// A shuntsu missing the left and right tiles.
     /// </summary>
-    public static ProtoGroup ShuntsuOnlyMiddle = new ProtoGroup(1, new ShuntsuInsertChecker(0, 1, 0));
+    public static readonly ProtoGroup Shuntsu010 = new ProtoGroup(1, new ShuntsuProtoGroupInserter(0, 1, 0));
 
     /// <summary>
     /// A shuntsu missing the middle and right tiles.
     /// </summary>
-    public static ProtoGroup ShuntsuOnlyLeft = new ProtoGroup(1, new ShuntsuInsertChecker(1, 0, 0));
+    public static readonly ProtoGroup Shuntsu100 = new ProtoGroup(1, new ShuntsuProtoGroupInserter(1, 0, 0));
 
     /// <summary>
     /// A shuntsu missing the left and middle tiles.
     /// </summary>
-    public static ProtoGroup ShuntsuOnlyRight = new ProtoGroup(1, new ShuntsuInsertChecker(0, 0, 1));
+    public static readonly ProtoGroup Shuntsu001 = new ProtoGroup(1, new ShuntsuProtoGroupInserter(0, 0, 1));
 
     /// <summary>
     /// Can this ProtoGroup be used in an arrangement?
     /// </summary>
-    private readonly IInsertChecker _insertChecker;
+    private readonly IProtoGroupInserter _protoGroupInserter;
 
     /// <summary>
     /// Creates a new instance of ProtoGroup.
     /// </summary>
-    private ProtoGroup(int value, IInsertChecker insertChecker)
+    private ProtoGroup(int value, IProtoGroupInserter protoGroupInserter, bool isJantou = false)
     {
       Value = value;
-      _insertChecker = insertChecker;
+      _protoGroupInserter = protoGroupInserter;
+      IsJantou = isJantou;
     }
 
     /// <summary>
@@ -103,12 +104,24 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// </summary>
     public int Value { get; }
 
+    public bool IsJantou { get; }
+
     /// <summary>
     /// Can this ProtoGroup be used in an arrangement?
     /// </summary>
-    public bool CanInsertProtoGroup(IReadOnlyList<int> concealedTiles, IReadOnlyList<int> usedTiles, int offset)
+    public bool CanInsert(IReadOnlyList<int> concealedTiles, IReadOnlyList<int> usedTiles, int offset)
     {
-      return _insertChecker.CanInsert(concealedTiles, usedTiles, offset);
+      return _protoGroupInserter.CanInsert(concealedTiles, usedTiles, offset);
+    }
+
+    public void Insert(IList<int> concealedTiles, IList<int> usedTiles, int offset)
+    {
+      _protoGroupInserter.Insert(concealedTiles, usedTiles, offset);
+    }
+
+    public void Remove(IList<int> concealedTiles, IList<int> usedTiles, int offset)
+    {
+      _protoGroupInserter.Remove(concealedTiles, usedTiles, offset);
     }
   }
 }

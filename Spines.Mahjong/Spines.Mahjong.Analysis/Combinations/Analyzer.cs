@@ -6,8 +6,8 @@ namespace Spines.Mahjong.Analysis.Combinations
   internal class Analyzer
   {
     private readonly int _meldCount;
-    private readonly IList<int> _concealed;
-    private readonly IList<int> _used;
+    private readonly List<int> _concealed;
+    private readonly List<int> _used;
 
     /// <summary>
     /// Creates a new instance of Analyzer.
@@ -24,40 +24,22 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// </summary>
     public IEnumerable<Arrangement> Analyze()
     {
-      var arrangement = new Arrangement(0, _meldCount, _meldCount * 3);
-      return Analyze(arrangement, 0);
-    }
+      var nullAnalyzer = new NullStaggeredAnalyzer();
+      var jantou2 = new StaggeredAnalyzer(ProtoGroup.Jantou2, nullAnalyzer, _concealed, _used);
+      var jantou1 = new StaggeredAnalyzer(ProtoGroup.Jantou1, jantou2, _concealed, _used);
+      var shuntsu111 = new StaggeredAnalyzer(ProtoGroup.Shuntsu111, jantou1, _concealed, _used);
+      var shuntsu110 = new StaggeredAnalyzer(ProtoGroup.Shuntsu110, shuntsu111, _concealed, _used);
+      var shuntsu101 = new StaggeredAnalyzer(ProtoGroup.Shuntsu101, shuntsu110, _concealed, _used);
+      var shuntsu011 = new StaggeredAnalyzer(ProtoGroup.Shuntsu011, shuntsu101, _concealed, _used);
+      var shuntsu100 = new StaggeredAnalyzer(ProtoGroup.Shuntsu100, shuntsu011, _concealed, _used);
+      var shuntsu010 = new StaggeredAnalyzer(ProtoGroup.Shuntsu010, shuntsu100, _concealed, _used);
+      var shuntsu001 = new StaggeredAnalyzer(ProtoGroup.Shuntsu001, shuntsu010, _concealed, _used);
+      var koutsu3 = new StaggeredAnalyzer(ProtoGroup.Koutsu3, shuntsu001, _concealed, _used);
+      var koutsu2 = new StaggeredAnalyzer(ProtoGroup.Koutsu2, koutsu3, _concealed, _used);
+      var koutsu1 = new StaggeredAnalyzer(ProtoGroup.Koutsu1, koutsu2, _concealed, _used);
 
-    private IEnumerable<Arrangement> Analyze(Arrangement arrangement, int currentTileType)
-    {
-      //foreach (var arr in followUp_.Analyze(availableTiles, usedTiles, 0, a))
-      //{
-      //  yield return arr;
-      //}
-      if (arrangement.Mentsu >= 4)
-      {
-        yield return arrangement;
-      }
-      else
-      {
-        for (var i = currentTileType; i < 9; ++i)
-        {
-          const int tilesToOccupy = 3; // a koutsu occupies 3 tiles if completed
-          const int targetValue = 3; // a proto-koutsu can have 1 to 3 tiles
-          if (_concealed[i] - _used[i] >= targetValue && _used[i] <= 4 - tilesToOccupy)
-          {
-            _used[i] += tilesToOccupy;
-            _concealed[i] -= targetValue;
-            var current = arrangement.AddMentsu(tilesToOccupy);
-            foreach (var arr in Analyze(current, i))
-            {
-              yield return arr;
-            }
-            _concealed[i] += targetValue;
-            _used[i] -= tilesToOccupy;
-          }
-        }
-      }
+      var arrangement = new Arrangement(0, _meldCount, _meldCount * 3);
+      return koutsu1.Analyze(arrangement, 0);
     }
   }
 }

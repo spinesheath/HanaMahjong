@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.Analysis.MentsuInsertChecker.cs
+﻿// Spines.Mahjong.Analysis.NullStaggeredAnalyzer.cs
 // 
 // Copyright (C) 2016  Johannes Heckl
 // 
@@ -19,20 +19,11 @@ using System.Collections.Generic;
 
 namespace Spines.Mahjong.Analysis.Combinations
 {
-  internal class MentsuInsertChecker : IInsertChecker
+  internal class NullStaggeredAnalyzer : IStaggeredAnalyzer
   {
-    private readonly int _occupied;
-    private readonly int _required;
-
-    public MentsuInsertChecker(int required, int occupied)
+    public IEnumerable<Arrangement> Analyze(Arrangement arrangement, int currentTileType)
     {
-      _required = required;
-      _occupied = occupied;
-    }
-
-    public bool CanInsert(IReadOnlyList<int> concealedTiles, IReadOnlyList<int> usedTiles, int offset)
-    {
-      return concealedTiles[offset] >= _required && usedTiles[offset] <= 4 - _occupied;
+      yield break;
     }
   }
 }

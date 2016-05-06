@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.Analysis.IInsertChecker.cs
+﻿// Spines.Mahjong.Analysis.InternalTests.AnalyzerTests.cs
 // 
 // Copyright (C) 2016  Johannes Heckl
 // 
@@ -15,12 +15,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
+using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Spines.Mahjong.Analysis.Combinations;
 
-namespace Spines.Mahjong.Analysis.Combinations
+namespace Spines.Mahjong.Analysis.InternalTests
 {
-  internal interface IInsertChecker
+  [TestClass]
+  public class AnalyzerTests
   {
-    bool CanInsert(IReadOnlyList<int> concealedTiles, IReadOnlyList<int> usedTiles, int offset);
+    [TestMethod]
+    public void TestAnalyzer()
+    {
+      var concealedTiles = new Combination(new[] {0, 0, 0, 0, 0, 0, 0, 0, 0});
+      var meldedTiles = new Combination(new[] {0, 0, 0, 0, 0, 0, 0, 0, 0});
+      var analyzer = new Analyzer(concealedTiles, meldedTiles, 0);
+      var arrangements = analyzer.Analyze();
+      Assert.AreEqual(0, arrangements.Count(), "empty hand had at least one arrangement");
+    }
   }
 }

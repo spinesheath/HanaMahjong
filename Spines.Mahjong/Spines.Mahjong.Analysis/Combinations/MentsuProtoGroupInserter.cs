@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.Analysis.ShuntsuInsertChecker.cs
+﻿// Spines.Mahjong.Analysis.MentsuProtoGroupInserter.cs
 // 
 // Copyright (C) 2016  Johannes Heckl
 // 
@@ -19,34 +19,32 @@ using System.Collections.Generic;
 
 namespace Spines.Mahjong.Analysis.Combinations
 {
-  internal class ShuntsuInsertChecker : IInsertChecker
+  internal class MentsuProtoGroupInserter : IProtoGroupInserter
   {
-    private readonly int _requiredLeft;
-    private readonly int _requiredMiddle;
-    private readonly int _requiredRight;
+    private readonly int _occupied;
+    private readonly int _required;
 
-    public ShuntsuInsertChecker(int requiredLeft, int requiredMiddle, int requiredRight)
+    public MentsuProtoGroupInserter(int required, int occupied)
     {
-      _requiredLeft = requiredLeft;
-      _requiredMiddle = requiredMiddle;
-      _requiredRight = requiredRight;
+      _required = required;
+      _occupied = occupied;
     }
 
     public bool CanInsert(IReadOnlyList<int> concealedTiles, IReadOnlyList<int> usedTiles, int offset)
     {
-      if (offset > 6)
-      {
-        return false;
-      }
-      if (usedTiles[offset + 0] == 4 || 
-          usedTiles[offset + 1] == 4 || 
-          usedTiles[offset + 2] == 4)
-      {
-        return false;
-      }
-      return concealedTiles[offset + 0] >= _requiredLeft || 
-             concealedTiles[offset + 1] >= _requiredMiddle ||
-             concealedTiles[offset + 2] >= _requiredRight;
+      return concealedTiles[offset] >= _required && usedTiles[offset] <= 4 - _occupied;
+    }
+
+    public void Insert(IList<int> concealedTiles, IList<int> usedTiles, int offset)
+    {
+      concealedTiles[offset] -= _required;
+      usedTiles[offset] += _occupied;
+    }
+
+    public void Remove(IList<int> concealedTiles, IList<int> usedTiles, int offset)
+    {
+      concealedTiles[offset] += _required;
+      usedTiles[offset] -= _occupied;
     }
   }
 }
