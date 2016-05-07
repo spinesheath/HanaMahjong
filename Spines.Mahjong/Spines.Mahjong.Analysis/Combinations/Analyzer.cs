@@ -61,7 +61,7 @@ namespace Spines.Mahjong.Analysis.Combinations
     {
       var arrangement = new Arrangement(0, _meldCount, _meldCount * 3);
       Analyze(arrangement, 0, 0);
-      return _arrangements;
+      return _arrangements.Where(a => !_arrangements.Any(a.IsWorseThan));
     }
 
     private void Analyze(Arrangement arrangement, int currentTileType, int currentProtoGroup)

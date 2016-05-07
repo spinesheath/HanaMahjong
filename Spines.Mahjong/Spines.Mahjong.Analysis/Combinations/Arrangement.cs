@@ -74,23 +74,21 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// </summary>
     public bool IsWorseThan(Arrangement other)
     {
-      // Nothing is worse than perfect something.
-      if (Value == 0 && other.Value != 0)
-      {
-        return other.Value == other.Mentsu * 3 + other.Jantou * 2;
-      }
       // Equal pairs.
       if (Jantou == other.Jantou)
       {
-        if (Mentsu >= other.Mentsu)
+        // Perfect with more mentsu is better than perfect with less mentsu.
+        if (Mentsu < other.Mentsu)
         {
-          return Value - Mentsu < other.Value - other.Mentsu;
+          return IsPerfect() && other.IsPerfect();
         }
-        return false;
+        // Same value with more mentsu is worse. With a larger mentsu difference, difference in value increases.
+        return Value - Mentsu < other.Value - other.Mentsu;
       }
       // More pairs than other.
       if (Jantou == 1)
       {
+        // Same value with more mentsu or pairs is worse.
         if (Mentsu >= other.Mentsu)
         {
           return Value <= other.Value;
@@ -99,6 +97,11 @@ namespace Spines.Mahjong.Analysis.Combinations
       }
       // less pairs
       return false;
+    }
+
+    private bool IsPerfect()
+    {
+      return Value == Mentsu * 3 + Jantou * 2;
     }
 
     /// <summary>
