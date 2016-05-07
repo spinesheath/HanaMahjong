@@ -36,7 +36,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [TestMethod]
     public void TestHandsWithoutMelds()
     {
-      CheckHandWithoutMelds(4, new[] {1, 0, 0, 0, 0, 0, 0, 0, 0});
+      CheckHandWithoutMelds(3, new[] {1, 0, 0, 0, 0, 0, 0, 0, 0});
       CheckHandWithoutMelds(7, new[] {2, 0, 0, 0, 0, 0, 0, 0, 0});
     }
 
