@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Diagnostics;
 using Spines.Utility;
 
@@ -25,7 +26,7 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// Only for regular hand shapes of one pair and four mentsu.
   /// </summary>
   [DebuggerDisplay("Arrangement {Jantou}, {Mentsu}, {Value}")]
-  internal class Arrangement
+  internal class Arrangement : IEquatable<Arrangement>
   {
     /// <summary>
     /// Creates a new Arrangement.
@@ -38,6 +39,16 @@ namespace Spines.Mahjong.Analysis.Combinations
       Jantou = Validate.InRange(jantou, 0, 1, nameof(jantou));
       Mentsu = Validate.InRange(mentsu, 0, 4, nameof(jantou));
       Value = Validate.InRange(value, 0, 14, nameof(jantou));
+      Id = Jantou * 50 + Mentsu * 7 + Value;
+    }
+
+    private Arrangement(int id)
+    {
+      Jantou = id / 50;
+      var withoutJantou = id - Jantou * 50;
+      Mentsu = withoutJantou / 7;
+      Value = withoutJantou - Mentsu * 7;
+      Id = id;
     }
 
     /// <summary>
@@ -55,23 +66,7 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// </summary>
     public int Value { get; }
 
-    /// <summary>
-    /// Creates a new instance of Arrangement with an added jantou.
-    /// </summary>
-    public Arrangement AddJantou(int value)
-    {
-      Validate.InRange(value, 0, 3, nameof(value));
-      return new Arrangement(Jantou + 1, Mentsu, Value + value);
-    }
-
-    /// <summary>
-    /// Creates a new instance of Arrangement with an added mentsu.
-    /// </summary>
-    public Arrangement AddMentsu(int value)
-    {
-      Validate.InRange(value, 0, 3, nameof(value));
-      return new Arrangement(Jantou, Mentsu + 1, Value + value);
-    }
+    private int Id { get; }
 
     /// <summary>
     /// Determines whether an arrangement is worse than another.
@@ -109,6 +104,77 @@ namespace Spines.Mahjong.Analysis.Combinations
       }
       // less pairs
       return false;
+    }
+
+    /// <summary>
+    /// Indicates whether the current object is equal to another object of the same type.
+    /// </summary>
+    /// <returns>
+    /// true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
+    /// </returns>
+    /// <param name="other">An object to compare with this object.</param>
+    public bool Equals(Arrangement other)
+    {
+      if (ReferenceEquals(null, other))
+      {
+        return false;
+      }
+      if (ReferenceEquals(this, other))
+      {
+        return true;
+      }
+      return Id == other.Id;
+    }
+
+    /// <summary>
+    /// Creates a new instance of Arrangement with an added jantou.
+    /// </summary>
+    public Arrangement AddJantou(int value)
+    {
+      Validate.InRange(value, 0, 3, nameof(value));
+      return new Arrangement(Jantou + 1, Mentsu, Value + value);
+    }
+
+    /// <summary>
+    /// Creates a new instance of Arrangement with an added mentsu.
+    /// </summary>
+    public Arrangement AddMentsu(int value)
+    {
+      Validate.InRange(value, 0, 3, nameof(value));
+      return new Arrangement(Jantou, Mentsu + 1, Value + value);
+    }
+
+    /// <summary>
+    /// Determines whether the specified object is equal to the current object.
+    /// </summary>
+    /// <returns>
+    /// true if the specified object is equal to the current object; otherwise, false.
+    /// </returns>
+    /// <param name="obj">The object to compare with the current object. </param>
+    public override bool Equals(object obj)
+    {
+      return CheckEquality.WithIdenticalTypes(this, obj);
+    }
+
+    /// <summary>
+    /// Serves as the default hash function.
+    /// </summary>
+    /// <returns>
+    /// A hash code for the current object.
+    /// </returns>
+    public override int GetHashCode()
+    {
+      return Id;
+    }
+
+    public static bool operator ==(Arrangement left, Arrangement right)
+    {
+      return Equals(left, right);
+    }
+
+    public static bool operator !=(Arrangement left, Arrangement right)
+    {
+      return !Equals(left, right);
     }
   }
 }
