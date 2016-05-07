@@ -74,29 +74,24 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// </summary>
     public bool IsWorseThan(Arrangement other)
     {
+      // Nothing is worse than perfect something.
+      if (Value == 0 && other.Value != 0)
+      {
+        return other.Value == other.Mentsu * 3 + other.Jantou * 2;
+      }
       // Equal pairs.
       if (Jantou == other.Jantou)
       {
-        if (Mentsu == other.Mentsu)
+        if (Mentsu >= other.Mentsu)
         {
-          return Value < other.Value;
+          return Value - Mentsu < other.Value - other.Mentsu;
         }
-        if (Mentsu > other.Mentsu)
-        {
-          return Value <= other.Value;
-        }
-
-        // What if Mentsu = other.Mentsu - 1 and Value > other.Value - 3?
         return false;
       }
       // More pairs than other.
       if (Jantou == 1)
       {
-        if (Mentsu == other.Mentsu)
-        {
-          return Value <= other.Value;
-        }
-        if (Mentsu > other.Mentsu)
+        if (Mentsu >= other.Mentsu)
         {
           return Value <= other.Value;
         }
