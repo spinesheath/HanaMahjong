@@ -136,11 +136,12 @@ namespace Spines.Mahjong.Analysis.Combinations
 
     private bool CanNotInsert(Arrangement arrangement, int currentTileType, ProtoGroup protoGroup)
     {
-      if (protoGroup.IsJantou && arrangement.Jantou > 0)
+      var isJantou = protoGroup.IsJantou;
+      if (isJantou && arrangement.Jantou > 0)
       {
         return true;
       }
-      if (!protoGroup.IsJantou && arrangement.Mentsu > 3)
+      if (!isJantou && arrangement.Mentsu > 3)
       {
         return true;
       }
