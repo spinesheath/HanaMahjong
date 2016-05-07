@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Diagnostics;
 using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.Combinations
@@ -23,6 +24,7 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// Information about an arrangement of tiles relevant for counting shanten.
   /// Only for regular hand shapes of one pair and four mentsu.
   /// </summary>
+  [DebuggerDisplay("Arrangement {Jantou}, {Mentsu}, {Value}")]
   internal class Arrangement
   {
     /// <summary>

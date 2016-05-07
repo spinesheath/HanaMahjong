@@ -16,12 +16,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Spines.Mahjong.Analysis.Combinations
 {
   /// <summary>
   /// An (in-)complete Group; either a mentsu or a jantou.
   /// </summary>
+  [DebuggerDisplay("ProtoGroup {Value}, {IsJantou}")]
   internal class ProtoGroup
   {
     /// <summary>

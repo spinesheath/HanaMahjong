@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Spines.Mahjong.Analysis.Combinations;
@@ -24,14 +25,28 @@ namespace Spines.Mahjong.Analysis.InternalTests
   [TestClass]
   public class AnalyzerTests
   {
+    private readonly Combination _emptyCombination = new Combination(new[] {0, 0, 0, 0, 0, 0, 0, 0, 0});
+
     [TestMethod]
-    public void TestAnalyzer()
+    public void TestEmptyHand()
     {
-      var concealedTiles = new Combination(new[] {0, 0, 0, 0, 0, 0, 0, 0, 0});
-      var meldedTiles = new Combination(new[] {0, 0, 0, 0, 0, 0, 0, 0, 0});
-      var analyzer = new Analyzer(concealedTiles, meldedTiles, 0);
+      CheckHandWithoutMelds(1, new[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+    }
+
+    [TestMethod]
+    public void TestHandsWithoutMelds()
+    {
+      CheckHandWithoutMelds(4, new[] {1, 0, 0, 0, 0, 0, 0, 0, 0});
+      CheckHandWithoutMelds(7, new[] {2, 0, 0, 0, 0, 0, 0, 0, 0});
+    }
+
+    private void CheckHandWithoutMelds(int expectedCount, IEnumerable<int> concealedTiles)
+    {
+      var concealed = new Combination(concealedTiles);
+      var melded = _emptyCombination;
+      var analyzer = new Analyzer(concealed, melded, 0);
       var arrangements = analyzer.Analyze();
-      Assert.AreEqual(0, arrangements.Count(), "empty hand had at least one arrangement");
+      Assert.AreEqual(expectedCount, arrangements.Count(), "hand has wrong arrangement count");
     }
   }
 }
