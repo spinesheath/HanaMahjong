@@ -36,9 +36,12 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [TestMethod]
     public void TestHandsWithoutMelds()
     {
-      CheckHandWithoutMelds(3, new[] {1, 0, 0, 0, 0, 0, 0, 0, 0});
-      CheckHandWithoutMelds(3, new[] {2, 0, 0, 0, 0, 0, 0, 0, 0});
-      CheckHandWithoutMelds(2, new[] {4, 4, 4, 0, 0, 0, 0, 0, 0});
+      CheckHandWithoutMelds(3, new[] { 1, 0, 0, 0, 0, 0, 0, 0, 0 });
+      CheckHandWithoutMelds(3, new[] { 2, 0, 0, 0, 0, 0, 0, 0, 0 });
+      CheckHandWithoutMelds(2, new[] { 4, 4, 4, 0, 0, 0, 0, 0, 0 });
+      CheckHandWithoutMelds(2, new[] { 3, 1, 1, 1, 1, 1, 1, 1, 3 });
+      CheckHandWithoutMelds(1, new[] { 3, 1, 1, 1, 2, 1, 1, 1, 3 });
+      CheckHandWithoutMelds(8, new[] { 4, 0, 0, 1, 0, 0, 1, 0, 1 });
     }
 
     private void CheckHandWithoutMelds(int expectedCount, IEnumerable<int> concealedTiles)

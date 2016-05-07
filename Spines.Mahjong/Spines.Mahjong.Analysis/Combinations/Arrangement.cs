@@ -69,42 +69,6 @@ namespace Spines.Mahjong.Analysis.Combinations
     private int Id { get; }
 
     /// <summary>
-    /// Determines whether an arrangement is worse than another.
-    /// Correctness pending.
-    /// </summary>
-    public bool IsWorseThan(Arrangement other)
-    {
-      // Equal pairs.
-      if (Jantou == other.Jantou)
-      {
-        // Perfect with more mentsu is better than perfect with less mentsu.
-        if (Mentsu < other.Mentsu)
-        {
-          return IsPerfect() && other.IsPerfect();
-        }
-        // Same value with more mentsu is worse. With a larger mentsu difference, difference in value increases.
-        return Value - Mentsu < other.Value - other.Mentsu;
-      }
-      // More pairs than other.
-      if (Jantou == 1)
-      {
-        // Same value with more mentsu or pairs is worse.
-        if (Mentsu >= other.Mentsu)
-        {
-          return Value <= other.Value;
-        }
-        return false;
-      }
-      // less pairs
-      return false;
-    }
-
-    private bool IsPerfect()
-    {
-      return Value == Mentsu * 3 + Jantou * 2;
-    }
-
-    /// <summary>
     /// Indicates whether the current object is equal to another object of the same type.
     /// </summary>
     /// <returns>

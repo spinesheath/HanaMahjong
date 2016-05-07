@@ -59,9 +59,53 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// </summary>
     public IEnumerable<Arrangement> Analyze()
     {
+      var totalTiles = _concealed.Sum();
       var arrangement = new Arrangement(0, _meldCount, _meldCount * 3);
       Analyze(arrangement, 0, 0);
-      return _arrangements.Where(a => !_arrangements.Any(a.IsWorseThan));
+      return _arrangements.Where(a => !_arrangements.Any(other => IsWorseThan(a, other, totalTiles)));
+    }
+
+    /// <summary>
+    /// Determines whether an arrangement is worse than another.
+    /// Correctness pending.
+    /// </summary>
+    private static bool IsWorseThan(Arrangement lhs, Arrangement rhs, int tileCount)
+    {
+      // Not enough tiles in other suits to reach the same value.
+      var tilesInOtherSuits = 14 - tileCount;
+      if (lhs.Value + tilesInOtherSuits < rhs.Value)
+      {
+        return true;
+      }
+      // Not enough unused groups to reach the same value in other suits.
+      var maxWithUnusedGroups = (4 - lhs.Mentsu) * 3 + (1 - lhs.Jantou) * 2;
+      if (lhs.Value + maxWithUnusedGroups < rhs.Value)
+      {
+        return true;
+      }
+      // Equal pairs.
+      if (lhs.Jantou == rhs.Jantou)
+      {
+        // Perfect with more mentsu is better than perfect with less mentsu.
+        if (lhs.Mentsu < rhs.Mentsu)
+        {
+          return IsPerfect(lhs) && IsPerfect(rhs);
+        }
+        // Same value with more mentsu is worse. With a larger mentsu difference, difference in value increases.
+        return lhs.Value - lhs.Mentsu < rhs.Value - rhs.Mentsu;
+      }
+      // Same value with more mentsu or pairs is worse.
+      if (lhs.Jantou == 1 && lhs.Mentsu >= rhs.Mentsu)
+      {
+        return lhs.Value <= rhs.Value;
+      }
+      // less pairs
+      return false;
+    }
+
+    private static bool IsPerfect(Arrangement arrangement)
+    {
+      return arrangement.Value == arrangement.Mentsu * 3 + arrangement.Jantou * 2;
     }
 
     private void Analyze(Arrangement arrangement, int currentTileType, int currentProtoGroup)
