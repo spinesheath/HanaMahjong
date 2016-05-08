@@ -126,9 +126,8 @@ namespace Spines.Mahjong.Analysis.Combinations
           continue;
         }
         protoGroup.Insert(_concealed, _used, currentTileType);
-        var added = protoGroup.IsJantou
-          ? arrangement.AddJantou(protoGroup.Value)
-          : arrangement.AddMentsu(protoGroup.Value);
+        var isJantou = protoGroup == ProtoGroup.Jantou1 || protoGroup == ProtoGroup.Jantou2;
+        var added = isJantou ? arrangement.AddJantou(protoGroup.Value) : arrangement.AddMentsu(protoGroup.Value);
         Analyze(added, currentTileType, i);
         protoGroup.Remove(_concealed, _used, currentTileType);
       }
@@ -136,7 +135,7 @@ namespace Spines.Mahjong.Analysis.Combinations
 
     private bool CanNotInsert(Arrangement arrangement, int currentTileType, ProtoGroup protoGroup)
     {
-      var isJantou = protoGroup.IsJantou;
+      var isJantou = protoGroup == ProtoGroup.Jantou1 || protoGroup == ProtoGroup.Jantou2;
       if (isJantou && arrangement.Jantou == 1)
       {
         return true;

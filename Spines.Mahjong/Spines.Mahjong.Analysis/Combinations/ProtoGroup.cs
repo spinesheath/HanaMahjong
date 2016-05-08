@@ -23,18 +23,18 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// <summary>
   /// An (in-)complete Group; either a mentsu or a jantou.
   /// </summary>
-  [DebuggerDisplay("ProtoGroup {Value}, {IsJantou}")]
+  [DebuggerDisplay("ProtoGroup {Value}")]
   internal class ProtoGroup
   {
     /// <summary>
     /// A full jantou.
     /// </summary>
-    public static readonly ProtoGroup Jantou2 = new ProtoGroup(2, new MentsuProtoGroupInserter(2, 2), true);
+    public static readonly ProtoGroup Jantou2 = new ProtoGroup(2, new MentsuProtoGroupInserter(2, 2));
 
     /// <summary>
     /// A jantou missing one tile.
     /// </summary>
-    public static readonly ProtoGroup Jantou1 = new ProtoGroup(1, new MentsuProtoGroupInserter(1, 2), true);
+    public static readonly ProtoGroup Jantou1 = new ProtoGroup(1, new MentsuProtoGroupInserter(1, 2));
 
     /// <summary>
     /// A full koutsu.
@@ -94,19 +94,16 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// <summary>
     /// Creates a new instance of ProtoGroup.
     /// </summary>
-    private ProtoGroup(int value, IProtoGroupInserter protoGroupInserter, bool isJantou = false)
+    private ProtoGroup(int value, IProtoGroupInserter protoGroupInserter)
     {
       Value = value;
       _protoGroupInserter = protoGroupInserter;
-      IsJantou = isJantou;
     }
 
     /// <summary>
     /// The Value of the ProtoGroup.
     /// </summary>
     public int Value { get; }
-
-    public bool IsJantou { get; }
 
     /// <summary>
     /// Can this ProtoGroup be used in an arrangement?
