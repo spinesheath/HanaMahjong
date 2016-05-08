@@ -32,7 +32,7 @@ namespace Spines.Mahjong.Analysis.Combinations
 
     public bool CanInsert(IReadOnlyList<int> concealedTiles, IReadOnlyList<int> usedTiles, int offset)
     {
-      return concealedTiles[offset] >= _required && usedTiles[offset] <= 4 - _occupied;
+      return (concealedTiles[offset] == _required || concealedTiles[offset] > _occupied) && usedTiles[offset] <= 4 - _occupied;
     }
 
     public void Insert(IList<int> concealedTiles, IList<int> usedTiles, int offset)

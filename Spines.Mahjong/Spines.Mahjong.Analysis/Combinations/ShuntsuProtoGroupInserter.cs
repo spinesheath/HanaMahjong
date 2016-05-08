@@ -38,15 +38,23 @@ namespace Spines.Mahjong.Analysis.Combinations
       {
         return false;
       }
-      if (usedTiles[offset + 0] == 4 ||
-          usedTiles[offset + 1] == 4 ||
-          usedTiles[offset + 2] == 4)
+      if (usedTiles[offset + 0] == 4 || usedTiles[offset + 1] == 4 || usedTiles[offset + 2] == 4)
       {
         return false;
       }
-      return concealedTiles[offset + 0] >= _requiredLeft &&
-             concealedTiles[offset + 1] >= _requiredMiddle &&
-             concealedTiles[offset + 2] >= _requiredRight;
+      return AreBothZeroOrNeither(concealedTiles[offset + 0], _requiredLeft) &&
+             AreBothZeroOrNeither(concealedTiles[offset + 1], _requiredMiddle) &&
+             AreBothZeroOrNeither(concealedTiles[offset + 2], _requiredRight);
+    }
+
+    /// <summary>
+    /// True if either both values are 0 or both values are not 0.
+    /// </summary>
+    private static bool AreBothZeroOrNeither(int lhs, int rhs)
+    {
+      var concealedZero = lhs == 0;
+      var requiredZero = rhs == 0;
+      return concealedZero == requiredZero;
     }
 
     public void Insert(IList<int> concealedTiles, IList<int> usedTiles, int offset)
