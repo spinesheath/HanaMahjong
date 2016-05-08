@@ -51,7 +51,6 @@
     <Compile Include="BitField.cs" />
     <Compile Include="ConsoleLogger.cs" />
     <Compile Include="EnumerableExtensions.cs" />
-    <Compile Include="CheckEquality.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="InvariantConvert.cs" />
     <Compile Include="NullLogger.cs" />

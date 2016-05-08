@@ -69,6 +69,24 @@ namespace Spines.Mahjong.Analysis.Combinations
     private int Id { get; }
 
     /// <summary>
+    /// Creates a new instance of Arrangement with an added jantou.
+    /// </summary>
+    public Arrangement AddJantou(int value)
+    {
+      Validate.InRange(value, 0, 3, nameof(value));
+      return new Arrangement(Jantou + 1, Mentsu, Value + value);
+    }
+
+    /// <summary>
+    /// Creates a new instance of Arrangement with an added mentsu.
+    /// </summary>
+    public Arrangement AddMentsu(int value)
+    {
+      Validate.InRange(value, 0, 3, nameof(value));
+      return new Arrangement(Jantou, Mentsu + 1, Value + value);
+    }
+
+    /// <summary>
     /// Indicates whether the current object is equal to another object of the same type.
     /// </summary>
     /// <returns>
@@ -89,24 +107,6 @@ namespace Spines.Mahjong.Analysis.Combinations
     }
 
     /// <summary>
-    /// Creates a new instance of Arrangement with an added jantou.
-    /// </summary>
-    public Arrangement AddJantou(int value)
-    {
-      Validate.InRange(value, 0, 3, nameof(value));
-      return new Arrangement(Jantou + 1, Mentsu, Value + value);
-    }
-
-    /// <summary>
-    /// Creates a new instance of Arrangement with an added mentsu.
-    /// </summary>
-    public Arrangement AddMentsu(int value)
-    {
-      Validate.InRange(value, 0, 3, nameof(value));
-      return new Arrangement(Jantou, Mentsu + 1, Value + value);
-    }
-
-    /// <summary>
     /// Determines whether the specified object is equal to the current object.
     /// </summary>
     /// <returns>
@@ -115,7 +115,19 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// <param name="obj">The object to compare with the current object. </param>
     public override bool Equals(object obj)
     {
-      return CheckEquality.WithIdenticalTypes(this, obj);
+      if (ReferenceEquals(null, obj))
+      {
+        return false;
+      }
+      if (ReferenceEquals(this, obj))
+      {
+        return true;
+      }
+      if (obj.GetType() != GetType())
+      {
+        return false;
+      }
+      return Equals((Arrangement) obj);
     }
 
     /// <summary>

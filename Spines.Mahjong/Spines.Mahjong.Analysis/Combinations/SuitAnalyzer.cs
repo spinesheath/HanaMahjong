@@ -67,7 +67,8 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// </summary>
     public IEnumerable<Arrangement> Analyze()
     {
-      var totalTiles = _concealed.Sum();
+      // All melds count as 3 tiles for determining worse arrangements.
+      var totalTiles = _concealed.Sum() + _meldCount * 3;
       var arrangement = new Arrangement(0, _meldCount, _meldCount * 3);
       Analyze(arrangement, 0, 0);
       return _arrangements.Where(a => !_arrangements.Any(other => IsWorseThan(a, other, totalTiles)));
@@ -75,10 +76,13 @@ namespace Spines.Mahjong.Analysis.Combinations
 
     /// <summary>
     /// Determines whether an arrangement is worse than another.
-    /// Correctness pending.
     /// </summary>
     private static bool IsWorseThan(Arrangement lhs, Arrangement rhs, int tileCount)
     {
+      if (lhs == rhs)
+      {
+        return false;
+      }
       // Not enough tiles in other suits to reach the same value.
       var tilesInOtherSuits = 14 - tileCount;
       if (lhs.Value + tilesInOtherSuits < rhs.Value)
