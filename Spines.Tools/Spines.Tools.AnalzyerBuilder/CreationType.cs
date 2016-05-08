@@ -21,6 +21,7 @@ namespace Spines.Tools.AnalyzerBuilder
   {
     Concealed,
     Melded,
-    Mixed
+    Mixed,
+    Analyzed
   }
 }

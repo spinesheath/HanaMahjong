@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.Analysis.Analyzer.cs
+﻿// Spines.Mahjong.Analysis.SuitAnalyzer.cs
 // 
 // Copyright (C) 2016  Johannes Heckl
 // 
@@ -17,10 +17,14 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.Combinations
 {
-  internal class Analyzer
+  /// <summary>
+  /// Analyzes the part of a hand in a single suit.
+  /// </summary>
+  public class SuitAnalyzer
   {
     private readonly ISet<Arrangement> _arrangements = new HashSet<Arrangement>();
     private readonly List<int> _concealed;
@@ -45,10 +49,14 @@ namespace Spines.Mahjong.Analysis.Combinations
     private readonly List<int> _used;
 
     /// <summary>
-    /// Creates a new instance of Analyzer.
+    /// Creates a new instance of SuitAnalyzer.
     /// </summary>
-    public Analyzer(Combination concealedTiles, Combination meldedTiles, int meldCount)
+    public SuitAnalyzer(Combination concealedTiles, Combination meldedTiles, int meldCount)
     {
+      Validate.NotNull(concealedTiles, nameof(concealedTiles));
+      Validate.NotNull(meldedTiles, nameof(meldedTiles));
+      Validate.InRange(meldCount, 0, 4, nameof(meldCount));
+
       _meldCount = meldCount;
       _concealed = concealedTiles.Counts.ToList();
       _used = meldedTiles.Counts.ToList();

@@ -50,7 +50,7 @@
     <Compile Include="Combinations\Arrangement.cs" />
     <Compile Include="Combinations\Combination.cs" />
     <Compile Include="Combinations\CombinationCreatorBase.cs" />
-    <Compile Include="Combinations\Analyzer.cs" />
+    <Compile Include="Combinations\SuitAnalyzer.cs" />
     <Compile Include="Combinations\IProtoGroupInserter.cs" />
     <Compile Include="Combinations\MeldedSuitCombinationsCreator.cs" />
     <Compile Include="Combinations\Mentsu.cs" />

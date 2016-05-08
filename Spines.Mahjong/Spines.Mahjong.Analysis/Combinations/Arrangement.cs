@@ -26,7 +26,7 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// Only for regular hand shapes of one pair and four mentsu.
   /// </summary>
   [DebuggerDisplay("Arrangement {Jantou}, {Mentsu}, {Value}")]
-  internal class Arrangement : IEquatable<Arrangement>
+  public class Arrangement : IEquatable<Arrangement>
   {
     /// <summary>
     /// Creates a new Arrangement.
@@ -129,11 +129,17 @@ namespace Spines.Mahjong.Analysis.Combinations
       return Id;
     }
 
+    /// <summary>
+    /// Checks if the Arrangements are equal.
+    /// </summary>
     public static bool operator ==(Arrangement left, Arrangement right)
     {
       return Equals(left, right);
     }
 
+    /// <summary>
+    /// Checks if the Arrangements are not equal.
+    /// </summary>
     public static bool operator !=(Arrangement left, Arrangement right)
     {
       return !Equals(left, right);

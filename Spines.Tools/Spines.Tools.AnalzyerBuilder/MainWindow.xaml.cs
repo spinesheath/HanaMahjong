@@ -35,21 +35,24 @@ namespace Spines.Tools.AnalyzerBuilder
     {
       {CreationType.Concealed, 15},
       {CreationType.Melded, 5},
-      {CreationType.Mixed, 15}
+      {CreationType.Mixed, 15},
+      {CreationType.Analyzed, 15}
     };
 
     private readonly IDictionary<CreationType, Func<int, IEnumerable<string>>> _creatorFuncs = new Dictionary<CreationType, Func<int, IEnumerable<string>>>
     {
       {CreationType.Concealed, CreateConcealedCombinations},
       {CreationType.Melded, CreateMeldedCombinations},
-      {CreationType.Mixed, CreateMixedCombinations}
+      {CreationType.Mixed, CreateMixedCombinations},
+      {CreationType.Analyzed, CreateAnalyzedCombinations}
     };
 
     private readonly IDictionary<CreationType, string> _prefixes = new Dictionary<CreationType, string>
     {
       {CreationType.Concealed, "ConcealedSuitCombinations"},
       {CreationType.Melded, "MeldedSuitCombinations"},
-      {CreationType.Mixed, "MixedSuitCombinations"}
+      {CreationType.Mixed, "MixedSuitCombinations"},
+      {CreationType.Analyzed, "AnayzedSuitCombinations"}
     };
 
     /// <summary>
@@ -60,9 +63,28 @@ namespace Spines.Tools.AnalyzerBuilder
       InitializeComponent();
     }
 
-    private void AnlyzeCombinations(object sender, RoutedEventArgs e)
+    private static IEnumerable<string> CreateAnalyzedCombinations(int count)
     {
-      
+      var maxMelds = (14 - count) / 3;
+      for (var meldCount = 0; meldCount <= maxMelds; ++meldCount)
+      {
+        var meldedCreator = new MeldedSuitCombinationsCreator();
+        var meldedCombinations = meldedCreator.Create(meldCount);
+        foreach (var meldedCombination in meldedCombinations)
+        {
+          var m = meldCount;
+          var concealedCreator = new ConcealedSuitCombinationCreator();
+          var combinations = concealedCreator.Create(count, meldedCombination);
+          foreach (var combination in combinations)
+          {
+            var analyzer = new SuitAnalyzer(combination, meldedCombination, m);
+            var arrangements = analyzer.Analyze();
+            var formattedArrangements = arrangements.Select(a => $"({a.Jantou},{a.Mentsu},{a.Value})");
+            var arrangementsString = string.Join("", formattedArrangements);
+            yield return $"{m}{string.Join("", meldedCombination.Counts)}{string.Join("", combination.Counts)}{arrangementsString}";
+          }
+        }
+      }
     }
 
     private void Create(CreationType creationType)
@@ -159,6 +181,11 @@ namespace Spines.Tools.AnalyzerBuilder
     private void CreateMixedCombinations(object sender, RoutedEventArgs e)
     {
       Create(CreationType.Mixed);
+    }
+
+    private void AnlyzeCombinations(object sender, RoutedEventArgs e)
+    {
+      Create(CreationType.Analyzed);
     }
   }
 }
