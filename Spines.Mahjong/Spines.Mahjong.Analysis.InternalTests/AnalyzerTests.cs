@@ -25,30 +25,37 @@ namespace Spines.Mahjong.Analysis.InternalTests
   [TestClass]
   public class AnalyzerTests
   {
-    private readonly Combination _emptyCombination = new Combination(new[] {0, 0, 0, 0, 0, 0, 0, 0, 0});
+    private readonly int[] _emptyCombination = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
     [TestMethod]
     public void TestEmptyHand()
     {
-      CheckHandWithoutMelds(1, new[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+      CheckHand(1, _emptyCombination, _emptyCombination, 0);
     }
 
     [TestMethod]
     public void TestHandsWithoutMelds()
     {
-      CheckHandWithoutMelds(3, new[] { 1, 0, 0, 0, 0, 0, 0, 0, 0 });
-      CheckHandWithoutMelds(3, new[] { 2, 0, 0, 0, 0, 0, 0, 0, 0 });
-      CheckHandWithoutMelds(2, new[] { 4, 4, 4, 0, 0, 0, 0, 0, 0 });
-      CheckHandWithoutMelds(2, new[] { 3, 1, 1, 1, 1, 1, 1, 1, 3 });
-      CheckHandWithoutMelds(1, new[] { 3, 1, 1, 1, 2, 1, 1, 1, 3 });
-      CheckHandWithoutMelds(8, new[] { 4, 0, 0, 1, 0, 0, 1, 0, 1 });
+      CheckHand(3, new[] { 1, 0, 0, 0, 0, 0, 0, 0, 0 }, _emptyCombination, 0);
+      CheckHand(3, new[] { 2, 0, 0, 0, 0, 0, 0, 0, 0 }, _emptyCombination, 0);
+      CheckHand(2, new[] { 4, 4, 4, 0, 0, 0, 0, 0, 0 }, _emptyCombination, 0);
+      CheckHand(2, new[] { 3, 1, 1, 1, 1, 1, 1, 1, 3 }, _emptyCombination, 0);
+      CheckHand(1, new[] { 3, 1, 1, 1, 2, 1, 1, 1, 3 }, _emptyCombination, 0);
+      CheckHand(8, new[] { 4, 0, 0, 1, 0, 0, 1, 0, 1 }, _emptyCombination, 0);
     }
 
-    private void CheckHandWithoutMelds(int expectedCount, IEnumerable<int> concealedTiles)
+    [TestMethod]
+    public void TestHandsWithMelds()
+    {
+      //4 000044440 200000000 (0, 4, 12)(1, 4, 14)
+      CheckHand(1, new[] { 2, 0, 0, 0, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 4, 4, 4, 4, 0 }, 4);
+    }
+
+    private static void CheckHand(int expectedCount, IEnumerable<int> concealedTiles, IEnumerable<int> meldedTiles, int meldCount)
     {
       var concealed = new Combination(concealedTiles);
-      var melded = _emptyCombination;
-      var analyzer = new Analyzer(concealed, melded, 0);
+      var melded = new Combination(meldedTiles);
+      var analyzer = new SuitAnalyzer(concealed, melded, meldCount);
       var arrangements = analyzer.Analyze();
       Assert.AreEqual(expectedCount, arrangements.Count(), "hand has wrong arrangement count");
     }

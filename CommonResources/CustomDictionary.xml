@@ -1,6 +1,7 @@
 <Dictionary>
   <Words>
     <Recognized>
+      <!--mahjong-->
       <Word>shanten</Word>
       <Word>tenhou</Word>
       <Word>tsumokiri</Word>
@@ -8,6 +9,8 @@
       <Word>nuki</Word>
       <Word>jantou</Word>
       <Word>mentsu</Word>
+      <!--general-->
+      <Word>rhs</Word>
     </Recognized>
   </Words>
 </Dictionary>
