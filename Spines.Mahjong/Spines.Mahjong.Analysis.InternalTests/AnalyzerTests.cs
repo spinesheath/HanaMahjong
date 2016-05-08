@@ -47,7 +47,6 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [TestMethod]
     public void TestHandsWithMelds()
     {
-      //4 000044440 200000000 (0, 4, 12)(1, 4, 14)
       CheckHand(1, new[] { 2, 0, 0, 0, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 4, 4, 4, 4, 0 }, 4);
     }
 
