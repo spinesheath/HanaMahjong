@@ -5,8 +5,6 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Mahjong.Analysis", "Spines.Mahjong.Analysis\Spines.Mahjong.Analysis.csproj", "{9203DC32-F5B6-47F7-9C66-CB98937534A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Utility", "..\Spines.Utility\Spines.Utility.csproj", "{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Tenhou.Client", "..\Spines.Tenhou\Spines.Tenhou.Client\Spines.Tenhou.Client.csproj", "{4F66968A-36E4-423D-9D0E-8AC5DC8C9B18}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Tenhou.ConsoleClient", "..\Spines.Tenhou\Spines.Tenhou.ConsoleClient\Spines.Tenhou.ConsoleClient.csproj", "{B19EB3E1-554A-4206-B77A-99DA114E3268}"
@@ -16,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Mahjong.LocalMatchViewer", "Spines.Mahjong.LocalMatchViewer\Spines.Mahjong.LocalMatchViewer.csproj", "{62D9179E-1865-432B-B4A9-831E8FEA6D72}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Mahjong.Analysis.InternalTests", "Spines.Mahjong.Analysis.InternalTests\Spines.Mahjong.Analysis.InternalTests.csproj", "{C232FC4A-10D7-48F3-B2C8-F97A4F9CFE2C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Utility", "..\Spines.Utility\Spines.Utility\Spines.Utility.csproj", "{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,10 +27,6 @@ Global
 		{9203DC32-F5B6-47F7-9C66-CB98937534A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9203DC32-F5B6-47F7-9C66-CB98937534A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9203DC32-F5B6-47F7-9C66-CB98937534A5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4F66968A-36E4-423D-9D0E-8AC5DC8C9B18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4F66968A-36E4-423D-9D0E-8AC5DC8C9B18}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F66968A-36E4-423D-9D0E-8AC5DC8C9B18}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -51,6 +47,10 @@ Global
 		{C232FC4A-10D7-48F3-B2C8-F97A4F9CFE2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C232FC4A-10D7-48F3-B2C8-F97A4F9CFE2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C232FC4A-10D7-48F3-B2C8-F97A4F9CFE2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

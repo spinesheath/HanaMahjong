@@ -63,9 +63,9 @@
     <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <CodeAnalysisDictionary Include="..\CommonResources\CustomDictionary.xml">
+    <Content Include="..\..\CommonResources\CustomDictionary.xml">
       <Link>CommonResources\CustomDictionary.xml</Link>
-    </CodeAnalysisDictionary>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

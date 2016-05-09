@@ -112,10 +112,9 @@
       <Project>{4F66968A-36E4-423D-9D0E-8AC5DC8C9B18}</Project>
       <Name>Spines.Tenhou.Client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Spines.Utility\Spines.Utility.csproj">
-      <Project>{1FFE50E9-3D4B-418F-B4CD-3FA10FF4848F}</Project>
+    <ProjectReference Include="..\..\Spines.Utility\Spines.Utility\Spines.Utility.csproj">
+      <Project>{1ffe50e9-3d4b-418f-b4cd-3fa10ff4848f}</Project>
       <Name>Spines.Utility</Name>
-      <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
