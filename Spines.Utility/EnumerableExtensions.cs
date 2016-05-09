@@ -15,7 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Spines.Utility
 {
@@ -30,6 +32,24 @@ namespace Spines.Utility
     public static IEnumerable<T> Yield<T>(this T value)
     {
       yield return value;
+    }
+
+    /// <summary>
+    /// Generates the cartesian product for a sequence of sequences.
+    /// </summary>
+    public static IEnumerable<IEnumerable<T>> CartesianProduct<T>(this IEnumerable<IEnumerable<T>> sequences)
+    {
+      // Start with a single empty sequence as the result of the cartesian product of 0 sequences.
+      return sequences.Aggregate(Enumerable.Empty<T>().Yield(), AccumulateCartesian);
+    }
+
+    /// <summary>
+    /// Appends a new sequence to the current accumulator for a cartesian product of multiple sequences.
+    /// </summary>
+    private static IEnumerable<IEnumerable<T>> AccumulateCartesian<T>(IEnumerable<IEnumerable<T>> accumulator, IEnumerable<T> sequence)
+    {
+      var list = sequence.ToList();
+      return accumulator.SelectMany(accumulatorSequence => list, (accumulatorSequence, item) => accumulatorSequence.Concat(item.Yield()));
     }
   }
 }
