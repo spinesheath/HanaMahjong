@@ -1,4 +1,4 @@
-﻿// Spines.Utility.Tests.EnumerableExtenstionsTests.cs
+﻿// Spines.Utility.Tests.EnumerableExtensionsTests.cs
 // 
 // Copyright (C) 2016  Johannes Heckl
 // 
@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,19 +23,19 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Spines.Utility.Tests
 {
   [TestClass]
-  public class EnumerableExtenstionsTests
+  public class EnumerableExtensionsTests
   {
     [TestMethod]
     public void TestCartesianProduct()
     {
-      var s = new List<IEnumerable<int>>
+      var source = new List<IEnumerable<int>>
       {
         new List<int> { 0, 1, 2 },
         new List<int> { 3, 4, 5 },
         new List<int> { 6, 7, 8 }
       };
-      var p = s.CartesianProduct();
-      Assert.AreEqual(9, p.Count());
+      var product = source.CartesianProduct();
+      Assert.AreEqual(27, product.Count());
     }
   }
 }
