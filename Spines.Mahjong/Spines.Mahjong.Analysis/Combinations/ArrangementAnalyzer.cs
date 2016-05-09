@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Spines.Utility;
@@ -42,7 +43,25 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// </summary>
     public int CalculateShanten()
     {
-      return 0;
+      var product = _sets.CartesianProduct();
+      var maxValue = 0;
+      foreach (var arrangements in product)
+      {
+        var mentsu = 0;
+        var jantou = 0;
+        var value = 0;
+        foreach (var arrangement in arrangements)
+        {
+          mentsu += arrangement.Mentsu;
+          jantou += arrangement.Jantou;
+          value += arrangement.Value;
+        }
+        if (mentsu <= 4 && jantou <= 1)
+        {
+          maxValue = Math.Max(maxValue, value);
+        }
+      }
+      return 13 - maxValue;
     }
   }
 }

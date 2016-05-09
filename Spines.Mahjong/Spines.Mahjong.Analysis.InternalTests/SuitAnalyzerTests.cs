@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.Analysis.InternalTests.AnalyzerTests.cs
+﻿// Spines.Mahjong.Analysis.InternalTests.SuitAnalyzerTests.cs
 // 
 // Copyright (C) 2016  Johannes Heckl
 // 
@@ -23,7 +23,7 @@ using Spines.Mahjong.Analysis.Combinations;
 namespace Spines.Mahjong.Analysis.InternalTests
 {
   [TestClass]
-  public class AnalyzerTests
+  public class SuitAnalyzerTests
   {
     private readonly int[] _emptyCombination = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
