@@ -51,6 +51,9 @@ namespace Spines.Utility
       IEnumerable<T> sequence)
     {
       var list = sequence.ToList();
+      // For each IEnumerable in the current accumulator, iterates over the next sequence.
+      // The second parameter of SelectMany is called for each element in the CartesianProduct of the current accumulator and the new sequence.
+      // Each of these calls returns a new element for the new accumulator.
       return accumulator.SelectMany(accumulatorSequence => list,
         (accumulatorSequence, item) => accumulatorSequence.Concat(item.Yield()));
     }
