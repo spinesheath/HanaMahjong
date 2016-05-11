@@ -25,66 +25,46 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// Information about an arrangement of tiles relevant for counting shanten.
   /// Only for regular hand shapes of one pair and four mentsu.
   /// </summary>
-  [DebuggerDisplay("Arrangement {Jantou}, {Mentsu}, {Value}")]
+  [DebuggerDisplay("Arrangement {JantouValue}, {MentsuCount}, {MentsuValue}")]
   public class Arrangement : IEquatable<Arrangement>
   {
     /// <summary>
     /// Creates a new Arrangement.
     /// </summary>
-    /// <param name="jantou">The number of pairs (complete or incomplete).</param>
-    /// <param name="mentsu">The number of groups (complete or incomplete).</param>
-    /// <param name="value">The number of tiles used in the pairs and groups.</param>
-    public Arrangement(int jantou, int mentsu, int value)
+    public Arrangement(int jantouValue, int mentsuCount, int mentsuValue)
     {
-      Jantou = Validate.InRange(jantou, 0, 1, nameof(jantou));
-      Mentsu = Validate.InRange(mentsu, 0, 4, nameof(jantou));
-      Value = Validate.InRange(value, 0, 14, nameof(jantou));
-      Id = Jantou * 50 + Mentsu * 7 + Value;
-    }
-
-    private Arrangement(int id)
-    {
-      Jantou = id / 50;
-      var withoutJantou = id - Jantou * 50;
-      Mentsu = withoutJantou / 7;
-      Value = withoutJantou - Mentsu * 7;
-      Id = id;
+      JantouValue = Validate.InRange(jantouValue, 0, 2, nameof(jantouValue));
+      MentsuCount = Validate.InRange(mentsuCount, 0, 4, nameof(mentsuCount));
+      MentsuValue = Validate.InRange(mentsuValue, 0, 12, nameof(mentsuValue));
+      Id = JantouValue * 25 + MentsuCount * (MentsuCount - 1) + MentsuValue;
     }
 
     /// <summary>
-    /// The number of pairs (complete or incomplete).
+    /// The valye of the pair (if present) in the arrangement (complete or incomplete).
     /// </summary>
-    public int Jantou { get; }
+    public int JantouValue { get; }
 
     /// <summary>
-    /// The number of groups (complete or incomplete).
+    /// The number of mentsu (complete or incomplete).
     /// </summary>
-    public int Mentsu { get; }
+    public int MentsuCount { get; }
 
     /// <summary>
-    /// The number of tiles used in the pairs and groups.
+    /// The number of tiles used in mentsu.
     /// </summary>
-    public int Value { get; }
+    public int MentsuValue { get; }
+
+    /// <summary>
+    /// The total value of the arrangement.
+    /// </summary>
+    public int TotalValue => MentsuValue + JantouValue;
+
+    /// <summary>
+    /// Does the arrangement have a jantou?
+    /// </summary>
+    public bool HasJantou => 0 != JantouValue;
 
     private int Id { get; }
-
-    /// <summary>
-    /// Creates a new instance of Arrangement with an added jantou.
-    /// </summary>
-    public Arrangement AddJantou(int value)
-    {
-      Validate.InRange(value, 0, 3, nameof(value));
-      return new Arrangement(Jantou + 1, Mentsu, Value + value);
-    }
-
-    /// <summary>
-    /// Creates a new instance of Arrangement with an added mentsu.
-    /// </summary>
-    public Arrangement AddMentsu(int value)
-    {
-      Validate.InRange(value, 0, 3, nameof(value));
-      return new Arrangement(Jantou, Mentsu + 1, Value + value);
-    }
 
     /// <summary>
     /// Indicates whether the current object is equal to another object of the same type.
@@ -104,6 +84,24 @@ namespace Spines.Mahjong.Analysis.Combinations
         return true;
       }
       return Id == other.Id;
+    }
+
+    /// <summary>
+    /// Creates a new instance of Arrangement with a different jantou value.
+    /// </summary>
+    public Arrangement SetJantouValue(int value)
+    {
+      Validate.InRange(value, 0, 2, nameof(value));
+      return new Arrangement(value, MentsuCount, MentsuValue);
+    }
+
+    /// <summary>
+    /// Creates a new instance of Arrangement with an added mentsu.
+    /// </summary>
+    public Arrangement AddMentsu(int value)
+    {
+      Validate.InRange(value, 0, 3, nameof(value));
+      return new Arrangement(JantouValue, MentsuCount + 1, MentsuValue + value);
     }
 
     /// <summary>

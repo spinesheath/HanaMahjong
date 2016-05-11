@@ -47,18 +47,18 @@ namespace Spines.Mahjong.Analysis.Combinations
       var maxValue = 0;
       foreach (var arrangements in product)
       {
-        var mentsu = 0;
-        var jantou = 0;
-        var value = 0;
+        var mentsuCount = 0;
+        var jantouValue = 0;
+        var mentsuValue = 0;
         foreach (var arrangement in arrangements)
         {
-          mentsu += arrangement.Mentsu;
-          jantou += arrangement.Jantou;
-          value += arrangement.Value;
+          mentsuCount += arrangement.MentsuCount;
+          jantouValue = Math.Max(jantouValue, arrangement.JantouValue);
+          mentsuValue += arrangement.MentsuValue;
         }
-        if (mentsu <= 4 && jantou <= 1)
+        if (mentsuCount <= 4)
         {
-          maxValue = Math.Max(maxValue, value);
+          maxValue = Math.Max(maxValue, mentsuValue + jantouValue);
         }
       }
       return 13 - maxValue;

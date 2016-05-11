@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Spines.Utility;
@@ -85,31 +86,31 @@ namespace Spines.Mahjong.Analysis.Combinations
       }
       // Not enough tiles in other suits to reach the same value.
       var tilesInOtherSuits = 14 - tileCount;
-      if (lhs.Value + tilesInOtherSuits < rhs.Value)
+      if (lhs.TotalValue + tilesInOtherSuits < rhs.TotalValue)
       {
         return true;
       }
       // Not enough unused groups to reach the same value in other suits.
-      var maxWithUnusedGroups = (4 - lhs.Mentsu) * 3 + (1 - lhs.Jantou) * 2;
-      if (lhs.Value + maxWithUnusedGroups < rhs.Value)
+      var maxWithUnusedGroups = (4 - lhs.MentsuCount) * 3 + (lhs.HasJantou ? 0 : 2);
+      if (lhs.TotalValue + maxWithUnusedGroups < rhs.TotalValue)
       {
         return true;
       }
-      // Equal pairs.
-      if (lhs.Jantou == rhs.Jantou)
+      // Both with or without jantou.
+      if (lhs.HasJantou == rhs.HasJantou)
       {
         // Perfect with more mentsu is better than perfect with less mentsu.
-        if (lhs.Mentsu < rhs.Mentsu)
+        if (lhs.MentsuCount < rhs.MentsuCount)
         {
           return IsPerfect(lhs) && IsPerfect(rhs);
         }
         // Same value with more mentsu is worse. With a larger mentsu difference, difference in value increases.
-        return lhs.Value - lhs.Mentsu < rhs.Value - rhs.Mentsu;
+        return lhs.TotalValue - lhs.MentsuCount < rhs.TotalValue - rhs.MentsuCount;
       }
       // Same value with more mentsu or pairs is worse.
-      if (lhs.Jantou == 1 && lhs.Mentsu >= rhs.Mentsu)
+      if (lhs.HasJantou && lhs.MentsuCount >= rhs.MentsuCount)
       {
-        return lhs.Value <= rhs.Value;
+        return lhs.TotalValue <= rhs.TotalValue;
       }
       // less pairs
       return false;
@@ -117,7 +118,7 @@ namespace Spines.Mahjong.Analysis.Combinations
 
     private static bool IsPerfect(Arrangement arrangement)
     {
-      return arrangement.Value == arrangement.Mentsu * 3 + arrangement.Jantou * 2;
+      return arrangement.MentsuValue == arrangement.MentsuCount * 3 && arrangement.JantouValue != 1;
     }
 
     private void Analyze(Arrangement arrangement, int currentTileType, int currentProtoGroup)
@@ -139,7 +140,7 @@ namespace Spines.Mahjong.Analysis.Combinations
         }
         protoGroup.Insert(_concealed, _used, currentTileType);
         var isJantou = protoGroup == ProtoGroup.Jantou1 || protoGroup == ProtoGroup.Jantou2;
-        var added = isJantou ? arrangement.AddJantou(protoGroup.Value) : arrangement.AddMentsu(protoGroup.Value);
+        var added = isJantou ? arrangement.SetJantouValue(protoGroup.Value) : arrangement.AddMentsu(protoGroup.Value);
         Analyze(added, currentTileType, i);
         protoGroup.Remove(_concealed, _used, currentTileType);
       }
@@ -148,11 +149,11 @@ namespace Spines.Mahjong.Analysis.Combinations
     private bool CanNotInsert(Arrangement arrangement, int currentTileType, ProtoGroup protoGroup)
     {
       var isJantou = protoGroup == ProtoGroup.Jantou1 || protoGroup == ProtoGroup.Jantou2;
-      if (isJantou && arrangement.Jantou == 1)
+      if (isJantou && arrangement.JantouValue != 0)
       {
         return true;
       }
-      if (!isJantou && arrangement.Mentsu == 4)
+      if (!isJantou && arrangement.MentsuCount == 4)
       {
         return true;
       }

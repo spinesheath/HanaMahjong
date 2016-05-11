@@ -79,7 +79,7 @@ namespace Spines.Tools.AnalyzerBuilder
           {
             var analyzer = new SuitAnalyzer(combination, meldedCombination, m);
             var arrangements = analyzer.Analyze();
-            var formattedArrangements = arrangements.Select(a => $"({a.Jantou},{a.Mentsu},{a.Value})");
+            var formattedArrangements = arrangements.Select(a => $"({a.JantouValue},{a.MentsuCount},{a.MentsuValue})");
             var arrangementsString = string.Join("", formattedArrangements);
             yield return $"{m}{string.Join("", meldedCombination.Counts)}{string.Join("", combination.Counts)}{arrangementsString}";
           }
