@@ -84,6 +84,11 @@ namespace Spines.Mahjong.Analysis.Combinations
       {
         return false;
       }
+      // Same mentsu but better pairs.
+      if (lhs.JantouValue < rhs.JantouValue && lhs.MentsuCount == rhs.MentsuCount && lhs.MentsuValue == rhs.MentsuValue)
+      {
+        return true;
+      }
       // Not enough tiles in other suits to reach the same value.
       var tilesInOtherSuits = 14 - tileCount;
       if (lhs.TotalValue + tilesInOtherSuits < rhs.TotalValue)
@@ -112,7 +117,6 @@ namespace Spines.Mahjong.Analysis.Combinations
       {
         return lhs.TotalValue <= rhs.TotalValue;
       }
-      // less pairs
       return false;
     }
 
