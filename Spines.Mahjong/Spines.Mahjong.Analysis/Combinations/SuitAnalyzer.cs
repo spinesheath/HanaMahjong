@@ -94,6 +94,11 @@ namespace Spines.Mahjong.Analysis.Combinations
       {
         return true;
       }
+      // If there are no tiles in other suits and the total value is equal, take the higher mentsu value (arbitrary choice).
+      if (tilesInOtherSuits == 0 && lhs.TotalValue == rhs.TotalValue && lhs.MentsuValue < rhs.MentsuValue)
+      {
+        return true;
+      }
       // Not enough unused groups to reach the same value in other suits.
       var maxWithUnusedGroups = (4 - lhs.MentsuCount) * 3 + (lhs.HasJantou ? 0 : 2);
       if (lhs.TotalValue + maxWithUnusedGroups < rhs.TotalValue)

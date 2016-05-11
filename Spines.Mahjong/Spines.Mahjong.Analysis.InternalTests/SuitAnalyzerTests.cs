@@ -48,6 +48,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     public void TestHandsWithMelds()
     {
       CheckHand(1, new[] { 2, 0, 0, 0, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 4, 4, 4, 4, 0 }, 4);
+      CheckHand(1, new[] { 4, 3, 0, 1, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 0, 0, 4, 3 }, 2);
     }
 
     private static void CheckHand(int expectedCount, IEnumerable<int> concealedTiles, IEnumerable<int> meldedTiles, int meldCount)
