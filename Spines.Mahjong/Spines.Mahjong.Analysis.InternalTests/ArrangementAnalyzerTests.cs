@@ -28,32 +28,29 @@ namespace Spines.Mahjong.Analysis.InternalTests
     public void TestArrangementAnalyzer()
     {
       // Randomly picked 2 shanten hand. 34467p 44446s 3447m
-      var pinzu = new[] // 001201100
+      var pinzu = new[] // 001201100 (0,3,5)(1,2,4)(2,0,0)(2,1,2)(2,2,3)
       {
-        new Arrangement(0, 0, 0),
-        new Arrangement(0, 1, 2),
-        new Arrangement(1, 0, 2),
-        new Arrangement(1, 1, 4),
-        new Arrangement(0, 2, 4), // 2 incomplete mentsu
-        new Arrangement(1, 2, 5),
-        new Arrangement(0, 3, 5)
+        new Arrangement(0, 3, 5),
+        new Arrangement(1, 2, 4), // 2 incomplete mentsu
+        new Arrangement(2, 0, 0),
+        new Arrangement(2, 1, 2),
+        new Arrangement(2, 2, 3) 
       };
-      var souzu = new[] // 000401000
+      var souzu = new[] // 000401000 (0,2,5)(1,1,3)(2,0,0)(2,1,2)
       {
-        new Arrangement(1, 0, 2),
-        new Arrangement(1, 1, 4),
         new Arrangement(0, 2, 5), // 1 incomplete and 1 complete mentsu
-        new Arrangement(0, 1, 3)
-      };
-      var manzu = new[] // 001200100
-      {
-        new Arrangement(0, 0, 0),
-        new Arrangement(1, 0, 2), // 1 complete pair
         new Arrangement(1, 1, 3),
-        new Arrangement(0, 1, 2),
-        new Arrangement(0, 2, 3),
-        new Arrangement(1, 2, 4),
-        new Arrangement(0, 3, 4)
+        new Arrangement(2, 0, 0),
+        new Arrangement(2, 1, 2)
+      };
+      var manzu = new[] // 001200100 (0,3,4)(1,1,2)(1,2,3)(2,0,0)(2,1,1)(2,2,2)
+      {
+        new Arrangement(0, 3, 4),
+        new Arrangement(1, 1, 2), 
+        new Arrangement(1, 2, 3),
+        new Arrangement(2, 0, 0), // 1 complete pair
+        new Arrangement(2, 1, 1),
+        new Arrangement(2, 2, 2)
       };
       var honor = new Arrangement(0, 0, 0).Yield();
 
