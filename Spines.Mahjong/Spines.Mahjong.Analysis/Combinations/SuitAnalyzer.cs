@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Spines.Utility;
@@ -72,7 +71,7 @@ namespace Spines.Mahjong.Analysis.Combinations
       var totalTiles = _concealed.Sum() + _meldCount * 3;
       var arrangement = new Arrangement(0, _meldCount, _meldCount * 3);
       Analyze(arrangement, 0, 0);
-      return _arrangements.Where(a => !_arrangements.Any(other => IsWorseThan(a, other, totalTiles)));
+      return _arrangements.Where(a => !_arrangements.Any(other => IsWorseThan(a, other, totalTiles))).OrderBy(a => a.Id);
     }
 
     /// <summary>

@@ -64,7 +64,10 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// </summary>
     public bool HasJantou => 0 != JantouValue;
 
-    private int Id { get; }
+    /// <summary>
+    /// The Id of the arrangement.
+    /// </summary>
+    public int Id { get; }
 
     /// <summary>
     /// Indicates whether the current object is equal to another object of the same type.
