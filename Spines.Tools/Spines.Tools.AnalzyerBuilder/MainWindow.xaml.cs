@@ -133,6 +133,7 @@ namespace Spines.Tools.AnalyzerBuilder
       IncrementProgressBar();
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object,System.Object)")]
     private void WriteToFile(string workingDirectory, int count, IEnumerable<string> lines, CreationType creationType)
     {
       var prefix = _prefixes[creationType];
@@ -211,11 +212,11 @@ namespace Spines.Tools.AnalyzerBuilder
     {
       var arrangements = CreateAllArrangements(tileCount).ToList();
       var comparer = new ArrangementComparer(tileCount);
-      yield return ";" + string.Join(";", arrangements.Select(GetArrangementText));
+      yield return ";" + string.Join(";", arrangements);
       foreach (var a in arrangements)
       {
         var sb = new StringBuilder();
-        sb.Append(GetArrangementText(a));
+        sb.Append(a);
         sb.Append(";");
         foreach (var b in arrangements)
         {
@@ -240,11 +241,6 @@ namespace Spines.Tools.AnalyzerBuilder
         }
         yield return sb.ToString();
       }
-    }
-
-    private static string GetArrangementText(Arrangement arrangement)
-    {
-      return $"({arrangement.JantouValue}, {arrangement.MentsuCount}, {arrangement.MentsuValue})";
     }
 
     private static IEnumerable<Arrangement> CreateAllArrangements(int totalTiles)
