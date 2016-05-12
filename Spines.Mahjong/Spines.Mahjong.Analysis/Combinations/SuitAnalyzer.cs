@@ -102,7 +102,11 @@ namespace Spines.Mahjong.Analysis.Combinations
       // If there is exactly one tile in other suits:
       if (tilesInOtherSuits == 1)
       {
-        if (lhs.HasJantou && rhs.HasJantou && lhs.TotalValue <= rhs.TotalValue && lhs.MentsuValue < rhs.MentsuValue)
+        if (lhs.TotalValue < rhs.TotalValue)
+        {
+          return true;
+        }
+        if (lhs.HasJantou && rhs.HasJantou && lhs.TotalValue == rhs.TotalValue && lhs.MentsuValue < rhs.MentsuValue)
         {
           return true;
         }

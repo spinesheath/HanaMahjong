@@ -50,6 +50,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
       CheckHand(1, new[] { 2, 0, 0, 0, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 4, 4, 4, 4, 0 }, 4);
       CheckHand(1, new[] { 4, 3, 0, 1, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 0, 0, 4, 3 }, 2);
       CheckHand(1, new[] { 4, 2, 0, 1, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 0, 0, 4, 3 }, 2);
+      CheckHand(1, new[] { 4, 0, 3, 0, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 0, 0, 4, 3 }, 2);
     }
 
     private static void CheckHand(int expectedCount, IList<int> concealedTiles, IList<int> meldedTiles, int meldCount)
