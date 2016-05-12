@@ -99,6 +99,14 @@ namespace Spines.Mahjong.Analysis.Combinations
       {
         return true;
       }
+      // If there is exactly one tile in other suits:
+      if (tilesInOtherSuits == 1)
+      {
+        if (lhs.HasJantou && rhs.HasJantou && lhs.TotalValue <= rhs.TotalValue && lhs.MentsuValue < rhs.MentsuValue)
+        {
+          return true;
+        }
+      }
       // Not enough unused groups to reach the same value in other suits.
       var maxWithUnusedGroups = (4 - lhs.MentsuCount) * 3 + (lhs.HasJantou ? 0 : 2);
       if (lhs.TotalValue + maxWithUnusedGroups < rhs.TotalValue)

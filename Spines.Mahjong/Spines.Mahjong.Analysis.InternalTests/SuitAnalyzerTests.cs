@@ -38,7 +38,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     {
       CheckHand(2, new[] { 1, 0, 0, 0, 0, 0, 0, 0, 0 }, _emptyCombination, 0);
       CheckHand(2, new[] { 4, 4, 4, 0, 0, 0, 0, 0, 0 }, _emptyCombination, 0);
-      CheckHand(2, new[] { 3, 1, 1, 1, 1, 1, 1, 1, 3 }, _emptyCombination, 0);
+      CheckHand(1, new[] { 3, 1, 1, 1, 1, 1, 1, 1, 3 }, _emptyCombination, 0);
       CheckHand(1, new[] { 3, 1, 1, 1, 2, 1, 1, 1, 3 }, _emptyCombination, 0);
       CheckHand(6, new[] { 4, 0, 0, 1, 0, 0, 1, 0, 1 }, _emptyCombination, 0);
       CheckHand(6, new[] { 0, 0, 0, 4, 3, 0, 1, 0, 0 }, _emptyCombination, 0);
@@ -49,15 +49,19 @@ namespace Spines.Mahjong.Analysis.InternalTests
     {
       CheckHand(1, new[] { 2, 0, 0, 0, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 4, 4, 4, 4, 0 }, 4);
       CheckHand(1, new[] { 4, 3, 0, 1, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 0, 0, 4, 3 }, 2);
+      CheckHand(1, new[] { 4, 2, 0, 1, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 0, 0, 4, 3 }, 2);
     }
 
-    private static void CheckHand(int expectedCount, IEnumerable<int> concealedTiles, IEnumerable<int> meldedTiles, int meldCount)
+    private static void CheckHand(int expectedCount, IList<int> concealedTiles, IList<int> meldedTiles, int meldCount)
     {
       var concealed = new Combination(concealedTiles);
       var melded = new Combination(meldedTiles);
       var analyzer = new SuitAnalyzer(concealed, melded, meldCount);
-      var arrangements = analyzer.Analyze();
-      Assert.AreEqual(expectedCount, arrangements.Count(), "hand has wrong arrangement count");
+      var arrangements = analyzer.Analyze().ToList();
+      var hand = $"({string.Join("", concealedTiles)})({string.Join("", meldedTiles)})({meldCount})";
+      var arrangementTexts = arrangements.Select(a => $"({a.JantouValue}, {a.MentsuCount}, {a.MentsuValue})");
+      var message = $"hand {hand} has wrong arrangements: {string.Join("", arrangementTexts)}";
+      Assert.AreEqual(expectedCount, arrangements.Count, message);
     }
   }
 }
