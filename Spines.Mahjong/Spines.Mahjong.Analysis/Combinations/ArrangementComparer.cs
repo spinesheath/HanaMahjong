@@ -64,6 +64,11 @@ namespace Spines.Mahjong.Analysis.Combinations
       {
         return true;
       }
+      // Same TotalValue and MentsuCount, but higher PairValue is worse.
+      if (lhs.JantouValue > rhs.JantouValue && lhs.MentsuCount == rhs.MentsuCount && lhs.TotalValue == rhs.TotalValue)
+      {
+        return true;
+      }
       // Not enough tiles in other suits to reach the same value.
       var tilesInOtherSuits = 14 - _tileCount;
       if (lhs.TotalValue + tilesInOtherSuits < rhs.TotalValue)
@@ -94,20 +99,23 @@ namespace Spines.Mahjong.Analysis.Combinations
         return true;
       }
       // Both with or without jantou.
-      if (lhs.HasJantou == rhs.HasJantou)
+      if (lhs.JantouValue == rhs.JantouValue)
       {
         // Perfect with more mentsu is better than perfect with less mentsu.
         if (lhs.MentsuCount < rhs.MentsuCount)
         {
           return IsPerfect(lhs) && IsPerfect(rhs);
         }
+        // Lower value with same MentsuCount is worse.
+        if (lhs.MentsuCount == rhs.MentsuCount)
+        {
+          return lhs.MentsuValue < rhs.MentsuValue;
+        }
         // Same value with more mentsu is worse.
-        return lhs.TotalValue < rhs.TotalValue;
-      }
-      // Same value with more mentsu or pairs is worse.
-      if (lhs.HasJantou && lhs.MentsuCount >= rhs.MentsuCount)
-      {
-        return lhs.TotalValue <= rhs.TotalValue;
+        if (lhs.MentsuCount > rhs.MentsuCount)
+        {
+          return lhs.TotalValue <= rhs.TotalValue;
+        }
       }
       return false;
     }

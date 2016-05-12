@@ -40,8 +40,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
       CheckHand(2, new[] { 4, 4, 4, 0, 0, 0, 0, 0, 0 }, _emptyCombination, 0);
       CheckHand(1, new[] { 3, 1, 1, 1, 1, 1, 1, 1, 3 }, _emptyCombination, 0);
       CheckHand(1, new[] { 3, 1, 1, 1, 2, 1, 1, 1, 3 }, _emptyCombination, 0);
-      CheckHand(6, new[] { 4, 0, 0, 1, 0, 0, 1, 0, 1 }, _emptyCombination, 0);
-      CheckHand(6, new[] { 0, 0, 0, 4, 3, 0, 1, 0, 0 }, _emptyCombination, 0);
+      CheckHand(5, new[] { 4, 0, 0, 1, 0, 0, 1, 0, 1 }, _emptyCombination, 0);
+      CheckHand(4, new[] { 0, 0, 0, 4, 3, 0, 1, 0, 0 }, _emptyCombination, 0);
     }
 
     [TestMethod]
