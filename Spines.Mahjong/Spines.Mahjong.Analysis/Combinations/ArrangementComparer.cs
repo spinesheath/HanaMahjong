@@ -101,8 +101,8 @@ namespace Spines.Mahjong.Analysis.Combinations
         {
           return IsPerfect(lhs) && IsPerfect(rhs);
         }
-        // Same value with more mentsu is worse. With a larger mentsu difference, difference in value increases.
-        return lhs.TotalValue - lhs.MentsuCount < rhs.TotalValue - rhs.MentsuCount;
+        // Same value with more mentsu is worse.
+        return lhs.TotalValue < rhs.TotalValue;
       }
       // Same value with more mentsu or pairs is worse.
       if (lhs.HasJantou && lhs.MentsuCount >= rhs.MentsuCount)

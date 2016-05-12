@@ -157,5 +157,17 @@ namespace Spines.Mahjong.Analysis.Combinations
     {
       return !Equals(left, right);
     }
+
+    /// <summary>
+    /// Returns a string that represents the current object.
+    /// </summary>
+    /// <returns>
+    /// A string that represents the current object.
+    /// </returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object,System.Object)")]
+    public override string ToString()
+    {
+      return $"({JantouValue}, {MentsuCount}, {MentsuValue})";
+    }
   }
 }
