@@ -67,78 +67,10 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// </summary>
     public IEnumerable<Arrangement> Analyze()
     {
-      // All melds count as 3 tiles for determining worse arrangements.
-      var totalTiles = _concealed.Sum() + _meldCount * 3;
+      var comparer = new ArrangementComparer(_concealed, _meldCount);
       var arrangement = new Arrangement(0, _meldCount, _meldCount * 3);
       Analyze(arrangement, 0, 0);
-      return _arrangements.Where(a => !_arrangements.Any(other => IsWorseThan(a, other, totalTiles))).OrderBy(a => a.Id);
-    }
-
-    /// <summary>
-    /// Determines whether an arrangement is worse than another.
-    /// </summary>
-    private static bool IsWorseThan(Arrangement lhs, Arrangement rhs, int tileCount)
-    {
-      if (lhs == rhs)
-      {
-        return false;
-      }
-      // Same mentsu but better pairs.
-      if (lhs.JantouValue < rhs.JantouValue && lhs.MentsuCount == rhs.MentsuCount && lhs.MentsuValue == rhs.MentsuValue)
-      {
-        return true;
-      }
-      // Not enough tiles in other suits to reach the same value.
-      var tilesInOtherSuits = 14 - tileCount;
-      if (lhs.TotalValue + tilesInOtherSuits < rhs.TotalValue)
-      {
-        return true;
-      }
-      // If there are no tiles in other suits and the total value is equal, take the higher mentsu value (arbitrary choice).
-      if (tilesInOtherSuits == 0 && lhs.TotalValue == rhs.TotalValue && lhs.MentsuValue < rhs.MentsuValue)
-      {
-        return true;
-      }
-      // If there is exactly one tile in other suits:
-      if (tilesInOtherSuits == 1)
-      {
-        if (lhs.TotalValue < rhs.TotalValue)
-        {
-          return true;
-        }
-        if (lhs.HasJantou && rhs.HasJantou && lhs.TotalValue == rhs.TotalValue && lhs.MentsuValue < rhs.MentsuValue)
-        {
-          return true;
-        }
-      }
-      // Not enough unused groups to reach the same value in other suits.
-      var maxWithUnusedGroups = (4 - lhs.MentsuCount) * 3 + (lhs.HasJantou ? 0 : 2);
-      if (lhs.TotalValue + maxWithUnusedGroups < rhs.TotalValue)
-      {
-        return true;
-      }
-      // Both with or without jantou.
-      if (lhs.HasJantou == rhs.HasJantou)
-      {
-        // Perfect with more mentsu is better than perfect with less mentsu.
-        if (lhs.MentsuCount < rhs.MentsuCount)
-        {
-          return IsPerfect(lhs) && IsPerfect(rhs);
-        }
-        // Same value with more mentsu is worse. With a larger mentsu difference, difference in value increases.
-        return lhs.TotalValue - lhs.MentsuCount < rhs.TotalValue - rhs.MentsuCount;
-      }
-      // Same value with more mentsu or pairs is worse.
-      if (lhs.HasJantou && lhs.MentsuCount >= rhs.MentsuCount)
-      {
-        return lhs.TotalValue <= rhs.TotalValue;
-      }
-      return false;
-    }
-
-    private static bool IsPerfect(Arrangement arrangement)
-    {
-      return arrangement.MentsuValue == arrangement.MentsuCount * 3 && arrangement.JantouValue != 1;
+      return _arrangements.Where(a => !_arrangements.Any(other => comparer.IsWorseThan(a, other))).OrderBy(a => a.Id);
     }
 
     private void Analyze(Arrangement arrangement, int currentTileType, int currentProtoGroup)
