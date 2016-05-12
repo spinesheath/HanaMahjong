@@ -40,6 +40,14 @@ namespace Spines.Mahjong.Analysis.Combinations
     }
 
     /// <summary>
+    /// Creates a new instance of ArrangementComparer.
+    /// </summary>
+    public ArrangementComparer(int tileCount)
+    {
+      _tileCount = Validate.InRange(tileCount, 0, 14, nameof(tileCount));
+    }
+
+    /// <summary>
     /// Determines whether an arrangement is worse than another.
     /// </summary>
     public bool IsWorseThan(Arrangement lhs, Arrangement rhs)

@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.WindowsAPICodePack.Dialogs;
@@ -36,7 +37,8 @@ namespace Spines.Tools.AnalyzerBuilder
       {CreationType.Concealed, 15},
       {CreationType.Melded, 5},
       {CreationType.Mixed, 15},
-      {CreationType.Analyzed, 15}
+      {CreationType.Analyzed, 15},
+      {CreationType.ArrangementCsv, 15}
     };
 
     private readonly IDictionary<CreationType, Func<int, IEnumerable<string>>> _creatorFuncs = new Dictionary<CreationType, Func<int, IEnumerable<string>>>
@@ -44,7 +46,8 @@ namespace Spines.Tools.AnalyzerBuilder
       {CreationType.Concealed, CreateConcealedCombinations},
       {CreationType.Melded, CreateMeldedCombinations},
       {CreationType.Mixed, CreateMixedCombinations},
-      {CreationType.Analyzed, CreateAnalyzedCombinations}
+      {CreationType.Analyzed, CreateAnalyzedCombinations},
+      {CreationType.ArrangementCsv, CreateArrangementCsvLines}
     };
 
     private readonly IDictionary<CreationType, string> _prefixes = new Dictionary<CreationType, string>
@@ -52,7 +55,17 @@ namespace Spines.Tools.AnalyzerBuilder
       {CreationType.Concealed, "ConcealedSuitCombinations"},
       {CreationType.Melded, "MeldedSuitCombinations"},
       {CreationType.Mixed, "MixedSuitCombinations"},
-      {CreationType.Analyzed, "AnayzedSuitCombinations"}
+      {CreationType.Analyzed, "AnayzedSuitCombinations"},
+      {CreationType.ArrangementCsv, "ArrangementCsv"}
+    };
+
+    private readonly IDictionary<CreationType, string> _fileTypes = new Dictionary<CreationType, string>
+    {
+      {CreationType.Concealed, "txt"},
+      {CreationType.Melded, "txt"},
+      {CreationType.Mixed, "txt"},
+      {CreationType.Analyzed, "txt"},
+      {CreationType.ArrangementCsv, "csv"}
     };
 
     /// <summary>
@@ -116,14 +129,15 @@ namespace Spines.Tools.AnalyzerBuilder
     private void CreateCombinationFile(int count, string workingDirectory, CreationType creationType)
     {
       var lines = _creatorFuncs[creationType].Invoke(count);
-      var prefix = _prefixes[creationType];
-      WriteToFile(workingDirectory, prefix, count, lines);
+      WriteToFile(workingDirectory, count, lines, creationType);
       IncrementProgressBar();
     }
 
-    private static void WriteToFile(string workingDirectory, string prefix, int count, IEnumerable<string> lines)
+    private void WriteToFile(string workingDirectory, int count, IEnumerable<string> lines, CreationType creationType)
     {
-      var fileName = $"{prefix}_{count}.txt";
+      var prefix = _prefixes[creationType];
+      var fileType = _fileTypes[creationType];
+      var fileName = $"{prefix}_{count}.{fileType}";
       var path = Path.Combine(workingDirectory, fileName);
       File.WriteAllLines(path, lines);
     }
@@ -186,6 +200,69 @@ namespace Spines.Tools.AnalyzerBuilder
     private void AnlyzeCombinations(object sender, RoutedEventArgs e)
     {
       Create(CreationType.Analyzed);
+    }
+
+    private void CreateArrangementCsv(object sender, RoutedEventArgs e)
+    {
+      Create(CreationType.ArrangementCsv);
+    }
+
+    private static IEnumerable<string> CreateArrangementCsvLines(int tileCount)
+    {
+      var arrangements = CreateAllArrangements(tileCount).ToList();
+      var comparer = new ArrangementComparer(tileCount);
+      yield return ";" + string.Join(";", arrangements.Select(GetArrangementText));
+      foreach (var a in arrangements)
+      {
+        var sb = new StringBuilder();
+        sb.Append(GetArrangementText(a));
+        sb.Append(";");
+        foreach (var b in arrangements)
+        {
+          var worse = comparer.IsWorseThan(a, b);
+          var better = comparer.IsWorseThan(b, a);
+          if (worse && better)
+          {
+            sb.Append("x;");
+          }
+          else if(better)
+          {
+            sb.Append("b;");
+          }
+          else if (worse)
+          {
+            sb.Append("w;");
+          }
+          else
+          {
+            sb.Append("o;");
+          }
+        }
+        yield return sb.ToString();
+      }
+    }
+
+    private static string GetArrangementText(Arrangement arrangement)
+    {
+      return $"({arrangement.JantouValue}, {arrangement.MentsuCount}, {arrangement.MentsuValue})";
+    }
+
+    private static IEnumerable<Arrangement> CreateAllArrangements(int totalTiles)
+    {
+      for (var jantouValue = 0; jantouValue <= 2; ++jantouValue)
+      {
+        for (var mentsuCount = 0; mentsuCount <= 4; ++mentsuCount)
+        {
+          for (var mentsuValue = mentsuCount; mentsuValue <= mentsuCount * 3; ++mentsuValue)
+          {
+            var arrangement = new Arrangement(jantouValue, mentsuCount, mentsuValue);
+            if (arrangement.TotalValue <= totalTiles)
+            {
+              yield return arrangement;
+            }
+          }
+        }
+      }
     }
   }
 }

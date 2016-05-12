@@ -22,6 +22,7 @@ namespace Spines.Tools.AnalyzerBuilder
     Concealed,
     Melded,
     Mixed,
-    Analyzed
+    Analyzed,
+    ArrangementCsv
   }
 }
