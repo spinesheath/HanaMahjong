@@ -116,6 +116,27 @@ namespace Spines.Tools.AnalyzerBuilder
       }
     }
 
+    private void CountArrangementCombinations(object sender, RoutedEventArgs e)
+    {
+      using (var dialog = new CommonOpenFileDialog())
+      {
+        dialog.IsFolderPicker = true;
+        dialog.EnsurePathExists = true;
+        var result = dialog.ShowDialog(this);
+        if (result != CommonFileDialogResult.Ok)
+        {
+          return;
+        }
+        var workingDirectory = dialog.FileNames.Single();
+        var prefix = _prefixes[CreationType.Analyzed];
+        var files = Directory.GetFiles(workingDirectory).Where(f => f.Contains(prefix));
+        var lines = files.SelectMany(File.ReadAllLines);
+        var combinations = lines.Select(line => line.Substring(19));
+        var unique = combinations.Distinct();
+        MessageBox.Show(this, unique.Count().ToString(), "Unique Arrangement Combinations", MessageBoxButton.OK);
+      }
+    }
+
     private async void CreateCombinationsAsync(string workingDirectory, CreationType creationType)
     {
       var creationCount = _creationCounts[creationType];
@@ -133,7 +154,6 @@ namespace Spines.Tools.AnalyzerBuilder
       IncrementProgressBar();
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object,System.Object)")]
     private void WriteToFile(string workingDirectory, int count, IEnumerable<string> lines, CreationType creationType)
     {
       var prefix = _prefixes[creationType];

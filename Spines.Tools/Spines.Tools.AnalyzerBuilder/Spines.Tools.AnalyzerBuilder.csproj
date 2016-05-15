@@ -27,7 +27,7 @@
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DocumentationFile>bin\Debug\Spines.Tools.AnalyzerBuilder.XML</DocumentationFile>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>Spines.Tools.AnalyzerBuilder.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
   </PropertyGroup>
@@ -42,6 +42,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DocumentationFile>bin\Release\Spines.Tools.AnalyzerBuilder.XML</DocumentationFile>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <CodeAnalysisRuleSet>Spines.Tools.AnalyzerBuilder.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -114,6 +115,7 @@
     </None>
     <AppDesigner Include="Properties\" />
     <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />
+    <None Include="Spines.Tools.AnalyzerBuilder.ruleset" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
