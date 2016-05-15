@@ -48,7 +48,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// Usage:
     /// int current = 0;
     /// foreach(int c in word)
-    /// current = table[current + c];
+    ///   current = table[current + c];
     /// return current;
     /// </summary>
     public int[] GetCompactTransitions()
@@ -61,7 +61,7 @@ namespace Spines.Mahjong.Analysis.Classification
         foreach (var state in row)
         {
           state.Value.Id = id;
-          ++id;
+          id += 1;
         }
       }
       // Create the actual machine.
@@ -117,13 +117,10 @@ namespace Spines.Mahjong.Analysis.Classification
 
     public State TryGetEquivalentUniqueState(State state, int height)
     {
+      var statesAtHeight = _uniqueStates[height];
       State uniqueState;
-      var isRedundant = _uniqueStates[height].TryGetValue(state, out uniqueState);
-      if (isRedundant)
-      {
-        return uniqueState;
-      }
-      return null;
+      var isRedundant = statesAtHeight.TryGetValue(state, out uniqueState);
+      return isRedundant ? uniqueState : null;
     }
 
     public State GetOrCreateFinalState(int value)

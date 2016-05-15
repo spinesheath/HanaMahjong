@@ -41,15 +41,15 @@ namespace Spines.Mahjong.Analysis.Classification
 
     public State Clone(int alphabetSize)
     {
-      var s = new State(alphabetSize);
+      var state = new State(alphabetSize);
       for (var i = 0; i < alphabetSize; ++i)
       {
         if (HasTransition(i))
         {
-          s.CreateOutTransition(Advance(i), i);
+          state.CreateOutTransition(Advance(i), i);
         }
       }
-      return s;
+      return state;
     }
 
     public bool HasTransition(int character)
@@ -66,7 +66,8 @@ namespace Spines.Mahjong.Analysis.Classification
     {
       if (HasTransition(character))
       {
-        Advance(character)._incomingTransitions -= 1;
+        var nextState = Advance(character);
+        nextState._incomingTransitions -= 1;
         SetTransition(target, character);
       }
       else
@@ -87,7 +88,7 @@ namespace Spines.Mahjong.Analysis.Classification
     private void SetTransition(State target, int character)
     {
       _targetStates[character] = target;
-      ++target._incomingTransitions;
+      target._incomingTransitions += 1;
     }
   }
 }

@@ -91,7 +91,7 @@ namespace Spines.Mahjong.Analysis.Classification
       {
         curUnique = curUnique.Advance(w.Word[i]);
         monofluentStates.Push(curUnique);
-        ++i;
+        i += 1;
       }
       // Here curUnique points to the last State before the first confluence State,
       // or the last state in the common prefix if there is no confluence state.
@@ -118,7 +118,7 @@ namespace Spines.Mahjong.Analysis.Classification
         lastAdded.RedirectOutTransition(clone, w.Word[i]);
         lastAdded = clone;
         clones.Push(clone);
-        ++i;
+        i += 1;
       }
       // Here curUnique points to the last state in the common prefix if continued on the unique path.
       // Here lastAdded points to the last state in the common prefix if continued on the cloned path.
@@ -128,7 +128,7 @@ namespace Spines.Mahjong.Analysis.Classification
       AddSuffix(lastAdded, w, i);
 
       // Merge clones into the state machine.
-      --i;
+      i -= 1;
       i = MergeStates(w.Word, i, clones);
 
       // Fix monofluent States:
@@ -148,7 +148,7 @@ namespace Spines.Mahjong.Analysis.Classification
           _stateManager.RemoveUniqueState(prevState, GetHeight(i - 1));
         }
         prevState.RedirectOutTransition(uniqueState, w.Word[i]);
-        --i;
+        i -= 1;
       }
     }
 
@@ -185,7 +185,7 @@ namespace Spines.Mahjong.Analysis.Classification
         {
           prevState.RedirectOutTransition(uniqueState, word[i]);
         }
-        --i;
+        i -= 1;
       }
       return i;
     }
@@ -208,13 +208,13 @@ namespace Spines.Mahjong.Analysis.Classification
         var newState = new State(_alphabetSize);
         prevState.CreateOutTransition(newState, w.Word[i]);
         states.Push(newState);
-        ++i;
+        i += 1;
       }
       // Connect to final State.
       var final = _stateManager.GetOrCreateFinalState(w.Value);
       states.Peek().CreateOutTransition(final, w.Word[_wordLength - 1]);
       // Merge new States with unique States.
-      --i;
+      i -= 1;
       MergeStates(w.Word, i, states);
     }
   }
