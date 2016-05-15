@@ -16,8 +16,10 @@
  */
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Spines.Mahjong.Analysis.Classification;
+using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.InternalTests
 {
@@ -27,13 +29,35 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [TestMethod]
     public void TestClassifierBuilder()
     {
-      var language = new List<WordWithValue>
+      const int wordLength = 3;
+      const int alphabetSize = 3;
+      var language = CreateLanguage(alphabetSize, wordLength).ToList();
+      var classifier = new Classifier(alphabetSize, wordLength, language);
+      foreach (var word in language)
       {
-        new WordWithValue(new [] {0, 0}, 1),
-        new WordWithValue(new [] {1, 1}, 2)
-      };
-      var classifier = new Classifier(2, 2, language);
-      Assert.AreEqual(1, classifier.Classify(language[0].Word));
+        CheckWord(classifier, word);
+      }
+    }
+
+    private static IEnumerable<WordWithValue> CreateLanguage(int alphabetSize, int wordLength)
+    {
+      var a = Enumerable.Range(0, alphabetSize);
+      var b = Enumerable.Repeat(a, wordLength);
+      var c = b.CartesianProduct();
+      foreach (var word in c)
+      {
+        var list = word.ToList();
+        var value = list.Sum() % 7;
+        if (value > 3)
+        {
+          yield return new WordWithValue(list, value);
+        }
+      }
+    }
+
+    private static void CheckWord(Classifier classifier, WordWithValue wordWithValue)
+    {
+      Assert.AreEqual(wordWithValue.Value, classifier.Classify(wordWithValue.Word));
     }
   }
 }

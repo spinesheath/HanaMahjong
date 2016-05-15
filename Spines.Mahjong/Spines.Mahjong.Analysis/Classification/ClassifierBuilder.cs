@@ -170,7 +170,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// lowest height.
     /// </param>
     /// <returns>The index of the letter that leads to the predecessor at the bottom of the stack.</returns>
-    private int MergeStates(IList<int> word, int i, Stack<State> states)
+    private int MergeStates(IReadOnlyList<int> word, int i, Stack<State> states)
     {
       while (states.Count > 1)
       {

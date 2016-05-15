@@ -16,18 +16,19 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Spines.Mahjong.Analysis.Classification
 {
   internal class WordWithValue
   {
-    public WordWithValue(IList<int> word, int value)
+    public WordWithValue(IEnumerable<int> word, int value)
     {
-      Word = word;
+      Word = word.ToList();
       Value = value;
     }
 
-    public IList<int> Word { get; }
+    public IReadOnlyList<int> Word { get; }
 
     public int Value { get; }
   }
