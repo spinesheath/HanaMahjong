@@ -30,6 +30,7 @@
             <Button Click="AnlyzeCombinations" Content="Analyze" />
             <Button Click="CreateArrangementCsv" Content="Arrangement *.csv" />
             <Button Click="UniqueArrangementCombinations" Content="Unique Arrangements" />
+            <Button Click="CreateArrangementWords" Content="Arrangement Words" />
         </WrapPanel>
 
     </DockPanel>

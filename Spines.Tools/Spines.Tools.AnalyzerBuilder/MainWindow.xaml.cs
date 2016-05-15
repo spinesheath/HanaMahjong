@@ -20,10 +20,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Spines.Mahjong.Analysis.Classification;
 using Spines.Mahjong.Analysis.Combinations;
+using Spines.Utility;
 
 namespace Spines.Tools.AnalyzerBuilder
 {
@@ -106,40 +109,125 @@ namespace Spines.Tools.AnalyzerBuilder
 
     private void Create(CreationType creationType)
     {
-      using (var dialog = new CommonOpenFileDialog())
+      var workingDirectory = GetWorkingDirectory();
+      if (workingDirectory == null)
       {
-        dialog.IsFolderPicker = true;
-        dialog.EnsurePathExists = true;
-        var result = dialog.ShowDialog(this);
-        if (result != CommonFileDialogResult.Ok)
-        {
-          return;
-        }
-        var workingDirectory = dialog.FileNames.Single();
-        CreateCombinationsAsync(workingDirectory, creationType);
+        return;
       }
+
+      CreateCombinationsAsync(workingDirectory, creationType);
     }
 
     private void UniqueArrangementCombinations(object sender, RoutedEventArgs e)
     {
-      using (var dialog = new CommonOpenFileDialog())
+      var workingDirectory = GetWorkingDirectory();
+      if (workingDirectory == null)
       {
-        dialog.IsFolderPicker = true;
-        dialog.EnsurePathExists = true;
-        var result = dialog.ShowDialog(this);
-        if (result != CommonFileDialogResult.Ok)
+        return;
+      }
+
+      var prefix = _prefixes[CreationType.Analyzed];
+      var files = Directory.GetFiles(workingDirectory).Where(f => f.Contains(prefix));
+      var lines = files.SelectMany(File.ReadAllLines);
+      var combinations = lines.Select(line => line.Substring(19));
+      var unique = combinations.Distinct();
+      var ordered = unique.OrderBy(u => u);
+      var targetFile = Path.Combine(workingDirectory, "ArrangementCombinations.txt");
+      File.WriteAllLines(targetFile, ordered);
+    } 
+
+    private void CreateArrangementWords(object sender, RoutedEventArgs e)
+    {
+      var workingDirectory = GetWorkingDirectory();
+      if (workingDirectory == null)
+      {
+        return;
+      }
+
+      CreateArrangementWordsAsync(workingDirectory);
+    }
+
+    private async void CreateArrangementWordsAsync(string workingDirectory)
+    {
+      ProgressBar.Minimum = 0;
+      ProgressBar.Maximum = 100;
+      ProgressBar.Value = 0;
+      await Task.Run(() => CreateArrangementWords(workingDirectory));
+    }
+
+    private void CreateArrangementWords(string workingDirectory)
+    {
+      var arrangementFile = Path.Combine(workingDirectory, "ArrangementCombinations.txt");
+      var words = CreateWords(arrangementFile);
+      var wordBytes = words.SelectMany(WordToBytes).ToArray();
+      var wordsFile = Path.Combine(workingDirectory, "ArrangementWords.dat");
+      //File.WriteAllLines(wordsFile, words.Select(w => string.Join(",", w.Word) + ":" + w.Value));
+      File.WriteAllBytes(wordsFile, wordBytes);
+    }
+
+    private IEnumerable<WordWithValue> CreateWords(string arrangementsFile)
+    {
+      var lines = File.ReadAllLines(arrangementsFile);
+      var arrangements = lines.Select(ParseArrangements).Select(a => a.ToList()).ToList();
+      var alphabetSize = arrangements.Count;
+      var language = CreateBaseLanguage(alphabetSize);
+
+      var max = alphabetSize * ((long)alphabetSize + 1) * ((long)alphabetSize + 2) * ((long)alphabetSize + 3) / 24;
+      long count = 0;
+      long current = 0;
+      foreach (var word in language)
+      {
+        var analyzer = new ArrangementAnalyzer();
+        foreach (var character in word)
         {
-          return;
+          analyzer.AddSetOfArrangements(arrangements[character]);
         }
-        var workingDirectory = dialog.FileNames.Single();
-        var prefix = _prefixes[CreationType.Analyzed];
-        var files = Directory.GetFiles(workingDirectory).Where(f => f.Contains(prefix));
-        var lines = files.SelectMany(File.ReadAllLines);
-        var combinations = lines.Select(line => line.Substring(19));
-        var unique = combinations.Distinct();
-        var ordered = unique.OrderBy(u => u);
-        var targetFile = Path.Combine(workingDirectory, "ArrangementCombinations.txt");
-        File.WriteAllLines(targetFile, ordered);
+        var shanten = analyzer.CalculateShanten();
+        if (shanten < 9)
+        {
+          yield return new WordWithValue(word, shanten);
+        }
+        count += 1;
+        if (current * (max / 100) < count)
+        {
+          IncrementProgressBar();
+          current += 1;
+        }
+      }
+    }
+
+    private static IEnumerable<IList<int>> CreateBaseLanguage(int alphabetSize)
+    {
+      for (var a = 0; a < alphabetSize; ++a)
+      {
+        for (var b = a; b < alphabetSize; ++b)
+        {
+          for (var c = b; c < alphabetSize; ++c)
+          {
+            for (var d = c; d < alphabetSize; ++d)
+            {
+              yield return new [] {a, b, c, d};
+            }
+          }
+        }
+      }
+    }
+
+    private static IEnumerable<byte> WordToBytes(WordWithValue word)
+    {
+      return word.Word.Select(c => (byte)c).Concat(unchecked((byte)word.Value).Yield());
+    }
+
+    private static IEnumerable<Arrangement> ParseArrangements(string line)
+    {
+      var regex = new Regex(@"\((\d+),(\d+),(\d+)\)");
+      var matches = regex.Matches(line);
+      foreach (Match match in matches)
+      {
+        var jantouValue = Convert.ToInt32(match.Groups[1].Value);
+        var mentsuCount = Convert.ToInt32(match.Groups[2].Value);
+        var mentsuValue = Convert.ToInt32(match.Groups[3].Value);
+        yield return new Arrangement(jantouValue, mentsuCount, mentsuValue);
       }
     }
 
@@ -266,6 +354,21 @@ namespace Spines.Tools.AnalyzerBuilder
           }
         }
         yield return sb.ToString();
+      }
+    }
+
+    private string GetWorkingDirectory()
+    {
+      using (var dialog = new CommonOpenFileDialog())
+      {
+        dialog.IsFolderPicker = true;
+        dialog.EnsurePathExists = true;
+        var result = dialog.ShowDialog(this);
+        if (result != CommonFileDialogResult.Ok)
+        {
+          return null;
+        }
+        return dialog.FileNames.Single();
       }
     }
 
