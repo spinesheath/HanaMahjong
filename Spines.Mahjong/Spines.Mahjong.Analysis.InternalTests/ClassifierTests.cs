@@ -29,8 +29,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [TestMethod]
     public void TestClassifierBuilder()
     {
-      const int wordLength = 3;
-      const int alphabetSize = 3;
+      const int wordLength = 5;
+      const int alphabetSize = 5;
       var language = CreateLanguage(alphabetSize, wordLength).ToList();
       var classifier = new Classifier(alphabetSize, wordLength, language);
       foreach (var word in language)
@@ -47,8 +47,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
       foreach (var word in c)
       {
         var list = word.ToList();
-        var value = list.Sum() % 7;
-        if (value > 3)
+        var value = list.Sum() % 13;
+        if (value < 8)
         {
           yield return new WordWithValue(list, value);
         }

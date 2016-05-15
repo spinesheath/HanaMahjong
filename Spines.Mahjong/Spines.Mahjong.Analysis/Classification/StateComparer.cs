@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.Analysis.ValueComparer.cs
+// Spines.Mahjong.Analysis.StateComparer.cs
 // 
 // Copyright (C) 2016  Johannes Heckl
 // 
@@ -16,20 +16,35 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Linq;
+using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.Classification
 {
-  // TODO this doesnt seem to make any sense, it doesnt do anything special
-  internal class ValueComparer : IEqualityComparer<int>
+  internal class StateComparer : IEqualityComparer<State>
   {
-    public bool Equals(int first, int second)
+    public bool Equals(State first, State second)
     {
-      return first == second;
+      if (first == second)
+      {
+        return true;
+      }
+      if (first == null || second == null)
+      {
+        return false;
+      }
+      return first.TargetStates.SequenceEqual(second.TargetStates);
     }
 
-    public int GetHashCode(int value)
+    public int GetHashCode(State state)
     {
-      return value.GetHashCode();
+      Validate.NotNull(state, nameof(state));
+      var hc = 1;
+      for (var i = 0; i < state.AlphabetSize; ++i)
+      {
+        hc = unchecked(hc * 17 + (state.TargetStates[i] == null ? 0 : state.TargetStates[i].GetHashCode()));
+      }
+      return hc;
     }
   }
 }

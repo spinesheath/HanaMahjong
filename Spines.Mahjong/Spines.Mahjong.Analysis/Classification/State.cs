@@ -17,20 +17,23 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Spines.Mahjong.Analysis.Classification
 {
   internal class State
   {
-    private int _incomingTransitions;
     private readonly State[] _targetStates;
+    private int _incomingTransitions;
 
     public State(int alphabetSize)
     {
       _incomingTransitions = 0;
       _targetStates = new State[alphabetSize];
     }
+
+    public int AlphabetSize => TargetStates.Count;
+
+    public IReadOnlyList<State> TargetStates => _targetStates;
 
     public int Id { get; set; }
 
@@ -56,7 +59,7 @@ namespace Spines.Mahjong.Analysis.Classification
 
     public State Advance(int character)
     {
-      return _targetStates[character];
+      return TargetStates[character];
     }
 
     public void RedirectOutTransition(State target, int character)
@@ -85,31 +88,6 @@ namespace Spines.Mahjong.Analysis.Classification
     {
       _targetStates[character] = target;
       ++target._incomingTransitions;
-    }
-
-    public class StateComparer : IEqualityComparer<State>
-    {
-      private readonly int _alphabetSize;
-
-      public StateComparer(int alphabetSize)
-      {
-        _alphabetSize = alphabetSize;
-      }
-
-      public bool Equals(State first, State second)
-      {
-        return first._targetStates.SequenceEqual(second._targetStates);
-      }
-
-      public int GetHashCode(State state)
-      {
-        var hc = 1;
-        for (var i = 0; i < _alphabetSize; ++i)
-        {
-          hc = unchecked(hc * 17 + (state._targetStates[i] == null ? 0 : state._targetStates[i].GetHashCode()));
-        }
-        return hc;
-      }
     }
   }
 }

@@ -32,12 +32,11 @@ namespace Spines.Mahjong.Analysis.Classification
       _alphabetSize = alphabetSize;
       _heights = wordLength + 1;
       _uniqueStates = new Dictionary<State, State>[_heights];
-      var comp = new State.StateComparer(_alphabetSize);
       for (var i = 0; i < _heights; ++i)
       {
-        _uniqueStates[i] = new Dictionary<State, State>(comp);
+        _uniqueStates[i] = new Dictionary<State, State>(new StateComparer());
       }
-      _finalStates = new Dictionary<int, FinalState>(new ValueComparer());
+      _finalStates = new Dictionary<int, FinalState>();
       StartingState = new State(_alphabetSize);
       InsertUniqueState(StartingState, _heights - 1);
     }
