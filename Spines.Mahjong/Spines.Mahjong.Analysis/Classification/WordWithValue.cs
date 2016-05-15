@@ -20,16 +20,30 @@ using System.Linq;
 
 namespace Spines.Mahjong.Analysis.Classification
 {
-  internal class WordWithValue
+  /// <summary>
+  /// A word with an associated value.
+  /// </summary>
+  public class WordWithValue
   {
+    /// <summary>
+    /// Creates a new instance of WordWithValue.
+    /// </summary>
+    /// <param name="word">The characters of the word.</param>
+    /// <param name="value">The value of the word. This is what the word will be classified as.</param>
     public WordWithValue(IEnumerable<int> word, int value)
     {
       Word = word.ToList();
       Value = value;
     }
 
+    /// <summary>
+    /// The word.
+    /// </summary>
     public IReadOnlyList<int> Word { get; }
 
+    /// <summary>
+    /// The value of the Word.
+    /// </summary>
     public int Value { get; }
   }
 }

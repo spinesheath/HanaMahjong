@@ -73,9 +73,9 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// Adds a word to the dfa and minimizes the dfa.
     /// </summary>
-    private void AddWord(WordWithValue w)
+    private void AddWord(WordWithValue word)
     {
-      if (HasBeenAdded(w.Word))
+      if (HasBeenAdded(word.Word))
       {
         return;
       }
@@ -86,10 +86,10 @@ namespace Spines.Mahjong.Analysis.Classification
       monofluentStates.Push(curUnique);
       // Traverse common prefix before the first confluence state.
       while (i < _wordLength - 1 &&
-             curUnique.HasTransition(w.Word[i]) &&
-             !curUnique.Advance(w.Word[i]).IsConfluenceState)
+             curUnique.HasTransition(word.Word[i]) &&
+             !curUnique.Advance(word.Word[i]).IsConfluenceState)
       {
-        curUnique = curUnique.Advance(w.Word[i]);
+        curUnique = curUnique.Advance(word.Word[i]);
         monofluentStates.Push(curUnique);
         i += 1;
       }
@@ -111,11 +111,11 @@ namespace Spines.Mahjong.Analysis.Classification
       // We need the previous state for each clone.
       clones.Push(lastAdded);
       while (i < _wordLength - 1 &&
-             curUnique.HasTransition(w.Word[i]))
+             curUnique.HasTransition(word.Word[i]))
       {
-        curUnique = curUnique.Advance(w.Word[i]);
+        curUnique = curUnique.Advance(word.Word[i]);
         var clone = curUnique.Clone(_alphabetSize);
-        lastAdded.RedirectOutTransition(clone, w.Word[i]);
+        lastAdded.RedirectOutTransition(clone, word.Word[i]);
         lastAdded = clone;
         clones.Push(clone);
         i += 1;
@@ -125,11 +125,11 @@ namespace Spines.Mahjong.Analysis.Classification
       // Here i is the index of the character of the transition away from lastAdded.
 
       // Add the rest of the word to the dfa.
-      AddSuffix(lastAdded, w, i);
+      AddSuffix(lastAdded, word, i);
 
       // Merge clones into the state machine.
       i -= 1;
-      i = MergeStates(w.Word, i, clones);
+      i = MergeStates(word.Word, i, clones);
 
       // Fix monofluent States:
       // remove them from the dfa and either insert them back in or merge them with an equivalent state.
@@ -147,7 +147,7 @@ namespace Spines.Mahjong.Analysis.Classification
         {
           _stateManager.RemoveUniqueState(prevState, GetHeight(i - 1));
         }
-        prevState.RedirectOutTransition(uniqueState, w.Word[i]);
+        prevState.RedirectOutTransition(uniqueState, word.Word[i]);
         i -= 1;
       }
     }
@@ -194,9 +194,9 @@ namespace Spines.Mahjong.Analysis.Classification
     /// Adds the rest of the word to the dfa.
     /// </summary>
     /// <param name="parent">The state to attack the suffix to.</param>
-    /// <param name="w">The current word.</param>
+    /// <param name="word">The current word.</param>
     /// <param name="wordPos">The index of the first letter of the suffix.</param>
-    private void AddSuffix(State parent, WordWithValue w, int wordPos)
+    private void AddSuffix(State parent, WordWithValue word, int wordPos)
     {
       var states = new Stack<State>();
       states.Push(parent);
@@ -206,16 +206,16 @@ namespace Spines.Mahjong.Analysis.Classification
       {
         var prevState = states.Peek();
         var newState = new State(_alphabetSize);
-        prevState.CreateOutTransition(newState, w.Word[i]);
+        prevState.CreateOutTransition(newState, word.Word[i]);
         states.Push(newState);
         i += 1;
       }
       // Connect to final State.
-      var final = _stateManager.GetOrCreateFinalState(w.Value);
-      states.Peek().CreateOutTransition(final, w.Word[_wordLength - 1]);
+      var final = _stateManager.GetOrCreateFinalState(word.Value);
+      states.Peek().CreateOutTransition(final, word.Word[_wordLength - 1]);
       // Merge new States with unique States.
       i -= 1;
-      MergeStates(w.Word, i, states);
+      MergeStates(word.Word, i, states);
     }
   }
 }

@@ -15,27 +15,40 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
+using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.Classification
 {
   /// <summary>
   /// Classifies words of a language with equal-length words.
   /// </summary>
-  internal class Classifier
+  [Serializable]
+  public class Classifier
   {
     private readonly int[] _transitions;
 
-    public Classifier(int alphabetSize, int wordLength, IEnumerable<WordWithValue> words)
+    /// <summary>
+    /// Creates a new instance of Classifier.
+    /// </summary>
+    /// <param name="alphabetSize">The size of the alphabet.</param>
+    /// <param name="wordLength">The length of the words in the language.</param>
+    /// <param name="language">The language that will be classified.</param>
+    public Classifier(int alphabetSize, int wordLength, IEnumerable<WordWithValue> language)
     {
-      var c = new ClassifierBuilder(alphabetSize, wordLength, words);
+      var c = new ClassifierBuilder(alphabetSize, wordLength, language);
       _transitions = c.GetTransitions();
     }
 
+    /// <summary>
+    /// Classifies a word.
+    /// </summary>
     public int Classify(IEnumerable<int> word)
     {
+      var validWord = Validate.NotNull(word, nameof(word));
       var current = 0;
-      foreach (var c in word)
+      foreach (var c in validWord)
       {
         current = _transitions[current + c];
       }
