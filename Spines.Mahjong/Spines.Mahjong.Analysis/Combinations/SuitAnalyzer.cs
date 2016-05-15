@@ -47,6 +47,8 @@ namespace Spines.Mahjong.Analysis.Combinations
     };
 
     private readonly List<int> _used;
+    private int _jantouValue;
+    private int _usedMelds;
 
     /// <summary>
     /// Creates a new instance of SuitAnalyzer.
@@ -69,6 +71,8 @@ namespace Spines.Mahjong.Analysis.Combinations
     {
       var comparer = new ArrangementComparer(_concealed, _meldCount);
       var arrangement = new Arrangement(0, _meldCount, _meldCount * 3);
+      _usedMelds = _meldCount;
+      _jantouValue = 0;
       Analyze(arrangement, 0, 0);
       return _arrangements.Where(a => !_arrangements.Any(other => comparer.IsWorseThan(a, other))).OrderBy(a => a.Id);
     }
@@ -83,33 +87,48 @@ namespace Spines.Mahjong.Analysis.Combinations
 
       Analyze(arrangement, currentTileType + 1, 0);
 
-      for (var i = currentProtoGroup; i < _protoGroups.Count; ++i)
+      // Inlined a bunch of things for about 25% performance gain.
+      var count = _protoGroups.Count;
+      for (var i = currentProtoGroup; i < count; ++i)
       {
         var protoGroup = _protoGroups[i];
-        if (CanNotInsert(arrangement, currentTileType, protoGroup))
+        var isJantou = i <= 1;
+        if (isJantou)
         {
-          continue;
-        }
-        protoGroup.Insert(_concealed, _used, currentTileType);
-        var isJantou = protoGroup == ProtoGroup.Jantou1 || protoGroup == ProtoGroup.Jantou2;
-        var added = isJantou ? arrangement.SetJantouValue(protoGroup.Value) : arrangement.AddMentsu(protoGroup.Value);
-        Analyze(added, currentTileType, i);
-        protoGroup.Remove(_concealed, _used, currentTileType);
-      }
-    }
+          if (_jantouValue != 0 || !protoGroup.CanInsert(_concealed, _used, currentTileType))
+          {
+            continue;
+          }
 
-    private bool CanNotInsert(Arrangement arrangement, int currentTileType, ProtoGroup protoGroup)
-    {
-      var isJantou = protoGroup == ProtoGroup.Jantou1 || protoGroup == ProtoGroup.Jantou2;
-      if (isJantou && arrangement.JantouValue != 0)
-      {
-        return true;
+          protoGroup.Insert(_concealed, _used, currentTileType);
+
+          var oldJantouValue = _jantouValue;
+          _jantouValue = protoGroup.Value;
+          var added = arrangement.SetJantouValue(_jantouValue);
+
+          Analyze(added, currentTileType, i);
+
+          protoGroup.Remove(_concealed, _used, currentTileType);
+          _jantouValue = oldJantouValue;
+        }
+        else
+        {
+          if (_usedMelds == 4 || !protoGroup.CanInsert(_concealed, _used, currentTileType))
+          {
+            continue;
+          }
+
+          protoGroup.Insert(_concealed, _used, currentTileType);
+
+          _usedMelds += 1;
+          var added = arrangement.AddMentsu(protoGroup.Value);
+
+          Analyze(added, currentTileType, i);
+
+          protoGroup.Remove(_concealed, _used, currentTileType);
+          _usedMelds -= 1;
+        }
       }
-      if (!isJantou && arrangement.MentsuCount == 4)
-      {
-        return true;
-      }
-      return !protoGroup.CanInsert(_concealed, _used, currentTileType);
     }
   }
 }
