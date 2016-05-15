@@ -61,6 +61,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="ClassifierTests.cs" />
     <Compile Include="SuitAnalyzerTests.cs" />
     <Compile Include="ArrangementAnalyzerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
