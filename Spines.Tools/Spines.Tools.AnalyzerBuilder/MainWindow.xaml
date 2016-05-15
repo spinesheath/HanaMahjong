@@ -29,7 +29,7 @@
             <Button Click="CreateMixedCombinations" Content="Mixed" />
             <Button Click="AnlyzeCombinations" Content="Analyze" />
             <Button Click="CreateArrangementCsv" Content="Arrangement *.csv" />
-            <Button Click="CountArrangementCombinations" Content="Count Arrangements" />
+            <Button Click="UniqueArrangementCombinations" Content="Unique Arrangements" />
         </WrapPanel>
 
     </DockPanel>

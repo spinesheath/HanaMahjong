@@ -78,6 +78,10 @@ namespace Spines.Tools.AnalyzerBuilder
 
     private static IEnumerable<string> CreateAnalyzedCombinations(int count)
     {
+      if (count <= 6)
+      {
+        yield break;
+      }
       var maxMelds = (14 - count) / 3;
       for (var meldCount = 0; meldCount <= maxMelds; ++meldCount)
       {
@@ -116,7 +120,7 @@ namespace Spines.Tools.AnalyzerBuilder
       }
     }
 
-    private void CountArrangementCombinations(object sender, RoutedEventArgs e)
+    private void UniqueArrangementCombinations(object sender, RoutedEventArgs e)
     {
       using (var dialog = new CommonOpenFileDialog())
       {
@@ -133,7 +137,9 @@ namespace Spines.Tools.AnalyzerBuilder
         var lines = files.SelectMany(File.ReadAllLines);
         var combinations = lines.Select(line => line.Substring(19));
         var unique = combinations.Distinct();
-        MessageBox.Show(this, unique.Count().ToString(), "Unique Arrangement Combinations", MessageBoxButton.OK);
+        var ordered = unique.OrderBy(u => u);
+        var targetFile = Path.Combine(workingDirectory, "ArrangementCombinations.txt");
+        File.WriteAllLines(targetFile, ordered);
       }
     }
 
