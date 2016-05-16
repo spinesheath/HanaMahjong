@@ -59,7 +59,7 @@
     <Compile Include="Combinations\ArrangementComparer.cs" />
     <Compile Include="Combinations\Combination.cs" />
     <Compile Include="Combinations\CombinationCreatorBase.cs" />
-    <Compile Include="Combinations\SuitAnalyzer.cs" />
+    <Compile Include="Combinations\TileGroupAnalyzer.cs" />
     <Compile Include="Combinations\IProtoGroupInserter.cs" />
     <Compile Include="Combinations\MeldedSuitCombinationsCreator.cs" />
     <Compile Include="Combinations\Mentsu.cs" />

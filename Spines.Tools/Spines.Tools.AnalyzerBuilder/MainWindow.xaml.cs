@@ -98,7 +98,7 @@ namespace Spines.Tools.AnalyzerBuilder
           var combinations = concealedCreator.Create(count, meldedCombination);
           foreach (var combination in combinations)
           {
-            var analyzer = new SuitAnalyzer(combination, meldedCombination, m);
+            var analyzer = new TileGroupAnalyzer(combination, meldedCombination, m, true);
             var arrangements = analyzer.Analyze();
             var formattedArrangements = arrangements.Select(a => $"({a.JantouValue},{a.MentsuCount},{a.MentsuValue})");
             var arrangementsString = string.Join("", formattedArrangements);

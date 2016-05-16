@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.Analysis.SuitAnalyzer.cs
+﻿// Spines.Mahjong.Analysis.TileGroupAnalyzer.cs
 // 
 // Copyright (C) 2016  Johannes Heckl
 // 
@@ -24,13 +24,20 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// <summary>
   /// Analyzes the part of a hand in a single suit.
   /// </summary>
-  public class SuitAnalyzer
+  public class TileGroupAnalyzer
   {
     private readonly ISet<Arrangement> _arrangements = new HashSet<Arrangement>();
     private readonly List<int> _concealed;
     private readonly int _meldCount;
 
-    private readonly IReadOnlyList<ProtoGroup> _protoGroups = new List<ProtoGroup>
+    private readonly IReadOnlyList<ProtoGroup> _protoGroups;
+
+    private readonly List<int> _used;
+    private int _jantouValue;
+    private int _usedMelds;
+    private readonly int _tileTypeCount;
+
+    private static readonly IReadOnlyList<ProtoGroup> SuitProtoGroups = new List<ProtoGroup>
     {
       ProtoGroup.Jantou2,
       ProtoGroup.Jantou1,
@@ -46,14 +53,19 @@ namespace Spines.Mahjong.Analysis.Combinations
       ProtoGroup.Koutsu1
     };
 
-    private readonly List<int> _used;
-    private int _jantouValue;
-    private int _usedMelds;
+    private static readonly IReadOnlyList<ProtoGroup> HonorProtoGroups = new List<ProtoGroup>
+    {
+      ProtoGroup.Jantou2,
+      ProtoGroup.Jantou1,
+      ProtoGroup.Koutsu3,
+      ProtoGroup.Koutsu2,
+      ProtoGroup.Koutsu1
+    };
 
     /// <summary>
-    /// Creates a new instance of SuitAnalyzer.
+    /// Creates a new instance of TileGroupAnalyzer.
     /// </summary>
-    public SuitAnalyzer(Combination concealedTiles, Combination meldedTiles, int meldCount)
+    public TileGroupAnalyzer(Combination concealedTiles, Combination meldedTiles, int meldCount, bool allowShuntsu)
     {
       Validate.NotNull(concealedTiles, nameof(concealedTiles));
       Validate.NotNull(meldedTiles, nameof(meldedTiles));
@@ -62,6 +74,8 @@ namespace Spines.Mahjong.Analysis.Combinations
       _meldCount = meldCount;
       _concealed = concealedTiles.Counts.ToList();
       _used = meldedTiles.Counts.ToList();
+      _tileTypeCount = concealedTiles.Counts.Count;
+      _protoGroups = allowShuntsu ? SuitProtoGroups : HonorProtoGroups;
     }
 
     /// <summary>
@@ -79,7 +93,7 @@ namespace Spines.Mahjong.Analysis.Combinations
 
     private void Analyze(Arrangement arrangement, int currentTileType, int currentProtoGroup)
     {
-      if (currentTileType >= 9)
+      if (currentTileType >= _tileTypeCount)
       {
         _arrangements.Add(arrangement);
         return;

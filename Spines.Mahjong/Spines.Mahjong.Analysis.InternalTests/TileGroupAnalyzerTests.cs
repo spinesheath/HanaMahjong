@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.Analysis.InternalTests.SuitAnalyzerTests.cs
+﻿// Spines.Mahjong.Analysis.InternalTests.TileGroupAnalyzerTests.cs
 // 
 // Copyright (C) 2016  Johannes Heckl
 // 
@@ -23,29 +23,29 @@ using Spines.Mahjong.Analysis.Combinations;
 namespace Spines.Mahjong.Analysis.InternalTests
 {
   [TestClass]
-  public class SuitAnalyzerTests
+  public class TileGroupAnalyzerTests
   {
-    private readonly int[] _emptyCombination = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    private readonly int[] _emptySuit = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
     [TestMethod]
     public void TestEmptyHand()
     {
-      CheckHand(1, _emptyCombination, _emptyCombination, 0);
+      CheckHand(1, _emptySuit, _emptySuit, 0);
     }
 
     [TestMethod]
-    public void TestHandsWithoutMelds()
+    public void TestSuitWithoutMelds()
     {
-      CheckHand(2, new[] { 1, 0, 0, 0, 0, 0, 0, 0, 0 }, _emptyCombination, 0);
-      CheckHand(2, new[] { 4, 4, 4, 0, 0, 0, 0, 0, 0 }, _emptyCombination, 0);
-      CheckHand(1, new[] { 3, 1, 1, 1, 1, 1, 1, 1, 3 }, _emptyCombination, 0);
-      CheckHand(1, new[] { 3, 1, 1, 1, 2, 1, 1, 1, 3 }, _emptyCombination, 0);
-      CheckHand(5, new[] { 4, 0, 0, 1, 0, 0, 1, 0, 1 }, _emptyCombination, 0);
-      CheckHand(4, new[] { 0, 0, 0, 4, 3, 0, 1, 0, 0 }, _emptyCombination, 0);
+      CheckHand(2, new[] { 1, 0, 0, 0, 0, 0, 0, 0, 0 }, _emptySuit, 0);
+      CheckHand(2, new[] { 4, 4, 4, 0, 0, 0, 0, 0, 0 }, _emptySuit, 0);
+      CheckHand(1, new[] { 3, 1, 1, 1, 1, 1, 1, 1, 3 }, _emptySuit, 0);
+      CheckHand(1, new[] { 3, 1, 1, 1, 2, 1, 1, 1, 3 }, _emptySuit, 0);
+      CheckHand(5, new[] { 4, 0, 0, 1, 0, 0, 1, 0, 1 }, _emptySuit, 0);
+      CheckHand(4, new[] { 0, 0, 0, 4, 3, 0, 1, 0, 0 }, _emptySuit, 0);
     }
 
     [TestMethod]
-    public void TestHandsWithMelds()
+    public void TestSuitWithMelds()
     {
       CheckHand(1, new[] { 2, 0, 0, 0, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 4, 4, 4, 4, 0 }, 4);
       CheckHand(1, new[] { 4, 3, 0, 1, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 0, 0, 4, 3 }, 2);
@@ -57,7 +57,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     {
       var concealed = new Combination(concealedTiles);
       var melded = new Combination(meldedTiles);
-      var analyzer = new SuitAnalyzer(concealed, melded, meldCount);
+      var analyzer = new TileGroupAnalyzer(concealed, melded, meldCount, true);
       var arrangements = analyzer.Analyze().ToList();
       var hand = $"({string.Join("", concealedTiles)})({string.Join("", meldedTiles)})({meldCount})";
       var arrangementTexts = arrangements.Select(a => $"({a.JantouValue}, {a.MentsuCount}, {a.MentsuValue})");
