@@ -200,12 +200,7 @@ namespace Spines.Tools.AnalyzerBuilder
       var builder = new ClassifierBuilder(alphabetSize, 4);
       foreach (var word in words)
       {
-        //var value = word.Value;
-        //var permutations = word.Word.Permute();
-        //var permutedWords = permutations.Select(p => new WordWithValue(p, value));
-        //builder.AddWords(permutedWords);
         builder.AddWords(word.Yield());
-
         IncrementProgressBar();
       }
       return builder.CreateClassifier();
