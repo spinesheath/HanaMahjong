@@ -37,5 +37,13 @@ namespace Spines.Utility.Tests
       var product = source.CartesianProduct();
       Assert.AreEqual(27, product.Count());
     }
+
+    [TestMethod]
+    public void TestPermute()
+    {
+      var source = new[] {0, 1, 2, 3};
+      var result = source.Permute();
+      Assert.AreEqual(4 * 3 * 2 * 1, result.Count());
+    }
   }
 }
