@@ -32,13 +32,9 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// Creates a new instance of Classifier.
     /// </summary>
-    /// <param name="alphabetSize">The size of the alphabet.</param>
-    /// <param name="wordLength">The length of the words in the language.</param>
-    /// <param name="language">The language that will be classified.</param>
-    public Classifier(int alphabetSize, int wordLength, IEnumerable<WordWithValue> language)
+    internal Classifier(int[] transitions)
     {
-      var c = new ClassifierBuilder(alphabetSize, wordLength, language);
-      _transitions = c.GetTransitions();
+      _transitions = transitions;
     }
 
     /// <summary>

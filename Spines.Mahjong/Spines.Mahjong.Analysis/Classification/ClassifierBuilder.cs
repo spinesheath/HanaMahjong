@@ -16,13 +16,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.Classification
 {
   /// <summary>
   /// Creates the transition table for a Classifier.
   /// </summary>
-  internal class ClassifierBuilder
+  public class ClassifierBuilder
   {
     private readonly int _alphabetSize;
     private readonly StateManager _stateManager;
@@ -31,23 +32,19 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// Creates a minimized dfa and the corresponding transition table.
     /// </summary>
-    public ClassifierBuilder(int alphabetSize, int wordLength, IEnumerable<WordWithValue> words)
+    public ClassifierBuilder(int alphabetSize, int wordLength)
     {
       _alphabetSize = alphabetSize;
       _wordLength = wordLength;
       _stateManager = new StateManager(_alphabetSize, _wordLength);
-      foreach (var w in words)
-      {
-        AddWord(w);
-      }
     }
 
     /// <summary>
-    /// The transition table of the dfa.
+    /// Creates the classifier for the specified language.
     /// </summary>
-    public int[] GetTransitions()
+    public Classifier CreateClassifier()
     {
-      return _stateManager.GetCompactTransitions();
+      return new Classifier(_stateManager.GetCompactTransitions());
     }
 
     /// <summary>
@@ -68,6 +65,17 @@ namespace Spines.Mahjong.Analysis.Classification
         }
       }
       return true;
+    }
+
+    /// <summary>
+    /// Adds the words to the dfa.
+    /// </summary>
+    public void AddWords(IEnumerable<WordWithValue> words)
+    {
+      foreach (var word in Validate.NotNull(words, nameof(words)))
+      {
+        AddWord(word);
+      }
     }
 
     /// <summary>
