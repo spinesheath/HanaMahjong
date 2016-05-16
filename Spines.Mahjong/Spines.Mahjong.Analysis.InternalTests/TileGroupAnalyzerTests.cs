@@ -26,6 +26,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
   public class TileGroupAnalyzerTests
   {
     private readonly int[] _emptySuit = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    private readonly int[] _emptyHonor = { 0, 0, 0, 0, 0, 0, 0 };
 
     [TestMethod]
     public void TestEmptyHand()
@@ -53,11 +54,32 @@ namespace Spines.Mahjong.Analysis.InternalTests
       CheckHand(1, new[] { 4, 0, 3, 0, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 0, 0, 4, 3 }, 2);
     }
 
+    [TestMethod]
+    public void TestHonorsWithoutMelds()
+    {
+      CheckHand(2, new[] { 1, 0, 0, 0, 0, 0, 0 }, _emptyHonor, 0);
+      CheckHand(2, new[] { 4, 4, 4, 0, 0, 0, 0 }, _emptyHonor, 0);
+      CheckHand(5, new[] { 3, 1, 1, 1, 1, 1, 1 }, _emptyHonor, 0);
+      CheckHand(4, new[] { 3, 1, 1, 1, 2, 1, 1 }, _emptyHonor, 0);
+      CheckHand(4, new[] { 4, 0, 0, 1, 0, 0, 1 }, _emptyHonor, 0);
+      CheckHand(3, new[] { 0, 0, 0, 4, 3, 0, 1 }, _emptyHonor, 0);
+    }
+
+    [TestMethod]
+    public void TestHonorsWithMelds()
+    {
+      CheckHand(1, new[] { 2, 0, 0, 0, 0, 0, 0 }, new[] { 0, 0, 4, 4, 4, 4, 0 }, 4);
+      CheckHand(1, new[] { 4, 3, 0, 1, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 4, 3 }, 2);
+      CheckHand(1, new[] { 4, 2, 0, 1, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 4, 3 }, 2);
+      CheckHand(1, new[] { 4, 0, 3, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 4, 3 }, 2);
+    }
+
     private static void CheckHand(int expectedCount, IList<int> concealedTiles, IList<int> meldedTiles, int meldCount)
     {
+      var allowShuntsu = concealedTiles.Count == 9;
       var concealed = new Combination(concealedTiles);
       var melded = new Combination(meldedTiles);
-      var analyzer = new TileGroupAnalyzer(concealed, melded, meldCount, true);
+      var analyzer = new TileGroupAnalyzer(concealed, melded, meldCount, allowShuntsu);
       var arrangements = analyzer.Analyze().ToList();
       var hand = $"({string.Join("", concealedTiles)})({string.Join("", meldedTiles)})({meldCount})";
       var arrangementTexts = arrangements.Select(a => $"({a.JantouValue}, {a.MentsuCount}, {a.MentsuValue})");
