@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -26,6 +27,7 @@ using System.Windows;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Spines.Mahjong.Analysis.Classification;
 using Spines.Mahjong.Analysis.Combinations;
+using Spines.Utility;
 
 namespace Spines.Tools.AnalyzerBuilder
 {
@@ -160,6 +162,60 @@ namespace Spines.Tools.AnalyzerBuilder
       var words = CreateWords(arrangementFile);
       var wordsFile = Path.Combine(workingDirectory, "ArrangementWords.txt");
       File.WriteAllLines(wordsFile, words.Select(w => string.Join(",", w.Word) + ":" + w.Value));
+    }
+
+    private void CreateArrangementClassifier(object sender, RoutedEventArgs e)
+    {
+      var workingDirectory = GetWorkingDirectory();
+      if (workingDirectory == null)
+      {
+        return;
+      }
+
+      CreateArrangementClassifierAsync(workingDirectory);
+    }
+
+    private async void CreateArrangementClassifierAsync(string workingDirectory)
+    {
+      var wordsFile = Path.Combine(workingDirectory, "ArrangementWords.txt");
+      var lines = File.ReadAllLines(wordsFile);
+      var words = lines.Select(CreateWord).ToList();
+      ProgressBar.Minimum = 0;
+      ProgressBar.Maximum = words.Count;
+      ProgressBar.Value = 0;
+
+      var alphabetSize = words.SelectMany(w => w.Word).Max() + 1;
+      var classifier = await Task.Run(() => CreateArrangementClassifier(words, alphabetSize));
+
+      var classifierFile = Path.Combine(workingDirectory, "ArrangementClassifier.bin");
+      using (var fileStream = new FileStream(classifierFile, FileMode.Create))
+      {
+        var formatter = new BinaryFormatter();
+        formatter.Serialize(fileStream, classifier);
+      }
+    }
+
+    private Classifier CreateArrangementClassifier(IEnumerable<WordWithValue> words, int alphabetSize)
+    {
+      var builder = new ClassifierBuilder(alphabetSize, 4);
+      foreach (var word in words)
+      {
+        //var value = word.Value;
+        //var permutations = word.Word.Permute();
+        //var permutedWords = permutations.Select(p => new WordWithValue(p, value));
+        //builder.AddWords(permutedWords);
+        builder.AddWords(word.Yield());
+
+        IncrementProgressBar();
+      }
+      return builder.CreateClassifier();
+    }
+
+    private static WordWithValue CreateWord(string line)
+    {
+      var a = line.Split(':');
+      var b = a[0].Split(',').Select(c => Convert.ToInt32(c));
+      return new WordWithValue(b, Convert.ToInt32(a[1]));
     }
 
     private IEnumerable<WordWithValue> CreateWords(string arrangementsFile)

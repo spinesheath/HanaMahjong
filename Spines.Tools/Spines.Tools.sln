@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Mahjong.Analysis.Int
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Tools.AnalyzerBuilder", "Spines.Tools.AnalyzerBuilder\Spines.Tools.AnalyzerBuilder.csproj", "{65035680-D9C2-4F4A-BFEC-0496E2D964D6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Utility.Tests", "..\Spines.Utility\Spines.Utility.Tests\Spines.Utility.Tests.csproj", "{92EAC7C4-F74F-40A5-84A2-7F43F894329C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{65035680-D9C2-4F4A-BFEC-0496E2D964D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65035680-D9C2-4F4A-BFEC-0496E2D964D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65035680-D9C2-4F4A-BFEC-0496E2D964D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92EAC7C4-F74F-40A5-84A2-7F43F894329C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92EAC7C4-F74F-40A5-84A2-7F43F894329C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92EAC7C4-F74F-40A5-84A2-7F43F894329C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92EAC7C4-F74F-40A5-84A2-7F43F894329C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

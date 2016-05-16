@@ -31,6 +31,7 @@
             <Button Click="CreateArrangementCsv" Content="Arrangement *.csv" />
             <Button Click="UniqueArrangementCombinations" Content="Unique Arrangements" />
             <Button Click="CreateArrangementWords" Content="Arrangement Words" />
+            <Button Click="CreateArrangementClassifier" Content="Arrangement Classifier" />
         </WrapPanel>
 
     </DockPanel>
