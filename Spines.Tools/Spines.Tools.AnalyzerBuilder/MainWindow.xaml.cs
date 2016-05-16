@@ -171,22 +171,28 @@ namespace Spines.Tools.AnalyzerBuilder
       var arrangements = lines.Select(ParseArrangements).Select(a => a.ToList()).ToList();
       var alphabetSize = arrangements.Count;
       var language = CreateBaseLanguage(alphabetSize);
+      var tilesInArrangements = arrangements.Select(a => a.Max(b => b.TotalValue)).ToList();
 
       var max = alphabetSize * ((long)alphabetSize + 1) * ((long)alphabetSize + 2) * ((long)alphabetSize + 3) / 24;
       long count = 0;
       long current = 0;
       foreach (var word in language)
       {
-        var analyzer = new ArrangementAnalyzer();
-        foreach (var character in word)
+        var sumOfTiles = word.Sum(c => tilesInArrangements[c]);
+        if (sumOfTiles <= 14)
         {
-          analyzer.AddSetOfArrangements(arrangements[character]);
+          var analyzer = new ArrangementAnalyzer();
+          foreach (var character in word)
+          {
+            analyzer.AddSetOfArrangements(arrangements[character]);
+          }
+          var shanten = analyzer.CalculateShanten();
+          if (shanten < 9)
+          {
+            yield return new WordWithValue(word, shanten);
+          }
         }
-        var shanten = analyzer.CalculateShanten();
-        if (shanten < 9)
-        {
-          yield return new WordWithValue(word, shanten);
-        }
+
         count += 1;
         if (current * (max / 100) < count)
         {
