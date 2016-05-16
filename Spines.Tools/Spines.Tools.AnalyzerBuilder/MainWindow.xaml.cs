@@ -26,7 +26,6 @@ using System.Windows;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Spines.Mahjong.Analysis.Classification;
 using Spines.Mahjong.Analysis.Combinations;
-using Spines.Utility;
 
 namespace Spines.Tools.AnalyzerBuilder
 {
@@ -159,10 +158,8 @@ namespace Spines.Tools.AnalyzerBuilder
     {
       var arrangementFile = Path.Combine(workingDirectory, "ArrangementCombinations.txt");
       var words = CreateWords(arrangementFile);
-      var wordBytes = words.SelectMany(WordToBytes).ToArray();
-      var wordsFile = Path.Combine(workingDirectory, "ArrangementWords.dat");
-      //File.WriteAllLines(wordsFile, words.Select(w => string.Join(",", w.Word) + ":" + w.Value));
-      File.WriteAllBytes(wordsFile, wordBytes);
+      var wordsFile = Path.Combine(workingDirectory, "ArrangementWords.txt");
+      File.WriteAllLines(wordsFile, words.Select(w => string.Join(",", w.Word) + ":" + w.Value));
     }
 
     private IEnumerable<WordWithValue> CreateWords(string arrangementsFile)
@@ -217,11 +214,6 @@ namespace Spines.Tools.AnalyzerBuilder
           }
         }
       }
-    }
-
-    private static IEnumerable<byte> WordToBytes(WordWithValue word)
-    {
-      return word.Word.Select(c => (byte)c).Concat(unchecked((byte)word.Value).Yield());
     }
 
     private static IEnumerable<Arrangement> ParseArrangements(string line)
