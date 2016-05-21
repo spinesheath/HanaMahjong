@@ -19,10 +19,11 @@ namespace Spines.Tools.AnalyzerBuilder
 {
   internal enum CreationType
   {
-    Concealed,
-    Melded,
-    Mixed,
-    Analyzed,
-    ArrangementCsv
+    ConcealedSuit,
+    MeldedSuit,
+    MixedSuit,
+    AnalyzedSuit,
+    ArrangementCsv,
+    AnalyzedHonors
   }
 }

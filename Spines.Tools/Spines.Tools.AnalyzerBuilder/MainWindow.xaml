@@ -24,14 +24,15 @@
                      x:Name="ProgressBar" />
 
         <WrapPanel>
-            <Button Click="CreateConcealedCombinations" Content="Concealed" />
-            <Button Click="CreateMeldedCombinations" Content="Melds" />
-            <Button Click="CreateMixedCombinations" Content="Mixed" />
-            <Button Click="AnlyzeCombinations" Content="Analyze" />
+            <Button Click="CreateConcealedCombinations" Content="Concealed Suit" />
+            <Button Click="CreateMeldedCombinations" Content="Melds Suit" />
+            <Button Click="CreateMixedCombinations" Content="Mixed Suit" />
+            <Button Click="AnlyzeSuitCombinations" Content="Analyze Suit" />
             <Button Click="CreateArrangementCsv" Content="Arrangement *.csv" />
             <Button Click="UniqueArrangementCombinations" Content="Unique Arrangements" />
             <Button Click="CreateArrangementWords" Content="Arrangement Words" />
             <Button Click="CreateArrangementClassifier" Content="Arrangement Classifier" />
+            <Button Click="AnlyzeHonorCombinations" Content="Analyze Honor" />
         </WrapPanel>
 
     </DockPanel>

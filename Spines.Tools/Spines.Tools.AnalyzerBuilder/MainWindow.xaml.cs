@@ -38,38 +38,42 @@ namespace Spines.Tools.AnalyzerBuilder
   {
     private readonly IDictionary<CreationType, int> _creationCounts = new Dictionary<CreationType, int>
     {
-      {CreationType.Concealed, 15},
-      {CreationType.Melded, 5},
-      {CreationType.Mixed, 15},
-      {CreationType.Analyzed, 15},
-      {CreationType.ArrangementCsv, 15}
+      {CreationType.ConcealedSuit, 15},
+      {CreationType.MeldedSuit, 5},
+      {CreationType.MixedSuit, 15},
+      {CreationType.AnalyzedSuit, 15},
+      {CreationType.ArrangementCsv, 15},
+      {CreationType.AnalyzedHonors, 15}
     };
 
     private readonly IDictionary<CreationType, Func<int, IEnumerable<string>>> _creatorFuncs = new Dictionary<CreationType, Func<int, IEnumerable<string>>>
     {
-      {CreationType.Concealed, CreateConcealedCombinations},
-      {CreationType.Melded, CreateMeldedCombinations},
-      {CreationType.Mixed, CreateMixedCombinations},
-      {CreationType.Analyzed, CreateAnalyzedCombinations},
-      {CreationType.ArrangementCsv, CreateArrangementCsvLines}
+      {CreationType.ConcealedSuit, CreateConcealedCombinations},
+      {CreationType.MeldedSuit, CreateMeldedCombinations},
+      {CreationType.MixedSuit, CreateMixedCombinations},
+      {CreationType.AnalyzedSuit, CreateAnalyzedSuit},
+      {CreationType.ArrangementCsv, CreateArrangementCsvLines},
+      {CreationType.AnalyzedHonors, CreateAnalyzedHonors}
     };
 
     private readonly IDictionary<CreationType, string> _prefixes = new Dictionary<CreationType, string>
     {
-      {CreationType.Concealed, "ConcealedSuitCombinations"},
-      {CreationType.Melded, "MeldedSuitCombinations"},
-      {CreationType.Mixed, "MixedSuitCombinations"},
-      {CreationType.Analyzed, "AnayzedSuitCombinations"},
-      {CreationType.ArrangementCsv, "ArrangementCsv"}
+      {CreationType.ConcealedSuit, "ConcealedSuitCombinations"},
+      {CreationType.MeldedSuit, "MeldedSuitCombinations"},
+      {CreationType.MixedSuit, "MixedSuitCombinations"},
+      {CreationType.AnalyzedSuit, "AnayzedSuitCombinations"},
+      {CreationType.ArrangementCsv, "ArrangementCsv"},
+      {CreationType.AnalyzedHonors, "AnayzedHonorCombinations"}
     };
 
     private readonly IDictionary<CreationType, string> _fileTypes = new Dictionary<CreationType, string>
     {
-      {CreationType.Concealed, "txt"},
-      {CreationType.Melded, "txt"},
-      {CreationType.Mixed, "txt"},
-      {CreationType.Analyzed, "txt"},
-      {CreationType.ArrangementCsv, "csv"}
+      {CreationType.ConcealedSuit, "txt"},
+      {CreationType.MeldedSuit, "txt"},
+      {CreationType.MixedSuit, "txt"},
+      {CreationType.AnalyzedSuit, "txt"},
+      {CreationType.ArrangementCsv, "csv"},
+      {CreationType.AnalyzedHonors, "txt"}
     };
 
     /// <summary>
@@ -80,16 +84,36 @@ namespace Spines.Tools.AnalyzerBuilder
       InitializeComponent();
     }
 
-    private static IEnumerable<string> CreateAnalyzedCombinations(int count)
+    private static IEnumerable<string> CreateAnalyzedSuit(int count)
     {
-      if (count <= 6)
-      {
-        yield break;
-      }
       var maxMelds = (14 - count) / 3;
       for (var meldCount = 0; meldCount <= maxMelds; ++meldCount)
       {
-        var meldedCreator = new MeldedSuitCombinationsCreator();
+        var meldedCreator = MeldedCombinationsCreator.CreateSuitCombinationsCreator();
+        var meldedCombinations = meldedCreator.Create(meldCount);
+        foreach (var meldedCombination in meldedCombinations)
+        {
+          var m = meldCount;
+          var concealedCreator = new ConcealedSuitCombinationCreator();
+          var combinations = concealedCreator.Create(count, meldedCombination);
+          foreach (var combination in combinations)
+          {
+            var analyzer = new TileGroupAnalyzer(combination, meldedCombination, m, true);
+            var arrangements = analyzer.Analyze();
+            var formattedArrangements = arrangements.Select(a => $"({a.JantouValue},{a.MentsuCount},{a.MentsuValue})");
+            var arrangementsString = string.Join("", formattedArrangements);
+            yield return $"{m}{string.Join("", meldedCombination.Counts)}{string.Join("", combination.Counts)}{arrangementsString}";
+          }
+        }
+      }
+    }
+
+    private static IEnumerable<string> CreateAnalyzedHonors(int count)
+    {
+      var maxMelds = (14 - count) / 3;
+      for (var meldCount = 0; meldCount <= maxMelds; ++meldCount)
+      {
+        var meldedCreator = MeldedCombinationsCreator.CreateHonorsCombinationsCreator();
         var meldedCombinations = meldedCreator.Create(meldCount);
         foreach (var meldedCombination in meldedCombinations)
         {
@@ -127,7 +151,7 @@ namespace Spines.Tools.AnalyzerBuilder
         return;
       }
 
-      var prefix = _prefixes[CreationType.Analyzed];
+      var prefix = _prefixes[CreationType.AnalyzedSuit];
       var files = Directory.GetFiles(workingDirectory).Where(f => f.Contains(prefix));
       var lines = files.SelectMany(File.ReadAllLines);
       var combinations = lines.Select(line => line.Substring(19));
@@ -318,7 +342,7 @@ namespace Spines.Tools.AnalyzerBuilder
 
     private static IEnumerable<string> CreateMeldedCombinations(int count)
     {
-      return CreateLines(new MeldedSuitCombinationsCreator().Create(count));
+      return CreateLines(MeldedCombinationsCreator.CreateSuitCombinationsCreator().Create(count));
     }
 
     private static IEnumerable<string> CreateMixedCombinations(int count)
@@ -326,7 +350,7 @@ namespace Spines.Tools.AnalyzerBuilder
       var maxMelds = (14 - count) / 3;
       for (var meldCount = 0; meldCount <= maxMelds; ++meldCount)
       {
-        var meldedCreator = new MeldedSuitCombinationsCreator();
+        var meldedCreator = MeldedCombinationsCreator.CreateSuitCombinationsCreator();
         var meldedCombinations = meldedCreator.Create(meldCount);
         foreach (var meldedCombination in meldedCombinations)
         {
@@ -348,27 +372,32 @@ namespace Spines.Tools.AnalyzerBuilder
 
     private void CreateConcealedCombinations(object sender, RoutedEventArgs e)
     {
-      Create(CreationType.Concealed);
+      Create(CreationType.ConcealedSuit);
     }
 
     private void CreateMeldedCombinations(object sender, RoutedEventArgs e)
     {
-      Create(CreationType.Melded);
+      Create(CreationType.MeldedSuit);
     }
 
     private void CreateMixedCombinations(object sender, RoutedEventArgs e)
     {
-      Create(CreationType.Mixed);
+      Create(CreationType.MixedSuit);
     }
 
-    private void AnlyzeCombinations(object sender, RoutedEventArgs e)
+    private void AnlyzeSuitCombinations(object sender, RoutedEventArgs e)
     {
-      Create(CreationType.Analyzed);
+      Create(CreationType.AnalyzedSuit);
     }
 
     private void CreateArrangementCsv(object sender, RoutedEventArgs e)
     {
       Create(CreationType.ArrangementCsv);
+    }
+
+    private void AnlyzeHonorCombinations(object sender, RoutedEventArgs e)
+    {
+      Create(CreationType.AnalyzedHonors);
     }
 
     private static IEnumerable<string> CreateArrangementCsvLines(int tileCount)

@@ -39,7 +39,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
 
     private static void VerifyMeld(int numberOfMelds, int numberOfCombinations)
     {
-      var creator = new MeldedSuitCombinationsCreator();
+      var creator = MeldedCombinationsCreator.CreateSuitCombinationsCreator();
       var combinations = creator.Create(numberOfMelds);
       Assert.AreEqual(numberOfCombinations, combinations.Count(), "Count of meld combinations was wrong");
     }
@@ -123,7 +123,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
 
     private static void VerifyMixed(int numberOfMelds, int numberOfTiles, int numberOfCombinations)
     {
-      var meldCreator = new MeldedSuitCombinationsCreator();
+      var meldCreator = MeldedCombinationsCreator.CreateSuitCombinationsCreator();
       var concealedCreator = new ConcealedSuitCombinationCreator();
       var meldedCombinations = meldCreator.Create(numberOfMelds).ToList();
       var mixedCombinations = meldedCombinations.SelectMany(c => concealedCreator.Create(numberOfTiles, c));

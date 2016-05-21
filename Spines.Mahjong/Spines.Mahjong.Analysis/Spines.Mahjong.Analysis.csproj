@@ -61,7 +61,7 @@
     <Compile Include="Combinations\CombinationCreatorBase.cs" />
     <Compile Include="Combinations\TileGroupAnalyzer.cs" />
     <Compile Include="Combinations\IProtoGroupInserter.cs" />
-    <Compile Include="Combinations\MeldedSuitCombinationsCreator.cs" />
+    <Compile Include="Combinations\MeldedCombinationsCreator.cs" />
     <Compile Include="Combinations\Mentsu.cs" />
     <Compile Include="Combinations\ProtoGroup.cs" />
     <Compile Include="Combinations\MentsuProtoGroupInserter.cs" />
