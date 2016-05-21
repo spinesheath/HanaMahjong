@@ -94,7 +94,7 @@ namespace Spines.Tools.AnalyzerBuilder
         foreach (var meldedCombination in meldedCombinations)
         {
           var m = meldCount;
-          var concealedCreator = new ConcealedSuitCombinationCreator();
+          var concealedCreator = ConcealedCombinationCreator.CreateSuitCombinationsCreator();
           var combinations = concealedCreator.Create(count, meldedCombination);
           foreach (var combination in combinations)
           {
@@ -118,7 +118,7 @@ namespace Spines.Tools.AnalyzerBuilder
         foreach (var meldedCombination in meldedCombinations)
         {
           var m = meldCount;
-          var concealedCreator = new ConcealedSuitCombinationCreator();
+          var concealedCreator = ConcealedCombinationCreator.CreateHonorsCombinationsCreator();
           var combinations = concealedCreator.Create(count, meldedCombination);
           foreach (var combination in combinations)
           {
@@ -337,7 +337,7 @@ namespace Spines.Tools.AnalyzerBuilder
 
     private static IEnumerable<string> CreateConcealedCombinations(int count)
     {
-      return CreateLines(new ConcealedSuitCombinationCreator().Create(count));
+      return CreateLines(ConcealedCombinationCreator.CreateSuitCombinationsCreator().Create(count));
     }
 
     private static IEnumerable<string> CreateMeldedCombinations(int count)
@@ -355,7 +355,7 @@ namespace Spines.Tools.AnalyzerBuilder
         foreach (var meldedCombination in meldedCombinations)
         {
           var m = meldCount;
-          var concealedCreator = new ConcealedSuitCombinationCreator();
+          var concealedCreator = ConcealedCombinationCreator.CreateSuitCombinationsCreator();
           var combinations = concealedCreator.Create(count, meldedCombination);
           foreach (var combination in combinations)
           {

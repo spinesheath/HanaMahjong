@@ -67,7 +67,7 @@
     <Compile Include="Combinations\MentsuProtoGroupInserter.cs" />
     <Compile Include="Combinations\ShuntsuProtoGroupInserter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Combinations\ConcealedSuitCombinationCreator.cs" />
+    <Compile Include="Combinations\ConcealedCombinationCreator.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\..\CommonResources\CustomDictionary.xml">

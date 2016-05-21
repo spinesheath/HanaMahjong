@@ -75,7 +75,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
 
     private static void VerifyConcealed(int numberOfTiles, int numberOfCombinations)
     {
-      var creator = new ConcealedSuitCombinationCreator();
+      var creator = ConcealedCombinationCreator.CreateSuitCombinationsCreator();
       var combinations = creator.Create(numberOfTiles);
       Assert.AreEqual(numberOfCombinations, combinations.Count(), "Count of concealed combinations was wrong");
     }
@@ -124,7 +124,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     private static void VerifyMixed(int numberOfMelds, int numberOfTiles, int numberOfCombinations)
     {
       var meldCreator = MeldedCombinationsCreator.CreateSuitCombinationsCreator();
-      var concealedCreator = new ConcealedSuitCombinationCreator();
+      var concealedCreator = ConcealedCombinationCreator.CreateSuitCombinationsCreator();
       var meldedCombinations = meldCreator.Create(numberOfMelds).ToList();
       var mixedCombinations = meldedCombinations.SelectMany(c => concealedCreator.Create(numberOfTiles, c));
       Assert.AreEqual(numberOfCombinations, mixedCombinations.Count(), "Count of mixed combinations was wrong");

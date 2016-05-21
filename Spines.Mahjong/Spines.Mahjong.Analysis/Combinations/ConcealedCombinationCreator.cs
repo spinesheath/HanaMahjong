@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.Analysis.ConcealedSuitCombinationCreator.cs
+﻿// Spines.Mahjong.Analysis.ConcealedCombinationCreator.cs
 // 
 // Copyright (C) 2016  Johannes Heckl
 // 
@@ -25,14 +25,32 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// <summary>
   /// Creates possible combinations of tiles in one suit.
   /// </summary>
-  public class ConcealedSuitCombinationCreator : CombinationCreatorBase
+  public class ConcealedCombinationCreator : CombinationCreatorBase
   {
     /// <summary>
-    /// Creates a new instance of ConcealedSuitCombinationCreator.
+    /// Creates a new instance of ConcealedCombinationCreator.
     /// </summary>
-    public ConcealedSuitCombinationCreator()
-      : base(9)
+    private ConcealedCombinationCreator(int tileTypes)
+      : base(tileTypes)
     {
+    }
+
+    /// <summary>
+    /// Creates a ConcealedCombinationCreator for a suit.
+    /// </summary>
+    /// <returns></returns>
+    public static ConcealedCombinationCreator CreateSuitCombinationsCreator()
+    {
+      return new ConcealedCombinationCreator(9);
+    }
+
+    /// <summary>
+    /// Creates a ConcealedCombinationCreator for honors.
+    /// </summary>
+    /// <returns></returns>
+    public static ConcealedCombinationCreator CreateHonorsCombinationsCreator()
+    {
+      return new ConcealedCombinationCreator(7);
     }
 
     /// <summary>
@@ -45,7 +63,8 @@ namespace Spines.Mahjong.Analysis.Combinations
     }
 
     /// <summary>
-    /// Creates all possible semantically unique concealed combinations for a given number of tiles and a set of tiles already used in melds.
+    /// Creates all possible semantically unique concealed combinations for a given number of tiles and a set of tiles already
+    /// used in melds.
     /// </summary>
     /// <param name="numberOfTiles">The number of tiles in the concealed part of the hand.</param>
     /// <param name="meldedTiles">The tiles used in the melded part of the hand.</param>
@@ -60,7 +79,7 @@ namespace Spines.Mahjong.Analysis.Combinations
         TilesInExternalMelds[i] = used[i];
       }
       return Create(numberOfTiles, TypesInSuit);
-    } 
+    }
 
     /// <summary>
     /// Recursively creates possible concealed combinations in one suit.
