@@ -68,12 +68,17 @@ namespace Spines.Tools.AnalyzerBuilder
           {
             var analyzer = new TileGroupAnalyzer(combination, meldedCombination, m, true);
             var arrangements = analyzer.Analyze();
-            var formattedArrangements = arrangements.Select(a => $"({a.JantouValue},{a.MentsuCount},{a.MentsuValue})");
-            var arrangementsString = string.Join("", formattedArrangements);
+            var arrangementsString = GetArrangementsString(arrangements);
             yield return $"{m}{string.Join("", meldedCombination.Counts)}{string.Join("", combination.Counts)}{arrangementsString}";
           }
         }
       }
+    }
+
+    private static string GetArrangementsString(IEnumerable<Arrangement> arrangements)
+    {
+      var formattedArrangements = arrangements.Select(a => $"({a.JantouValue},{a.MentsuCount},{a.MentsuValue})");
+      return string.Join("", formattedArrangements);
     }
 
     private static IEnumerable<string> CreateAnalyzedHonors(int count)
@@ -155,57 +160,114 @@ namespace Spines.Tools.AnalyzerBuilder
       await Task.Run(() => CreateArrangementWords(workingDirectory));
     }
 
+    private static IEnumerable<List<Arrangement>> GetAllArrangements(string workingDirectory)
+    {
+      var arrangementsFile = Path.Combine(workingDirectory, "ArrangementCombinations.txt");
+      var lines = File.ReadAllLines(arrangementsFile);
+      return lines.Select(ParseArrangements).Select(a => a.ToList());
+    }
+
+    private void FindRedundantArrangements(object sender, RoutedEventArgs e)
+    {
+      var workingDirectory = GetWorkingDirectory();
+      if (workingDirectory == null)
+      {
+        return;
+      }
+
+      ProgressBar.Minimum = 0;
+      ProgressBar.Maximum = 100;
+      ProgressBar.Value = 0;
+      var b = true;
+      while (b)
+      {
+        b = RemoveRedundantArrangement(workingDirectory);
+      }
+      ProgressBar.Value = 100;
+    }
+
+    private static bool RemoveRedundantArrangement(string workingDirectory)
+    {
+      var arrangements = GetAllArrangements(workingDirectory).ToList();
+      var alphabetSize = arrangements.Count;
+      var tilesInArrangements = arrangements.Select(a => a.Max(b => b.TotalValue)).ToList();
+
+      for (var i = 0; i < arrangements.Count; ++i)
+      {
+        var arrangement = arrangements[i];
+        if (arrangement.Count < 2)
+        {
+          continue;
+        }
+
+        for (var j = 0; j < arrangement.Count; ++j)
+        {
+          var isRedundant = true;
+          var language = CreateBaseLanguage(alphabetSize);
+          foreach (var word in language)
+          {
+            if (word.All(c => c != i))
+            {
+              continue;
+            }
+
+            var sumOfTiles = word.Sum(c => tilesInArrangements[c]);
+            if (sumOfTiles > 14)
+            {
+              continue;
+            }
+            var analyzer = new ArrangementAnalyzer();
+            foreach (var character in word)
+            {
+              analyzer.AddSetOfArrangements(arrangements[character]);
+            }
+            var shanten = analyzer.CalculateShanten();
+            if (shanten >= 9)
+            {
+              continue;
+            }
+
+            var replacement = arrangement.Where((t, index) => index != j).ToList();
+            var analyzer2 = new ArrangementAnalyzer();
+            foreach (var character in word)
+            {
+              analyzer2.AddSetOfArrangements(character == i ? replacement : arrangements[character]);
+            }
+            var shanten2 = analyzer2.CalculateShanten();
+            if (shanten != shanten2)
+            {
+              isRedundant = false;
+              break;
+            }
+          }
+          if (isRedundant)
+          {
+            Console.WriteLine($"Removing {arrangements[i][j]} from {string.Join("", arrangements[i])}; i = {i}, j = {j}");
+            arrangements[i].RemoveAt(j);
+            var newLines = arrangements.Select(GetArrangementsString).Distinct().OrderBy(line => line);
+            var targetFile = Path.Combine(workingDirectory, "ArrangementCombinations.txt");
+            File.WriteAllLines(targetFile, newLines);
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
     private void CreateArrangementWords(string workingDirectory)
     {
-      var arrangementFile = Path.Combine(workingDirectory, "ArrangementCombinations.txt");
-      var words = CreateWords(arrangementFile);
+      var arrangements = GetAllArrangements(workingDirectory);
+      var words = CreateWords(arrangements);
       var wordsFile = Path.Combine(workingDirectory, "ArrangementWords.txt");
       File.WriteAllLines(wordsFile, words.Select(w => string.Join(",", w.Word) + ":" + w.Value));
     }
 
-    private void CreateArrangementClassifier(object sender, RoutedEventArgs e)
+    private IEnumerable<WordWithValue> CreateWords(IEnumerable<List<Arrangement>> arrangements)
     {
-      var workingDirectory = GetWorkingDirectory();
-      if (workingDirectory == null)
-      {
-        return;
-      }
-
-      var factory = new ArrangementClassifierFactory(this, workingDirectory);
-      factory.CreateAsync();
-    }
-
-    private void CreateHonorClassifier(object sender, RoutedEventArgs e)
-    {
-      var workingDirectory = GetWorkingDirectory();
-      if (workingDirectory == null)
-      {
-        return;
-      }
-
-      var factory = HandClassifierFactory.CreateHonorClassifierFactory(this, workingDirectory);
-      factory.CreateAsync();
-    }
-
-    private void CreateSuitClassifier(object sender, RoutedEventArgs e)
-    {
-      var workingDirectory = GetWorkingDirectory();
-      if (workingDirectory == null)
-      {
-        return;
-      }
-
-      var factory = HandClassifierFactory.CreateSuitClassifierFactory(this, workingDirectory);
-      factory.CreateAsync();
-    }
-
-    private IEnumerable<WordWithValue> CreateWords(string arrangementsFile)
-    {
-      var lines = File.ReadAllLines(arrangementsFile);
-      var arrangements = lines.Select(ParseArrangements).Select(a => a.ToList()).ToList();
-      var alphabetSize = arrangements.Count;
+      var arrangementsList = arrangements.ToList();
+      var alphabetSize = arrangementsList.Count;
       var language = CreateBaseLanguage(alphabetSize);
-      var tilesInArrangements = arrangements.Select(a => a.Max(b => b.TotalValue)).ToList();
+      var tilesInArrangements = arrangementsList.Select(a => a.Max(b => b.TotalValue)).ToList();
 
       var max = alphabetSize * ((long)alphabetSize + 1) * ((long)alphabetSize + 2) * ((long)alphabetSize + 3) / 24;
       long count = 0;
@@ -218,7 +280,7 @@ namespace Spines.Tools.AnalyzerBuilder
           var analyzer = new ArrangementAnalyzer();
           foreach (var character in word)
           {
-            analyzer.AddSetOfArrangements(arrangements[character]);
+            analyzer.AddSetOfArrangements(arrangementsList[character]);
           }
           var shanten = analyzer.CalculateShanten();
           if (shanten < 9)
@@ -281,6 +343,42 @@ namespace Spines.Tools.AnalyzerBuilder
       var lines = CreatorFuncs[creationType].Invoke(count);
       WriteToFile(workingDirectory, count, lines, creationType);
       IncrementProgressBar();
+    }
+
+    private void CreateArrangementClassifier(object sender, RoutedEventArgs e)
+    {
+      var workingDirectory = GetWorkingDirectory();
+      if (workingDirectory == null)
+      {
+        return;
+      }
+
+      var factory = new ArrangementClassifierFactory(this, workingDirectory);
+      factory.CreateAsync();
+    }
+
+    private void CreateHonorClassifier(object sender, RoutedEventArgs e)
+    {
+      var workingDirectory = GetWorkingDirectory();
+      if (workingDirectory == null)
+      {
+        return;
+      }
+
+      var factory = HandClassifierFactory.CreateHonorClassifierFactory(this, workingDirectory);
+      factory.CreateAsync();
+    }
+
+    private void CreateSuitClassifier(object sender, RoutedEventArgs e)
+    {
+      var workingDirectory = GetWorkingDirectory();
+      if (workingDirectory == null)
+      {
+        return;
+      }
+
+      var factory = HandClassifierFactory.CreateSuitClassifierFactory(this, workingDirectory);
+      factory.CreateAsync();
     }
 
     private static void WriteToFile(string workingDirectory, int count, IEnumerable<string> lines, CreationType creationType)
