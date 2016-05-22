@@ -65,5 +65,13 @@ namespace Spines.Tools.AnalyzerBuilder
       }
       return builder.CreateClassifier();
     }
+
+    protected Dictionary<string, int> GetArrangementDictionary()
+    {
+      var arrangementFile = Path.Combine(WorkingDirectory, "ArrangementCombinations.txt");
+      var lines = File.ReadAllLines(arrangementFile);
+      var withIndices = lines.Select((a, i) => new { Arrangement = a, Index = i });
+      return withIndices.ToDictionary(p => p.Arrangement, p => p.Index);
+    }
   }
 }

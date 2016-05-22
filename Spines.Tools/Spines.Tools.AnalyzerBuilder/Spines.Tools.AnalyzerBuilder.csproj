@@ -87,7 +87,7 @@
     </Compile>
     <Compile Include="ClassifierFactoryBase.cs" />
     <Compile Include="CreationData.cs" />
-    <Compile Include="HonorClassifierFactory.cs" />
+    <Compile Include="HandClassifierFactory.cs" />
     <Compile Include="ArrangementClassifierFactory.cs" />
     <Compile Include="CreationType.cs" />
     <Compile Include="IProgressManager.cs" />

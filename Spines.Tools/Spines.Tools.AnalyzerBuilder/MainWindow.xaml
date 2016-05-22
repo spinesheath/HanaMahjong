@@ -34,6 +34,7 @@
             <Button Click="CreateArrangementClassifier" Content="Arrangement Classifier" />
             <Button Click="AnlyzeHonorCombinations" Content="Analyze Honor" />
             <Button Click="CreateHonorClassifier" Content="Honor Classifier" />
+            <Button Click="CreateSuitClassifier" Content="Suit Classifier" />
         </WrapPanel>
 
     </DockPanel>

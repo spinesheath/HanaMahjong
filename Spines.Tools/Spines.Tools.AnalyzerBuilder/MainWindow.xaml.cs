@@ -183,7 +183,19 @@ namespace Spines.Tools.AnalyzerBuilder
         return;
       }
 
-      var factory = new HonorClassifierFactory(this, workingDirectory);
+      var factory = HandClassifierFactory.CreateHonorClassifierFactory(this, workingDirectory);
+      factory.CreateAsync();
+    }
+
+    private void CreateSuitClassifier(object sender, RoutedEventArgs e)
+    {
+      var workingDirectory = GetWorkingDirectory();
+      if (workingDirectory == null)
+      {
+        return;
+      }
+
+      var factory = HandClassifierFactory.CreateSuitClassifierFactory(this, workingDirectory);
       factory.CreateAsync();
     }
 
