@@ -85,7 +85,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="HonorClassifierFactory.cs" />
+    <Compile Include="ArrangementClassifierFactory.cs" />
     <Compile Include="CreationType.cs" />
+    <Compile Include="IProgressManager.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

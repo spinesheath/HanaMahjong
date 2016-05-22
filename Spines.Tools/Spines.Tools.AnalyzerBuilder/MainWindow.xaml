@@ -33,6 +33,7 @@
             <Button Click="CreateArrangementWords" Content="Arrangement Words" />
             <Button Click="CreateArrangementClassifier" Content="Arrangement Classifier" />
             <Button Click="AnlyzeHonorCombinations" Content="Analyze Honor" />
+            <Button Click="CreateHonorClassifier" Content="Honor Classifier" />
         </WrapPanel>
 
     </DockPanel>

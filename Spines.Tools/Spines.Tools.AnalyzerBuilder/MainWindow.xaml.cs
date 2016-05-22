@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -27,14 +26,13 @@ using System.Windows;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Spines.Mahjong.Analysis.Classification;
 using Spines.Mahjong.Analysis.Combinations;
-using Spines.Utility;
 
 namespace Spines.Tools.AnalyzerBuilder
 {
   /// <summary>
   /// Interaction logic for MainWindow.xaml
   /// </summary>
-  public partial class MainWindow
+  public partial class MainWindow : IProgressManager
   {
     private readonly IDictionary<CreationType, int> _creationCounts = new Dictionary<CreationType, int>
     {
@@ -203,45 +201,20 @@ namespace Spines.Tools.AnalyzerBuilder
         return;
       }
 
-      CreateArrangementClassifierAsync(workingDirectory);
+      var factory = new ArrangementClassifierFactory(this, workingDirectory);
+      factory.CreateAsync();
     }
 
-    private async void CreateArrangementClassifierAsync(string workingDirectory)
+    private void CreateHonorClassifier(object sender, RoutedEventArgs e)
     {
-      var wordsFile = Path.Combine(workingDirectory, "ArrangementWords.txt");
-      var lines = File.ReadAllLines(wordsFile);
-      var words = lines.Select(CreateWord).ToList();
-      ProgressBar.Minimum = 0;
-      ProgressBar.Maximum = words.Count;
-      ProgressBar.Value = 0;
-
-      var alphabetSize = words.SelectMany(w => w.Word).Max() + 1;
-      var classifier = await Task.Run(() => CreateArrangementClassifier(words, alphabetSize));
-
-      var classifierFile = Path.Combine(workingDirectory, "ArrangementClassifier.bin");
-      using (var fileStream = new FileStream(classifierFile, FileMode.Create))
+      var workingDirectory = GetWorkingDirectory();
+      if (workingDirectory == null)
       {
-        var formatter = new BinaryFormatter();
-        formatter.Serialize(fileStream, classifier);
+        return;
       }
-    }
 
-    private Classifier CreateArrangementClassifier(IEnumerable<WordWithValue> words, int alphabetSize)
-    {
-      var builder = new ClassifierBuilder(alphabetSize, 4);
-      foreach (var word in words)
-      {
-        builder.AddWords(word.Yield());
-        IncrementProgressBar();
-      }
-      return builder.CreateClassifier();
-    }
-
-    private static WordWithValue CreateWord(string line)
-    {
-      var a = line.Split(':');
-      var b = a[0].Split(',').Select(c => Convert.ToInt32(c));
-      return new WordWithValue(b, Convert.ToInt32(a[1]));
+      var factory = new HonorClassifierFactory(this, workingDirectory);
+      factory.CreateAsync();
     }
 
     private IEnumerable<WordWithValue> CreateWords(string arrangementsFile)
@@ -473,6 +446,32 @@ namespace Spines.Tools.AnalyzerBuilder
           }
         }
       }
+    }
+
+    /// <summary>
+    /// Resets the ProgressBar.
+    /// </summary>
+    public void Reset(int max)
+    {
+      ProgressBar.Minimum = 0;
+      ProgressBar.Maximum = max;
+      ProgressBar.Value = 0;
+    }
+
+    /// <summary>
+    /// Increments the ProgressBar.
+    /// </summary>
+    public void Increment()
+    {
+      IncrementProgressBar();
+    }
+
+    /// <summary>
+    /// Shows that the process is done.
+    /// </summary>
+    public void Done()
+    {
+      ProgressBar.Value = 0;
     }
   }
 }
