@@ -122,7 +122,7 @@ namespace Spines.Tools.AnalyzerBuilder
           var combinations = concealedCreator.Create(count, meldedCombination);
           foreach (var combination in combinations)
           {
-            var analyzer = new TileGroupAnalyzer(combination, meldedCombination, m, true);
+            var analyzer = new TileGroupAnalyzer(combination, meldedCombination, m, false);
             var arrangements = analyzer.Analyze();
             var formattedArrangements = arrangements.Select(a => $"({a.JantouValue},{a.MentsuCount},{a.MentsuValue})");
             var arrangementsString = string.Join("", formattedArrangements);
@@ -151,15 +151,22 @@ namespace Spines.Tools.AnalyzerBuilder
         return;
       }
 
-      var prefix = _prefixes[CreationType.AnalyzedSuit];
-      var files = Directory.GetFiles(workingDirectory).Where(f => f.Contains(prefix));
+      var suitPrefix = _prefixes[CreationType.AnalyzedSuit];
+      var honorPrefix = _prefixes[CreationType.AnalyzedHonors];
+      var files = Directory.GetFiles(workingDirectory).Where(f => f.Contains(suitPrefix) || f.Contains(honorPrefix));
       var lines = files.SelectMany(File.ReadAllLines);
-      var combinations = lines.Select(line => line.Substring(19));
+      var combinations = lines.Select(GetCombinationSubstring);
       var unique = combinations.Distinct();
       var ordered = unique.OrderBy(u => u);
       var targetFile = Path.Combine(workingDirectory, "ArrangementCombinations.txt");
       File.WriteAllLines(targetFile, ordered);
-    } 
+    }
+
+    private static string GetCombinationSubstring(string line)
+    {
+      var index = line.IndexOf('(');
+      return line.Substring(index);
+    }
 
     private void CreateArrangementWords(object sender, RoutedEventArgs e)
     {
