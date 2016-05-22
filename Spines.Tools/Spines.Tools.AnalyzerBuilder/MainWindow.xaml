@@ -36,6 +36,7 @@
             <Button Click="CreateHonorClassifier" Content="Honor Classifier" />
             <Button Click="CreateSuitClassifier" Content="Suit Classifier" />
             <Button Click="FindRedundantArrangements" Content="Redundant Arrangement" />
+            <Button Click="RedundancyLogToIds" Content="Redundancy Log To Id" />
         </WrapPanel>
 
     </DockPanel>

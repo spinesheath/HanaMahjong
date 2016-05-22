@@ -26,6 +26,7 @@ using System.Windows;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Spines.Mahjong.Analysis.Classification;
 using Spines.Mahjong.Analysis.Combinations;
+using Spines.Utility;
 
 namespace Spines.Tools.AnalyzerBuilder
 {
@@ -175,9 +176,7 @@ namespace Spines.Tools.AnalyzerBuilder
         return;
       }
 
-      ProgressBar.Minimum = 0;
-      ProgressBar.Maximum = 100;
-      ProgressBar.Value = 0;
+      Reset(100);
       var b = true;
       while (b)
       {
@@ -188,6 +187,9 @@ namespace Spines.Tools.AnalyzerBuilder
 
     private static bool RemoveRedundantArrangement(string workingDirectory)
     {
+      var redundancyLog = Path.Combine(workingDirectory, "RedundanciesLog.txt");
+      File.WriteAllLines(redundancyLog, Enumerable.Empty<string>());
+
       var arrangements = GetAllArrangements(workingDirectory).ToList();
       var alphabetSize = arrangements.Count;
       var tilesInArrangements = arrangements.Select(a => a.Max(b => b.TotalValue)).ToList();
@@ -242,7 +244,7 @@ namespace Spines.Tools.AnalyzerBuilder
           }
           if (isRedundant)
           {
-            Console.WriteLine($"Removing {arrangements[i][j]} from {string.Join("", arrangements[i])}; i = {i}, j = {j}");
+            File.AppendAllLines(redundancyLog, $"Removing {arrangements[i][j]} from {string.Join("", arrangements[i])}; i = {i}, j = {j}".Yield());
             arrangements[i].RemoveAt(j);
             var newLines = arrangements.Select(GetArrangementsString).Distinct().OrderBy(line => line);
             var targetFile = Path.Combine(workingDirectory, "ArrangementCombinations.txt");
@@ -252,6 +254,35 @@ namespace Spines.Tools.AnalyzerBuilder
         }
       }
       return false;
+    }
+
+    private void RedundancyLogToIds(object sender, RoutedEventArgs e)
+    {
+      var workingDirectory = GetWorkingDirectory();
+      if (workingDirectory == null)
+      {
+        return;
+      }
+
+      Reset(100);
+
+      var redundancyLog = Path.Combine(workingDirectory, "RedundanciesLog.txt");
+      var lines = File.ReadAllLines(redundancyLog);
+      var newLines = lines.Select(RedundanciesToIds);
+      var targetFile = Path.Combine(workingDirectory, "RedundanciesByIds.txt");
+      File.WriteAllLines(targetFile, newLines);
+
+      ProgressBar.Value = 100;
+    }
+
+    private static string RedundanciesToIds(string line)
+    {
+      var regex = new Regex(@"Removing .* from (.*); i = .*, j = ([0-9]+)");
+      var match = regex.Match(line);
+      var arrangementsString = match.Groups[1].Value;
+      var toRemove = Convert.ToInt32(match.Groups[2].Value);
+      var arrangements = ParseArrangements(arrangementsString);
+      return string.Join(",", arrangements.Select(a => a.Id)) + $";{toRemove}";
     }
 
     private void CreateArrangementWords(string workingDirectory)
@@ -317,7 +348,7 @@ namespace Spines.Tools.AnalyzerBuilder
 
     private static IEnumerable<Arrangement> ParseArrangements(string line)
     {
-      var regex = new Regex(@"\((\d+),(\d+),(\d+)\)");
+      var regex = new Regex(@"\((\d+), *(\d+), *(\d+)\)");
       var matches = regex.Matches(line);
       foreach (Match match in matches)
       {
