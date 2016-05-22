@@ -88,7 +88,9 @@ namespace Spines.Mahjong.Analysis.Combinations
       _usedMelds = _meldCount;
       _jantouValue = 0;
       Analyze(arrangement, 0, 0);
-      return _arrangements.Where(a => !_arrangements.Any(other => comparer.IsWorseThan(a, other))).OrderBy(a => a.Id);
+      var arrangements = _arrangements.Where(a => !_arrangements.Any(other => comparer.IsWorseThan(a, other))).OrderBy(a => a.Id);
+      var compacter = new ArrangementGroupCompacter();
+      return compacter.GetCompacted(arrangements);
     }
 
     private void Analyze(Arrangement arrangement, int currentTileType, int currentProtoGroup)
