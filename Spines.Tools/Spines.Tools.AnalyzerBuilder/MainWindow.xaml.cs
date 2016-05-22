@@ -34,17 +34,7 @@ namespace Spines.Tools.AnalyzerBuilder
   /// </summary>
   public partial class MainWindow : IProgressManager
   {
-    private readonly IDictionary<CreationType, int> _creationCounts = new Dictionary<CreationType, int>
-    {
-      {CreationType.ConcealedSuit, 15},
-      {CreationType.MeldedSuit, 5},
-      {CreationType.MixedSuit, 15},
-      {CreationType.AnalyzedSuit, 15},
-      {CreationType.ArrangementCsv, 15},
-      {CreationType.AnalyzedHonors, 15}
-    };
-
-    private readonly IDictionary<CreationType, Func<int, IEnumerable<string>>> _creatorFuncs = new Dictionary<CreationType, Func<int, IEnumerable<string>>>
+    private static readonly IDictionary<CreationType, Func<int, IEnumerable<string>>> CreatorFuncs = new Dictionary<CreationType, Func<int, IEnumerable<string>>>
     {
       {CreationType.ConcealedSuit, CreateConcealedCombinations},
       {CreationType.MeldedSuit, CreateMeldedCombinations},
@@ -52,26 +42,6 @@ namespace Spines.Tools.AnalyzerBuilder
       {CreationType.AnalyzedSuit, CreateAnalyzedSuit},
       {CreationType.ArrangementCsv, CreateArrangementCsvLines},
       {CreationType.AnalyzedHonors, CreateAnalyzedHonors}
-    };
-
-    private readonly IDictionary<CreationType, string> _prefixes = new Dictionary<CreationType, string>
-    {
-      {CreationType.ConcealedSuit, "ConcealedSuitCombinations"},
-      {CreationType.MeldedSuit, "MeldedSuitCombinations"},
-      {CreationType.MixedSuit, "MixedSuitCombinations"},
-      {CreationType.AnalyzedSuit, "AnayzedSuitCombinations"},
-      {CreationType.ArrangementCsv, "ArrangementCsv"},
-      {CreationType.AnalyzedHonors, "AnayzedHonorCombinations"}
-    };
-
-    private readonly IDictionary<CreationType, string> _fileTypes = new Dictionary<CreationType, string>
-    {
-      {CreationType.ConcealedSuit, "txt"},
-      {CreationType.MeldedSuit, "txt"},
-      {CreationType.MixedSuit, "txt"},
-      {CreationType.AnalyzedSuit, "txt"},
-      {CreationType.ArrangementCsv, "csv"},
-      {CreationType.AnalyzedHonors, "txt"}
     };
 
     /// <summary>
@@ -149,8 +119,8 @@ namespace Spines.Tools.AnalyzerBuilder
         return;
       }
 
-      var suitPrefix = _prefixes[CreationType.AnalyzedSuit];
-      var honorPrefix = _prefixes[CreationType.AnalyzedHonors];
+      var suitPrefix = CreationData.Prefixes[CreationType.AnalyzedSuit];
+      var honorPrefix = CreationData.Prefixes[CreationType.AnalyzedHonors];
       var files = Directory.GetFiles(workingDirectory).Where(f => f.Contains(suitPrefix) || f.Contains(honorPrefix));
       var lines = files.SelectMany(File.ReadAllLines);
       var combinations = lines.Select(GetCombinationSubstring);
@@ -286,7 +256,7 @@ namespace Spines.Tools.AnalyzerBuilder
 
     private async void CreateCombinationsAsync(string workingDirectory, CreationType creationType)
     {
-      var creationCount = _creationCounts[creationType];
+      var creationCount = CreationData.CreationCounts[creationType];
       ProgressBar.Minimum = 0;
       ProgressBar.Maximum = creationCount;
       ProgressBar.Value = 0;
@@ -296,15 +266,15 @@ namespace Spines.Tools.AnalyzerBuilder
 
     private void CreateCombinationFile(int count, string workingDirectory, CreationType creationType)
     {
-      var lines = _creatorFuncs[creationType].Invoke(count);
+      var lines = CreatorFuncs[creationType].Invoke(count);
       WriteToFile(workingDirectory, count, lines, creationType);
       IncrementProgressBar();
     }
 
-    private void WriteToFile(string workingDirectory, int count, IEnumerable<string> lines, CreationType creationType)
+    private static void WriteToFile(string workingDirectory, int count, IEnumerable<string> lines, CreationType creationType)
     {
-      var prefix = _prefixes[creationType];
-      var fileType = _fileTypes[creationType];
+      var prefix = CreationData.Prefixes[creationType];
+      var fileType = CreationData.FileTypes[creationType];
       var fileName = $"{prefix}_{count}.{fileType}";
       var path = Path.Combine(workingDirectory, fileName);
       File.WriteAllLines(path, lines);

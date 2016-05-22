@@ -1,53 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Spines.Tools.AnalyzerBuilder.ArrangementClassifierFactory.cs
+// 
+// Copyright (C) 2016  Johannes Heckl
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading.Tasks;
 using Spines.Mahjong.Analysis.Classification;
-using Spines.Utility;
 
 namespace Spines.Tools.AnalyzerBuilder
 {
-  internal class ArrangementClassifierFactory
+  internal class ArrangementClassifierFactory : ClassifierFactoryBase
   {
-    private readonly IProgressManager _progressManager;
-    private readonly string _workingDirectory;
-
     public ArrangementClassifierFactory(IProgressManager progressManager, string workingDirectory)
+      : base(progressManager, workingDirectory)
     {
-      _progressManager = progressManager;
-      _workingDirectory = workingDirectory;
     }
 
     public async void CreateAsync()
     {
-      var wordsFile = Path.Combine(_workingDirectory, "ArrangementWords.txt");
+      var wordsFile = Path.Combine(WorkingDirectory, "ArrangementWords.txt");
       var lines = File.ReadAllLines(wordsFile);
-      var words = lines.Select(CreateWord).ToList();
-      _progressManager.Reset(words.Count);
-
-      var alphabetSize = words.SelectMany(w => w.Word).Max() + 1;
-      var classifier = await Task.Run(() => Create(words, alphabetSize));
-
-      var classifierFile = Path.Combine(_workingDirectory, "ArrangementClassifier.bin");
-      using (var fileStream = new FileStream(classifierFile, FileMode.Create))
-      {
-        var formatter = new BinaryFormatter();
-        formatter.Serialize(fileStream, classifier);
-      }
-      _progressManager.Done();
-    }
-
-    private Classifier Create(IEnumerable<WordWithValue> words, int alphabetSize)
-    {
-      var builder = new ClassifierBuilder(alphabetSize, 4);
-      foreach (var word in words)
-      {
-        builder.AddWords(word.Yield());
-        _progressManager.Increment();
-      }
-      return builder.CreateClassifier();
+      var wordWithValues = lines.Select(CreateWord);
+      await CreateAsync(wordWithValues, "ArrangementClassifier.bin");
     }
 
     private static WordWithValue CreateWord(string line)
