@@ -23,7 +23,7 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// <summary>
   /// Removes from a list of arrangements all redundant arrangements.
   /// </summary>
-  internal class ArrangementGroupCompacter
+  public class ArrangementGroupCompacter
   {
     /// <summary>
     /// If a list of arrangements matches one of these sequences by their Ids, one of these arrangements is redundant

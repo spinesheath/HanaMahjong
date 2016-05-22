@@ -98,12 +98,17 @@ namespace Spines.Tools.AnalyzerBuilder
           {
             var analyzer = new TileGroupAnalyzer(combination, meldedCombination, m, false);
             var arrangements = analyzer.Analyze();
-            var formattedArrangements = arrangements.Select(a => $"({a.JantouValue},{a.MentsuCount},{a.MentsuValue})");
+            var formattedArrangements = arrangements.Select(a => CreateCompactArrangementString(a));
             var arrangementsString = string.Join("", formattedArrangements);
             yield return $"{m}{string.Join("", meldedCombination.Counts)}{string.Join("", combination.Counts)}{arrangementsString}";
           }
         }
       }
+    }
+
+    private static string CreateCompactArrangementString(Arrangement a)
+    {
+      return $"({a.JantouValue},{a.MentsuCount},{a.MentsuValue})";
     }
 
     private void Create(CreationType creationType)
@@ -476,7 +481,7 @@ namespace Spines.Tools.AnalyzerBuilder
       Create(CreationType.MixedSuit);
     }
 
-    private void AnlyzeSuitCombinations(object sender, RoutedEventArgs e)
+    private void AnalyzeSuitCombinations(object sender, RoutedEventArgs e)
     {
       Create(CreationType.AnalyzedSuit);
     }
@@ -486,7 +491,7 @@ namespace Spines.Tools.AnalyzerBuilder
       Create(CreationType.ArrangementCsv);
     }
 
-    private void AnlyzeHonorCombinations(object sender, RoutedEventArgs e)
+    private void AnalyzeHonorCombinations(object sender, RoutedEventArgs e)
     {
       Create(CreationType.AnalyzedHonors);
     }

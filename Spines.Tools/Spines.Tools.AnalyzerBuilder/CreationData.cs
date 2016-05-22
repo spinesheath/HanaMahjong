@@ -36,9 +36,9 @@ namespace Spines.Tools.AnalyzerBuilder
       {CreationType.ConcealedSuit, "ConcealedSuitCombinations"},
       {CreationType.MeldedSuit, "MeldedSuitCombinations"},
       {CreationType.MixedSuit, "MixedSuitCombinations"},
-      {CreationType.AnalyzedSuit, "AnayzedSuitCombinations"},
+      {CreationType.AnalyzedSuit, "AnalyzedSuitCombinations"},
       {CreationType.ArrangementCsv, "ArrangementCsv"},
-      {CreationType.AnalyzedHonors, "AnayzedHonorCombinations"}
+      {CreationType.AnalyzedHonors, "AnalyzedHonorCombinations"}
     };
 
     public static readonly IDictionary<CreationType, string> FileTypes = new Dictionary<CreationType, string>
