@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Spines.Mahjong.Analysis.Classification;
+using Spines.Utility;
 
 namespace Spines.Tools.AnalyzerBuilder
 {
@@ -35,36 +36,50 @@ namespace Spines.Tools.AnalyzerBuilder
       _targetFile = targetFile;
     }
 
-    public static HandClassifierFactory CreateSuitClassifierFactory(IProgressManager progressManager, string workingDirectory)
+    public static HandClassifierFactory CreateSuitClassifierFactory(IProgressManager progressManager, string workingDirectory, string filename)
     {
       var prefix = CreationData.Prefixes[CreationType.AnalyzedSuit];
-      return new HandClassifierFactory(progressManager, workingDirectory, prefix, "SuitClassifier.bin");
+      return new HandClassifierFactory(progressManager, workingDirectory, prefix, filename);
     }
 
-    public static HandClassifierFactory CreateHonorClassifierFactory(IProgressManager progressManager, string workingDirectory)
+    public static HandClassifierFactory CreateHonorClassifierFactory(IProgressManager progressManager, string workingDirectory, string filename)
     {
       var prefix = CreationData.Prefixes[CreationType.AnalyzedHonors];
-      return new HandClassifierFactory(progressManager, workingDirectory, prefix, "HonorClassifier.bin");
+      return new HandClassifierFactory(progressManager, workingDirectory, prefix, filename);
     }
 
-    public async void CreateAsync()
+    public async void CreateAsync(bool mirrorWords)
     {
       var arrangementIndices = GetArrangementDictionary();
 
       var files = Directory.GetFiles(WorkingDirectory).Where(f => f.Contains(_sourceFilePrefix));
       var lines = files.SelectMany(File.ReadAllLines);
-      var wordWithValues = lines.Select(s => CreateSuitOrHonorWord(s, arrangementIndices));
+      var wordWithValues = lines.SelectMany(s => CreateSuitOrHonorWord(s, arrangementIndices, mirrorWords));
       await CreateAsync(wordWithValues, _targetFile);
     }
 
-    private static WordWithValue CreateSuitOrHonorWord(string line, Dictionary<string, int> arrangementIndices)
+    private static IEnumerable<WordWithValue> CreateSuitOrHonorWord(string line, IReadOnlyDictionary<string, int> arrangementIndices, bool mirrorWords)
     {
       var index = line.IndexOf('(');
-      var a = line.Substring(0, index);
-      var b = line.Substring(index);
-      var word = a.Select(c => c - '0');
-      var value = arrangementIndices[b];
-      return new WordWithValue(word, value);
+      var hand = line.Substring(0, index);
+      var arrangements = line.Substring(index);
+      var word = hand.Select(c => c - '0');
+      var value = arrangementIndices[arrangements];
+      yield return new WordWithValue(word, value);
+
+      if (!mirrorWords)
+      {
+        yield break;
+      }
+
+      var meldCount = hand[0];
+      var tileTypes = (index - 1) / 2;
+      var meldTiles = hand.Substring(1, tileTypes);
+      var handTiles = hand.Substring(1 + tileTypes);
+      var reverseMeldTiles = meldTiles.Select(c => c - '0').Reverse();
+      var reverseHandTiles = handTiles.Select(c => c - '0').Reverse();
+      var mirroredWord = (meldCount - '0').Yield().Concat(reverseMeldTiles).Concat(reverseHandTiles);
+      yield return new WordWithValue(mirroredWord, value);
     }
   }
 }

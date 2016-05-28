@@ -38,6 +38,9 @@
             <Button Click="CreateSuitClassifier" Content="Suit Classifier" />
             <Button Click="CreateHonorClassifier" Content="Honor Classifier" />
             <Button Click="CreateArrangementClassifier" Content="Arrangement Classifier" />
+
+            <Button Click="CreateMirroredHonorClassifier" Content="Mirrored Honor Classifier" />
+            <Button Click="CreateMirroredSuitClassifier" Content="Mirrored Suit Classifier" />
         </WrapPanel>
 
     </DockPanel>

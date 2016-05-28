@@ -401,8 +401,20 @@ namespace Spines.Tools.AnalyzerBuilder
         return;
       }
 
-      var factory = HandClassifierFactory.CreateHonorClassifierFactory(this, workingDirectory);
-      factory.CreateAsync();
+      var factory = HandClassifierFactory.CreateHonorClassifierFactory(this, workingDirectory, "HonorClassifier.bin");
+      factory.CreateAsync(false);
+    }
+
+    private void CreateMirroredHonorClassifier(object sender, RoutedEventArgs e)
+    {
+      var workingDirectory = GetWorkingDirectory();
+      if (workingDirectory == null)
+      {
+        return;
+      }
+
+      var factory = HandClassifierFactory.CreateHonorClassifierFactory(this, workingDirectory, "MirroredHonorClassifier.bin");
+      factory.CreateAsync(true);
     }
 
     private void CreateSuitClassifier(object sender, RoutedEventArgs e)
@@ -413,8 +425,20 @@ namespace Spines.Tools.AnalyzerBuilder
         return;
       }
 
-      var factory = HandClassifierFactory.CreateSuitClassifierFactory(this, workingDirectory);
-      factory.CreateAsync();
+      var factory = HandClassifierFactory.CreateSuitClassifierFactory(this, workingDirectory, "SuitClassifier.bin");
+      factory.CreateAsync(false);
+    }
+
+    private void CreateMirroredSuitClassifier(object sender, RoutedEventArgs e)
+    {
+      var workingDirectory = GetWorkingDirectory();
+      if (workingDirectory == null)
+      {
+        return;
+      }
+
+      var factory = HandClassifierFactory.CreateSuitClassifierFactory(this, workingDirectory, "MirroredSuitClassifier.bin");
+      factory.CreateAsync(true);
     }
 
     private static void WriteToFile(string workingDirectory, int count, IEnumerable<string> lines, CreationType creationType)
