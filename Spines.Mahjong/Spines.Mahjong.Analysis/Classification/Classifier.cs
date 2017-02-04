@@ -17,6 +17,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.Classification
@@ -35,6 +37,18 @@ namespace Spines.Mahjong.Analysis.Classification
     internal Classifier(int[] transitions)
     {
       _transitions = transitions;
+    }
+
+    /// <summary>
+    /// Creates a new instance of Classifier from a binary file.
+    /// </summary>
+    public static Classifier FromFile(string filename)
+    {
+      using (var fileStream = new FileStream(filename, FileMode.Open))
+      {
+        var binaryFormatter = new BinaryFormatter();
+        return (Classifier) binaryFormatter.Deserialize(fileStream);
+      }
     }
 
     /// <summary>
