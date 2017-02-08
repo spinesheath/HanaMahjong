@@ -97,6 +97,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Precalculation\Creator.cs" />
+    <Compile Include="Precalculation\RawAnalyzedDataCreator.cs" />
+    <Compile Include="Precalculation\RawAnalyzedHonorDataCreator.cs" />
+    <Compile Include="Precalculation\RawAnalyzedSuitDataCreator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

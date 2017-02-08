@@ -26,6 +26,7 @@ using System.Windows;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Spines.Mahjong.Analysis.Classification;
 using Spines.Mahjong.Analysis.Combinations;
+using Spines.Tools.AnalyzerBuilder.Precalculation;
 using Spines.Utility;
 
 namespace Spines.Tools.AnalyzerBuilder
@@ -58,16 +59,16 @@ namespace Spines.Tools.AnalyzerBuilder
       var maxMelds = (14 - count) / 3;
       for (var meldCount = 0; meldCount <= maxMelds; ++meldCount)
       {
-        var meldedCreator = MeldedCombinationsCreator.CreateSuitCombinationsCreator();
+        var meldedCreator = MeldedCombinationsCreator.ForSuits();
         var meldedCombinations = meldedCreator.Create(meldCount);
         foreach (var meldedCombination in meldedCombinations)
         {
           var m = meldCount;
-          var concealedCreator = ConcealedCombinationCreator.CreateSuitCombinationsCreator();
+          var concealedCreator = ConcealedCombinationCreator.ForSuits();
           var combinations = concealedCreator.Create(count, meldedCombination);
           foreach (var combination in combinations)
           {
-            var analyzer = new TileGroupAnalyzer(combination, meldedCombination, m, true);
+            var analyzer = TileGroupAnalyzer.ForSuits(combination, meldedCombination, m);
             var arrangements = analyzer.Analyze();
             var arrangementsString = GetArrangementsString(arrangements);
             yield return $"{m}{string.Join("", meldedCombination.Counts)}{string.Join("", combination.Counts)}{arrangementsString}";
@@ -87,18 +88,18 @@ namespace Spines.Tools.AnalyzerBuilder
       var maxMelds = (14 - count) / 3;
       for (var meldCount = 0; meldCount <= maxMelds; ++meldCount)
       {
-        var meldedCreator = MeldedCombinationsCreator.CreateHonorsCombinationsCreator();
+        var meldedCreator = MeldedCombinationsCreator.ForHonors();
         var meldedCombinations = meldedCreator.Create(meldCount);
         foreach (var meldedCombination in meldedCombinations)
         {
           var m = meldCount;
-          var concealedCreator = ConcealedCombinationCreator.CreateHonorsCombinationsCreator();
+          var concealedCreator = ConcealedCombinationCreator.ForHonors();
           var combinations = concealedCreator.Create(count, meldedCombination);
           foreach (var combination in combinations)
           {
-            var analyzer = new TileGroupAnalyzer(combination, meldedCombination, m, false);
+            var analyzer = TileGroupAnalyzer.ForHonors(combination, meldedCombination, m);
             var arrangements = analyzer.Analyze();
-            var formattedArrangements = arrangements.Select(a => CreateCompactArrangementString(a));
+            var formattedArrangements = arrangements.Select(CreateCompactArrangementString);
             var arrangementsString = string.Join("", formattedArrangements);
             yield return $"{m}{string.Join("", meldedCombination.Counts)}{string.Join("", combination.Counts)}{arrangementsString}";
           }
@@ -130,15 +131,20 @@ namespace Spines.Tools.AnalyzerBuilder
         return;
       }
 
-      var suitPrefix = CreationData.Prefixes[CreationType.AnalyzedSuit];
-      var honorPrefix = CreationData.Prefixes[CreationType.AnalyzedHonors];
-      var files = Directory.GetFiles(workingDirectory).Where(f => f.Contains(suitPrefix) || f.Contains(honorPrefix));
+      var files = GetAnalyzedFiles(workingDirectory);
       var lines = files.SelectMany(File.ReadAllLines);
       var combinations = lines.Select(GetCombinationSubstring);
       var unique = combinations.Distinct();
       var ordered = unique.OrderBy(u => u);
       var targetFile = Path.Combine(workingDirectory, "ArrangementCombinations.txt");
       File.WriteAllLines(targetFile, ordered);
+    }
+
+    private static IEnumerable<string> GetAnalyzedFiles(string workingDirectory)
+    {
+      var suitPrefix = CreationData.Prefixes[CreationType.AnalyzedSuit];
+      var honorPrefix = CreationData.Prefixes[CreationType.AnalyzedHonors];
+      return Directory.GetFiles(workingDirectory).Where(f => f.Contains(suitPrefix) || f.Contains(honorPrefix));
     }
 
     private static string GetCombinationSubstring(string line)
@@ -457,12 +463,12 @@ namespace Spines.Tools.AnalyzerBuilder
 
     private static IEnumerable<string> CreateConcealedCombinations(int count)
     {
-      return CreateLines(ConcealedCombinationCreator.CreateSuitCombinationsCreator().Create(count));
+      return CreateLines(ConcealedCombinationCreator.ForSuits().Create(count));
     }
 
     private static IEnumerable<string> CreateMeldedCombinations(int count)
     {
-      return CreateLines(MeldedCombinationsCreator.CreateSuitCombinationsCreator().Create(count));
+      return CreateLines(MeldedCombinationsCreator.ForSuits().Create(count));
     }
 
     private static IEnumerable<string> CreateMixedCombinations(int count)
@@ -470,12 +476,12 @@ namespace Spines.Tools.AnalyzerBuilder
       var maxMelds = (14 - count) / 3;
       for (var meldCount = 0; meldCount <= maxMelds; ++meldCount)
       {
-        var meldedCreator = MeldedCombinationsCreator.CreateSuitCombinationsCreator();
+        var meldedCreator = MeldedCombinationsCreator.ForSuits();
         var meldedCombinations = meldedCreator.Create(meldCount);
         foreach (var meldedCombination in meldedCombinations)
         {
           var m = meldCount;
-          var concealedCreator = ConcealedCombinationCreator.CreateSuitCombinationsCreator();
+          var concealedCreator = ConcealedCombinationCreator.ForSuits();
           var combinations = concealedCreator.Create(count, meldedCombination);
           foreach (var combination in combinations)
           {
@@ -612,6 +618,96 @@ namespace Spines.Tools.AnalyzerBuilder
     public void Done()
     {
       ProgressBar.Value = 0;
+    }
+
+    private void CreateHandToCompactedArrangements(object sender, RoutedEventArgs e)
+    {
+      var workingDirectory = GetWorkingDirectory();
+      if (null == workingDirectory)
+      {
+        return;
+      }
+      var dic = GetArrangementDictionary(workingDirectory);
+      var handFiles = GetAnalyzedFiles(workingDirectory);
+      var compactionData = GetCompactionData(workingDirectory);
+      foreach (var handFile in handFiles)
+      {
+        var targetName = handFile.Replace("Analyzed", "c_").Replace("Combinations_", "_");
+        var lines = File.ReadAllLines(handFile);
+        var transformed = lines.Select(s => ReplaceArrangementId(s, compactionData));
+        File.WriteAllLines(targetName, transformed);
+      }
+    }
+
+    private static Dictionary<string, string> GetCompactionData(string workingDirectory)
+    {
+      var lines = File.ReadAllLines(Path.Combine(workingDirectory, "compactionData.txt"));
+      return lines.ToDictionary(line => line.Substring(0, line.IndexOf('>')), line => line.Substring(line.IndexOf('>') + 1));
+    }
+
+    private string ReplaceArrangementId(string arg, Dictionary<string, string> compactionData)
+    {
+      var i = arg.IndexOf('(');
+      var tiles = arg.Substring(0, i);
+      var arrangements = arg.Substring(i);
+      if (compactionData.ContainsKey(arrangements))
+        arrangements = compactionData[arrangements];
+      return tiles + arrangements;
+    }
+
+    private static Dictionary<string, int> GetArrangementDictionary(string workingDirectory)
+    {
+      var arrangementFile = Path.Combine(workingDirectory, "ArrangementCombinations.txt");
+      var lines = File.ReadAllLines(arrangementFile);
+      var withIndices = lines.Select((a, i) => new { Arrangement = a, Index = i });
+      return withIndices.ToDictionary(p => p.Arrangement, p => p.Index);
+    }
+
+    private void CreateArrangementCompactionData(object sender, RoutedEventArgs e)
+    {
+      var workingDirectory = GetWorkingDirectory();
+      if (null == workingDirectory)
+      {
+        return;
+      }
+      var redundancyLog = Path.Combine(workingDirectory, "RedundanciesLog.txt");
+      var lines = File.ReadAllLines(redundancyLog);
+      var dic = lines.Select(GetCompactionReplacement).ToDictionary(k => k.Key, k => k.Value);
+      var data = CreateCompactionData(dic);
+      File.WriteAllLines(Path.Combine(workingDirectory, "compactionData.txt"), data);
+    }
+
+    private static IEnumerable<string> CreateCompactionData(IReadOnlyDictionary<string, string> dic)
+    {
+      foreach (var kvp in dic)
+      {
+        var target = kvp.Value;
+        while (dic.ContainsKey(target))
+        {
+          target = dic[target];
+        }
+        yield return kvp.Key + ">" + target;
+      }
+    }
+
+    private static KeyValuePair<string, string> GetCompactionReplacement(string line)
+    {
+      var regex = new Regex(@"Removing (.*) from (.*);");
+      var match = regex.Match(line);
+      var arrangementsString = match.Groups[2].Value.Replace(" ", "");
+      var toRemove = match.Groups[1].Value.Replace(" ", "");
+      return new KeyValuePair<string, string>(arrangementsString, arrangementsString.Replace(toRemove, ""));
+    }
+
+    private void AllAtOnce(object sender, RoutedEventArgs e)
+    {
+      var wd = GetWorkingDirectory();
+      if (null == wd)
+      {
+        return;
+      }
+      var c = new Creator(wd);
+      c.Create();
     }
   }
 }

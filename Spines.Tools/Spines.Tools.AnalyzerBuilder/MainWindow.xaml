@@ -24,6 +24,8 @@
                      x:Name="ProgressBar" />
 
         <WrapPanel>
+            <Button Click="AllAtOnce" Content="All at Once" />
+            
             <Button Click="CreateConcealedCombinations" Content="Concealed Suit" />
             <Button Click="CreateMeldedCombinations" Content="Melds Suit" />
             <Button Click="CreateMixedCombinations" Content="Mixed Suit" />
@@ -41,6 +43,9 @@
 
             <Button Click="CreateMirroredHonorClassifier" Content="Mirrored Honor Classifier" />
             <Button Click="CreateMirroredSuitClassifier" Content="Mirrored Suit Classifier" />
+
+            <Button Click="CreateArrangementCompactionData" Content="Compaction Data" />
+            <Button Click="CreateHandToCompactedArrangements" Content="Hand to Compact" />
         </WrapPanel>
 
     </DockPanel>
