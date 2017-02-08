@@ -43,25 +43,28 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// </summary>
     public int CalculateShanten()
     {
-      var product = _sets.CartesianProduct();
-      var maxValue = 0;
-      foreach (var arrangements in product)
-      {
-        var mentsuCount = 0;
-        var jantouValue = 0;
-        var mentsuValue = 0;
-        foreach (var arrangement in arrangements)
-        {
-          mentsuCount += arrangement.MentsuCount;
-          jantouValue = Math.Max(jantouValue, arrangement.JantouValue);
-          mentsuValue += arrangement.MentsuValue;
-        }
-        if (mentsuCount <= 4)
-        {
-          maxValue = Math.Max(maxValue, mentsuValue + jantouValue);
-        }
-      }
+      var product = _sets.CartesianProduct().SelectMany(p => p.Permute());
+      var maxValue = product.Select(SumUsefulTiles).Max();
       return 13 - maxValue;
+    }
+
+    private static int SumUsefulTiles(IEnumerable<Arrangement> arrangements)
+    {
+      var mentsuCount = 0;
+      var jantouValue = 0;
+      var mentsuValue = 0;
+      foreach (var a in arrangements)
+      {
+        jantouValue = Math.Max(jantouValue, a.JantouValue);
+        var mentsuToAdd = Math.Min(4 - mentsuCount, a.MentsuCount);
+        if (mentsuToAdd == 0)
+          continue;
+        mentsuCount += mentsuToAdd;
+        // Worst case: tiles are spread evenly across the groups, with some groups having one more tile than the rest.
+        mentsuValue += a.MentsuValue / a.MentsuCount * mentsuToAdd;
+        mentsuValue += Math.Min(a.MentsuValue % a.MentsuCount, mentsuToAdd);
+      }
+      return mentsuValue + jantouValue;
     }
   }
 }
