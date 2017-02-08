@@ -26,17 +26,6 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// </summary>
   public class TileGroupAnalyzer
   {
-    private readonly ISet<Arrangement> _arrangements = new HashSet<Arrangement>();
-    private readonly List<int> _concealed;
-    private readonly int _meldCount;
-
-    private readonly IReadOnlyList<ProtoGroup> _protoGroups;
-
-    private readonly List<int> _used;
-    private int _jantouValue;
-    private int _usedMelds;
-    private readonly int _tileTypeCount;
-
     private static readonly IReadOnlyList<ProtoGroup> SuitProtoGroups = new List<ProtoGroup>
     {
       ProtoGroup.Jantou2,
@@ -62,10 +51,21 @@ namespace Spines.Mahjong.Analysis.Combinations
       ProtoGroup.Koutsu1
     };
 
+    private readonly ISet<Arrangement> _arrangements = new HashSet<Arrangement>();
+    private readonly List<int> _concealed;
+    private readonly int _meldCount;
+
+    private readonly IReadOnlyList<ProtoGroup> _protoGroups;
+    private readonly int _tileTypeCount;
+
+    private readonly List<int> _used;
+    private int _jantouValue;
+    private int _usedMelds;
+
     /// <summary>
     /// Creates a new instance of TileGroupAnalyzer.
     /// </summary>
-    public TileGroupAnalyzer(Combination concealedTiles, Combination meldedTiles, int meldCount, bool allowShuntsu)
+    private TileGroupAnalyzer(Combination concealedTiles, Combination meldedTiles, int meldCount, bool allowShuntsu)
     {
       Validate.NotNull(concealedTiles, nameof(concealedTiles));
       Validate.NotNull(meldedTiles, nameof(meldedTiles));
@@ -79,6 +79,22 @@ namespace Spines.Mahjong.Analysis.Combinations
     }
 
     /// <summary>
+    /// Creates a new instance of TileGroupAnalyzer for analyzing honors.
+    /// </summary>
+    public static TileGroupAnalyzer ForHonors(Combination concealedTiles, Combination meldedTiles, int meldCount)
+    {
+      return new TileGroupAnalyzer(concealedTiles, meldedTiles, meldCount, false);
+    }
+
+    /// <summary>
+    /// Creates a new instance of TileGroupAnalyzer for analyzing suits.
+    /// </summary>
+    public static TileGroupAnalyzer ForSuits(Combination concealedTiles, Combination meldedTiles, int meldCount)
+    {
+      return new TileGroupAnalyzer(concealedTiles, meldedTiles, meldCount, true);
+    }
+
+    /// <summary>
     /// Returns all possible arrangements for the given hand.
     /// </summary>
     public IEnumerable<Arrangement> Analyze()
@@ -88,7 +104,8 @@ namespace Spines.Mahjong.Analysis.Combinations
       _usedMelds = _meldCount;
       _jantouValue = 0;
       Analyze(arrangement, 0, 0);
-      var arrangements = _arrangements.Where(a => !_arrangements.Any(other => comparer.IsWorseThan(a, other))).OrderBy(a => a.Id);
+      var arrangements =
+        _arrangements.Where(a => !_arrangements.Any(other => comparer.IsWorseThan(a, other))).OrderBy(a => a.Id);
       var compacter = new ArrangementGroupCompacter();
       return compacter.GetCompacted(arrangements);
     }

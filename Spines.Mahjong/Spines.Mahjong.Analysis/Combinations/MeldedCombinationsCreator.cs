@@ -40,8 +40,8 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// <summary>
     /// Creates a MeldedCombinationsCreator for a suit.
     /// </summary>
-    /// <returns></returns>
-    public static MeldedCombinationsCreator CreateSuitCombinationsCreator()
+    /// <returns>An instance of MeldedCombinationsCreator.</returns>
+    public static MeldedCombinationsCreator ForSuits()
     {
       return new MeldedCombinationsCreator(9, Mentsu.All);
     }
@@ -49,8 +49,8 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// <summary>
     /// Creates a MeldedCombinationsCreator for honors.
     /// </summary>
-    /// <returns></returns>
-    public static MeldedCombinationsCreator CreateHonorsCombinationsCreator()
+    /// <returns>An instance of MeldedCombinationsCreator.</returns>
+    public static MeldedCombinationsCreator ForHonors()
     {
       return new MeldedCombinationsCreator(7, new[] {Mentsu.Kantsu, Mentsu.Koutsu});
     }

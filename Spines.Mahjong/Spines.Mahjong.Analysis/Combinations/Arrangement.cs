@@ -167,7 +167,7 @@ namespace Spines.Mahjong.Analysis.Combinations
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object,System.Object)")]
     public override string ToString()
     {
-      return $"({JantouValue}, {MentsuCount}, {MentsuValue})";
+      return $"({JantouValue},{MentsuCount},{MentsuValue})";
     }
   }
 }

@@ -38,8 +38,8 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// <summary>
     /// Creates a ConcealedCombinationCreator for a suit.
     /// </summary>
-    /// <returns></returns>
-    public static ConcealedCombinationCreator CreateSuitCombinationsCreator()
+    /// <returns>An instance of ConcealedCombinationCreator.</returns>
+    public static ConcealedCombinationCreator ForSuits()
     {
       return new ConcealedCombinationCreator(9);
     }
@@ -47,8 +47,8 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// <summary>
     /// Creates a ConcealedCombinationCreator for honors.
     /// </summary>
-    /// <returns></returns>
-    public static ConcealedCombinationCreator CreateHonorsCombinationsCreator()
+    /// <returns>An instance of ConcealedCombinationCreator.</returns>
+    public static ConcealedCombinationCreator ForHonors()
     {
       return new ConcealedCombinationCreator(7);
     }

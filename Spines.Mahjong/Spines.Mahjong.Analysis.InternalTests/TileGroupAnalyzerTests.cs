@@ -76,15 +76,21 @@ namespace Spines.Mahjong.Analysis.InternalTests
 
     private static void CheckHand(int expectedCount, IList<int> concealedTiles, IList<int> meldedTiles, int meldCount)
     {
-      var allowShuntsu = concealedTiles.Count == 9;
       var concealed = new Combination(concealedTiles);
       var melded = new Combination(meldedTiles);
-      var analyzer = new TileGroupAnalyzer(concealed, melded, meldCount, allowShuntsu);
+      var analyzer = GetTileGroupAnalyzer(meldCount, concealed, melded);
       var arrangements = analyzer.Analyze().ToList();
       var hand = $"({string.Join("", concealedTiles)})({string.Join("", meldedTiles)})({meldCount})";
       var arrangementTexts = arrangements.Select(a => $"({a.JantouValue}, {a.MentsuCount}, {a.MentsuValue})");
       var message = $"hand {hand} has wrong arrangements: {string.Join("", arrangementTexts)}";
       Assert.AreEqual(expectedCount, arrangements.Count, message);
+    }
+
+    private static TileGroupAnalyzer GetTileGroupAnalyzer(int meldCount, Combination concealed, Combination melded)
+    {
+      if (concealed.Counts.Count == 9)
+        return TileGroupAnalyzer.ForSuits(concealed, melded, meldCount);
+      return TileGroupAnalyzer.ForHonors(concealed, melded, meldCount);
     }
   }
 }
