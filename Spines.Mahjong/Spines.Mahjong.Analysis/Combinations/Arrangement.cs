@@ -16,7 +16,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Diagnostics;
 using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.Combinations
@@ -25,7 +24,6 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// Information about an arrangement of tiles relevant for counting shanten.
   /// Only for regular hand shapes of one pair and four mentsu.
   /// </summary>
-  [DebuggerDisplay("Arrangement {JantouValue}, {MentsuCount}, {MentsuValue}")]
   public class Arrangement : IEquatable<Arrangement>
   {
     /// <summary>
@@ -36,6 +34,10 @@ namespace Spines.Mahjong.Analysis.Combinations
       JantouValue = Validate.InRange(jantouValue, 0, 2, nameof(jantouValue));
       MentsuCount = Validate.InRange(mentsuCount, 0, 4, nameof(mentsuCount));
       MentsuValue = Validate.InRange(mentsuValue, 0, 12, nameof(mentsuValue));
+      if (mentsuValue < mentsuCount)
+      {
+        throw new ArgumentException("mentsuValue can not be less than mentsuCount.");
+      }
       Id = JantouValue * 25 + MentsuCount * (MentsuCount - 1) + MentsuValue;
     }
 
@@ -167,7 +169,40 @@ namespace Spines.Mahjong.Analysis.Combinations
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object,System.Object)")]
     public override string ToString()
     {
-      return $"({JantouValue},{MentsuCount},{MentsuValue})";
+      return $"{ToChar(JantouValue)}{ToChar(MentsuCount)}{ToChar(MentsuValue)}";
+    }
+
+    /// <summary>
+    /// Creates an arrangement from a 3 character string.
+    /// </summary>
+    /// <param name="arrangement">The string to parse.</param>
+    /// <returns>An instance of Arrangement.</returns>
+    public static Arrangement FromString(string arrangement)
+    {
+      Validate.NotNull(arrangement, nameof(arrangement));
+      if (arrangement.Length != 3)
+      {
+        throw new ArgumentException("s must be exactly three characters long.");
+      }
+      return new Arrangement(FromChar(arrangement[0]), FromChar(arrangement[1]), FromChar(arrangement[2]));
+    }
+
+    private static char ToChar(int n)
+    {
+      if (n < 10)
+      {
+        return (char) ('0' + n);
+      }
+      return (char) ('A' + n - 10);
+    }
+
+    private static int FromChar(char n)
+    {
+      if (n > '9')
+      {
+        return n - 'A' + 10;
+      }
+      return n - '0';
     }
   }
 }

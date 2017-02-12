@@ -15,12 +15,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Spines.Mahjong.Analysis.Combinations;
+using Spines.Utility;
 
 namespace Spines.Tools.AnalyzerBuilder.Precalculation
 {
@@ -30,6 +29,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
   /// </summary>
   internal class Creator
   {
+    private const int HandLength = 1 + 9 + 9;
     private readonly string _workingDirectory;
 
     /// <summary>
@@ -47,14 +47,52 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     /// </summary>
     public void Create()
     {
-      CreateRedundantArrangements();
+      var files = CreateCompactAnalyzedHands();
+
+      var allLines = files.SelectMany(File.ReadAllLines);
+      var unique = allLines.Select(a => a.Substring(HandLength)).Distinct().OrderBy(x => x).ToList();
     }
 
-    private string CreateRedundantArrangements()
+    private IEnumerable<string> CreateCompactAnalyzedHands()
     {
-      var fileName = Path.Combine(_workingDirectory, "replacements.txt");
+      var honorFiles = RawAnalyzedDataCreator.ForHonors().Create(_workingDirectory);
+      var suitFiles = RawAnalyzedDataCreator.ForSuits().Create(_workingDirectory);
+      var redundanciesFile = CreateRedundantArrangements(_workingDirectory);
+      var redundanciesLines = File.ReadAllLines(redundanciesFile);
+      var redundancies = redundanciesLines.ToDictionary(
+        line => line.Substring(0, line.IndexOf('>')),
+        line => line.Substring(line.IndexOf('>') + 1));
+
+      foreach (var fileName in honorFiles.Concat(suitFiles))
+      {
+        var newFileName = fileName.Replace(".txt", "_c.txt");
+        if (!File.Exists(newFileName))
+        {
+          var lines = File.ReadAllLines(fileName);
+          var newLines = lines.Select(line => Compact(line, redundancies));
+          File.WriteAllLines(newFileName, newLines);
+        }
+        yield return newFileName;
+      }
+    }
+
+    private static string Compact(string line, Dictionary<string, string> redundancies)
+    {
+      var arrangements = line.Substring(HandLength);
+      while (redundancies.ContainsKey(arrangements))
+      {
+        arrangements = redundancies[arrangements];
+      }
+      return line.Substring(0, HandLength) + arrangements;
+    }
+
+    private string CreateRedundantArrangements(string workingDirectory)
+    {
+      var fileName = Path.Combine(workingDirectory, "replacements.txt");
       if (File.Exists(fileName))
+      {
         return fileName;
+      }
 
       var arrangements = GetAllArrangements().ToList();
       var alphabetSize = arrangements.Count;
@@ -62,7 +100,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       var replacements = new Dictionary<string, string>();
 
       var foundRedundancy = true;
-      while(foundRedundancy)
+      while (foundRedundancy)
       {
         foundRedundancy = false;
 
@@ -93,6 +131,12 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
               // Pick the arrangements that correspond to the word and sum their tile counts.
               var sumOfTiles = word.Sum(c => tilesInArrangements[c]);
               if (sumOfTiles > 14)
+              {
+                continue;
+              }
+
+              // It's impossible to have less than 5 usable tiles in a hand.
+              if (sumOfTiles < 5)
               {
                 continue;
               }
@@ -129,9 +173,9 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 
             if (isRedundant)
             {
-              var current = GetArrangementsString(arrangements[i]);
+              var current = string.Join("", arrangements[i]);
               arrangements[i].RemoveAt(j);
-              var compacted = GetArrangementsString(arrangements[i]);
+              var compacted = string.Join("", arrangements[i]);
 
               if (!replacements.ContainsKey(current) || replacements[current] != compacted)
               {
@@ -154,13 +198,8 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       return fileName;
     }
 
-    private static string GetArrangementsString(IEnumerable<Arrangement> arrangements)
-    {
-      return string.Join("", arrangements.Select(a => a.ToString()));
-    }
-
     /// <summary>
-    /// Creates all non-mirrored permutations of the numbers 0 through alphabetSize - 1.
+    /// Creates all permutations of length 4 of the numbers 0 through alphabetSize - 1.
     /// </summary>
     /// <param name="alphabetSize">The number of characters in the language.</param>
     /// <returns>The language.</returns>
@@ -186,20 +225,16 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       var honorFiles = RawAnalyzedDataCreator.ForHonors().Create(_workingDirectory);
       var suitFiles = RawAnalyzedDataCreator.ForSuits().Create(_workingDirectory);
       var allLines = honorFiles.Concat(suitFiles).SelectMany(File.ReadAllLines);
-      var arrangementStrings = allLines.Select(a => a.Substring(a.IndexOf('('))).Distinct();
+      var arrangementStrings = allLines.Select(a => a.Substring(HandLength)).Distinct();
       return arrangementStrings.Select(ParseArrangements).Select(a => a.ToList());
     }
 
-    private static IEnumerable<Arrangement> ParseArrangements(string line)
+    private static IEnumerable<Arrangement> ParseArrangements(string arrangements)
     {
-      var regex = new Regex(@"\((\d+), *(\d+), *(\d+)\)");
-      var matches = regex.Matches(line);
-      foreach (Match match in matches)
+      for (var i = 0; i < arrangements.Length; i += 3)
       {
-        var jantouValue = Convert.ToInt32(match.Groups[1].Value);
-        var mentsuCount = Convert.ToInt32(match.Groups[2].Value);
-        var mentsuValue = Convert.ToInt32(match.Groups[3].Value);
-        yield return new Arrangement(jantouValue, mentsuCount, mentsuValue);
+        var arrangement = arrangements.Substring(i, 3);
+        yield return Arrangement.FromString(arrangement);
       }
     }
   }

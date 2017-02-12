@@ -529,7 +529,7 @@ namespace Spines.Tools.AnalyzerBuilder
     private static IEnumerable<string> CreateArrangementCsvLines(int tileCount)
     {
       var arrangements = CreateAllArrangements(tileCount).ToList();
-      var comparer = new ArrangementComparer(tileCount);
+      var comparer = new ArrangementComparer();
       yield return ";" + string.Join(";", arrangements);
       foreach (var a in arrangements)
       {

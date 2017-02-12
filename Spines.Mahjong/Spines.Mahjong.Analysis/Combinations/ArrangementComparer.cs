@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Linq;
 using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.Combinations
@@ -26,27 +24,6 @@ namespace Spines.Mahjong.Analysis.Combinations
   /// </summary>
   public class ArrangementComparer
   {
-    private readonly int _tileCount;
-
-    /// <summary>
-    /// Creates a new instance of ArrangementComparer.
-    /// </summary>
-    public ArrangementComparer(IEnumerable<int> concealedTiles, int meldCount)
-    {
-      Validate.InRange(meldCount, 0, 4, nameof(meldCount));
-
-      // All melds count as 3 tiles for determining worse arrangements.
-      _tileCount = concealedTiles.Sum() + meldCount * 3;
-    }
-
-    /// <summary>
-    /// Creates a new instance of ArrangementComparer.
-    /// </summary>
-    public ArrangementComparer(int tileCount)
-    {
-      _tileCount = Validate.InRange(tileCount, 0, 14, nameof(tileCount));
-    }
-
     /// <summary>
     /// Determines whether an arrangement is worse than another.
     /// </summary>
@@ -66,35 +43,6 @@ namespace Spines.Mahjong.Analysis.Combinations
       }
       // Same TotalValue and MentsuCount, but higher PairValue is worse.
       if (lhs.JantouValue > rhs.JantouValue && lhs.MentsuCount == rhs.MentsuCount && lhs.TotalValue == rhs.TotalValue)
-      {
-        return true;
-      }
-      // Not enough tiles in other suits to reach the same value.
-      var tilesInOtherSuits = 14 - _tileCount;
-      if (lhs.TotalValue + tilesInOtherSuits < rhs.TotalValue)
-      {
-        return true;
-      }
-      // If there are no tiles in other suits and the total value is equal, take the higher mentsu value (arbitrary choice).
-      if (tilesInOtherSuits == 0 && lhs.TotalValue == rhs.TotalValue && lhs.MentsuValue < rhs.MentsuValue)
-      {
-        return true;
-      }
-      // If there is exactly one tile in other suits:
-      if (tilesInOtherSuits == 1)
-      {
-        if (lhs.TotalValue < rhs.TotalValue)
-        {
-          return true;
-        }
-        if (lhs.HasJantou && rhs.HasJantou && lhs.TotalValue == rhs.TotalValue && lhs.MentsuValue < rhs.MentsuValue)
-        {
-          return true;
-        }
-      }
-      // Not enough unused groups to reach the same value in other suits.
-      var maxWithUnusedGroups = (4 - lhs.MentsuCount) * 3 + (lhs.HasJantou ? 0 : 2);
-      if (lhs.TotalValue + maxWithUnusedGroups < rhs.TotalValue)
       {
         return true;
       }

@@ -42,9 +42,9 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// Creates a new instance of Classifier from a binary file.
     /// </summary>
-    public static Classifier FromFile(string filename)
+    public static Classifier FromFile(string fileName)
     {
-      using (var fileStream = new FileStream(filename, FileMode.Open))
+      using (var fileStream = new FileStream(fileName, FileMode.Open))
       {
         var binaryFormatter = new BinaryFormatter();
         return (Classifier) binaryFormatter.Deserialize(fileStream);

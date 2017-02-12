@@ -99,7 +99,7 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// </summary>
     public IEnumerable<Arrangement> Analyze()
     {
-      var comparer = new ArrangementComparer(_concealed, _meldCount);
+      var comparer = new ArrangementComparer();
       var arrangement = new Arrangement(0, _meldCount, _meldCount * 3);
       _usedMelds = _meldCount;
       _jantouValue = 0;

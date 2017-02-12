@@ -87,10 +87,9 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
           foreach (var concealed in concealeds)
           {
             var arrangements = GetTileGroupAnalyzer(concealed, melded, meldCount).Analyze();
-            var formattedArrangements = arrangements.Select(a => a.ToString());
-            var arrangementsString = string.Join("", formattedArrangements);
-            var meldedCounts = string.Join("", melded.Counts);
-            var concealedCounts = string.Join("", concealed.Counts);
+            var meldedCounts = string.Join("", melded.Counts).PadRight(9, '.');
+            var concealedCounts = string.Join("", concealed.Counts).PadRight(9, '.');
+            var arrangementsString = string.Join("", arrangements);
             yield return $"{meldCount}{meldedCounts}{concealedCounts}{arrangementsString}";
           }
         }

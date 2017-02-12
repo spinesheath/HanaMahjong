@@ -39,7 +39,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     {
       CheckHand(2, new[] { 1, 0, 0, 0, 0, 0, 0, 0, 0 }, _emptySuit, 0);
       CheckHand(1, new[] { 4, 4, 4, 0, 0, 0, 0, 0, 0 }, _emptySuit, 0);
-      CheckHand(1, new[] { 3, 1, 1, 1, 1, 1, 1, 1, 3 }, _emptySuit, 0);
+      CheckHand(2, new[] { 3, 1, 1, 1, 1, 1, 1, 1, 3 }, _emptySuit, 0);
       CheckHand(1, new[] { 3, 1, 1, 1, 2, 1, 1, 1, 3 }, _emptySuit, 0);
       CheckHand(2, new[] { 4, 0, 0, 1, 0, 0, 1, 0, 1 }, _emptySuit, 0);
       CheckHand(2, new[] { 0, 0, 0, 4, 3, 0, 1, 0, 0 }, _emptySuit, 0);
@@ -49,9 +49,9 @@ namespace Spines.Mahjong.Analysis.InternalTests
     public void TestSuitWithMelds()
     {
       CheckHand(1, new[] { 2, 0, 0, 0, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 4, 4, 4, 4, 0 }, 4);
-      CheckHand(1, new[] { 4, 3, 0, 1, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 0, 0, 4, 3 }, 2);
-      CheckHand(1, new[] { 4, 2, 0, 1, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 0, 0, 4, 3 }, 2);
-      CheckHand(1, new[] { 4, 0, 3, 0, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 0, 0, 4, 3 }, 2);
+      CheckHand(2, new[] { 4, 3, 0, 1, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 0, 0, 4, 3 }, 2);
+      CheckHand(2, new[] { 4, 2, 0, 1, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 0, 0, 4, 3 }, 2);
+      CheckHand(3, new[] { 4, 0, 3, 0, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 0, 0, 4, 3 }, 2);
     }
 
     [TestMethod]
@@ -69,8 +69,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
     public void TestHonorsWithMelds()
     {
       CheckHand(1, new[] { 2, 0, 0, 0, 0, 0, 0 }, new[] { 0, 0, 4, 4, 4, 4, 0 }, 4);
-      CheckHand(1, new[] { 4, 3, 0, 1, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 4, 3 }, 2);
-      CheckHand(1, new[] { 4, 2, 0, 1, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 4, 3 }, 2);
+      CheckHand(2, new[] { 4, 3, 0, 1, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 4, 3 }, 2);
+      CheckHand(2, new[] { 4, 2, 0, 1, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 4, 3 }, 2);
       CheckHand(1, new[] { 4, 0, 3, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 4, 3 }, 2);
     }
 

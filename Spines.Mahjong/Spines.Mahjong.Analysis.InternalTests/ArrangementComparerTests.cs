@@ -26,23 +26,21 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [TestMethod]
     public void Test14Tiles()
     {
-      var comparer = new ArrangementComparer(14);
-      AssertIsWorse(comparer, new Arrangement(0, 1, 2), new Arrangement(0, 3, 3));
+      var comparer = new ArrangementComparer();
       AssertIsWorse(comparer, new Arrangement(0, 2, 2), new Arrangement(0, 1, 2));
-      AssertIsWorse(comparer, new Arrangement(2, 0, 0), new Arrangement(1, 1, 1));
     }
 
     [TestMethod]
     public void Test12Tiles()
     {
-      var comparer = new ArrangementComparer(12);
+      var comparer = new ArrangementComparer();
       AssertIsWorse(comparer, new Arrangement(0, 4, 11), new Arrangement(0, 4, 12));
     }
 
     [TestMethod]
     public void Test8Tiles()
     {
-      var comparer = new ArrangementComparer(8);
+      var comparer = new ArrangementComparer();
       AssertIsWorse(comparer, new Arrangement(2, 0, 0), new Arrangement(2, 1, 3));
     }
 
