@@ -35,26 +35,40 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       _workingDirectory = workingDirectory;
     }
 
-    public IEnumerable<string> Create()
+    public IEnumerable<IList<Arrangement>> GetUniqueArrangements()
+    {
+      var files = Create();
+      var allLines = files.SelectMany(File.ReadAllLines);
+      var distinct = allLines.Select(a => a.Substring(HandLength)).Distinct().OrderBy(x => x);
+      return distinct.Select(a => Arrangement.MultipleFromString(a).ToList());
+    }
+
+    private IEnumerable<string> Create()
     {
       var honorFiles = RawAnalyzedDataCreator.ForHonors().Create(_workingDirectory);
       var suitFiles = RawAnalyzedDataCreator.ForSuits().Create(_workingDirectory);
-      var redundanciesFile = CreateRedundantArrangements(_workingDirectory);
-      var redundanciesLines = File.ReadAllLines(redundanciesFile);
-      var redundancies = redundanciesLines.ToDictionary(
-        line => line.Substring(0, line.IndexOf('>')),
-        line => line.Substring(line.IndexOf('>') + 1));
+      var redundancies = CreateRedundantArrangements(_workingDirectory);
 
       foreach (var fileName in honorFiles.Concat(suitFiles))
       {
         var newFileName = fileName.Replace(".txt", "_c.txt");
-        if (!File.Exists(newFileName))
+        if (File.Exists(newFileName))
+        {
+          foreach (var line in File.ReadAllLines(newFileName))
+          {
+            yield return line;
+          }
+        }
+        else
         {
           var lines = File.ReadAllLines(fileName);
-          var newLines = lines.Select(line => Compact(line, redundancies));
+          var newLines = lines.Select(line => Compact(line, redundancies)).ToList();
           File.WriteAllLines(newFileName, newLines);
+          foreach (var line in newLines)
+          {
+            yield return line;
+          }
         }
-        yield return newFileName;
       }
     }
 
@@ -68,12 +82,15 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       return line.Substring(0, HandLength) + arrangements;
     }
 
-    private string CreateRedundantArrangements(string workingDirectory)
+    private Dictionary<string, string> CreateRedundantArrangements(string workingDirectory)
     {
       var fileName = Path.Combine(workingDirectory, "replacements.txt");
       if (File.Exists(fileName))
       {
-        return fileName;
+        var redundanciesLines = File.ReadAllLines(fileName);
+        return redundanciesLines.ToDictionary(
+          line => line.Substring(0, line.IndexOf('>')),
+          line => line.Substring(line.IndexOf('>') + 1));
       }
 
       var arrangements = GetAllArrangements().ToList();
@@ -177,7 +194,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 
       var lines = replacements.Select(r => r.Key + ">" + r.Value);
       File.WriteAllLines(fileName, lines);
-      return fileName;
+      return replacements;
     }
 
     /// <summary>

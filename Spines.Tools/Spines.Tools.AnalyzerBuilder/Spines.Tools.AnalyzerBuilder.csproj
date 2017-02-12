@@ -95,6 +95,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Precalculation\ArrangementWordCreator.cs" />
     <Compile Include="Precalculation\CompactAnalyzedDataCreator.cs" />
     <Compile Include="Precalculation\Creator.cs" />
     <Compile Include="Precalculation\RawAnalyzedDataCreator.cs" />
