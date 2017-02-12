@@ -16,6 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.Combinations
@@ -166,7 +168,8 @@ namespace Spines.Mahjong.Analysis.Combinations
     /// <returns>
     /// A string that represents the current object.
     /// </returns>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object,System.Object)")]
+    [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider",
+      MessageId = "System.String.Format(System.String,System.Object,System.Object,System.Object)")]
     public override string ToString()
     {
       return $"{ToChar(JantouValue)}{ToChar(MentsuCount)}{ToChar(MentsuValue)}";
@@ -185,6 +188,21 @@ namespace Spines.Mahjong.Analysis.Combinations
         throw new ArgumentException("s must be exactly three characters long.");
       }
       return new Arrangement(FromChar(arrangement[0]), FromChar(arrangement[1]), FromChar(arrangement[2]));
+    }
+
+    /// <summary>
+    /// Creates multiple arrangements from a string with 3 characters per arrangement.
+    /// </summary>
+    /// <param name="arrangements">The string to parse.</param>
+    /// <returns>A sequence of arrangements.</returns>
+    public static IEnumerable<Arrangement> MultipleFromString(string arrangements)
+    {
+      Validate.NotNull(arrangements, nameof(arrangements));
+      for (var i = 0; i < arrangements.Length; i += 3)
+      {
+        var arrangement = arrangements.Substring(i, 3);
+        yield return FromString(arrangement);
+      }
     }
 
     private static char ToChar(int n)
