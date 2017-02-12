@@ -38,13 +38,13 @@ namespace Spines.Tools.AnalyzerBuilder
 
     public static HandClassifierFactory CreateSuitClassifierFactory(IProgressManager progressManager, string workingDirectory, string filename)
     {
-      var prefix = CreationData.Prefixes[CreationType.AnalyzedSuit];
+      const string prefix = "suit";
       return new HandClassifierFactory(progressManager, workingDirectory, prefix, filename);
     }
 
     public static HandClassifierFactory CreateHonorClassifierFactory(IProgressManager progressManager, string workingDirectory, string filename)
     {
-      var prefix = CreationData.Prefixes[CreationType.AnalyzedHonors];
+      const string prefix = "honor";
       return new HandClassifierFactory(progressManager, workingDirectory, prefix, filename);
     }
 

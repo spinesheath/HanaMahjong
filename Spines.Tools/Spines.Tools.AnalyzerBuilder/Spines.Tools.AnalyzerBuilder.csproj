@@ -86,10 +86,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ClassifierFactoryBase.cs" />
-    <Compile Include="CreationData.cs" />
     <Compile Include="HandClassifierFactory.cs" />
     <Compile Include="ArrangementClassifierFactory.cs" />
-    <Compile Include="CreationType.cs" />
     <Compile Include="IProgressManager.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

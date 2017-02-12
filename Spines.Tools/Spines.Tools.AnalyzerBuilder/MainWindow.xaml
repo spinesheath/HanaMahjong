@@ -25,27 +25,6 @@
 
         <WrapPanel>
             <Button Click="AllAtOnce" Content="All at Once" />
-            
-            <Button Click="CreateConcealedCombinations" Content="Concealed Suit" />
-            <Button Click="CreateMeldedCombinations" Content="Melds Suit" />
-            <Button Click="CreateMixedCombinations" Content="Mixed Suit" />
-            <Button Click="CreateArrangementCsv" Content="Arrangement *.csv" />
-            <Button Click="FindRedundantArrangements" Content="Redundant Arrangement" />
-            <Button Click="RedundancyLogToIds" Content="Redundancy Log To Id" />
-
-            <Button Click="AnalyzeSuitCombinations" Content="Analyze Suit" />
-            <Button Click="AnalyzeHonorCombinations" Content="Analyze Honor" />
-            <Button Click="UniqueArrangementCombinations" Content="Unique Arrangements" />
-            <Button Click="CreateArrangementWords" Content="Arrangement Words" />
-            <Button Click="CreateSuitClassifier" Content="Suit Classifier" />
-            <Button Click="CreateHonorClassifier" Content="Honor Classifier" />
-            <Button Click="CreateArrangementClassifier" Content="Arrangement Classifier" />
-
-            <Button Click="CreateMirroredHonorClassifier" Content="Mirrored Honor Classifier" />
-            <Button Click="CreateMirroredSuitClassifier" Content="Mirrored Suit Classifier" />
-
-            <Button Click="CreateArrangementCompactionData" Content="Compaction Data" />
-            <Button Click="CreateHandToCompactedArrangements" Content="Hand to Compact" />
         </WrapPanel>
 
     </DockPanel>

@@ -15,8 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.Classification
 {
@@ -25,6 +27,9 @@ namespace Spines.Mahjong.Analysis.Classification
   /// </summary>
   public class WordWithValue
   {
+    private const string WordStringFormatError =
+      "WordWithValue must be a comma separated list of integers followed by a colon and another integer.";
+
     /// <summary>
     /// Creates a new instance of WordWithValue.
     /// </summary>
@@ -45,5 +50,41 @@ namespace Spines.Mahjong.Analysis.Classification
     /// The value of the Word.
     /// </summary>
     public int Value { get; }
+
+    /// <summary>
+    /// Returns a string that represents the current object.
+    /// </summary>
+    /// <returns>
+    /// A string that represents the current object.
+    /// </returns>
+    public override string ToString()
+    {
+      return $"{string.Join(",", Word)}:{Value}";
+    }
+
+    /// <summary>
+    /// Parses a string and returns a WordWithValue.
+    /// </summary>
+    /// <param name="word">The string to parse.</param>
+    /// <returns>An instance of WordWithValue.</returns>
+    public static WordWithValue FromString(string word)
+    {
+      Validate.NotNull(word, nameof(word));
+      try
+      {
+        var parts = word.Split(':');
+        var parts2 = parts[0].Split(',');
+        var characters = parts2.Select(int.Parse);
+        return new WordWithValue(characters, int.Parse(parts[1]));
+      }
+      catch (FormatException e)
+      {
+        throw new FormatException(WordStringFormatError, e);
+      }
+      catch (IndexOutOfRangeException e)
+      {
+        throw new FormatException(WordStringFormatError, e);
+      }
+    }
   }
 }
