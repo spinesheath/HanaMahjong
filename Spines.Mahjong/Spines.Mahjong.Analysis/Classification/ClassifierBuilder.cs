@@ -16,6 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Linq;
 using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.Classification
@@ -44,7 +45,100 @@ namespace Spines.Mahjong.Analysis.Classification
     /// </summary>
     public Classifier CreateClassifier()
     {
-      return new Classifier(_stateManager.GetCompactTransitions());
+      var transitions = _stateManager.GetCompactTransitions();
+      var finalStateTransitions = new HashSet<int>(_stateManager.GetFinalStateTransitions());
+
+      var nullTransitions = GetNullTransitions(transitions, finalStateTransitions);
+      var orderered = nullTransitions.Select((n, i) => new {n, i}).OrderBy(p => p.n).Select(p => p.i).ToList();
+      var offsetDifferences = Enumerable.Range(0, _alphabetSize).Select((n, i) => orderered.IndexOf(i) - n).ToList();
+      var orderedTransitions = new int[transitions.Count];
+      for (var i = 0; i < transitions.Count; i++)
+      {
+        var oldOffset = i % _alphabetSize;
+        var difference = offsetDifferences[oldOffset];
+        orderedTransitions[i + difference] = transitions[i];
+      }
+
+      var reorderedFinalStateTransitions = new HashSet<int>();
+      foreach (var finalStateTransition in finalStateTransitions)
+      {
+        var oldOffset = finalStateTransition % _alphabetSize;
+        var difference = offsetDifferences[oldOffset];
+        reorderedFinalStateTransitions.Add(finalStateTransition + difference);
+      }
+      // TODO need to sort arrangements instead of doing this here or else things won't match up
+
+      var compactedTransitions = CompactTransitions(orderedTransitions, reorderedFinalStateTransitions);
+
+      return new Classifier(compactedTransitions);
+    }
+
+    private IEnumerable<int> CompactTransitions(IReadOnlyList<int> orderedTransitions, ICollection<int> finalStateTransitions)
+    {
+      var skippedIndices = new HashSet<int>();
+      var offsetMap = new int[orderedTransitions.Count];
+      var skipTotal = 0;
+      for (var i = 0; i < orderedTransitions.Count; i += _alphabetSize)
+      {
+        var transitionsToKeep = _alphabetSize;
+        for (; transitionsToKeep > 0; transitionsToKeep--)
+        {
+          var transition = i + transitionsToKeep - 1;
+          if (orderedTransitions[transition] != 0 || finalStateTransitions.Contains(transition))
+          {
+            break;
+          }
+          skippedIndices.Add(transition);
+        }
+        var toSkip = _alphabetSize - transitionsToKeep;
+        skipTotal += toSkip;
+        for (var j = 0; j < _alphabetSize; ++j)
+        {
+          offsetMap[i + j] = skipTotal;
+        }
+      }
+
+      var clone = orderedTransitions.ToList();
+      for (var i = 0; i < clone.Count; ++i)
+      {
+        if (clone[i] == 0)
+          continue;
+        if (finalStateTransitions.Contains(i))
+          continue;
+
+        clone[i] -= offsetMap[i];
+      }
+
+      var compactedTransitions = new List<int>();
+      for (var i = 0; i < clone.Count; ++i)
+      {
+        if (skippedIndices.Contains(i))
+          continue;
+        compactedTransitions.Add(clone[i]);
+      }
+
+      return compactedTransitions;
+    }
+
+    /// <summary>
+    /// Count the number of null transitions for each character in the alphabet.
+    /// </summary>
+    private IEnumerable<int> GetNullTransitions(IReadOnlyList<int> transitions, ICollection<int> finalStateTransitions)
+    {
+      var nullTransitions = new int[_alphabetSize];
+      for (var i = 0; i < transitions.Count; i++)
+      {
+        if (finalStateTransitions.Contains(i))
+        {
+          continue;
+        }
+        var transition = transitions[i];
+        if (transition == 0)
+        {
+          nullTransitions[i % _alphabetSize] += 1;
+        }
+      }
+      return nullTransitions;
     }
 
     /// <summary>

@@ -15,12 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Spines.Mahjong.Analysis.Classification;
-using Spines.Mahjong.Analysis.Combinations;
-
 namespace Spines.Tools.AnalyzerBuilder.Precalculation
 {
   /// <summary>
@@ -30,14 +24,17 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
   internal class Creator
   {
     private readonly string _workingDirectory;
+    private readonly IProgressManager _progressManager;
 
     /// <summary>
     /// Creates a new Instance of Creator.
     /// </summary>
     /// <param name="workingDirectory">The directory where intermediate results are stored.</param>
-    public Creator(string workingDirectory)
+    /// <param name="progressManager">Interface for reporting progress.</param>
+    public Creator(string workingDirectory, IProgressManager progressManager)
     {
       _workingDirectory = workingDirectory;
+      _progressManager = progressManager;
     }
 
     /// <summary>
@@ -46,7 +43,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     /// </summary>
     public void Create()
     {
-      new ArrangementWordCreator(_workingDirectory).Create();
+      new ArrangementClassifierFactory(_progressManager, _workingDirectory).CreateAsync();
     }
   }
 }

@@ -26,6 +26,8 @@ namespace Spines.Mahjong.Analysis.Classification
     private readonly Dictionary<int, FinalState> _finalStates;
     private readonly int _heights;
     private readonly Dictionary<State, State>[] _uniqueStates;
+    private int[] _transitions;
+    private List<int> _finalStateTransitions;
 
     public StateManager(int alphabetSize, int wordLength)
     {
@@ -44,14 +46,32 @@ namespace Spines.Mahjong.Analysis.Classification
     public State StartingState { get; }
 
     /// <summary>
-    /// Assigns each state a unique Id and creates a transition table.
+    /// If this method is called before all states are finalized, the result will not be correct.
     /// Usage:
     /// int current = 0;
     /// foreach(int c in word)
     ///   current = table[current + c];
     /// return current;
     /// </summary>
-    public int[] GetCompactTransitions()
+    public IReadOnlyList<int> GetCompactTransitions()
+    {
+      CompactTransitions();
+      return _transitions;
+    }
+
+    /// <summary>
+    /// Indices of the transitions that contain a final value in the transitions array.
+    /// </summary>
+    public IReadOnlyList<int> GetFinalStateTransitions()
+    {
+      CompactTransitions();
+      return _finalStateTransitions;
+    }
+
+    /// <summary>
+    /// Assigns each state a unique Id and creates a transition table.
+    /// </summary>
+    private void CompactTransitions()
     {
       // Give each state a unique Id.
       var id = 0;
@@ -65,7 +85,8 @@ namespace Spines.Mahjong.Analysis.Classification
         }
       }
       // Create the actual machine.
-      var transitions = new int[id * _alphabetSize];
+      _transitions = new int[id * _alphabetSize];
+      _finalStateTransitions = new List<int>();
       for (var i = _heights - 1; i > 0; --i)
       {
         var row = _uniqueStates[i];
@@ -81,17 +102,17 @@ namespace Spines.Mahjong.Analysis.Classification
               if (i == 1)
               {
                 var finalState = (FinalState)nextState;
-                transitions[index] = finalState.Value;
+                _transitions[index] = finalState.Value;
+                _finalStateTransitions.Add(index);
               }
               else
               {
-                transitions[index] = nextState.Id * _alphabetSize;
+                _transitions[index] = nextState.Id * _alphabetSize;
               }
             }
           }
         }
       }
-      return transitions;
     }
 
     /// <summary>

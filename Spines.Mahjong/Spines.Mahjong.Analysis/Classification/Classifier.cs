@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using Spines.Utility;
 
@@ -34,9 +35,9 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// Creates a new instance of Classifier.
     /// </summary>
-    internal Classifier(int[] transitions)
+    internal Classifier(IEnumerable<int> transitions)
     {
-      _transitions = transitions;
+      _transitions = transitions.ToArray();
     }
 
     /// <summary>
