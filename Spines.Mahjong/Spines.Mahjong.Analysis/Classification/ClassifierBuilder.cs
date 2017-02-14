@@ -62,15 +62,23 @@ namespace Spines.Mahjong.Analysis.Classification
       var reorderedFinalStateTransitions = new HashSet<int>();
       foreach (var finalStateTransition in finalStateTransitions)
       {
-        var oldOffset = finalStateTransition % _alphabetSize;
-        var difference = offsetDifferences[oldOffset];
+        var oldCharcter = finalStateTransition % _alphabetSize;
+        var difference = offsetDifferences[oldCharcter];
         reorderedFinalStateTransitions.Add(finalStateTransition + difference);
       }
-      // TODO need to sort arrangements instead of doing this here or else things won't match up
 
       var compactedTransitions = CompactTransitions(orderedTransitions, reorderedFinalStateTransitions);
 
-      return new Classifier(compactedTransitions);
+      var classifier = new Classifier(compactedTransitions);
+
+      //var reorderedCharacters = new List<int>();
+      //for (var i = 0; i < word.Word.Count; i++)
+      //{
+      //  var oldCharacter = word.Word[i];
+      //  reorderedCharacters.Add(oldCharacter + offsetDifferences[oldCharacter]);
+      //}
+
+      return classifier;
     }
 
     private IEnumerable<int> CompactTransitions(IReadOnlyList<int> orderedTransitions, ICollection<int> finalStateTransitions)
@@ -94,7 +102,10 @@ namespace Spines.Mahjong.Analysis.Classification
         skipTotal += toSkip;
         for (var j = 0; j < _alphabetSize; ++j)
         {
-          offsetMap[i + j] = skipTotal;
+          var index = i + _alphabetSize + j;
+          if (index >= offsetMap.Length)
+            break;
+          offsetMap[index] = skipTotal;
         }
       }
 
@@ -106,7 +117,7 @@ namespace Spines.Mahjong.Analysis.Classification
         if (finalStateTransitions.Contains(i))
           continue;
 
-        clone[i] -= offsetMap[i];
+        clone[i] -= offsetMap[clone[i]];
       }
 
       var compactedTransitions = new List<int>();
@@ -166,7 +177,8 @@ namespace Spines.Mahjong.Analysis.Classification
     /// </summary>
     public void AddWords(IEnumerable<WordWithValue> words)
     {
-      foreach (var word in Validate.NotNull(words, nameof(words)))
+      var validatedWords = Validate.NotNull(words, nameof(words));
+      foreach (var word in validatedWords)
       {
         AddWord(word);
       }
