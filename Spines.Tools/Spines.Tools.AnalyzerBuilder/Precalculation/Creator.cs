@@ -15,6 +15,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+
 namespace Spines.Tools.AnalyzerBuilder.Precalculation
 {
   /// <summary>
@@ -24,17 +29,14 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
   internal class Creator
   {
     private readonly string _workingDirectory;
-    private readonly IProgressManager _progressManager;
 
     /// <summary>
     /// Creates a new Instance of Creator.
     /// </summary>
     /// <param name="workingDirectory">The directory where intermediate results are stored.</param>
-    /// <param name="progressManager">Interface for reporting progress.</param>
-    public Creator(string workingDirectory, IProgressManager progressManager)
+    public Creator(string workingDirectory)
     {
       _workingDirectory = workingDirectory;
-      _progressManager = progressManager;
     }
 
     /// <summary>
@@ -43,7 +45,73 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     /// </summary>
     public void Create()
     {
-      new ArrangementClassifierFactory(_progressManager, _workingDirectory).CreateAsync();
+      var arrangementTransitionsPath = Path.Combine(_workingDirectory, "ArrangementTransitions.txt");
+      if (File.Exists(arrangementTransitionsPath))
+      {
+        return;
+      }
+
+      var orderedWords = new ArrangementWordCreator(_workingDirectory).CreateOrdered().ToList();
+      var classifierBuilder = new ClassifierFactory().Create(orderedWords);
+      
+      var transitions = classifierBuilder.CreateTransitions().ToList();
+      var resultIndices = new HashSet<int>(classifierBuilder.GetResultIndices());
+      var alphabetSize = classifierBuilder.AlphabetSize;
+
+      var compactedTransitions = CompactTransitions(transitions, resultIndices, alphabetSize).ToList();
+
+      var lines = compactedTransitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
+      File.WriteAllLines(arrangementTransitionsPath, lines);
+    }
+
+    private static IEnumerable<int> CompactTransitions(IReadOnlyList<int> transitions, ICollection<int> resultIndices, int alphabetSize)
+    {
+      var skippedIndices = new HashSet<int>();
+      var offsetMap = new int[transitions.Count];
+      var skipTotal = 0;
+      for (var i = 0; i < transitions.Count; i += alphabetSize)
+      {
+        var transitionsToKeep = alphabetSize;
+        for (; transitionsToKeep > 0; transitionsToKeep--)
+        {
+          var transition = i + transitionsToKeep - 1;
+          if (transitions[transition] != 0 || resultIndices.Contains(transition))
+          {
+            break;
+          }
+          skippedIndices.Add(transition);
+        }
+        var toSkip = alphabetSize - transitionsToKeep;
+        skipTotal += toSkip;
+        for (var j = 0; j < alphabetSize; ++j)
+        {
+          var index = i + alphabetSize + j;
+          if (index >= offsetMap.Length)
+            break;
+          offsetMap[index] = skipTotal;
+        }
+      }
+
+      var clone = transitions.ToList();
+      for (var i = 0; i < clone.Count; ++i)
+      {
+        if (clone[i] == 0)
+          continue;
+        if (resultIndices.Contains(i))
+          continue;
+
+        clone[i] -= offsetMap[clone[i]];
+      }
+
+      var compactedTransitions = new List<int>();
+      for (var i = 0; i < clone.Count; ++i)
+      {
+        if (skippedIndices.Contains(i))
+          continue;
+        compactedTransitions.Add(clone[i]);
+      }
+
+      return compactedTransitions;
     }
   }
 }

@@ -35,7 +35,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// Creates a new instance of Classifier.
     /// </summary>
-    internal Classifier(IEnumerable<int> transitions)
+    public Classifier(IEnumerable<int> transitions)
     {
       _transitions = transitions.ToArray();
     }

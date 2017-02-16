@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -32,15 +33,25 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       _workingDirectory = workingDirectory;
     }
 
-    public IEnumerable<WordWithValue> Create()
+    public IEnumerable<WordWithValue> CreateUnordered()
     {
-      var wordsFile = Path.Combine(_workingDirectory, "ArrangementWords.txt");
+      return Create("ArrangementWords.txt", () => new CompactAnalyzedDataCreator(_workingDirectory).GetUniqueArrangements());
+    }
+
+    public IEnumerable<WordWithValue> CreateOrdered()
+    {
+      return Create("OrderedArrangementWords.txt", () => new OrderedArrangementsCreator(_workingDirectory).Create());
+    }
+
+    private IEnumerable<WordWithValue> Create(string fileName, Func<IEnumerable<IList<Arrangement>>> wordCreator)
+    {
+      var wordsFile = Path.Combine(_workingDirectory, fileName);
       if (File.Exists(wordsFile))
       {
         var lines = File.ReadAllLines(wordsFile);
         return lines.Select(WordWithValue.FromString);
       }
-      var arrangements = new CompactAnalyzedDataCreator(_workingDirectory).GetUniqueArrangements();
+      var arrangements = wordCreator();
       var words = CreateWords(arrangements).ToList();
       File.WriteAllLines(wordsFile, words.Select(w => w.ToString()));
       return words;
@@ -55,13 +66,13 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     {
       for (var a = 0; a < alphabetSize; ++a)
       {
-        for (var b = a; b < alphabetSize; ++b)
+        for (var b = 0; b < alphabetSize; ++b)
         {
-          for (var c = b; c < alphabetSize; ++c)
+          for (var c = 0; c < alphabetSize; ++c)
           {
-            for (var d = c; d < alphabetSize; ++d)
+            for (var d = 0; d < alphabetSize; ++d)
             {
-              yield return new[] { a, b, c, d };
+              yield return new[] {a, b, c, d};
             }
           }
         }

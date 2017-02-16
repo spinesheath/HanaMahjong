@@ -33,8 +33,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
       const int alphabetSize = 5;
       var language = CreateLanguage(alphabetSize, wordLength).ToList();
       var builder = new ClassifierBuilder(alphabetSize, wordLength);
-      builder.AddWords(language);
-      var classifier = builder.CreateClassifier();
+      builder.AddWord(language);
+      var classifier = builder.GetTransitions();
       foreach (var word in language)
       {
         CheckWord(classifier, word);

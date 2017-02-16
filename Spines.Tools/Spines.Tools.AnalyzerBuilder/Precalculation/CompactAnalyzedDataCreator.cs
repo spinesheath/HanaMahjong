@@ -37,9 +37,14 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 
     public IEnumerable<IList<Arrangement>> GetUniqueArrangements()
     {
-      var files = Create();
-      var allLines = files.SelectMany(File.ReadAllLines);
+      var uniquePath = Path.Combine(_workingDirectory, "UnorderedArrangements.txt");
+      if (File.Exists(uniquePath))
+      {
+        return File.ReadAllLines(uniquePath).Select(a => Arrangement.MultipleFromString(a).ToList());
+      }
+      var allLines = Create();
       var distinct = allLines.Select(a => a.Substring(HandLength)).Distinct().OrderBy(x => x);
+      File.WriteAllLines(uniquePath, distinct);
       return distinct.Select(a => Arrangement.MultipleFromString(a).ToList());
     }
 

@@ -16,7 +16,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
-using System.Linq;
 using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.Classification
@@ -26,130 +25,34 @@ namespace Spines.Mahjong.Analysis.Classification
   /// </summary>
   public class ClassifierBuilder
   {
-    private readonly int _alphabetSize;
     private readonly StateManager _stateManager;
-    private readonly int _wordLength;
 
     /// <summary>
     /// Creates a minimized dfa and the corresponding transition table.
     /// </summary>
     public ClassifierBuilder(int alphabetSize, int wordLength)
     {
-      _alphabetSize = alphabetSize;
-      _wordLength = wordLength;
-      _stateManager = new StateManager(_alphabetSize, _wordLength);
+      AlphabetSize = alphabetSize;
+      WordLength = wordLength;
+      _stateManager = new StateManager(AlphabetSize, WordLength);
     }
 
     /// <summary>
-    /// Creates the classifier for the specified language.
+    /// The size of the alphabet.
     /// </summary>
-    public Classifier CreateClassifier()
-    {
-      var transitions = _stateManager.GetCompactTransitions();
-      var finalStateTransitions = new HashSet<int>(_stateManager.GetFinalStateTransitions());
-
-      var nullTransitions = GetNullTransitions(transitions, finalStateTransitions);
-      var orderered = nullTransitions.Select((n, i) => new {n, i}).OrderBy(p => p.n).Select(p => p.i).ToList();
-      var offsetDifferences = Enumerable.Range(0, _alphabetSize).Select((n, i) => orderered.IndexOf(i) - n).ToList();
-      var orderedTransitions = new int[transitions.Count];
-      for (var i = 0; i < transitions.Count; i++)
-      {
-        var oldOffset = i % _alphabetSize;
-        var difference = offsetDifferences[oldOffset];
-        orderedTransitions[i + difference] = transitions[i];
-      }
-
-      var reorderedFinalStateTransitions = new HashSet<int>();
-      foreach (var finalStateTransition in finalStateTransitions)
-      {
-        var oldCharcter = finalStateTransition % _alphabetSize;
-        var difference = offsetDifferences[oldCharcter];
-        reorderedFinalStateTransitions.Add(finalStateTransition + difference);
-      }
-
-      var compactedTransitions = CompactTransitions(orderedTransitions, reorderedFinalStateTransitions);
-
-      var classifier = new Classifier(compactedTransitions);
-
-      //var reorderedCharacters = new List<int>();
-      //for (var i = 0; i < word.Word.Count; i++)
-      //{
-      //  var oldCharacter = word.Word[i];
-      //  reorderedCharacters.Add(oldCharacter + offsetDifferences[oldCharacter]);
-      //}
-
-      return classifier;
-    }
-
-    private IEnumerable<int> CompactTransitions(IReadOnlyList<int> orderedTransitions, ICollection<int> finalStateTransitions)
-    {
-      var skippedIndices = new HashSet<int>();
-      var offsetMap = new int[orderedTransitions.Count];
-      var skipTotal = 0;
-      for (var i = 0; i < orderedTransitions.Count; i += _alphabetSize)
-      {
-        var transitionsToKeep = _alphabetSize;
-        for (; transitionsToKeep > 0; transitionsToKeep--)
-        {
-          var transition = i + transitionsToKeep - 1;
-          if (orderedTransitions[transition] != 0 || finalStateTransitions.Contains(transition))
-          {
-            break;
-          }
-          skippedIndices.Add(transition);
-        }
-        var toSkip = _alphabetSize - transitionsToKeep;
-        skipTotal += toSkip;
-        for (var j = 0; j < _alphabetSize; ++j)
-        {
-          var index = i + _alphabetSize + j;
-          if (index >= offsetMap.Length)
-            break;
-          offsetMap[index] = skipTotal;
-        }
-      }
-
-      var clone = orderedTransitions.ToList();
-      for (var i = 0; i < clone.Count; ++i)
-      {
-        if (clone[i] == 0)
-          continue;
-        if (finalStateTransitions.Contains(i))
-          continue;
-
-        clone[i] -= offsetMap[clone[i]];
-      }
-
-      var compactedTransitions = new List<int>();
-      for (var i = 0; i < clone.Count; ++i)
-      {
-        if (skippedIndices.Contains(i))
-          continue;
-        compactedTransitions.Add(clone[i]);
-      }
-
-      return compactedTransitions;
-    }
+    public int AlphabetSize { get; }
 
     /// <summary>
-    /// Count the number of null transitions for each character in the alphabet.
+    /// The length of the words.
     /// </summary>
-    private IEnumerable<int> GetNullTransitions(IReadOnlyList<int> transitions, ICollection<int> finalStateTransitions)
+    public int WordLength { get; }
+
+    /// <summary>
+    /// Creates the classifier transitions for the specified language.
+    /// </summary>
+    public IEnumerable<int> CreateTransitions()
     {
-      var nullTransitions = new int[_alphabetSize];
-      for (var i = 0; i < transitions.Count; i++)
-      {
-        if (finalStateTransitions.Contains(i))
-        {
-          continue;
-        }
-        var transition = transitions[i];
-        if (transition == 0)
-        {
-          nullTransitions[i % _alphabetSize] += 1;
-        }
-      }
-      return nullTransitions;
+      return _stateManager.GetCompactTransitions();
     }
 
     /// <summary>
@@ -175,19 +78,16 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// Adds the words to the dfa.
     /// </summary>
-    public void AddWords(IEnumerable<WordWithValue> words)
+    public void AddWord(WordWithValue word)
     {
-      var validatedWords = Validate.NotNull(words, nameof(words));
-      foreach (var word in validatedWords)
-      {
-        AddWord(word);
-      }
+      Validate.NotNull(word, nameof(word));
+      MergeWord(word);
     }
 
     /// <summary>
     /// Adds a word to the dfa and minimizes the dfa.
     /// </summary>
-    private void AddWord(WordWithValue word)
+    private void MergeWord(WordWithValue word)
     {
       if (HasBeenAdded(word.Word))
       {
@@ -199,7 +99,7 @@ namespace Spines.Mahjong.Analysis.Classification
       // We need the previous state for each state.
       monofluentStates.Push(curUnique);
       // Traverse common prefix before the first confluence state.
-      while (i < _wordLength - 1 &&
+      while (i < WordLength - 1 &&
              curUnique.HasTransition(word.Word[i]) &&
              !curUnique.Advance(word.Word[i]).IsConfluenceState)
       {
@@ -224,11 +124,11 @@ namespace Spines.Mahjong.Analysis.Classification
       var clones = new Stack<State>();
       // We need the previous state for each clone.
       clones.Push(lastAdded);
-      while (i < _wordLength - 1 &&
+      while (i < WordLength - 1 &&
              curUnique.HasTransition(word.Word[i]))
       {
         curUnique = curUnique.Advance(word.Word[i]);
-        var clone = curUnique.Clone(_alphabetSize);
+        var clone = curUnique.Clone(AlphabetSize);
         lastAdded.RedirectOutTransition(clone, word.Word[i]);
         lastAdded = clone;
         clones.Push(clone);
@@ -271,7 +171,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// </summary>
     private int GetHeight(int incomingCharacterIndex)
     {
-      return _wordLength - incomingCharacterIndex - 1;
+      return WordLength - incomingCharacterIndex - 1;
     }
 
     /// <summary>
@@ -316,20 +216,29 @@ namespace Spines.Mahjong.Analysis.Classification
       states.Push(parent);
       // Create new States.
       var i = wordPos;
-      while (i < _wordLength - 1)
+      while (i < WordLength - 1)
       {
         var prevState = states.Peek();
-        var newState = new State(_alphabetSize);
+        var newState = new State(AlphabetSize);
         prevState.CreateOutTransition(newState, word.Word[i]);
         states.Push(newState);
         i += 1;
       }
       // Connect to final State.
       var final = _stateManager.GetOrCreateFinalState(word.Value);
-      states.Peek().CreateOutTransition(final, word.Word[_wordLength - 1]);
+      states.Peek().CreateOutTransition(final, word.Word[WordLength - 1]);
       // Merge new States with unique States.
       i -= 1;
       MergeStates(word.Word, i, states);
+    }
+
+    /// <summary>
+    /// Returns the indices of transitions that represent final values.
+    /// </summary>
+    /// <returns>A sequence of indices in the transitions table.</returns>
+    public IEnumerable<int> GetResultIndices()
+    {
+      return _stateManager.GetResultIndices();
     }
   }
 }

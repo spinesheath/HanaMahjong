@@ -88,7 +88,7 @@ namespace Spines.Tools.AnalyzerBuilder
       {
         return;
       }
-      new Creator(workingDirectory, this).Create();
+      new Creator(workingDirectory).Create();
     }
   }
 }
