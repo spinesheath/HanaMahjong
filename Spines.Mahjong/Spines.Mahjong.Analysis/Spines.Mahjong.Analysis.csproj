@@ -47,6 +47,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classification\ArrangementClassifier.cs" />
     <Compile Include="Classification\Classifier.cs" />
     <Compile Include="Classification\ClassifierBuilder.cs" />
     <Compile Include="Classification\FinalState.cs" />
@@ -86,7 +87,9 @@
       <Name>Spines.Utility</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ArrangementTransitions.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
