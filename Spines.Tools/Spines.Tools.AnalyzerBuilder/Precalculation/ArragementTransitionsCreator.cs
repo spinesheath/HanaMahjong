@@ -56,8 +56,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       File.WriteAllLines(arrangementTransitionsPath, lines);
     }
 
-    private static IEnumerable<int> CompactTransitions(IReadOnlyList<int> transitions, ICollection<int> resultIndices,
-      int alphabetSize)
+    private static IEnumerable<int> CompactTransitions(IReadOnlyList<int> transitions, ICollection<int> resultIndices, int alphabetSize)
     {
       var skippedIndices = new HashSet<int>();
       var offsetMap = new int[transitions.Count];

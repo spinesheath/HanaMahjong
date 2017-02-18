@@ -18,6 +18,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Spines.Mahjong.Analysis.Classification;
 using Spines.Mahjong.Analysis.Combinations;
 
 namespace Spines.Tools.AnalyzerBuilder.Precalculation
@@ -52,9 +53,40 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     {
       var honorFiles = RawAnalyzedDataCreator.ForHonors().Create(_workingDirectory);
       var suitFiles = RawAnalyzedDataCreator.ForSuits().Create(_workingDirectory);
-      var redundancies = CreateRedundantArrangements(_workingDirectory);
 
-      foreach (var fileName in honorFiles.Concat(suitFiles))
+      return CreateCompactData(honorFiles).Concat(CreateCompactData(suitFiles));
+    }
+
+    public IEnumerable<WordWithValue> CreateHonorWords()
+    {
+      var files = RawAnalyzedDataCreator.ForHonors().Create(_workingDirectory);
+      return CreateWords(files);
+    }
+
+    public IEnumerable<WordWithValue> CreateSuitWords()
+    {
+      var files = RawAnalyzedDataCreator.ForSuits().Create(_workingDirectory);
+      return CreateWords(files);
+    }
+
+    private IEnumerable<WordWithValue> CreateWords(IEnumerable<string> files)
+    {
+      var compact = CreateCompactData(files);
+      var orderedArrangements =
+        new OrderedArrangementsCreator(_workingDirectory).Create().Select(a => string.Join("", a)).ToList();
+      foreach (var analyzedHand in compact)
+      {
+        var hand = analyzedHand.Substring(0, HandLength).Where(char.IsDigit).Select(c => (int) char.GetNumericValue(c));
+        var arrangement = analyzedHand.Substring(HandLength);
+        var arrangementId = orderedArrangements.IndexOf(arrangement);
+        yield return new WordWithValue(hand, arrangementId);
+      }
+    }
+
+    private IEnumerable<string> CreateCompactData(IEnumerable<string> fileNames)
+    {
+      var redundancies = CreateRedundantArrangements(_workingDirectory);
+      foreach (var fileName in fileNames)
       {
         var newFileName = fileName.Replace(".txt", "_c.txt");
         if (File.Exists(newFileName))

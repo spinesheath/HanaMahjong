@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using Spines.Mahjong.Analysis.Classification;
 
 namespace Spines.Tools.AnalyzerBuilder.Precalculation
 {
@@ -46,6 +47,138 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     public void Create()
     {
       new ArragementTransitionsCreator(_workingDirectory).Create();
+
+
+      CreateHonorTransitions();
+      CreateSuitTransitions();
+    }
+
+    private void CreateSuitTransitions()
+    {
+      var targetPath = Path.Combine(_workingDirectory, "SuitTransitions.txt");
+      if (File.Exists(targetPath))
+      {
+        return;
+      }
+
+      var words = new CompactAnalyzedDataCreator(_workingDirectory).CreateSuitWords();
+      // (MeldedTiles, ConcealedTiles, MeldCount)
+      var mhc = words.Select(w => new WordWithValue(Swap(w.Word, 2, 0, 1), w.Value));
+
+      var compactedTransitions = GetCompactedTransitions(mhc);
+
+      var lines = compactedTransitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
+      File.WriteAllLines(targetPath, lines);
+    }
+
+    private void CreateHonorTransitions()
+    {
+      var targetPath = Path.Combine(_workingDirectory, "HonorTransitions.txt");
+      if (File.Exists(targetPath))
+      {
+        return;
+      }
+
+      var words = new CompactAnalyzedDataCreator(_workingDirectory).CreateHonorWords();
+      // (MeldedTiles, ConcealedTiles, MeldCount)
+      var mhc = words.Select(w => new WordWithValue(Swap(w.Word, 2, 0, 1), w.Value));
+
+      var compactedTransitions = GetCompactedTransitions(mhc);
+
+      var lines = compactedTransitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
+      File.WriteAllLines(targetPath, lines);
+    }
+
+    private static IEnumerable<int> Swap(IReadOnlyList<int> word, int sortOfMeldCount, int sortOfMeldedTiles, int sortOfConcealedTiles)
+    {
+      for (var i = 0; i < 3; ++i)
+      {
+        if (sortOfMeldCount == i)
+        {
+          yield return word[0];
+        }
+        else if (sortOfMeldedTiles == i)
+        {
+          foreach (var c in word.Skip(1).Take(7))
+          {
+            yield return word[c];
+          }
+        }
+        else if (sortOfConcealedTiles == i)
+        {
+          foreach (var c in word.Skip(8).Take(7))
+          {
+            yield return word[c];
+          }
+        }
+      }
+    }
+
+    private static IEnumerable<int> GetCompactedTransitions(IEnumerable<WordWithValue> words)
+    {
+      var classifierBuilder = new ClassifierFactory().Create(words);
+      var transitions = classifierBuilder.CreateTransitions().ToList();
+      var resultIndices = new HashSet<int>(classifierBuilder.GetResultIndices());
+      var alphabetSize = classifierBuilder.AlphabetSize;
+      return CompactTransitions(transitions, resultIndices, alphabetSize);
+    }
+
+    private static IEnumerable<int> CompactTransitions(IReadOnlyList<int> transitions, ICollection<int> resultIndices, int alphabetSize)
+    {
+      var skippedIndices = new HashSet<int>();
+      var offsetMap = new int[transitions.Count];
+      var skipTotal = 0;
+      for (var i = 0; i < transitions.Count; i += alphabetSize)
+      {
+        var transitionsToKeep = alphabetSize;
+        for (; transitionsToKeep > 0; transitionsToKeep--)
+        {
+          var transition = i + transitionsToKeep - 1;
+          if (transitions[transition] != 0 || resultIndices.Contains(transition))
+          {
+            break;
+          }
+          skippedIndices.Add(transition);
+        }
+        var toSkip = alphabetSize - transitionsToKeep;
+        skipTotal += toSkip;
+        for (var j = 0; j < alphabetSize; ++j)
+        {
+          var index = i + alphabetSize + j;
+          if (index >= offsetMap.Length)
+          {
+            break;
+          }
+          offsetMap[index] = skipTotal;
+        }
+      }
+
+      var clone = transitions.ToList();
+      for (var i = 0; i < clone.Count; ++i)
+      {
+        if (clone[i] == 0)
+        {
+          continue;
+        }
+        if (resultIndices.Contains(i))
+        {
+          continue;
+        }
+
+        clone[i] -= offsetMap[clone[i]];
+      }
+
+      var compactedTransitions = new List<int>();
+      for (var i = 0; i < clone.Count; ++i)
+      {
+        if (skippedIndices.Contains(i))
+        {
+          continue;
+        }
+        compactedTransitions.Add(clone[i]);
+      }
+
+      return compactedTransitions;
     }
   }
 }

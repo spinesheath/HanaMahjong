@@ -48,12 +48,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classification\ArrangementClassifier.cs" />
-    <Compile Include="Classification\Classifier.cs" />
+    <Compile Include="Classification\ClassifierBase.cs" />
     <Compile Include="Classification\ClassifierBuilder.cs" />
     <Compile Include="Classification\FinalState.cs" />
+    <Compile Include="Classification\HonorClassifier.cs" />
     <Compile Include="Classification\State.cs" />
     <Compile Include="Classification\StateComparer.cs" />
     <Compile Include="Classification\StateManager.cs" />
+    <Compile Include="Classification\SuitClassifier.cs" />
     <Compile Include="Classification\WordWithValue.cs" />
     <Compile Include="Combinations\Arrangement.cs" />
     <Compile Include="Combinations\ArrangementAnalyzer.cs" />
@@ -70,8 +72,6 @@
     <Compile Include="Combinations\ShuntsuProtoGroupInserter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Combinations\ConcealedCombinationCreator.cs" />
-    <Compile Include="ShantenClassifiers.cs" />
-    <Compile Include="ShantenCounter.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\..\CommonResources\CustomDictionary.xml">
@@ -89,6 +89,10 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\ArrangementTransitions.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\HonorTransitions.txt" />
+    <Content Include="Resources\SuitTransitions.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

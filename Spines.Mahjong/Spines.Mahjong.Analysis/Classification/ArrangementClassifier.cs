@@ -15,45 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Resources;
-using System.Text.RegularExpressions;
-
 namespace Spines.Mahjong.Analysis.Classification
 {
   /// <summary>
   /// Calculates the shanten of a set of four arrangements.
   /// </summary>
-  internal class ArrangementClassifier
+  internal class ArrangementClassifier : ClassifierBase
   {
-    private static readonly int[] Transitions;
-
-    /// <summary>
-    /// Loads the transition data from application resources.
-    /// </summary>
-    static ArrangementClassifier()
-    {
-      var assembly = Assembly.GetExecutingAssembly();
-      const string resourceName = "Spines.Mahjong.Analysis.Resources.ArrangementTransitions.txt";
-
-      using (var stream = assembly.GetManifestResourceStream(resourceName))
-      {
-        if (stream == null)
-        {
-          throw new MissingManifestResourceException("Arrangement classifier transition resource is missing.");
-        }
-        using (var reader = new StreamReader(stream))
-        {
-          var result = reader.ReadToEnd();
-          var lines = Regex.Split(result, "\r\n|\r|\n").Where(line => line.Length > 0);
-          Transitions = lines.Select(line => int.Parse(line, CultureInfo.InvariantCulture)).ToArray();
-        }
-      }
-    }
+    private static readonly int[] Transitions = GetTransitions("Spines.Mahjong.Analysis.Resources.ArrangementTransitions.txt");
 
     /// <summary>
     /// Calculates the shanten of 4 arrangements.

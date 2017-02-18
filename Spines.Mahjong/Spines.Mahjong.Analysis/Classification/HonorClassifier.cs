@@ -1,6 +1,6 @@
-﻿// Spines.Mahjong.Analysis.ShantenCounter.cs
+﻿// Spines.Mahjong.Analysis.HonorClassifier.cs
 // 
-// Copyright (C) 2016  Johannes Heckl
+// Copyright (C) 2017  Johannes Heckl
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,32 +17,20 @@
 
 using System.Collections.Generic;
 
-namespace Spines.Mahjong.Analysis
+namespace Spines.Mahjong.Analysis.Classification
 {
-  /// <summary>
-  /// Calculates the shanten count of a hand.
-  /// </summary>
-  public class ShantenCounter
+  internal class HonorClassifier : ClassifierBase
   {
-    /// <summary>
-    /// Calculates the shanten count of a hand.
-    /// </summary>
-    public int Count(IEnumerable<int> concealedTiles, IEnumerable<int> meldedTiles, int meldCount)
+    private static readonly int[] Transitions = GetTransitions("Spines.Mahjong.Analysis.Resources.HonorTransitions.txt");
+
+    public int Classify(IReadOnlyList<int> word)
     {
-      var concealedCounts = new int[34];
-      foreach (var tile in concealedTiles)
+      var current = 0;
+      for (var i = 0; i < 15; ++i)
       {
-        concealedCounts[tile / 4] += 1;
+        current = Transitions[current + word[i]];
       }
-      var meldedCounts = new int[34];
-      foreach (var tile in meldedTiles)
-      {
-        meldedCounts[tile / 4] += 1;
-      }
-      var c = new ShantenClassifiers();
-
-
-      return 0;
+      return current;
     }
   }
 }

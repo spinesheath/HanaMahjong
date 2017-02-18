@@ -1,6 +1,6 @@
-// Spines.Mahjong.Analysis.ShantenClassifiers.cs
+﻿// Spines.Mahjong.Analysis.SuitClassifier.cs
 // 
-// Copyright (C) 2016  Johannes Heckl
+// Copyright (C) 2017  Johannes Heckl
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,26 +15,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Spines.Mahjong.Analysis.Classification;
+using System.Collections.Generic;
 
-namespace Spines.Mahjong.Analysis
+namespace Spines.Mahjong.Analysis.Classification
 {
-  /// <summary>
-  /// Classifiers for shanten counting.
-  /// </summary>
-  internal class ShantenClassifiers
+  internal class SuitClassifier : ClassifierBase
   {
-    public ShantenClassifiers()
+    private static readonly int[] Transitions = GetTransitions("Spines.Mahjong.Analysis.Resources.SuitTransitions.txt");
+
+    public int Classify(IReadOnlyList<int> word)
     {
-      HonorClassifier = Classifier.FromFile("");
-      SuitClassifier = Classifier.FromFile("");
-      ArrangementClassifier = Classifier.FromFile("");
+      var current = 0;
+      for (var i = 0; i < 19; ++i)
+      {
+        current = Transitions[current + word[i]];
+      }
+      return current;
     }
-
-    public Classifier ArrangementClassifier { get; }
-
-    public Classifier SuitClassifier { get; }
-
-    public Classifier HonorClassifier { get; }
   }
 }
