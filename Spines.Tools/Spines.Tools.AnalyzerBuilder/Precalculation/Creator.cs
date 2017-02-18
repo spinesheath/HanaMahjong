@@ -45,73 +45,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     /// </summary>
     public void Create()
     {
-      var arrangementTransitionsPath = Path.Combine(_workingDirectory, "ArrangementTransitions.txt");
-      if (File.Exists(arrangementTransitionsPath))
-      {
-        return;
-      }
-
-      var orderedWords = new ArrangementWordCreator(_workingDirectory).CreateOrdered().ToList();
-      var classifierBuilder = new ClassifierFactory().Create(orderedWords);
-      
-      var transitions = classifierBuilder.CreateTransitions().ToList();
-      var resultIndices = new HashSet<int>(classifierBuilder.GetResultIndices());
-      var alphabetSize = classifierBuilder.AlphabetSize;
-
-      var compactedTransitions = CompactTransitions(transitions, resultIndices, alphabetSize).ToList();
-
-      var lines = compactedTransitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
-      File.WriteAllLines(arrangementTransitionsPath, lines);
-    }
-
-    private static IEnumerable<int> CompactTransitions(IReadOnlyList<int> transitions, ICollection<int> resultIndices, int alphabetSize)
-    {
-      var skippedIndices = new HashSet<int>();
-      var offsetMap = new int[transitions.Count];
-      var skipTotal = 0;
-      for (var i = 0; i < transitions.Count; i += alphabetSize)
-      {
-        var transitionsToKeep = alphabetSize;
-        for (; transitionsToKeep > 0; transitionsToKeep--)
-        {
-          var transition = i + transitionsToKeep - 1;
-          if (transitions[transition] != 0 || resultIndices.Contains(transition))
-          {
-            break;
-          }
-          skippedIndices.Add(transition);
-        }
-        var toSkip = alphabetSize - transitionsToKeep;
-        skipTotal += toSkip;
-        for (var j = 0; j < alphabetSize; ++j)
-        {
-          var index = i + alphabetSize + j;
-          if (index >= offsetMap.Length)
-            break;
-          offsetMap[index] = skipTotal;
-        }
-      }
-
-      var clone = transitions.ToList();
-      for (var i = 0; i < clone.Count; ++i)
-      {
-        if (clone[i] == 0)
-          continue;
-        if (resultIndices.Contains(i))
-          continue;
-
-        clone[i] -= offsetMap[clone[i]];
-      }
-
-      var compactedTransitions = new List<int>();
-      for (var i = 0; i < clone.Count; ++i)
-      {
-        if (skippedIndices.Contains(i))
-          continue;
-        compactedTransitions.Add(clone[i]);
-      }
-
-      return compactedTransitions;
+      new ArragementTransitionsCreator(_workingDirectory).Create();
     }
   }
 }

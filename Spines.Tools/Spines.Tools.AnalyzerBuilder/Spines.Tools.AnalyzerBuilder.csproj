@@ -86,6 +86,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Precalculation\ArragementTransitionsCreator.cs" />
     <Compile Include="Precalculation\ClassifierFactory.cs" />
     <Compile Include="IProgressManager.cs" />
     <Compile Include="MainWindow.xaml.cs">
