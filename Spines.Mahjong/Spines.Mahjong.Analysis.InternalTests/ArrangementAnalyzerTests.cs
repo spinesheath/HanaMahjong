@@ -15,17 +15,17 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Spines.Mahjong.Analysis.Combinations;
 using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.InternalTests
 {
-  [TestClass]
+  [TestFixture]
   public class ArrangementAnalyzerTests
   {
-    [TestMethod]
-    public void TestArrangementAnalyzer()
+    [Test]
+    public void CalculateShantenShouldReturnShanten()
     {
       // Randomly picked 2 shanten hand. 34467p 44446s 3447m
       var pinzu = new[] // 001201100 (0,3,5)(1,2,4)(2,0,0)(2,1,2)(2,2,3)

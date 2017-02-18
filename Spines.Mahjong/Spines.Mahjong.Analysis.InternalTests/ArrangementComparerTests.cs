@@ -15,29 +15,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Spines.Mahjong.Analysis.Combinations;
 
 namespace Spines.Mahjong.Analysis.InternalTests
 {
-  [TestClass]
+  [TestFixture]
   public class ArrangementComparerTests
   {
-    [TestMethod]
+    [Test]
     public void Test14Tiles()
     {
       var comparer = new ArrangementComparer();
       AssertIsWorse(comparer, new Arrangement(0, 2, 2), new Arrangement(0, 1, 2));
     }
 
-    [TestMethod]
+    [Test]
     public void Test12Tiles()
     {
       var comparer = new ArrangementComparer();
       AssertIsWorse(comparer, new Arrangement(0, 4, 11), new Arrangement(0, 4, 12));
     }
 
-    [TestMethod]
+    [Test]
     public void Test8Tiles()
     {
       var comparer = new ArrangementComparer();

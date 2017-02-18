@@ -17,16 +17,16 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Spines.Mahjong.Analysis.Classification;
 using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.InternalTests
 {
-  [TestClass]
+  [TestFixture]
   public class ClassifierTests
   {
-    [TestMethod]
+    [Test]
     public void TestClassifierBuilder()
     {
       const int wordLength = 5;

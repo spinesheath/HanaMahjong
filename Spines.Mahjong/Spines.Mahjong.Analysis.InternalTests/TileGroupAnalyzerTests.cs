@@ -17,24 +17,24 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Spines.Mahjong.Analysis.Combinations;
 
 namespace Spines.Mahjong.Analysis.InternalTests
 {
-  [TestClass]
+  [TestFixture]
   public class TileGroupAnalyzerTests
   {
     private readonly int[] _emptySuit = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     private readonly int[] _emptyHonor = { 0, 0, 0, 0, 0, 0, 0 };
 
-    [TestMethod]
+    [Test]
     public void TestEmptyHand()
     {
       CheckHand(1, _emptySuit, _emptySuit, 0);
     }
 
-    [TestMethod]
+    [Test]
     public void TestSuitWithoutMelds()
     {
       CheckHand(2, new[] { 1, 0, 0, 0, 0, 0, 0, 0, 0 }, _emptySuit, 0);
@@ -45,7 +45,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
       CheckHand(2, new[] { 0, 0, 0, 4, 3, 0, 1, 0, 0 }, _emptySuit, 0);
     }
 
-    [TestMethod]
+    [Test]
     public void TestSuitWithMelds()
     {
       CheckHand(1, new[] { 2, 0, 0, 0, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 4, 4, 4, 4, 0 }, 4);
@@ -54,7 +54,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
       CheckHand(3, new[] { 4, 0, 3, 0, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 0, 0, 4, 3 }, 2);
     }
 
-    [TestMethod]
+    [Test]
     public void TestHonorsWithoutMelds()
     {
       CheckHand(2, new[] { 1, 0, 0, 0, 0, 0, 0 }, _emptyHonor, 0);
@@ -65,7 +65,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
       CheckHand(1, new[] { 0, 0, 0, 4, 3, 0, 1 }, _emptyHonor, 0);
     }
 
-    [TestMethod]
+    [Test]
     public void TestHonorsWithMelds()
     {
       CheckHand(1, new[] { 2, 0, 0, 0, 0, 0, 0 }, new[] { 0, 0, 4, 4, 4, 4, 0 }, 4);

@@ -15,18 +15,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Spines.Utility.Tests
 {
-  [TestClass]
+  [TestFixture]
   public class EnumerableExtensionsTests
   {
-    [TestMethod]
-    public void TestCartesianProduct()
+    [Test]
+    public void CartesianPoductShouldHaveCorrectCount()
     {
       var source = new List<IEnumerable<int>>
       {
@@ -34,16 +33,22 @@ namespace Spines.Utility.Tests
         new List<int> { 3, 4, 5 },
         new List<int> { 6, 7, 8 }
       };
-      var product = source.CartesianProduct();
-      Assert.AreEqual(27, product.Count());
+      const int expected = 3 * 3 * 3;
+
+      var actual = source.CartesianProduct().Count();
+
+      Assert.That(actual, Is.EqualTo(expected));
     }
 
-    [TestMethod]
-    public void TestPermute()
+    [Test]
+    public void PermuteShouldHaveCorrectCount()
     {
       var source = new[] {0, 1, 2, 3};
-      var result = source.Permute();
-      Assert.AreEqual(4 * 3 * 2 * 1, result.Count());
+      const int expected = 4 * 3 * 2 * 1;
+
+      var actual = source.Permute().Count();
+
+      Assert.That(actual, Is.EqualTo(expected));
     }
   }
 }

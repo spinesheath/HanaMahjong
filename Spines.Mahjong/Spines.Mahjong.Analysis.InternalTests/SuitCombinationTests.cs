@@ -16,18 +16,18 @@
  */
 
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Spines.Mahjong.Analysis.Combinations;
 
 namespace Spines.Mahjong.Analysis.InternalTests
 {
-  [TestClass]
+  [TestFixture]
   public class SuitCombinationTests
   {
     /// <summary>
     /// Number of combinations of melds in a single suit.
     /// </summary>
-    [TestMethod]
+    [Test]
     public void TestMeldCombinations()
     {
       VerifyMeld(0, 1);
@@ -47,7 +47,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     /// <summary>
     /// Number of combinations of tiles in a single suit, no melds.
     /// </summary>
-    [TestMethod]
+    [Test]
     public void TestConcealedSuitCombinations()
     {
       VerifyConcealed(0, 1);
@@ -83,7 +83,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     /// <summary>
     /// Number of combinations in a single suit with concealed and melded tiles.
     /// </summary>
-    [TestMethod]
+    [Test]
     public void TestMixedSuitCombinations()
     {
       VerifyMixed(1, 1, 112);
