@@ -1,4 +1,4 @@
-﻿// Spines.Tools.AnalyzerBuilder.ArragementTransitionsCreator.cs
+﻿// Spines.Tools.AnalyzerBuilder.TransitionsCreator.cs
 // 
 // Copyright (C) 2017  Johannes Heckl
 // 
@@ -19,23 +19,24 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using Spines.Mahjong.Analysis.Classification;
 
 namespace Spines.Tools.AnalyzerBuilder.Precalculation
 {
-  internal class ArragementTransitionsCreator
+  internal class TransitionsCreator
   {
     private readonly string _workingDirectory;
 
     /// <summary>
-    /// Creates a new Instance of ArragementTransitionsCreator.
+    /// Creates a new Instance of TransitionsCreator.
     /// </summary>
     /// <param name="workingDirectory">The directory where intermediate results are stored.</param>
-    public ArragementTransitionsCreator(string workingDirectory)
+    public TransitionsCreator(string workingDirectory)
     {
       _workingDirectory = workingDirectory;
     }
 
-    public void Create()
+    public void CreateArrangementTransitions()
     {
       var arrangementTransitionsPath = Path.Combine(_workingDirectory, "ArrangementTransitions.txt");
       if (File.Exists(arrangementTransitionsPath))
@@ -43,20 +44,54 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         return;
       }
 
-      var orderedWords = new ArrangementWordCreator(_workingDirectory).CreateOrdered().ToList();
-      var classifierBuilder = new ClassifierFactory().Create(orderedWords);
-
-      var transitions = classifierBuilder.CreateTransitions().ToList();
-      var resultIndices = new HashSet<int>(classifierBuilder.GetResultIndices());
-      var alphabetSize = classifierBuilder.AlphabetSize;
-
-      var compactedTransitions = CompactTransitions(transitions, resultIndices, alphabetSize).ToList();
+      var words = new ArrangementWordCreator(_workingDirectory).CreateOrdered().ToList();
+      var compactedTransitions = GetCompactedTransitions(words);
 
       var lines = compactedTransitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
       File.WriteAllLines(arrangementTransitionsPath, lines);
     }
 
-    private static IEnumerable<int> CompactTransitions(IReadOnlyList<int> transitions, ICollection<int> resultIndices, int alphabetSize)
+    public void CreateSuitTransitions()
+    {
+      var targetPath = Path.Combine(_workingDirectory, "SuitTransitions.txt");
+      if (File.Exists(targetPath))
+      {
+        return;
+      }
+
+      var words = new CompactAnalyzedDataCreator(_workingDirectory).CreateSuitWords();
+      var compactedTransitions = GetCompactedTransitions(words);
+
+      var lines = compactedTransitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
+      File.WriteAllLines(targetPath, lines);
+    }
+
+    public void CreateHonorTransitions()
+    {
+      var targetPath = Path.Combine(_workingDirectory, "HonorTransitions.txt");
+      if (File.Exists(targetPath))
+      {
+        return;
+      }
+
+      var words = new CompactAnalyzedDataCreator(_workingDirectory).CreateHonorWords();
+      var compactedTransitions = GetCompactedTransitions(words);
+
+      var lines = compactedTransitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
+      File.WriteAllLines(targetPath, lines);
+    }
+
+    private static IEnumerable<int> GetCompactedTransitions(IEnumerable<WordWithValue> words)
+    {
+      var classifierBuilder = new ClassifierFactory().Create(words);
+      var transitions = classifierBuilder.CreateTransitions().ToList();
+      var resultIndices = new HashSet<int>(classifierBuilder.GetResultIndices());
+      var alphabetSize = classifierBuilder.AlphabetSize;
+      return CompactTransitions(transitions, resultIndices, alphabetSize);
+    }
+
+    private static IEnumerable<int> CompactTransitions(IReadOnlyList<int> transitions, ICollection<int> resultIndices,
+      int alphabetSize)
     {
       var skippedIndices = new HashSet<int>();
       var offsetMap = new int[transitions.Count];
