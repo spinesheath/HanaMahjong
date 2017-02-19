@@ -52,6 +52,7 @@
     <Compile Include="Classification\ClassifierBuilder.cs" />
     <Compile Include="Classification\FinalState.cs" />
     <Compile Include="Classification\HonorClassifier.cs" />
+    <Compile Include="Classification\ShantenCalculator.cs" />
     <Compile Include="Classification\State.cs" />
     <Compile Include="Classification\StateComparer.cs" />
     <Compile Include="Classification\StateManager.cs" />
@@ -91,8 +92,8 @@
     <EmbeddedResource Include="Resources\ArrangementTransitions.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\HonorTransitions.txt" />
-    <Content Include="Resources\SuitTransitions.txt" />
+    <EmbeddedResource Include="Resources\HonorTransitions.txt" />
+    <EmbeddedResource Include="Resources\SuitTransitions.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

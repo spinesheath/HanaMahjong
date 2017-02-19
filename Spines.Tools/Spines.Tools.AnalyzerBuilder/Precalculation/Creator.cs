@@ -63,9 +63,9 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 
       var words = new CompactAnalyzedDataCreator(_workingDirectory).CreateSuitWords();
       // (MeldedTiles, ConcealedTiles, MeldCount)
-      var mhc = words.Select(w => new WordWithValue(Swap(w.Word, 2, 0, 1), w.Value));
+      //var mhc = words.Select(w => new WordWithValue(Swap(w.Word, 2, 0, 1, 9), w.Value));
 
-      var compactedTransitions = GetCompactedTransitions(mhc);
+      var compactedTransitions = GetCompactedTransitions(words);
 
       var lines = compactedTransitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
       File.WriteAllLines(targetPath, lines);
@@ -81,15 +81,15 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 
       var words = new CompactAnalyzedDataCreator(_workingDirectory).CreateHonorWords();
       // (MeldedTiles, ConcealedTiles, MeldCount)
-      var mhc = words.Select(w => new WordWithValue(Swap(w.Word, 2, 0, 1), w.Value));
+      //var mhc = words.Select(w => new WordWithValue(Swap(w.Word, 2, 0, 1, 7), w.Value));
 
-      var compactedTransitions = GetCompactedTransitions(mhc);
+      var compactedTransitions = GetCompactedTransitions(words);
 
       var lines = compactedTransitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
       File.WriteAllLines(targetPath, lines);
     }
 
-    private static IEnumerable<int> Swap(IReadOnlyList<int> word, int sortOfMeldCount, int sortOfMeldedTiles, int sortOfConcealedTiles)
+    private static IEnumerable<int> Swap(IReadOnlyList<int> word, int sortOfMeldCount, int sortOfMeldedTiles, int sortOfConcealedTiles, int typesInSuit)
     {
       for (var i = 0; i < 3; ++i)
       {
@@ -99,14 +99,14 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         }
         else if (sortOfMeldedTiles == i)
         {
-          foreach (var c in word.Skip(1).Take(7))
+          foreach (var c in word.Skip(1).Take(typesInSuit))
           {
             yield return word[c];
           }
         }
         else if (sortOfConcealedTiles == i)
         {
-          foreach (var c in word.Skip(8).Take(7))
+          foreach (var c in word.Skip(1 + typesInSuit).Take(typesInSuit))
           {
             yield return word[c];
           }
