@@ -27,53 +27,58 @@ namespace Spines.Mahjong.Analysis.Classification
   {
     public int Calculate(string hand)
     {
-      var manzuRegex = new Regex(@"[\^\w](\d*)m");
-      var pinzuRegex = new Regex(@"[\^\w](\d*)p");
-      var souzuRegex = new Regex(@"[\^\w](\d*)s");
-      var honorRegex = new Regex(@"[\^\w](\d*)z");
-      var manzu = GetTileCounts(hand, manzuRegex, 9);
-      var pinzu = GetTileCounts(hand, pinzuRegex, 9);
-      var souzu = GetTileCounts(hand, souzuRegex, 9);
-      var honor = GetTileCounts(hand, honorRegex, 7);
+      var manzu = GetTileCounts(hand, 'm', 9);
+      var pinzu = GetTileCounts(hand, 'p', 9);
+      var souzu = GetTileCounts(hand, 's', 9);
+      var honor = GetTileCounts(hand, 'z', 7);
 
       var suitClassifier = new SuitClassifier();
       var honorClassifier = new HonorClassifier();
       var arrangementClassifier = new ArrangementClassifier();
       var shanten = arrangementClassifier.Classify(
-        suitClassifier.Classify(manzu), 
+        suitClassifier.Classify(manzu),
         suitClassifier.Classify(pinzu),
-        suitClassifier.Classify(souzu), 
+        suitClassifier.Classify(souzu),
         honorClassifier.Classify(honor));
 
       return shanten;
     }
 
-    private static IReadOnlyList<int> GetTileCounts(string hand, Regex manzuRegex, int typesInSuit)
+    private static IReadOnlyList<int> GetTileCounts(string hand, char tileGroupName, int typesInSuit)
     {
-      var capture = manzuRegex.Match(hand).Captures.OfType<Capture>().FirstOrDefault();
-      if (capture == null)
-      {
-        return Enumerable.Repeat(0, typesInSuit + typesInSuit + 1).ToList();
-      }
-      var tiles = capture.Value.Select(c => char.GetNumericValue(c) - 1);
-      var idToCount = tiles.GroupBy(t => t).ToDictionary(g => g.Key, g => g.Count());
-      var tileCounts = Enumerable.Range(0, 9).Select(i => idToCount.ContainsKey(i) ? idToCount[i] : 0).ToList();
+      var concealed = GetTiles(hand, tileGroupName, typesInSuit).ToList();
+      var meldedName = char.ToUpper(tileGroupName);
+      var meldCount = hand.Count(c => c == meldedName);
+      var melded = GetTiles(hand, meldedName, typesInSuit).ToList();
 
-      var weight = GetWeight(typesInSuit, tileCounts);
+      var weight = GetWeight(typesInSuit, concealed, melded);
       if (weight < 0)
-        tileCounts.Reverse();
+      {
+        concealed.Reverse();
+        melded.Reverse();
+      }
 
-      return 0.Yield().Concat(Enumerable.Repeat(0, typesInSuit).Concat(tileCounts)).ToList();
+      return meldCount.Yield().Concat(melded).Concat(concealed).ToList();
     }
 
-    private static int GetWeight(int typesInSuit, IReadOnlyList<int> concealed)
+    private static IEnumerable<int> GetTiles(string hand, char tileGroupName, int typesInSuit)
     {
-      return Enumerable.Range(0, typesInSuit).Sum(i => GetWeight(i, typesInSuit, concealed));
+      var regex = new Regex(@"[\^\w](\d*)" + tileGroupName);
+      var captures = regex.Matches(hand).OfType<Match>().SelectMany(m => m.Captures.OfType<Capture>());
+      var tiles = captures.SelectMany(c => c.Value).Select(c => (int) char.GetNumericValue(c) - 1);
+      var idToCount = tiles.GroupBy(t => t).ToDictionary(g => g.Key, g => g.Count());
+      return Enumerable.Range(0, typesInSuit).Select(i => idToCount.ContainsKey(i) ? idToCount[i] : 0);
     }
 
-    private static int GetWeight(int tileTypeIndex, int typesInSuit, IReadOnlyList<int> concealed)
+    private static int GetWeight(int typesInSuit, IReadOnlyList<int> concealed, IReadOnlyList<int> melded)
     {
-      var tileCount = concealed[tileTypeIndex];
+      return Enumerable.Range(0, typesInSuit).Sum(i => GetWeight(i, typesInSuit, concealed, melded));
+    }
+
+    private static int GetWeight(int tileTypeIndex, int typesInSuit, IReadOnlyList<int> concealed,
+      IReadOnlyList<int> melded)
+    {
+      var tileCount = concealed[tileTypeIndex] + melded[tileTypeIndex];
       var centerIndex = (typesInSuit - typesInSuit % 1) / 2;
       var shift = Math.Abs(centerIndex - tileTypeIndex) * 2;
       var factor = Math.Sign(centerIndex - tileTypeIndex);
