@@ -47,16 +47,13 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classification\ArrangementClassifier.cs" />
-    <Compile Include="Classification\ClassifierBase.cs" />
+    <Compile Include="Classification\Classifier.cs" />
     <Compile Include="Classification\ClassifierBuilder.cs" />
     <Compile Include="Classification\FinalState.cs" />
-    <Compile Include="Classification\HonorClassifier.cs" />
     <Compile Include="Classification\ShantenCalculator.cs" />
     <Compile Include="Classification\State.cs" />
     <Compile Include="Classification\StateComparer.cs" />
     <Compile Include="Classification\StateManager.cs" />
-    <Compile Include="Classification\SuitClassifier.cs" />
     <Compile Include="Classification\WordWithValue.cs" />
     <Compile Include="Combinations\Arrangement.cs" />
     <Compile Include="Combinations\ArrangementAnalyzer.cs" />

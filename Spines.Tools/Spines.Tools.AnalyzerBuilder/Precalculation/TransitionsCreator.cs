@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -38,43 +39,31 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 
     public void CreateArrangementTransitions()
     {
-      var arrangementTransitionsPath = Path.Combine(_workingDirectory, "ArrangementTransitions.txt");
-      if (File.Exists(arrangementTransitionsPath))
-      {
-        return;
-      }
-
-      var words = new ArrangementWordCreator(_workingDirectory).CreateOrdered().ToList();
-      var compactedTransitions = GetCompactedTransitions(words);
-
-      var lines = compactedTransitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
-      File.WriteAllLines(arrangementTransitionsPath, lines);
+      CreateTransitions("ArrangementTransitions.txt", () => new ArrangementWordCreator(_workingDirectory).CreateOrdered());
     }
 
     public void CreateSuitTransitions()
     {
-      var targetPath = Path.Combine(_workingDirectory, "SuitTransitions.txt");
-      if (File.Exists(targetPath))
-      {
-        return;
-      }
-
-      var words = new CompactAnalyzedDataCreator(_workingDirectory).CreateSuitWords();
-      var compactedTransitions = GetCompactedTransitions(words);
-
-      var lines = compactedTransitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
-      File.WriteAllLines(targetPath, lines);
+      CreateTransitions("SuitTransitions.txt", () => new CompactAnalyzedDataCreator(_workingDirectory).CreateSuitWords());
     }
 
     public void CreateHonorTransitions()
     {
-      var targetPath = Path.Combine(_workingDirectory, "HonorTransitions.txt");
+      CreateTransitions("HonorTransitions.txt", () => new CompactAnalyzedDataCreator(_workingDirectory).CreateHonorWords());
+    }
+
+    /// <summary>
+    /// Creates the transitions file if it doesn't exist.
+    /// </summary>
+    public void CreateTransitions(string fileName, Func<IEnumerable<WordWithValue>> wordCreator)
+    {
+      var targetPath = Path.Combine(_workingDirectory, fileName);
       if (File.Exists(targetPath))
       {
         return;
       }
 
-      var words = new CompactAnalyzedDataCreator(_workingDirectory).CreateHonorWords();
+      var words = wordCreator();
       var compactedTransitions = GetCompactedTransitions(words);
 
       var lines = compactedTransitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
@@ -90,24 +79,31 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       return CompactTransitions(transitions, resultIndices, alphabetSize);
     }
 
-    private static IEnumerable<int> CompactTransitions(IReadOnlyList<int> transitions, ICollection<int> resultIndices,
-      int alphabetSize)
+    /// <summary>
+    /// Compacts transitions by eliminating trailing null tansitions.
+    /// I.e if the last couple characters in the alphabet, for one state don't lead to another state, these cells can be eliminated from the table.
+    /// Transitions that point to a later state are adjusted by the amount of eliminated cells.
+    /// </summary>
+    private static IEnumerable<int> CompactTransitions(IReadOnlyList<int> transitions, ICollection<int> resultIndices, int alphabetSize)
     {
+      // Build a set of indices that can be skipped and a table of offsets for adjusting the remaining transitions.
       var skippedIndices = new HashSet<int>();
       var offsetMap = new int[transitions.Count];
       var skipTotal = 0;
       for (var i = 0; i < transitions.Count; i += alphabetSize)
       {
+        // Count the trailing nulls.
         var transitionsToKeep = alphabetSize;
         for (; transitionsToKeep > 0; transitionsToKeep--)
         {
           var transition = i + transitionsToKeep - 1;
-          if (transitions[transition] != 0 || resultIndices.Contains(transition))
+          if (transitions[transition] != 0 || resultIndices.Contains(transition)) // Results can be 0 but can't be skipped.
           {
             break;
           }
           skippedIndices.Add(transition);
         }
+        // Build the set and table.
         var toSkip = alphabetSize - transitionsToKeep;
         skipTotal += toSkip;
         for (var j = 0; j < alphabetSize; ++j)
@@ -121,14 +117,15 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         }
       }
 
+      // Adjust the remaining transitions.
       var clone = transitions.ToList();
       for (var i = 0; i < clone.Count; ++i)
       {
-        if (clone[i] == 0)
+        if (clone[i] == 0) // nulls are not adjusted.
         {
           continue;
         }
-        if (resultIndices.Contains(i))
+        if (resultIndices.Contains(i)) // Results are not adjusted.
         {
           continue;
         }
@@ -136,17 +133,8 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         clone[i] -= offsetMap[clone[i]];
       }
 
-      var compactedTransitions = new List<int>();
-      for (var i = 0; i < clone.Count; ++i)
-      {
-        if (skippedIndices.Contains(i))
-        {
-          continue;
-        }
-        compactedTransitions.Add(clone[i]);
-      }
-
-      return compactedTransitions;
+      // Copy into a new list while skipping eliminated cells.
+      return clone.Where((t, i) => !skippedIndices.Contains(i)).ToList();
     }
   }
 }

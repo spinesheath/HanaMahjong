@@ -31,15 +31,13 @@ namespace Spines.Mahjong.Analysis.Classification
       var pinzu = GetTileCounts(hand, 'p', 9);
       var souzu = GetTileCounts(hand, 's', 9);
       var honor = GetTileCounts(hand, 'z', 7);
-
-      var suitClassifier = new SuitClassifier();
-      var honorClassifier = new HonorClassifier();
-      var arrangementClassifier = new ArrangementClassifier();
-      var shanten = arrangementClassifier.Classify(
-        suitClassifier.Classify(manzu),
-        suitClassifier.Classify(pinzu),
-        suitClassifier.Classify(souzu),
-        honorClassifier.Classify(honor));
+      
+      var classifier = new Classifier();
+      var shanten = classifier.ClassifyArrangements(
+        classifier.ClassifySuits(manzu),
+        classifier.ClassifySuits(pinzu),
+        classifier.ClassifySuits(souzu),
+        classifier.ClassifyHonors(honor));
 
       return shanten;
     }
