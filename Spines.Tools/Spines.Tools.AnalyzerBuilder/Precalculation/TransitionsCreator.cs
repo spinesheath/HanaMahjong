@@ -74,7 +74,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     {
       var classifierBuilder = new ClassifierFactory().Create(words);
       var transitions = classifierBuilder.CreateTransitions().ToList();
-      var resultIndices = new HashSet<int>(classifierBuilder.GetResultIndices());
+      var resultIndices = new HashSet<int>(classifierBuilder.GetResultIndexes());
       var alphabetSize = classifierBuilder.AlphabetSize;
       return CompactTransitions(transitions, resultIndices, alphabetSize);
     }

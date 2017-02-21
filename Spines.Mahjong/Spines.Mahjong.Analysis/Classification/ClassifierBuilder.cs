@@ -236,9 +236,9 @@ namespace Spines.Mahjong.Analysis.Classification
     /// Returns the indices of transitions that represent final values.
     /// </summary>
     /// <returns>A sequence of indices in the transitions table.</returns>
-    public IEnumerable<int> GetResultIndices()
+    public IEnumerable<int> GetResultIndexes()
     {
-      return _stateManager.GetResultIndices();
+      return _stateManager.GetResultIndexes();
     }
   }
 }

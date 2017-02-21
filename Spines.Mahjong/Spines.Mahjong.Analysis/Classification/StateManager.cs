@@ -62,7 +62,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// Indices of the transitions that contain a final value in the transitions array.
     /// </summary>
-    public IReadOnlyList<int> GetResultIndices()
+    public IReadOnlyList<int> GetResultIndexes()
     {
       CompactTransitions();
       return _finalStateTransitions;

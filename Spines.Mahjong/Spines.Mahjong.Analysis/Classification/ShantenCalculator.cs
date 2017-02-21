@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Spines.Utility;
@@ -45,7 +46,7 @@ namespace Spines.Mahjong.Analysis.Classification
     private static IReadOnlyList<int> GetTileCounts(string hand, char tileGroupName, int typesInSuit)
     {
       var concealed = GetTiles(hand, tileGroupName, typesInSuit).ToList();
-      var meldedName = char.ToUpper(tileGroupName);
+      var meldedName = char.ToUpper(tileGroupName, CultureInfo.InvariantCulture);
       var meldCount = hand.Count(c => c == meldedName);
       var melded = GetTiles(hand, meldedName, typesInSuit).ToList();
 

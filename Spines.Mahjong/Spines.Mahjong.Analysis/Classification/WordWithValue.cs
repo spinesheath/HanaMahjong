@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Spines.Utility;
 
@@ -28,7 +29,7 @@ namespace Spines.Mahjong.Analysis.Classification
   public class WordWithValue
   {
     private const string WordStringFormatError =
-      "WordWithValue must be a comma separated list of integers followed by a colon and another integer.";
+      "Word must be a comma separated list of integers followed by a colon and another integer.";
 
     /// <summary>
     /// Creates a new instance of WordWithValue.
@@ -59,7 +60,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// </returns>
     public override string ToString()
     {
-      return $"{string.Join(",", Word)}:{Value}";
+      return $"{string.Join(",", Word.Select(c => c.ToString(CultureInfo.InvariantCulture)))}:{Value}";
     }
 
     /// <summary>
@@ -75,7 +76,7 @@ namespace Spines.Mahjong.Analysis.Classification
         var parts = word.Split(':');
         var parts2 = parts[0].Split(',');
         var characters = parts2.Select(int.Parse);
-        return new WordWithValue(characters, int.Parse(parts[1]));
+        return new WordWithValue(characters, int.Parse(parts[1], CultureInfo.InvariantCulture));
       }
       catch (FormatException e)
       {

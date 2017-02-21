@@ -21,7 +21,7 @@ using Spines.Mahjong.Analysis.Classification;
 namespace Spines.Mahjong.Analysis.InternalTests
 {
   [TestFixture]
-  internal class ArrangementClassifierTests
+  public class ArrangementClassifierTests
   {
     [Test]
     public void ClassifyShouldReturnValueOfWord()

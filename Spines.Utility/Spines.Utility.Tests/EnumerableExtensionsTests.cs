@@ -25,7 +25,7 @@ namespace Spines.Utility.Tests
   public class EnumerableExtensionsTests
   {
     [Test]
-    public void CartesianPoductShouldHaveCorrectCount()
+    public void CartesianProductShouldHaveCorrectCount()
     {
       var source = new List<IEnumerable<int>>
       {
