@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Spines.Tools.AnalyzerBuilder.StateProgression;
+
 namespace Spines.Tools.AnalyzerBuilder.Precalculation
 {
   /// <summary>
@@ -40,6 +42,9 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     /// </summary>
     public void Create()
     {
+      var hsmb = new HonorStateMachineBuilder(_workingDirectory);
+      hsmb.Create();
+
       var creator = new TransitionsCreator(_workingDirectory);
       creator.CreateArrangementTransitions();
       creator.CreateHonorTransitions();
