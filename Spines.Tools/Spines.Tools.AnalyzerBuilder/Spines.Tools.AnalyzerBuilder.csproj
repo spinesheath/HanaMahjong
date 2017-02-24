@@ -89,7 +89,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Precalculation\TransitionsCreator.cs" />
-    <Compile Include="Precalculation\ClassifierFactory.cs" />
     <Compile Include="IProgressManager.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

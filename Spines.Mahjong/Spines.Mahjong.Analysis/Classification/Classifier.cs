@@ -46,9 +46,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <returns>The shanten of the hand.</returns>
     public int ClassifyArrangements(int a1, int a2, int a3, int a4)
     {
-      return
-        ArrangementTransitions[
-          ArrangementTransitions[ArrangementTransitions[ArrangementTransitions[0 + a1] + a2] + a3] + a4];
+      return ArrangementTransitions[ArrangementTransitions[ArrangementTransitions[ArrangementTransitions[0 + a1] + a2] + a3] + a4];
     }
 
     /// <summary>
@@ -82,7 +80,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// Loads the transition table from an embedded resource.
     /// </summary>
-    protected static int[] GetTransitions(string resourceName)
+    private static int[] GetTransitions(string resourceName)
     {
       var fullResourceName = "Spines.Mahjong.Analysis.Resources." + resourceName;
       var assembly = Assembly.GetExecutingAssembly();

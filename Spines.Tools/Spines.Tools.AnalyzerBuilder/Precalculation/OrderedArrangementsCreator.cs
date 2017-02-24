@@ -18,6 +18,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Spines.Mahjong.Analysis.Classification;
 using Spines.Mahjong.Analysis.Combinations;
 
 namespace Spines.Tools.AnalyzerBuilder.Precalculation
@@ -43,7 +44,8 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       }
 
       var words = new ArrangementWordCreator(_workingDirectory).CreateUnordered();
-      var classifierBuilder = new ClassifierFactory().Create(words);
+      var classifierBuilder = new ClassifierBuilder();
+      classifierBuilder.SetLanguage(words);
 
       var transitions = classifierBuilder.CreateTransitions().ToList();
       var resultIndices = new HashSet<int>(classifierBuilder.GetResultIndexes());
@@ -58,28 +60,6 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       var lines = newArrangements.Select(a => string.Join("", a)).ToList();
       File.WriteAllLines(orderedPath, lines);
       return newArrangements;
-    }
-
-    /// <summary>
-    /// Count the number of null transitions for each character in the alphabet.
-    /// </summary>
-    private static IEnumerable<int> GetNullTransitions(IReadOnlyList<int> transitions, ICollection<int> resultIndices,
-      int alphabetSize)
-    {
-      var nullTransitions = new int[alphabetSize];
-      for (var i = 0; i < transitions.Count; i++)
-      {
-        if (resultIndices.Contains(i))
-        {
-          continue;
-        }
-        var transition = transitions[i];
-        if (transition == 0)
-        {
-          nullTransitions[i % alphabetSize] += 1;
-        }
-      }
-      return nullTransitions;
     }
   }
 }

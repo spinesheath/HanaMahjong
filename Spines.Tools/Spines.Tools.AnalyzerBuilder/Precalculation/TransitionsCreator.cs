@@ -55,7 +55,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     /// <summary>
     /// Creates the transitions file if it doesn't exist.
     /// </summary>
-    public void CreateTransitions(string fileName, Func<IEnumerable<WordWithValue>> wordCreator)
+    private void CreateTransitions(string fileName, Func<IEnumerable<WordWithValue>> wordCreator)
     {
       var targetPath = Path.Combine(_workingDirectory, fileName);
       if (File.Exists(targetPath))
@@ -72,7 +72,8 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 
     private static IEnumerable<int> GetCompactedTransitions(IEnumerable<WordWithValue> words)
     {
-      var classifierBuilder = new ClassifierFactory().Create(words);
+      var classifierBuilder = new ClassifierBuilder();
+      classifierBuilder.SetLanguage(words);
       var transitions = classifierBuilder.CreateTransitions().ToList();
       var resultIndices = new HashSet<int>(classifierBuilder.GetResultIndexes());
       var alphabetSize = classifierBuilder.AlphabetSize;

@@ -16,36 +16,43 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Linq;
 using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.Classification
 {
   /// <summary>
-  /// Creates the transition table for a Classifier.
+  /// Creates the transition table for a Classifier with equal-length words.
   /// </summary>
   public class ClassifierBuilder
   {
-    private readonly StateManager _stateManager;
-
-    /// <summary>
-    /// Creates a minimized dfa and the corresponding transition table.
-    /// </summary>
-    public ClassifierBuilder(int alphabetSize, int wordLength)
-    {
-      AlphabetSize = alphabetSize;
-      WordLength = wordLength;
-      _stateManager = new StateManager(AlphabetSize, WordLength);
-    }
+    private StateManager _stateManager;
 
     /// <summary>
     /// The size of the alphabet.
     /// </summary>
-    public int AlphabetSize { get; }
+    public int AlphabetSize { get; private set; }
 
     /// <summary>
     /// The length of the words.
     /// </summary>
-    public int WordLength { get; }
+    public int WordLength { get; private set; }
+
+    /// <summary>
+    /// Creates a minimized dfa and the corresponding transition table.
+    /// </summary>
+    public void SetLanguage(IEnumerable<WordWithValue> language)
+    {
+      var words = Validate.NotNull(language, nameof(language)).ToList();
+      WordLength = words.First().Word.Count;
+      AlphabetSize = words.SelectMany(w => w.Word).Max() + 1;
+      _stateManager = new StateManager(AlphabetSize, WordLength);
+
+      foreach (var word in words)
+      {
+        MergeWord(word);
+      }
+    }
 
     /// <summary>
     /// Creates the classifier transitions for the specified language.
@@ -73,15 +80,6 @@ namespace Spines.Mahjong.Analysis.Classification
         }
       }
       return true;
-    }
-
-    /// <summary>
-    /// Adds the words to the dfa.
-    /// </summary>
-    public void AddWord(WordWithValue word)
-    {
-      Validate.NotNull(word, nameof(word));
-      MergeWord(word);
     }
 
     /// <summary>
