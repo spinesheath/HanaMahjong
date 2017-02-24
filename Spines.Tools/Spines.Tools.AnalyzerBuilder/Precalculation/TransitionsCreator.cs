@@ -76,7 +76,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       var transitions = classifierBuilder.CreateTransitions().ToList();
       var resultIndices = new HashSet<int>(classifierBuilder.GetResultIndexes());
       var alphabetSize = classifierBuilder.AlphabetSize;
-      return CompactTransitions(transitions, resultIndices, alphabetSize);
+      return Transition.Compact(transitions, alphabetSize, t => transitions[t] == 0 && !resultIndices.Contains(t), t => resultIndices.Contains(t));
     }
 
     /// <summary>

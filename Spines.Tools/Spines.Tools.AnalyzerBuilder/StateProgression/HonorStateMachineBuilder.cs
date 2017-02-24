@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Spines.Tools.AnalyzerBuilder.Precalculation;
@@ -63,6 +64,11 @@ namespace Spines.Tools.AnalyzerBuilder.StateProgression
           }
         }
       }
+
+      Func<int, bool> isNull = t => table[t] == -1;
+      Func<int, bool> isResult = t => t % (alphabetSize + 1) == 0;
+      var nulls = Transition.CountNullTransitions(table, alphabetSize + 1, isNull, isResult);
+      var compact = Transition.Compact(table, alphabetSize + 1, isNull, isResult).ToList();
     }
 
     private static int? GetNext(int s, int c)
@@ -222,7 +228,7 @@ namespace Spines.Tools.AnalyzerBuilder.StateProgression
           }
         }
       }
-      else if (c == 13) // ankan
+      else if (c == 14) // ankan
       {
         for (var i = 0; i < 7; ++i)
         {

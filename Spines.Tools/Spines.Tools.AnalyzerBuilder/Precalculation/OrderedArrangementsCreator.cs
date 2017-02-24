@@ -49,7 +49,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       var resultIndices = new HashSet<int>(classifierBuilder.GetResultIndexes());
       var alphabetSize = classifierBuilder.AlphabetSize;
 
-      var nullTransitions = GetNullTransitions(transitions, resultIndices, alphabetSize);
+      var nullTransitions = Transition.CountNullTransitions(transitions, alphabetSize, t => transitions[t] == 0, t => resultIndices.Contains(t));
       var ordered = nullTransitions.Select((n, i) => new {n, i}).OrderBy(p => p.n).Select(p => p.i).ToList();
       
       var oldArrangements = new CompactAnalyzedDataCreator(_workingDirectory).GetUniqueArrangements().ToList();
