@@ -57,13 +57,17 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       CreateTransitions("ProgressiveHonorStateMachine.txt", GetProgressiveHonorBuilder);
     }
 
+    public void CreateProgressiveSuitTransitions()
+    {
+      CreateTransitions("ProgressiveSuitStateMachine.txt", GetProgressiveSuitBuilder);
+    }
+
     private IStateMachineBuilder GetArrangementBuilder()
     {
       var language = new ArrangementWordCreator(_workingDirectory).CreateOrdered();
       return GetClassifierBuilder(language);
     }
-
-
+    
     private IStateMachineBuilder GetSuitBuilder()
     {
       var language = new CompactAnalyzedDataCreator(_workingDirectory).CreateSuitWords();
@@ -76,10 +80,18 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       return GetClassifierBuilder(language);
     }
 
-    private ProgressiveHonorStateMachineBuilder GetProgressiveHonorBuilder()
+    private IStateMachineBuilder GetProgressiveHonorBuilder()
     {
       var words = new CompactAnalyzedDataCreator(_workingDirectory).CreateHonorWords();
       var builder = new ProgressiveHonorStateMachineBuilder();
+      builder.SetLanguage(words);
+      return builder;
+    }
+
+    private IStateMachineBuilder GetProgressiveSuitBuilder()
+    {
+      var words = new CompactAnalyzedDataCreator(_workingDirectory).CreateSuitWords();
+      var builder = new ProgressiveSuitStateMachineBuilder();
       builder.SetLanguage(words);
       return builder;
     }

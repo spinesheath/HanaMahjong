@@ -78,6 +78,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Precalculation\ProgressiveSuitStateMachineBuilder.cs" />
     <Compile Include="Precalculation\Transition.cs" />
     <Compile Include="Precalculation\ProgressiveHonorStateMachineBuilder.cs" />
     <Page Include="MainWindow.xaml">
