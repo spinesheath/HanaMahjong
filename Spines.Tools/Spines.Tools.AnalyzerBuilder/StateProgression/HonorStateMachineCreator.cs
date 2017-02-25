@@ -1,4 +1,4 @@
-﻿// Spines.Tools.AnalyzerBuilder.HonorStateMachineBuilder.cs
+﻿// Spines.Tools.AnalyzerBuilder.HonorStateMachineCreator.cs
 // 
 // Copyright (C) 2017  Johannes Heckl
 // 
@@ -15,22 +15,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Spines.Mahjong.Analysis.Classification;
 using Spines.Tools.AnalyzerBuilder.Precalculation;
 
 namespace Spines.Tools.AnalyzerBuilder.StateProgression
 {
-  internal class HonorStateMachineBuilder
+  internal class HonorStateMachineCreator
   {
     private readonly string _workingDirectory;
     private readonly Dictionary<int, int> _idToValue = new Dictionary<int, int>();
     private readonly Dictionary<int, int> _idToStateColumn = new Dictionary<int, int>();
     private readonly List<int> _stateColumnToId = new List<int>(); 
 
-    public HonorStateMachineBuilder(string workingDirectory)
+    public HonorStateMachineCreator(string workingDirectory)
     {
       _workingDirectory = workingDirectory;
     }
@@ -75,10 +75,51 @@ namespace Spines.Tools.AnalyzerBuilder.StateProgression
           }
         }
       }
+      
+      var builder = new HonorBuilder(table, rowCount, nullTransitionIds);
+      return Transition.Compact(builder);
+    }
 
-      Func<int, bool> isNull = t => nullTransitionIds.Contains(t);
-      Func<int, bool> isResult = t => t % rowCount == 0;
-      return Transition.Compact(table, rowCount, isNull, isResult);
+    private class HonorBuilder : IStateMachineBuilder
+    {
+      private readonly ISet<int> _nullTransitionIds;
+
+      public HonorBuilder(IReadOnlyList<int> transitions, int alphabetSize, ISet<int> nullTransitionIds)
+      {
+        _nullTransitionIds = nullTransitionIds;
+        Transitions = transitions;
+        AlphabetSize = alphabetSize;
+      }
+
+      /// <summary>
+      /// The size of the alphabet.
+      /// </summary>
+      public int AlphabetSize { get; }
+
+      /// <summary>
+      /// The transitions for the specified language.
+      /// </summary>
+      public IReadOnlyList<int> Transitions { get; }
+
+      /// <summary>
+      /// Is the transition one that describes can not be reached with a legal word?
+      /// </summary>
+      /// <param name="transition">The Id of the transtion.</param>
+      /// <returns>True, if the transition can not be reached, false otherwise.</returns>
+      public bool IsNull(int transition)
+      {
+        return _nullTransitionIds.Contains(transition);
+      }
+
+      /// <summary>
+      /// Is the transition one that describes a result?
+      /// </summary>
+      /// <param name="transition">The Id of the transtion.</param>
+      /// <returns>True, if the transition is a result, false otherwise.</returns>
+      public bool IsResult(int transition)
+      {
+        return transition % AlphabetSize == 0;
+      }
     }
 
     private static int? GetNext(int s, int c)

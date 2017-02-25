@@ -27,7 +27,6 @@ namespace Spines.Mahjong.Analysis.Classification
     private readonly int _heights;
     private readonly Dictionary<State, State>[] _uniqueStates;
     private int[] _transitions;
-    private List<int> _finalStateTransitions;
 
     public StateManager(int alphabetSize, int wordLength)
     {
@@ -50,28 +49,20 @@ namespace Spines.Mahjong.Analysis.Classification
     /// Usage:
     /// int current = 0;
     /// foreach(int c in word)
-    ///   current = table[current + c];
+    /// current = table[current + c];
     /// return current;
     /// </summary>
-    public IReadOnlyList<int> GetCompactTransitions()
-    {
-      CompactTransitions();
-      return _transitions;
-    }
+    public IReadOnlyList<int> Transitions => _transitions;
 
     /// <summary>
     /// Indices of the transitions that contain a final value in the transitions array.
     /// </summary>
-    public IReadOnlyList<int> GetResultIndexes()
-    {
-      CompactTransitions();
-      return _finalStateTransitions;
-    }
+    public ISet<int> ResultIndexes { get; private set; }
 
     /// <summary>
     /// Assigns each state a unique Id and creates a transition table.
     /// </summary>
-    private void CompactTransitions()
+    public void CompactTransitions()
     {
       // Give each state a unique Id.
       var id = 0;
@@ -86,7 +77,7 @@ namespace Spines.Mahjong.Analysis.Classification
       }
       // Create the actual machine.
       _transitions = new int[id * _alphabetSize];
-      _finalStateTransitions = new List<int>();
+      ResultIndexes = new HashSet<int>();
       for (var i = _heights - 1; i > 0; --i)
       {
         var row = _uniqueStates[i];
@@ -101,9 +92,9 @@ namespace Spines.Mahjong.Analysis.Classification
               var index = GetIndex(state.Id, j);
               if (i == 1)
               {
-                var finalState = (FinalState)nextState;
+                var finalState = (FinalState) nextState;
                 _transitions[index] = finalState.Value;
-                _finalStateTransitions.Add(index);
+                ResultIndexes.Add(index);
               }
               else
               {

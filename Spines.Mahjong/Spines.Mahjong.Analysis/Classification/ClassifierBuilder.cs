@@ -24,7 +24,7 @@ namespace Spines.Mahjong.Analysis.Classification
   /// <summary>
   /// Creates the transition table for a Classifier with equal-length words.
   /// </summary>
-  public class ClassifierBuilder
+  public class ClassifierBuilder : IStateMachineBuilder
   {
     private StateManager _stateManager;
 
@@ -36,7 +36,32 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// The length of the words.
     /// </summary>
-    public int WordLength { get; private set; }
+    private int WordLength { get; set; }
+
+    /// <summary>
+    /// The transitions for the specified language.
+    /// </summary>
+    public IReadOnlyList<int> Transitions => _stateManager.Transitions;
+
+    /// <summary>
+    /// Is the transition one that describes can not be reached with a legal word?
+    /// </summary>
+    /// <param name="transition">The Id of the transtion.</param>
+    /// <returns>True, if the transition can not be reached, false otherwise.</returns>
+    public bool IsNull(int transition)
+    {
+      return Transitions[transition] == 0 && !IsResult(transition);
+    }
+
+    /// <summary>
+    /// Is the transition one that describes a result?
+    /// </summary>
+    /// <param name="transition">The Id of the transtion.</param>
+    /// <returns>True, if the transition is a result, false otherwise.</returns>
+    public bool IsResult(int transition)
+    {
+      return _stateManager.ResultIndexes.Contains(transition);
+    }
 
     /// <summary>
     /// Creates a minimized dfa and the corresponding transition table.
@@ -52,14 +77,8 @@ namespace Spines.Mahjong.Analysis.Classification
       {
         MergeWord(word);
       }
-    }
 
-    /// <summary>
-    /// Creates the classifier transitions for the specified language.
-    /// </summary>
-    public IEnumerable<int> CreateTransitions()
-    {
-      return _stateManager.GetCompactTransitions();
+      _stateManager.CompactTransitions();
     }
 
     /// <summary>
@@ -228,15 +247,6 @@ namespace Spines.Mahjong.Analysis.Classification
       // Merge new States with unique States.
       i -= 1;
       MergeStates(word.Word, i, states);
-    }
-
-    /// <summary>
-    /// Returns the indices of transitions that represent final values.
-    /// </summary>
-    /// <returns>A sequence of indices in the transitions table.</returns>
-    public IEnumerable<int> GetResultIndexes()
-    {
-      return _stateManager.GetResultIndexes();
     }
   }
 }

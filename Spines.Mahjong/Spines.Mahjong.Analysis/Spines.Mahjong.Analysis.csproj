@@ -50,6 +50,7 @@
     <Compile Include="Classification\Classifier.cs" />
     <Compile Include="Classification\ClassifierBuilder.cs" />
     <Compile Include="Classification\FinalState.cs" />
+    <Compile Include="Classification\IStateMachineBuilder.cs" />
     <Compile Include="Classification\ShantenCalculator.cs" />
     <Compile Include="Classification\State.cs" />
     <Compile Include="Classification\StateComparer.cs" />

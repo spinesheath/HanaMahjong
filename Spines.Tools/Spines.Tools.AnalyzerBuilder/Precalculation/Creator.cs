@@ -42,7 +42,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     /// </summary>
     public void Create()
     {
-      var hsmb = new HonorStateMachineBuilder(_workingDirectory);
+      var hsmb = new HonorStateMachineCreator(_workingDirectory);
       hsmb.Create();
 
       var creator = new TransitionsCreator(_workingDirectory);

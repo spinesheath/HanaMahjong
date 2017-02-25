@@ -15,29 +15,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using Spines.Mahjong.Analysis.Classification;
 
 namespace Spines.Tools.AnalyzerBuilder.Precalculation
 {
-  internal class Transition
+  internal static class Transition
   {
     /// <summary>
     /// Counts the number of null transitions per character in the alphabet.
     /// </summary>
-    public static IEnumerable<int> CountNullTransitions(IReadOnlyList<int> transitions, int alphabetSize, Func<int, bool> isNull, Func<int, bool> isResult)
+    public static IEnumerable<int> CountNullTransitions(IStateMachineBuilder builder)
     {
-      var nullTransitions = new int[alphabetSize];
-      for (var i = 0; i < transitions.Count; i++)
+      var nullTransitions = new int[builder.AlphabetSize];
+      for (var i = 0; i < builder.Transitions.Count; i++)
       {
-        if (isResult(i))
+        if (builder.IsResult(i))
         {
           continue;
         }
-        if (isNull(i))
+        if (builder.IsNull(i))
         {
-          nullTransitions[i % alphabetSize] += 1;
+          nullTransitions[i % builder.AlphabetSize] += 1;
         }
       }
       return nullTransitions;
@@ -49,32 +49,31 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     /// eliminated from the table.
     /// Transitions that point to a later state are adjusted by the amount of eliminated cells.
     /// </summary>
-    public static IEnumerable<int> Compact(IReadOnlyCollection<int> transitions, int alphabetSize,
-      Func<int, bool> isNull, Func<int, bool> isResult)
+    public static IEnumerable<int> Compact(IStateMachineBuilder builder)
     {
       // Build a set of indices that can be skipped and a table of offsets for adjusting the remaining transitions.
       var skippedIndices = new HashSet<int>();
-      var offsetMap = new int[transitions.Count];
+      var offsetMap = new int[builder.Transitions.Count];
       var skipTotal = 0;
-      for (var i = 0; i < transitions.Count; i += alphabetSize)
+      for (var i = 0; i < builder.Transitions.Count; i += builder.AlphabetSize)
       {
         // Count the trailing nulls.
-        var transitionsToKeep = alphabetSize;
+        var transitionsToKeep = builder.AlphabetSize;
         for (; transitionsToKeep > 0; transitionsToKeep--)
         {
           var transition = i + transitionsToKeep - 1;
-          if (!isNull(transition) || isResult(transition)) // Results and normal transitions can't be skipped.
+          if (!builder.IsNull(transition) || builder.IsResult(transition)) // Results and normal transitions can't be skipped.
           {
             break;
           }
           skippedIndices.Add(transition);
         }
         // Build the set and table.
-        var toSkip = alphabetSize - transitionsToKeep;
+        var toSkip = builder.AlphabetSize - transitionsToKeep;
         skipTotal += toSkip;
-        for (var j = 0; j < alphabetSize; ++j)
+        for (var j = 0; j < builder.AlphabetSize; ++j)
         {
-          var index = i + alphabetSize + j;
+          var index = i + builder.AlphabetSize + j;
           if (index >= offsetMap.Length)
           {
             break;
@@ -84,10 +83,10 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       }
 
       // Adjust the remaining transitions.
-      var clone = transitions.ToList();
+      var clone = builder.Transitions.ToList();
       for (var i = 0; i < clone.Count; ++i)
       {
-        if (isNull(i) || isResult(i)) // nulls and results are not adjusted.
+        if (builder.IsNull(i) || builder.IsResult(i)) // nulls and results are not adjusted.
         {
           continue;
         }

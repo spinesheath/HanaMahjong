@@ -47,11 +47,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       var classifierBuilder = new ClassifierBuilder();
       classifierBuilder.SetLanguage(words);
 
-      var transitions = classifierBuilder.CreateTransitions().ToList();
-      var resultIndices = new HashSet<int>(classifierBuilder.GetResultIndexes());
-      var alphabetSize = classifierBuilder.AlphabetSize;
-
-      var nullTransitions = Transition.CountNullTransitions(transitions, alphabetSize, t => transitions[t] == 0, t => resultIndices.Contains(t));
+      var nullTransitions = Transition.CountNullTransitions(classifierBuilder);
       var ordered = nullTransitions.Select((n, i) => new {n, i}).OrderBy(p => p.n).Select(p => p.i).ToList();
       
       var oldArrangements = new CompactAnalyzedDataCreator(_workingDirectory).GetUniqueArrangements().ToList();
