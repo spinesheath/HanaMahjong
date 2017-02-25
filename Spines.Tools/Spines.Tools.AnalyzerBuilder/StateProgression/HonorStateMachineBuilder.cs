@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Spines.Tools.AnalyzerBuilder.Precalculation;
 
@@ -36,16 +37,25 @@ namespace Spines.Tools.AnalyzerBuilder.StateProgression
 
     public void Create()
     {
+      var path = Path.Combine(_workingDirectory, "ProgressiveHonorStateMachine.txt");
+      if (File.Exists(path))
+      {
+        return;
+      }
+
       CreateLookupData();
-      CreateTable();
+      var table = CreateTable();
+      var lines = table.Select(t => t.ToString());
+      File.WriteAllLines(path, lines);
     }
 
-    private void CreateTable()
+    private IEnumerable<int> CreateTable()
     {
       const int alphabetSize = 15;
       var columnCount = _stateColumnToId.Count;
       const int rowCount = alphabetSize + 1;
       var table = new int[rowCount * columnCount];
+      var nullTransitionIds = new HashSet<int>();
 
       for (var columnIndex = 0; columnIndex < columnCount; columnIndex++)
       {
@@ -54,21 +64,21 @@ namespace Spines.Tools.AnalyzerBuilder.StateProgression
         for (var c = 0; c < alphabetSize; ++c)
         {
           var next = GetNext(id, c);
+          var transitionId = rowCount * columnIndex + c + 1;
           if (next.HasValue)
           {
-            table[rowCount * columnIndex + c + 1] = rowCount * _idToStateColumn[next.Value];
+            table[transitionId] = rowCount * _idToStateColumn[next.Value];
           }
           else
           {
-            table[rowCount * columnIndex + c + 1] = -1;
+            nullTransitionIds.Add(transitionId);
           }
         }
       }
 
-      Func<int, bool> isNull = t => table[t] == -1;
-      Func<int, bool> isResult = t => t % (alphabetSize + 1) == 0;
-      var nulls = Transition.CountNullTransitions(table, alphabetSize + 1, isNull, isResult);
-      var compact = Transition.Compact(table, alphabetSize + 1, isNull, isResult).ToList();
+      Func<int, bool> isNull = t => nullTransitionIds.Contains(t);
+      Func<int, bool> isResult = t => t % rowCount == 0;
+      return Transition.Compact(table, rowCount, isNull, isResult);
     }
 
     private static int? GetNext(int s, int c)
