@@ -79,7 +79,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Precalculation\Transition.cs" />
-    <Compile Include="StateProgression\HonorStateMachineCreator.cs" />
+    <Compile Include="Precalculation\ProgressiveHonorStateMachineBuilder.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

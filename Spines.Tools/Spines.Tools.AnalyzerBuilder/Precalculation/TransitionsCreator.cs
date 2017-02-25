@@ -39,23 +39,55 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 
     public void CreateArrangementTransitions()
     {
-      CreateTransitions("ArrangementTransitions.txt", () => new ArrangementWordCreator(_workingDirectory).CreateOrdered());
+      CreateTransitions("ArrangementTransitions.txt", GetArrangementBuilder);
     }
 
     public void CreateSuitTransitions()
     {
-      CreateTransitions("SuitTransitions.txt", () => new CompactAnalyzedDataCreator(_workingDirectory).CreateSuitWords());
+      CreateTransitions("SuitTransitions.txt", GetSuitBuilder);
     }
 
     public void CreateHonorTransitions()
     {
-      CreateTransitions("HonorTransitions.txt", () => new CompactAnalyzedDataCreator(_workingDirectory).CreateHonorWords());
+      CreateTransitions("HonorTransitions.txt", GetHonorBuilder);
+    }
+
+    public void CreateProgressiveHonorTransitions()
+    {
+      CreateTransitions("ProgressiveHonorStateMachine.txt", GetProgressiveHonorBuilder);
+    }
+
+    private IStateMachineBuilder GetArrangementBuilder()
+    {
+      var language = new ArrangementWordCreator(_workingDirectory).CreateOrdered();
+      return GetClassifierBuilder(language);
+    }
+
+
+    private IStateMachineBuilder GetSuitBuilder()
+    {
+      var language = new CompactAnalyzedDataCreator(_workingDirectory).CreateSuitWords();
+      return GetClassifierBuilder(language);
+    }
+
+    private IStateMachineBuilder GetHonorBuilder()
+    {
+      var language = new CompactAnalyzedDataCreator(_workingDirectory).CreateHonorWords();
+      return GetClassifierBuilder(language);
+    }
+
+    private ProgressiveHonorStateMachineBuilder GetProgressiveHonorBuilder()
+    {
+      var words = new CompactAnalyzedDataCreator(_workingDirectory).CreateHonorWords();
+      var builder = new ProgressiveHonorStateMachineBuilder();
+      builder.SetLanguage(words);
+      return builder;
     }
 
     /// <summary>
     /// Creates the transitions file if it doesn't exist.
     /// </summary>
-    private void CreateTransitions(string fileName, Func<IEnumerable<WordWithValue>> wordCreator)
+    private void CreateTransitions(string fileName, Func<IStateMachineBuilder> createBuilder)
     {
       var targetPath = Path.Combine(_workingDirectory, fileName);
       if (File.Exists(targetPath))
@@ -63,18 +95,18 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         return;
       }
 
-      var words = wordCreator();
-      var compactedTransitions = GetCompactedTransitions(words);
+      var builder = createBuilder();
+      var transitions = Transition.Compact(builder);
 
-      var lines = compactedTransitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
+      var lines = transitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
       File.WriteAllLines(targetPath, lines);
     }
 
-    private static IEnumerable<int> GetCompactedTransitions(IEnumerable<WordWithValue> words)
+    private static IStateMachineBuilder GetClassifierBuilder(IEnumerable<WordWithValue> language)
     {
-      var classifierBuilder = new ClassifierBuilder();
-      classifierBuilder.SetLanguage(words);
-      return Transition.Compact(classifierBuilder);
+      var builder = new ClassifierBuilder();
+      builder.SetLanguage(language);
+      return builder;
     }
   }
 }

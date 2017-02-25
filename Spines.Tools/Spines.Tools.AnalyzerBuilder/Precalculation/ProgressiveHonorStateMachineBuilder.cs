@@ -1,125 +1,78 @@
-﻿// Spines.Tools.AnalyzerBuilder.HonorStateMachineCreator.cs
-// 
-// Copyright (C) 2017  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Spines.Mahjong.Analysis.Classification;
-using Spines.Tools.AnalyzerBuilder.Precalculation;
 
-namespace Spines.Tools.AnalyzerBuilder.StateProgression
+namespace Spines.Tools.AnalyzerBuilder.Precalculation
 {
-  internal class HonorStateMachineCreator
+  internal class ProgressiveHonorStateMachineBuilder : IStateMachineBuilder
   {
-    private readonly string _workingDirectory;
     private readonly Dictionary<int, int> _idToValue = new Dictionary<int, int>();
     private readonly Dictionary<int, int> _idToStateColumn = new Dictionary<int, int>();
-    private readonly List<int> _stateColumnToId = new List<int>(); 
+    private readonly List<int> _stateColumnToId = new List<int>();
 
-    public HonorStateMachineCreator(string workingDirectory)
+    public void SetLanguage(IEnumerable<WordWithValue> language)
     {
-      _workingDirectory = workingDirectory;
+      CreateLookupData(language);
+      CreateTransitions();
     }
 
-    public void Create()
+    private void CreateTransitions()
     {
-      var path = Path.Combine(_workingDirectory, "ProgressiveHonorStateMachine.txt");
-      if (File.Exists(path))
-      {
-        return;
-      }
-
-      CreateLookupData();
-      var table = CreateTable();
-      var lines = table.Select(t => t.ToString());
-      File.WriteAllLines(path, lines);
-    }
-
-    private IEnumerable<int> CreateTable()
-    {
-      const int alphabetSize = 15;
       var columnCount = _stateColumnToId.Count;
-      const int rowCount = alphabetSize + 1;
-      var table = new int[rowCount * columnCount];
-      var nullTransitionIds = new HashSet<int>();
+      _transitions = new int[AlphabetSize * columnCount];
+      _nullTransitionIds = new HashSet<int>();
 
       for (var columnIndex = 0; columnIndex < columnCount; columnIndex++)
       {
         var id = _stateColumnToId[columnIndex];
-        table[rowCount * columnIndex + 0] = _idToValue[id]; // value in row 0
-        for (var c = 0; c < alphabetSize; ++c)
+        _transitions[AlphabetSize * columnIndex] = _idToValue[id]; // value in row 0
+        for (var c = 1; c < AlphabetSize; ++c)
         {
-          var next = GetNext(id, c);
-          var transitionId = rowCount * columnIndex + c + 1;
+          var next = GetNext(id, c - 1);
+          var transitionId = AlphabetSize * columnIndex + c;
           if (next.HasValue)
           {
-            table[transitionId] = rowCount * _idToStateColumn[next.Value];
+            _transitions[transitionId] = AlphabetSize * _idToStateColumn[next.Value];
           }
           else
           {
-            nullTransitionIds.Add(transitionId);
+            _nullTransitionIds.Add(transitionId);
           }
         }
       }
-      
-      var builder = new HonorBuilder(table, rowCount, nullTransitionIds);
-      return Transition.Compact(builder);
     }
 
-    private class HonorBuilder : IStateMachineBuilder
+    private ISet<int> _nullTransitionIds;
+    private int[] _transitions;
+
+    /// <summary>
+    /// The size of the alphabet.
+    /// </summary>
+    public int AlphabetSize => 15 + 1;
+
+    /// <summary>
+    /// The transitions for the specified language.
+    /// </summary>
+    public IReadOnlyList<int> Transitions => _transitions;
+
+    /// <summary>
+    /// Is the transition one that describes can not be reached with a legal word?
+    /// </summary>
+    /// <param name="transition">The Id of the transtion.</param>
+    /// <returns>True, if the transition can not be reached, false otherwise.</returns>
+    public bool IsNull(int transition)
     {
-      private readonly ISet<int> _nullTransitionIds;
+      return _nullTransitionIds.Contains(transition);
+    }
 
-      public HonorBuilder(IReadOnlyList<int> transitions, int alphabetSize, ISet<int> nullTransitionIds)
-      {
-        _nullTransitionIds = nullTransitionIds;
-        Transitions = transitions;
-        AlphabetSize = alphabetSize;
-      }
-
-      /// <summary>
-      /// The size of the alphabet.
-      /// </summary>
-      public int AlphabetSize { get; }
-
-      /// <summary>
-      /// The transitions for the specified language.
-      /// </summary>
-      public IReadOnlyList<int> Transitions { get; }
-
-      /// <summary>
-      /// Is the transition one that describes can not be reached with a legal word?
-      /// </summary>
-      /// <param name="transition">The Id of the transtion.</param>
-      /// <returns>True, if the transition can not be reached, false otherwise.</returns>
-      public bool IsNull(int transition)
-      {
-        return _nullTransitionIds.Contains(transition);
-      }
-
-      /// <summary>
-      /// Is the transition one that describes a result?
-      /// </summary>
-      /// <param name="transition">The Id of the transtion.</param>
-      /// <returns>True, if the transition is a result, false otherwise.</returns>
-      public bool IsResult(int transition)
-      {
-        return transition % AlphabetSize == 0;
-      }
+    /// <summary>
+    /// Is the transition one that describes a result?
+    /// </summary>
+    /// <param name="transition">The Id of the transtion.</param>
+    /// <returns>True, if the transition is a result, false otherwise.</returns>
+    public bool IsResult(int transition)
+    {
+      return transition % AlphabetSize == 0;
     }
 
     private static int? GetNext(int s, int c)
@@ -299,10 +252,9 @@ namespace Spines.Tools.AnalyzerBuilder.StateProgression
       return GetId(word);
     }
 
-    private void CreateLookupData()
+    private void CreateLookupData(IEnumerable<WordWithValue> language)
     {
-      var words = new CompactAnalyzedDataCreator(_workingDirectory).CreateHonorWords();
-      foreach (var word in words)
+      foreach (var word in language)
       {
         var id = GetId(word.Word);
         if (!_idToValue.ContainsKey(id))
