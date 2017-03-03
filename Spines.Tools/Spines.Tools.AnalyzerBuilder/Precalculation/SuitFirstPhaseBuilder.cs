@@ -48,8 +48,6 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     {
       var newLanguage = CreateNewLanguage();
 
-      // Transform into transition table, with one extra character for the transition to the final states?
-
       var columns = new List<int[]>();
       // Value to stateId.
       var finalValues = new Dictionary<int, int>();
@@ -74,6 +72,17 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         columns[current][25] = finalValues[word.Value];
       }
 
+      var incoming = GetIncomingTransitionTable(columns, finalValues);
+
+      // Apply Hopcroft
+      var normalStates = Enumerable.Range(0, columns.Count);
+      var finalStates = Enumerable.Range(columns.Count, finalValues.Count);
+      var h = new Hopcroft(normalStates, finalStates, 26, (a, c) => a.SelectMany(aa => incoming[aa][c]));
+      var p = h.EquivalenceGroups;
+    }
+
+    private static List<List<List<int>>> GetIncomingTransitionTable(IReadOnlyList<int[]> columns, IReadOnlyDictionary<int, int> finalValues)
+    {
       var incoming = new List<List<List<int>>>();
       for (var i = 0; i < columns.Count; ++i)
       {
@@ -109,46 +118,8 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
           }
         }
       }
-
-      // Apply Hopcroft
-      Func<HashSet<int>, int, IEnumerable<int>> getIncomingStates = (a, c) => GetIncomingStates(incoming, a, c);
-      var normalStates = Enumerable.Range(0, columns.Count);
-      var finalStates = Enumerable.Range(columns.Count, finalValues.Count);
-      var h = new Hopcroft(normalStates, finalStates, 26, getIncomingStates);
+      return incoming;
     }
-
-    private static IEnumerable<int> GetIncomingStates(List<List<List<int>>> incoming, IEnumerable<int> a, int c)
-    {
-      return a.SelectMany(aa => incoming[aa][c]);
-    }
-
-    //private static IEnumerable<int> GetIncomingStates(IReadOnlyList<int[]> columns, IEnumerable<int> a, int c)
-    //{
-    //  foreach (var s in a)
-    //  {
-    //    if (s >= columns.Count && c == 25) // final
-    //    {
-    //      var f = s - columns.Count;
-    //      for (var i = 0; i < columns.Count; ++i)
-    //      {
-    //        if (columns[i][25] == f)
-    //        {
-    //          yield return i;
-    //        }
-    //      }
-    //    }
-    //    else if (s < columns.Count && c != 25) // normal
-    //    {
-    //      for (var i = 0; i < columns.Count; ++i)
-    //      {
-    //        if (columns[i][c] == s)
-    //        {
-    //          yield return i;
-    //        }
-    //      }
-    //    }
-    //  }
-    //}
 
     private IEnumerable<WordWithValue> CreateNewLanguage()
     {
