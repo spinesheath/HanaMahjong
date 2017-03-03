@@ -16,6 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -26,11 +27,8 @@ namespace Spines.Mahjong.Analysis.Classification
   /// <summary>
   /// A word with an associated value.
   /// </summary>
-  public class WordWithValue
+  public class WordWithValue : IEnumerable<int>
   {
-    private const string WordStringFormatError =
-      "Word must be a comma separated list of integers followed by a colon and another integer.";
-
     /// <summary>
     /// Creates a new instance of WordWithValue.
     /// </summary>
@@ -51,6 +49,24 @@ namespace Spines.Mahjong.Analysis.Classification
     /// The value of the Word.
     /// </summary>
     public int Value { get; }
+
+    /// <summary>
+    /// Direct access to the characters in the Word Property.
+    /// </summary>
+    /// <param name="i">The index of the character.</param>
+    /// <returns>The character at the given index.</returns>
+    public int this[int i] => Word[i];
+
+    /// <summary>
+    /// Returns an enumerator that iterates through the collection.
+    /// </summary>
+    /// <returns>
+    /// An enumerator that can be used to iterate through the collection.
+    /// </returns>
+    public IEnumerator<int> GetEnumerator()
+    {
+      return Word.GetEnumerator();
+    }
 
     /// <summary>
     /// Returns a string that represents the current object.
@@ -86,6 +102,20 @@ namespace Spines.Mahjong.Analysis.Classification
       {
         throw new FormatException(WordStringFormatError, e);
       }
+    }
+
+    private const string WordStringFormatError =
+      "Word must be a comma separated list of integers followed by a colon and another integer.";
+
+    /// <summary>
+    /// Returns an enumerator that iterates through a collection.
+    /// </summary>
+    /// <returns>
+    /// An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.
+    /// </returns>
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
     }
   }
 }

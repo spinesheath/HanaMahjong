@@ -90,9 +90,8 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 
     private IStateMachineBuilder GetProgressiveSuitBuilder()
     {
-      var words = new CompactAnalyzedDataCreator(_workingDirectory).CreateSuitWords();
-      var builder = new ProgressiveSuitStateMachineBuilder();
-      builder.SetLanguage(words);
+      var builder = new SuitFirstPhaseBuilder(_workingDirectory);
+      builder.SetLanguage();
       return builder;
     }
 
