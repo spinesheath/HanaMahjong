@@ -112,13 +112,13 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         }
       }
 
-      EquivalenceGroups = p;
+      EquivalenceGroups = p.Concat(q.Select(i => new HashSet<int> {i})).ToList();
     }
 
     /// <summary>
     /// Each Set in this list contains only elements that are equivalent to each other.
     /// </summary>
-    public IEnumerable<ISet<int>> EquivalenceGroups { get; }
+    public IReadOnlyList<ISet<int>> EquivalenceGroups { get; }
 
     private static IEnumerable<int> Subtract(HashSet<int> a, HashSet<int> b)
     {

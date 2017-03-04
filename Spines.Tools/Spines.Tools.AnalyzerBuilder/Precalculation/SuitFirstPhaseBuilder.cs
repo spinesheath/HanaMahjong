@@ -37,12 +37,12 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     /// <summary>
     /// The size of the alphabet.
     /// </summary>
-    public int AlphabetSize { get; } = 0;
+    public int AlphabetSize { get; } = 26;
 
     /// <summary>
     /// The transitions for the specified language.
     /// </summary>
-    public IReadOnlyList<int> Transitions { get; } = new List<int>();
+    public IReadOnlyList<int> Transitions { get; private set; }
 
     public void SetLanguage()
     {
@@ -50,35 +50,61 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 
       var columns = new List<int[]>();
       // Value to stateId.
-      var finalValues = new Dictionary<int, int>();
-      columns.Add(new int[26]);
+      var finalValueToStateId = new Dictionary<int, int>();
+      var finalStateIdToValue = new Dictionary<int, int>();
+      columns.Add(new int[26].Populate(-1));
       foreach (var word in newLanguage)
       {
         var current = 0;
         foreach (var c in word)
         {
-          if (columns[current][c] == 0)
+          if (columns[current][c] == -1)
           {
-            columns.Add(new int[26]);
+            columns.Add(new int[26].Populate(-1));
             columns[current][c] = columns.Count - 1;
           }
           current = columns[current][c];
         }
 
-        if (!finalValues.ContainsKey(word.Value))
+        if (!finalValueToStateId.ContainsKey(word.Value))
         {
-          finalValues.Add(word.Value, finalValues.Count);
+          var count = finalValueToStateId.Count;
+          finalValueToStateId.Add(word.Value, count);
+          finalStateIdToValue.Add(count, word.Value);
         }
-        columns[current][25] = finalValues[word.Value];
+        columns[current][25] = finalValueToStateId[word.Value];
       }
 
-      var incoming = GetIncomingTransitionTable(columns, finalValues);
+      var incoming = GetIncomingTransitionTable(columns, finalValueToStateId);
 
       // Apply Hopcroft
       var normalStates = Enumerable.Range(0, columns.Count);
-      var finalStates = Enumerable.Range(columns.Count, finalValues.Count);
-      var h = new Hopcroft(normalStates, finalStates, 26, (a, c) => a.SelectMany(aa => incoming[aa][c]));
-      var p = h.EquivalenceGroups;
+      var finalStates = Enumerable.Range(columns.Count, finalValueToStateId.Count);
+      var hopcroft = new Hopcroft(normalStates, finalStates, 26, (a, c) => a.SelectMany(aa => incoming[aa][c]));
+      var equivalenceGroups = hopcroft.EquivalenceGroups;
+      var oldToNewIds = equivalenceGroups.SelectMany((g, i) => g.Where(s => s < columns.Count).Select(s => new KeyValuePair<int, int>(s, i))).ToDictionary(k => k.Key, k => k.Value);
+      var newTransitions = new int[equivalenceGroups.Count * 26].Populate(-1);
+      for (var i = 0; i < columns.Count; ++i)
+      {
+        var column = columns[i];
+        var newId = oldToNewIds[i];
+        for (var c = 0; c < 25; ++c)
+        {
+          var oldTransition = column[c];
+          if (oldTransition == -1)
+          {
+            continue; // Don't do anything for null transitions.
+          }
+          var newTransiton = oldToNewIds[oldTransition] * 26;
+          newTransitions[newId * 26 + c + 1] = newTransiton; // Shift the transitions one character to the back.
+        }
+        if (finalStateIdToValue.ContainsKey(column[25]))
+        {
+          newTransitions[newId * 26 + 0] = finalStateIdToValue[column[25]]; // Put the final value at the front.
+        }
+      }
+
+      Transitions = newTransitions;
     }
 
     private static List<List<List<int>>> GetIncomingTransitionTable(IReadOnlyList<int[]> columns, IReadOnlyDictionary<int, int> finalValues)
@@ -97,7 +123,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         for (var c = 0; c < 25; ++c)
         {
           var t = columns[i][c];
-          if (t != 0)
+          if (t != -1)
           {
             incoming[t][c].Add(i);
           }
@@ -230,7 +256,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     /// <returns>True, if the transition can not be reached, false otherwise.</returns>
     public bool IsNull(int transition)
     {
-      return false;
+      return Transitions[transition] == -1;
     }
 
     /// <summary>
@@ -240,7 +266,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     /// <returns>True, if the transition is a result, false otherwise.</returns>
     public bool IsResult(int transition)
     {
-      return false;
+      return transition % AlphabetSize == 0;
     }
   }
 }

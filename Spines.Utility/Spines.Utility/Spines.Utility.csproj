@@ -53,6 +53,7 @@
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="InvariantConvert.cs" />
+    <Compile Include="ListExtensions.cs" />
     <Compile Include="NullLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypedEventHandler.cs" />
