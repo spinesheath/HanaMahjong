@@ -15,10 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using Spines.Mahjong.Analysis.Classification;
 using Spines.Utility;
@@ -203,7 +200,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 
     private IEnumerable<WordWithValue> GetMeldWords()
     {
-      var transitions = GetOldTransitions();
+      var transitions = new UnweightedSuitTransitionsCreator(_workingDirectory).Create().ToList();
 
       var meldWords = new List<WordWithValue>();
       var baseLanguage = Enumerable.Repeat(Enumerable.Range(0, 5), 10).CartesianProduct();
@@ -225,40 +222,6 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         }
       }
       return meldWords;
-    }
-
-    private IReadOnlyList<int> GetOldTransitions()
-    {
-      var path = Path.Combine(_workingDirectory, "UncompressedSuitTransitions.txt");
-      if (File.Exists(path))
-      {
-        return File.ReadAllLines(path).Select(line => Convert.ToInt32(line, CultureInfo.InvariantCulture)).ToList();
-      }
-      var language = new CompactAnalyzedDataCreator(_workingDirectory).CreateSuitWords();
-      var fullLanguage = CreateFullLanguage(language);
-      var builder = new ClassifierBuilder();
-      builder.SetLanguage(fullLanguage, 5, 19);
-      var transitions = builder.Transitions;
-      var lines = transitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
-      File.WriteAllLines(path, lines);
-      return transitions;
-    }
-
-    private static IEnumerable<WordWithValue> CreateFullLanguage(IEnumerable<WordWithValue> language)
-    {
-      foreach (var word in language)
-      {
-        yield return word;
-        var mc = word[0];
-        var m = word.Skip(1).Take(9).Reverse();
-        var c = word.Skip(10).Reverse();
-        var w = mc.Concat(m).Concat(c);
-        var mirrored = new WordWithValue(w, word.Value);
-        if (!mirrored.SequenceEqual(word))
-        {
-          yield return mirrored;
-        }
-      }
     }
 
     /// <summary>
