@@ -26,17 +26,10 @@ namespace Spines.Mahjong.Analysis.Classification
   /// </summary>
   public class ClassifierBuilder : IStateMachineBuilder
   {
-    private StateManager _stateManager;
-
     /// <summary>
     /// The size of the alphabet.
     /// </summary>
     public int AlphabetSize { get; private set; }
-
-    /// <summary>
-    /// The length of the words.
-    /// </summary>
-    private int WordLength { get; set; }
 
     /// <summary>
     /// The transitions for the specified language.
@@ -66,13 +59,15 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// Creates a minimized dfa and the corresponding transition table.
     /// </summary>
-    public void SetLanguage(IEnumerable<WordWithValue> language)
+    public void SetLanguage(IEnumerable<WordWithValue> language, int alphabetSize, int wordLength)
     {
-      var words = Validate.NotNull(language, nameof(language)).ToList();
-      WordLength = words.First().Word.Count;
-      AlphabetSize = words.SelectMany(w => w.Word).Max() + 1;
-      _stateManager = new StateManager(AlphabetSize, WordLength);
+      Validate.NotNegative(alphabetSize, nameof(alphabetSize));
+      Validate.NotNegative(wordLength, nameof(wordLength));
+      var words = Validate.NotNull(language, nameof(language));
 
+      WordLength = wordLength;
+      AlphabetSize = alphabetSize;
+      _stateManager = new StateManager(AlphabetSize, WordLength);
       foreach (var word in words)
       {
         MergeWord(word);
@@ -80,6 +75,25 @@ namespace Spines.Mahjong.Analysis.Classification
 
       _stateManager.CompactTransitions();
     }
+
+    /// <summary>
+    /// Creates a minimized dfa and the corresponding transition table.
+    /// This overload manifests the entire sequence in memory for alphabet size and word length calculation.
+    /// </summary>
+    public void SetLanguage(IEnumerable<WordWithValue> language)
+    {
+      var words = Validate.NotNull(language, nameof(language)).ToList();
+      var wordLength = words.First().Word.Count;
+      var alphabetSize = words.SelectMany(w => w.Word).Max() + 1;
+      SetLanguage(words, alphabetSize, wordLength);
+    }
+
+    private StateManager _stateManager;
+
+    /// <summary>
+    /// The length of the words.
+    /// </summary>
+    private int WordLength { get; set; }
 
     /// <summary>
     /// Checks if the word already exists in the dfa.
