@@ -82,7 +82,8 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       var finalStates = Enumerable.Range(columns.Count, finalValueToStateId.Count);
       var hopcroft = new Hopcroft(normalStates, finalStates, 26, (a, c) => a.SelectMany(aa => incoming[aa][c]));
       var equivalenceGroups = hopcroft.EquivalenceGroups;
-      var oldToNewIds = equivalenceGroups.SelectMany((g, i) => g.Where(s => s < columns.Count).Select(s => new KeyValuePair<int, int>(s, i))).ToDictionary(k => k.Key, k => k.Value);
+      var oldToNewIds = equivalenceGroups.OrderBy(g => g.Min()).SelectMany((g, i) => g.Where(s => s < columns.Count).Select(s => new KeyValuePair<int, int>(s, i))).ToDictionary(k => k.Key, k => k.Value);
+
       var newTransitions = new int[equivalenceGroups.Count * 26].Populate(-1);
       for (var i = 0; i < columns.Count; ++i)
       {
