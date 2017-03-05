@@ -15,7 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using Spines.Mahjong.Analysis.Classification;
 using Spines.Utility;
@@ -48,7 +51,6 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       var columns = new List<int[]>();
       // Value to stateId.
       var finalValueToStateId = new Dictionary<int, int>();
-      var finalStateIdToValue = new Dictionary<int, int>();
       columns.Add(new int[26].Populate(-1));
       foreach (var word in newLanguage)
       {
@@ -67,7 +69,6 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         {
           var count = finalValueToStateId.Count;
           finalValueToStateId.Add(word.Value, count);
-          finalStateIdToValue.Add(count, word.Value);
         }
         columns[current][25] = finalValueToStateId[word.Value];
       }
@@ -80,9 +81,6 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       var hopcroft = new Hopcroft(normalStates, finalStates, 26, (a, c) => a.SelectMany(aa => incoming[aa][c]));
       var equivalenceGroups = hopcroft.EquivalenceGroups;
       var oldToNewIds = equivalenceGroups.OrderBy(g => g.Min()).SelectMany((g, i) => g.Where(s => s < columns.Count).Select(s => new KeyValuePair<int, int>(s, i))).ToDictionary(k => k.Key, k => k.Value);
-
-      // Entry states are ordered the same way in phase two.
-      var valueToEntryStateId = finalValueToStateId.Keys.OrderBy(x => x).Select((s, i) => new {s, i}).ToDictionary(p => p.s, p => p.i * 5);
 
       var nonFinalStateCount = equivalenceGroups.Count(g => g.Any(e => e < columns.Count));
       var newTransitions = new int[nonFinalStateCount * 26].Populate(-1);
@@ -115,11 +113,16 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       var meldCountsToOldToNewValue = new List<Dictionary<int, int>>();
       for (var i = 0; i < 5; ++i)
       {
+        var offsetPath = Path.Combine(_workingDirectory, $"o_SuitSecondPhase{i}.txt");
+        var offsets = File.ReadAllLines(offsetPath).Select(line => Convert.ToInt32(line, CultureInfo.InvariantCulture)).ToList();
+
+        // Entry states are ordered the same way in phase two.
         var orderedEntryStates = meldCountsToValue[i].OrderBy(x => x);
         var d = new Dictionary<int, int>();
         foreach (var entryState in orderedEntryStates)
         {
-          d.Add(entryState, d.Count);
+          var stateId = d.Count;
+          d.Add(entryState, stateId * 5 - offsets[stateId]);
         }
         meldCountsToOldToNewValue.Add(d);
       }
@@ -130,7 +133,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         {
           current = newTransitions[current + c + 1];
         }
-        newTransitions[current] = meldCountsToOldToNewValue[word.Count][word.Value] * 5;
+        newTransitions[current] = meldCountsToOldToNewValue[word.Count][word.Value];
       }
 
       Transitions = newTransitions;

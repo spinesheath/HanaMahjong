@@ -42,8 +42,8 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     {
       var creator = new TransitionsCreator(_workingDirectory);
       creator.CreateProgressiveHonorTransitions();
-      creator.CreateSuitFirstPhase();
       creator.CreateSuitSecondPhase();
+      creator.CreateSuitFirstPhase();
       creator.CreateArrangementTransitions();
       creator.CreateHonorTransitions();
       creator.CreateSuitTransitions();
