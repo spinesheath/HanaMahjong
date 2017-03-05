@@ -26,8 +26,6 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 {
   internal class TransitionsCreator
   {
-    private readonly string _workingDirectory;
-
     /// <summary>
     /// Creates a new Instance of TransitionsCreator.
     /// </summary>
@@ -57,17 +55,24 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       CreateTransitions("ProgressiveHonorStateMachine.txt", GetProgressiveHonorBuilder);
     }
 
-    public void CreateProgressiveSuitTransitions()
+    public void CreateSuitFirstPhase()
     {
-      CreateTransitions("ProgressiveSuitStateMachine.txt", GetProgressiveSuitBuilder);
+      CreateTransitions("SuitFirstPhase.txt", GetSuitFirstPhaseBuilder);
     }
+
+    public void CreateSuitSecondPhase()
+    {
+      CreateTransitions("SuitSecondPhase.txt", GetSuitSecondPhaseBuilder);
+    }
+
+    private readonly string _workingDirectory;
 
     private IStateMachineBuilder GetArrangementBuilder()
     {
       var language = new ArrangementWordCreator(_workingDirectory).CreateOrdered();
       return GetClassifierBuilder(language);
     }
-    
+
     private IStateMachineBuilder GetSuitBuilder()
     {
       var language = new CompactAnalyzedDataCreator(_workingDirectory).CreateSuitWords();
@@ -88,9 +93,16 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       return builder;
     }
 
-    private IStateMachineBuilder GetProgressiveSuitBuilder()
+    private IStateMachineBuilder GetSuitFirstPhaseBuilder()
     {
       var builder = new SuitFirstPhaseBuilder(_workingDirectory);
+      builder.SetLanguage();
+      return builder;
+    }
+
+    private IStateMachineBuilder GetSuitSecondPhaseBuilder()
+    {
+      var builder = new SuitSecondPhaseBuilder(_workingDirectory);
       builder.SetLanguage();
       return builder;
     }
