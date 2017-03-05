@@ -51,6 +51,11 @@ namespace Spines.Mahjong.Analysis.Classification
     public int Value { get; }
 
     /// <summary>
+    /// The length of the word.
+    /// </summary>
+    public int Count => Word.Count;
+
+    /// <summary>
     /// Direct access to the characters in the Word Property.
     /// </summary>
     /// <param name="i">The index of the character.</param>

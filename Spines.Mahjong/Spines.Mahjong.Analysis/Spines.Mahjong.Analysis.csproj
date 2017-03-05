@@ -93,6 +93,14 @@
     <EmbeddedResource Include="Resources\HonorTransitions.txt" />
     <EmbeddedResource Include="Resources\SuitTransitions.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\SuitFirstPhase.txt" />
+    <EmbeddedResource Include="Resources\SuitSecondPhase0.txt" />
+    <EmbeddedResource Include="Resources\SuitSecondPhase1.txt" />
+    <EmbeddedResource Include="Resources\SuitSecondPhase2.txt" />
+    <EmbeddedResource Include="Resources\SuitSecondPhase3.txt" />
+    <EmbeddedResource Include="Resources\SuitSecondPhase4.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

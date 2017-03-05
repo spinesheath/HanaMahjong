@@ -43,6 +43,51 @@ namespace Spines.Mahjong.Analysis.Classification
       return shanten;
     }
 
+    public int Calculate2(string hand)
+    {
+      var manzu = GetTileCounts(hand, 'm', 9).Skip(10).ToList();
+      var manzuMelds = GetMelds(hand, 'M').ToList();
+      var pinzu = GetTileCounts(hand, 'p', 9).Skip(10).ToList();
+      var pinzuMelds = GetMelds(hand, 'P').ToList();
+      var souzu = GetTileCounts(hand, 's', 9).Skip(10).ToList();
+      var souzuMelds = GetMelds(hand, 'S').ToList();
+      var honor = GetTileCounts(hand, 'z', 7);
+
+      var classifier = new Classifier();
+      var shanten = classifier.ClassifyArrangements(
+        classifier.ClassifySuits(manzuMelds, manzu),
+        classifier.ClassifySuits(pinzuMelds, pinzu),
+        classifier.ClassifySuits(souzuMelds, souzu),
+        classifier.ClassifyHonors(honor));
+
+      return shanten;
+    }
+
+    private static IEnumerable<int> GetMelds(string hand, char tileGroupName)
+    {
+      var regex = new Regex(@"(\d*)" + tileGroupName);
+      var groups = regex.Matches(hand).OfType<Match>().SelectMany(m => m.Groups.OfType<Group>().Skip(1));
+      foreach (var captureGroup in groups)
+      {
+        var tiles = captureGroup.Value.Select(c => (int)char.GetNumericValue(c) - 1).ToList();
+        var i = tiles.Min();
+        var isShuntsu = tiles.Any(t => t != i);
+        var isKantsu = tiles.Count == 4;
+        if (isShuntsu)
+        {
+          yield return i;
+        }
+        else if (isKantsu)
+        {
+          yield return 7 + 9 + i;
+        }
+        else
+        {
+          yield return 7 + i;
+        }
+      }
+    }
+
     private static IReadOnlyList<int> GetTileCounts(string hand, char tileGroupName, int typesInSuit)
     {
       var concealed = GetTiles(hand, tileGroupName, typesInSuit).ToList();
@@ -62,9 +107,9 @@ namespace Spines.Mahjong.Analysis.Classification
 
     private static IEnumerable<int> GetTiles(string hand, char tileGroupName, int typesInSuit)
     {
-      var regex = new Regex(@"[\^\w](\d*)" + tileGroupName);
-      var captures = regex.Matches(hand).OfType<Match>().SelectMany(m => m.Captures.OfType<Capture>());
-      var tiles = captures.SelectMany(c => c.Value).Select(c => (int) char.GetNumericValue(c) - 1);
+      var regex = new Regex(@"(\d*)" + tileGroupName);
+      var groups = regex.Matches(hand).OfType<Match>().SelectMany(m => m.Groups.OfType<Group>().Skip(1));
+      var tiles = groups.SelectMany(g => g.Value).Select(c => (int) char.GetNumericValue(c) - 1);
       var idToCount = tiles.GroupBy(t => t).ToDictionary(g => g.Key, g => g.Count());
       return Enumerable.Range(0, typesInSuit).Select(i => idToCount.ContainsKey(i) ? idToCount[i] : 0);
     }

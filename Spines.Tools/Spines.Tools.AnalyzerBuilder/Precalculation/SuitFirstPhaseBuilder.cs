@@ -43,7 +43,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 
     public void SetLanguage()
     {
-      var newLanguage = CreateNewLanguage();
+      var newLanguage = CreateNewLanguage().ToList();
 
       var columns = new List<int[]>();
       // Value to stateId.
@@ -100,10 +100,37 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
           var newTransiton = oldToNewIds[oldTransition] * 26;
           newTransitions[newId * 26 + c + 1] = newTransiton; // Shift the transitions one character to the back.
         }
-        if (finalStateIdToValue.ContainsKey(column[25]))
+      }
+
+      // Insert final values
+      var meldCountsToValue = new Dictionary<int, HashSet<int>>();
+      for (var i = 0; i < 5; ++i)
+      {
+        meldCountsToValue.Add(i, new HashSet<int>());
+      }
+      foreach (var word in newLanguage)
+      {
+        meldCountsToValue[word.Count].Add(word.Value);
+      }
+      var meldCountsToOldToNewValue = new List<Dictionary<int, int>>();
+      for (var i = 0; i < 5; ++i)
+      {
+        var orderedEntryStates = meldCountsToValue[i].OrderBy(x => x);
+        var d = new Dictionary<int, int>();
+        foreach (var entryState in orderedEntryStates)
         {
-          newTransitions[newId * 26 + 0] = valueToEntryStateId[finalStateIdToValue[column[25]]]; // Put the final value at the front.
+          d.Add(entryState, d.Count);
         }
+        meldCountsToOldToNewValue.Add(d);
+      }
+      foreach (var word in newLanguage)
+      {
+        var current = 0;
+        foreach (var c in word)
+        {
+          current = newTransitions[current + c + 1];
+        }
+        newTransitions[current] = meldCountsToOldToNewValue[word.Count][word.Value] * 5;
       }
 
       Transitions = newTransitions;

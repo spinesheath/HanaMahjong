@@ -34,6 +34,14 @@ namespace Spines.Mahjong.Analysis.Classification
     private static readonly int[] SuitTransitions = GetTransitions("SuitTransitions.txt");
     private static readonly int[] HonorTransitions = GetTransitions("HonorTransitions.txt");
 
+    private static readonly int[] SuitFirstPhase = GetTransitions("SuitFirstPhase.txt");
+    private static readonly int[] SuitSecondPhase0 = GetTransitions("SuitSecondPhase0.txt");
+    private static readonly int[] SuitSecondPhase1 = GetTransitions("SuitSecondPhase1.txt");
+    private static readonly int[] SuitSecondPhase2 = GetTransitions("SuitSecondPhase2.txt");
+    private static readonly int[] SuitSecondPhase3 = GetTransitions("SuitSecondPhase3.txt");
+    private static readonly int[] SuitSecondPhase4 = GetTransitions("SuitSecondPhase4.txt");
+    private static readonly int[][] SuitSecondPhases = {SuitSecondPhase0, SuitSecondPhase1, SuitSecondPhase2, SuitSecondPhase3, SuitSecondPhase4};
+
     /// <summary>
     /// Calculates the shanten of 4 arrangements.
     /// Behavior for invalid inputs is undefined.
@@ -53,10 +61,30 @@ namespace Spines.Mahjong.Analysis.Classification
     /// Returns the Arrangement for a Suit. The word is the sequence
     /// (meld count, melded tile counts, concealed tile counts)
     /// </summary>
+    public int ClassifySuits(IReadOnlyList<int> melds, IReadOnlyList<int> concealed)
+    {
+      var secondPhase = SuitSecondPhases[melds.Count];
+      var current = 0;
+      for (var i = 0; i < melds.Count; ++i)
+      {
+        current = SuitFirstPhase[current + melds[i] + 1];
+      }
+      current = SuitFirstPhase[current];
+      for (var i = 0; i < concealed.Count; ++i)
+      {
+        current = secondPhase[current + concealed[i]];
+      }
+      return current;
+    }
+
+    /// <summary>
+    /// Returns the Arrangement for a Suit. The word is the sequence
+    /// (meld count, melded tile counts, concealed tile counts)
+    /// </summary>
     public int ClassifySuits(IReadOnlyList<int> word)
     {
       var current = 0;
-      for (var i = 0; i < 19; ++i)
+      for (var i = 0; i < word.Count; ++i)
       {
         current = SuitTransitions[current + word[i]];
       }
@@ -70,7 +98,7 @@ namespace Spines.Mahjong.Analysis.Classification
     public int ClassifyHonors(IReadOnlyList<int> word)
     {
       var current = 0;
-      for (var i = 0; i < 15; ++i)
+      for (var i = 0; i < word.Count; ++i)
       {
         current = HonorTransitions[current + word[i]];
       }
