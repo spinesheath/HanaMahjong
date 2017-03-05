@@ -48,12 +48,14 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       var concealedStates = GetConcealedStates(entryStates, transitions);
 
       var oldToNewTransitions = new Dictionary<int, int>();
-      foreach (var state in concealedStates)
+      var orderedEntryStates = entryStates.OrderBy(x => x);
+      foreach (var entryState in orderedEntryStates)
       {
-        if (!oldToNewTransitions.ContainsKey(state))
-        {
-          oldToNewTransitions.Add(state, oldToNewTransitions.Count);
-        }
+        oldToNewTransitions.Add(entryState, oldToNewTransitions.Count);
+      }
+      foreach (var state in concealedStates.Except(entryStates))
+      {
+        oldToNewTransitions.Add(state, oldToNewTransitions.Count);
       }
       _statesWithFinalValues = new HashSet<int>();
 

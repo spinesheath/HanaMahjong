@@ -81,6 +81,9 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       var equivalenceGroups = hopcroft.EquivalenceGroups;
       var oldToNewIds = equivalenceGroups.OrderBy(g => g.Min()).SelectMany((g, i) => g.Where(s => s < columns.Count).Select(s => new KeyValuePair<int, int>(s, i))).ToDictionary(k => k.Key, k => k.Value);
 
+      // Entry states are ordered the same way in phase two.
+      var valueToEntryStateId = finalValueToStateId.Keys.OrderBy(x => x).Select((s, i) => new {s, i}).ToDictionary(p => p.s, p => p.i * 5);
+
       var nonFinalStateCount = equivalenceGroups.Count(g => g.Any(e => e < columns.Count));
       var newTransitions = new int[nonFinalStateCount * 26].Populate(-1);
       for (var i = 0; i < columns.Count; ++i)
@@ -99,7 +102,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         }
         if (finalStateIdToValue.ContainsKey(column[25]))
         {
-          newTransitions[newId * 26 + 0] = finalStateIdToValue[column[25]]; // Put the final value at the front.
+          newTransitions[newId * 26 + 0] = valueToEntryStateId[finalStateIdToValue[column[25]]]; // Put the final value at the front.
         }
       }
 
