@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Spines.Mahjong.Analysis.Classification;
@@ -34,7 +33,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     /// <summary>
     /// The transitions for the specified language.
     /// </summary>
-    public IReadOnlyList<int> Transitions { get; }
+    public IReadOnlyList<int> Transitions { get; private set; }
 
     /// <summary>
     /// The size of the alphabet.
@@ -56,36 +55,30 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
           oldToNewTransitions.Add(state, oldToNewTransitions.Count);
         }
       }
+      _statesWithFinalValues = new HashSet<int>();
+
       var concealedTransitions = new int[concealedStates.Count * 5].Populate(-1);
-      var finalValues = new HashSet<int>();
-      var statesWithFinalValues = new HashSet<int>();
       foreach (var state in concealedStates)
       {
         foreach (var c in Enumerable.Range(0, 5))
         {
-          var n = transitions[state + c];
-          if (n == 0)
+          var next = transitions[state + c];
+          if (next == -1)
           {
-            continue;
+            continue; // null transitions
           }
-          if (oldToNewTransitions.ContainsKey(n))
+          if (oldToNewTransitions.ContainsKey(next))
           {
-            concealedTransitions[oldToNewTransitions[state] * 5 + c] = oldToNewTransitions[n] * 5; // normal transitions
+            concealedTransitions[oldToNewTransitions[state] * 5 + c] = oldToNewTransitions[next] * 5; // normal transitions
           }
           else
           {
-            finalValues.Add(n);
-            statesWithFinalValues.Add(oldToNewTransitions[state]);
-            concealedTransitions[oldToNewTransitions[state] * 5 + c] = n; // final values
+            _statesWithFinalValues.Add(oldToNewTransitions[state]);
+            concealedTransitions[oldToNewTransitions[state] * 5 + c] = next; // final values
           }
         }
       }
-
-      var normalStates = Enumerable.Range(0, concealedStates.Count).ToList();
-      var orderedFinalValues = finalValues.OrderBy(x => x).ToList();
-      var finalStates = Enumerable.Range(concealedStates.Count, finalValues.Count).ToList();
-      var withFinalValues = statesWithFinalValues.ToList();
-      var hopcroft = new Hopcroft(normalStates, finalStates, 5, (a, c) => GetIncoming(a, c, normalStates, finalStates, withFinalValues, concealedTransitions, orderedFinalValues));
+      Transitions = concealedTransitions;
     }
 
     /// <summary>
@@ -95,7 +88,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     /// <returns>True, if the transition can not be reached, false otherwise.</returns>
     public bool IsNull(int transition)
     {
-      throw new NotImplementedException();
+      return Transitions[transition] == -1;
     }
 
     /// <summary>
@@ -105,11 +98,12 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     /// <returns>True, if the transition is a result, false otherwise.</returns>
     public bool IsResult(int transition)
     {
-      throw new NotImplementedException();
+      return _statesWithFinalValues.Contains(transition / 5);
     }
 
     private readonly string _workingDirectory;
     private readonly int _meldCount;
+    private HashSet<int> _statesWithFinalValues;
 
     private HashSet<int> GetEntryStates(List<int> transitions)
     {
@@ -122,12 +116,12 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         foreach (var c in word)
         {
           current = transitions[current + c];
-          if (current == 0)
+          if (current == -1)
           {
             break;
           }
         }
-        if (current != 0)
+        if (current != -1)
         {
           entryStates.Add(current);
         }
@@ -151,7 +145,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
           foreach (var c in Enumerable.Range(0, 5))
           {
             var n = transitions[state + c];
-            if (n == 0)
+            if (n == -1)
             {
               continue;
             }
@@ -160,36 +154,6 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         }
       }
       return concealedStates;
-    }
-
-    private static IEnumerable<int> GetIncoming(IEnumerable<int> a, int c, IReadOnlyList<int> normalStates,
-      IReadOnlyList<int> finalStates, IReadOnlyList<int> statesWithFinalValues, IReadOnlyList<int> concealedTransitions,
-      IReadOnlyList<int> orderedFinalValues)
-    {
-      foreach (var s in a)
-      {
-        if (finalStates.Contains(s))
-        {
-          var f = s - normalStates.Count;
-          foreach (var t in statesWithFinalValues)
-          {
-            if (concealedTransitions[t * 5 + c] == orderedFinalValues[f])
-            {
-              yield return t;
-            }
-          }
-        }
-        else
-        {
-          foreach (var t in normalStates)
-          {
-            if (concealedTransitions[t * 5 + c] == s)
-            {
-              yield return t;
-            }
-          }
-        }
-      }
     }
   }
 }

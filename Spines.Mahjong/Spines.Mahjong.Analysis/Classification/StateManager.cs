@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.Classification
 {
@@ -76,7 +77,7 @@ namespace Spines.Mahjong.Analysis.Classification
         }
       }
       // Create the actual machine.
-      _transitions = new int[id * _alphabetSize];
+      _transitions = new int[id * _alphabetSize].Populate(-1);
       ResultIndexes = new HashSet<int>();
       for (var i = _heights - 1; i > 0; --i)
       {

@@ -211,12 +211,12 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         foreach (var c in w)
         {
           current = transitions[current + c];
-          if (current == 0)
+          if (current == -1)
           {
             break;
           }
         }
-        if (current != 0)
+        if (current != -1)
         {
           meldWords.Add(new WordWithValue(w, current));
         }
