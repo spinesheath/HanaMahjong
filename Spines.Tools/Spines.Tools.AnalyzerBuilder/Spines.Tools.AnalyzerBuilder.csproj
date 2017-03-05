@@ -81,7 +81,7 @@
     <Compile Include="Precalculation\Hopcroft.cs" />
     <Compile Include="Precalculation\SuitFirstPhaseBuilder.cs" />
     <Compile Include="Precalculation\SuitSecondPhaseBuilder.cs" />
-    <Compile Include="Precalculation\Transition.cs" />
+    <Compile Include="Precalculation\TransitionCompacter.cs" />
     <Compile Include="Precalculation\ProgressiveHonorStateMachineBuilder.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

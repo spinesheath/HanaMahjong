@@ -1,4 +1,4 @@
-﻿// Spines.Tools.AnalyzerBuilder.Transition.cs
+﻿// Spines.Tools.AnalyzerBuilder.TransitionCompacter.cs
 // 
 // Copyright (C) 2017  Johannes Heckl
 // 
@@ -21,35 +21,15 @@ using Spines.Mahjong.Analysis.Classification;
 
 namespace Spines.Tools.AnalyzerBuilder.Precalculation
 {
-  internal static class Transition
+  internal class TransitionCompacter
   {
-    /// <summary>
-    /// Counts the number of null transitions per character in the alphabet.
-    /// </summary>
-    public static IEnumerable<int> CountNullTransitions(IStateMachineBuilder builder)
-    {
-      var nullTransitions = new int[builder.AlphabetSize];
-      for (var i = 0; i < builder.Transitions.Count; i++)
-      {
-        if (builder.IsResult(i))
-        {
-          continue;
-        }
-        if (builder.IsNull(i))
-        {
-          nullTransitions[i % builder.AlphabetSize] += 1;
-        }
-      }
-      return nullTransitions;
-    }
-
     /// <summary>
     /// Compacts transitions by eliminating trailing null tansitions.
     /// I.e if the last couple characters in the alphabet, for one state don't lead to another state, these cells can be
     /// eliminated from the table.
     /// Transitions that point to a later state are adjusted by the amount of eliminated cells.
     /// </summary>
-    public static IEnumerable<int> Compact(IStateMachineBuilder builder)
+    public TransitionCompacter(IStateMachineBuilder builder)
     {
       // Build a set of indices that can be skipped and a table of offsets for adjusting the remaining transitions.
       var skippedIndices = new HashSet<int>();
@@ -62,7 +42,8 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         for (; transitionsToKeep > 0; transitionsToKeep--)
         {
           var transition = i + transitionsToKeep - 1;
-          if (!builder.IsNull(transition) || builder.IsResult(transition)) // Results and normal transitions can't be skipped.
+          if (!builder.IsNull(transition) || builder.IsResult(transition))
+            // Results and normal transitions can't be skipped.
           {
             break;
           }
@@ -95,7 +76,25 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       }
 
       // Copy into a new list while skipping eliminated cells.
-      return clone.Where((t, i) => !skippedIndices.Contains(i)).ToList();
+      Transitions = clone.Where((t, i) => !skippedIndices.Contains(i)).ToList();
+
+      // Create offsets.
+      var offsets = new List<int>();
+      for (var i = 0; i < builder.Transitions.Count; i += builder.AlphabetSize)
+      {
+        offsets.Add(offsetMap[i]);
+      }
+      Offsets = offsets;
     }
+
+    /// <summary>
+    /// The transitions after compaction.
+    /// </summary>
+    public IReadOnlyList<int> Transitions { get; }
+
+    /// <summary>
+    /// Mapping from stateId before compaction to offset of state after compaction.
+    /// </summary>
+    public IReadOnlyList<int> Offsets { get; }
   }
 }

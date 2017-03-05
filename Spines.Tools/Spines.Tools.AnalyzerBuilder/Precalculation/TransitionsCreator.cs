@@ -62,11 +62,11 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 
     public void CreateSuitSecondPhase()
     {
-      CreateTransitions("SuitSecondPhase0.txt", () => GetSuitSecondPhaseBuilder(0), false);
-      CreateTransitions("SuitSecondPhase1.txt", () => GetSuitSecondPhaseBuilder(1), false);
-      CreateTransitions("SuitSecondPhase2.txt", () => GetSuitSecondPhaseBuilder(2), false);
-      CreateTransitions("SuitSecondPhase3.txt", () => GetSuitSecondPhaseBuilder(3), false);
-      CreateTransitions("SuitSecondPhase4.txt", () => GetSuitSecondPhaseBuilder(4), false);
+      CreateTransitions("SuitSecondPhase0.txt", () => GetSuitSecondPhaseBuilder(0));
+      CreateTransitions("SuitSecondPhase1.txt", () => GetSuitSecondPhaseBuilder(1));
+      CreateTransitions("SuitSecondPhase2.txt", () => GetSuitSecondPhaseBuilder(2));
+      CreateTransitions("SuitSecondPhase3.txt", () => GetSuitSecondPhaseBuilder(3));
+      CreateTransitions("SuitSecondPhase4.txt", () => GetSuitSecondPhaseBuilder(4));
     }
 
     private readonly string _workingDirectory;
@@ -114,7 +114,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     /// <summary>
     /// Creates the transitions file if it doesn't exist.
     /// </summary>
-    private void CreateTransitions(string fileName, Func<IStateMachineBuilder> createBuilder, bool compact = true)
+    private void CreateTransitions(string fileName, Func<IStateMachineBuilder> createBuilder)
     {
       var targetPath = Path.Combine(_workingDirectory, fileName);
       if (File.Exists(targetPath))
@@ -123,17 +123,13 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       }
 
       var builder = createBuilder();
-      if (compact)
-      {
-        var transitions = Transition.Compact(builder);
-        var lines = transitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
-        File.WriteAllLines(targetPath, lines);
-      }
-      else
-      {
-        var lines = builder.Transitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
-        File.WriteAllLines(targetPath, lines);
-      }
+      var compacter = new TransitionCompacter(builder);
+      var lines = compacter.Transitions.Select(t => t.ToString(CultureInfo.InvariantCulture));
+      File.WriteAllLines(targetPath, lines);
+
+      var offsetPath = Path.Combine(_workingDirectory, $"o_{fileName}");
+      var offsets = compacter.Offsets.Select(t => t.ToString(CultureInfo.InvariantCulture));
+      File.WriteAllLines(offsetPath, offsets);
     }
 
     private static IStateMachineBuilder GetClassifierBuilder(IEnumerable<WordWithValue> language)
