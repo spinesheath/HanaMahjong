@@ -25,9 +25,10 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 {
   internal class SuitSecondPhaseBuilder : IStateMachineBuilder
   {
-    public SuitSecondPhaseBuilder(string workingDirectory)
+    public SuitSecondPhaseBuilder(string workingDirectory, int meldCount)
     {
       _workingDirectory = workingDirectory;
+      _meldCount = meldCount;
     }
 
     /// <summary>
@@ -44,66 +45,109 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     {
       var transitions = new UnweightedSuitTransitionsCreator(_workingDirectory).Create().ToList();
 
-      var entryStates = new List<HashSet<int>>();
-      var concealedStates = new List<HashSet<int>>();
-      for (var meldCount = 0; meldCount < 5; ++meldCount)
+      var entryStates = GetEntryStates(transitions);
+      var concealedStates = GetConcealedStates(entryStates, transitions);
+
+      var oldToNewTransitions = new Dictionary<int, int>();
+      foreach (var state in concealedStates)
       {
-        entryStates.Add(new HashSet<int>());
-        var meldLanguage = meldCount.Yield().Concat(Enumerable.Repeat(Enumerable.Range(0, 5), 9)).CartesianProduct();
-
-        foreach (var word in meldLanguage)
+        if (!oldToNewTransitions.ContainsKey(state))
         {
-          var current = 0;
-          foreach (var c in word)
+          oldToNewTransitions.Add(state, oldToNewTransitions.Count);
+        }
+      }
+      var concealedTransitions = new int[concealedStates.Count * 5].Populate(-1);
+      var finalValues = new HashSet<int>();
+      var statesWithFinalValues = new HashSet<int>();
+      foreach (var state in concealedStates)
+      {
+        foreach (var c in Enumerable.Range(0, 5))
+        {
+          var n = transitions[state + c];
+          if (n == 0)
           {
-            current = transitions[current + c];
-            if (current == 0)
-            {
-              break;
-            }
+            continue;
           }
-          if (current != 0)
+          if (oldToNewTransitions.ContainsKey(n))
           {
-            entryStates[meldCount].Add(current);
+            concealedTransitions[oldToNewTransitions[state] * 5 + c] = oldToNewTransitions[n] * 5; // normal transitions
+          }
+          else
+          {
+            finalValues.Add(n);
+            statesWithFinalValues.Add(oldToNewTransitions[state]);
+            concealedTransitions[oldToNewTransitions[state] * 5 + c] = n; // final values
           }
         }
+      }
 
-        concealedStates.Add(new HashSet<int>());
+      var normalStates = Enumerable.Range(0, concealedStates.Count).ToList();
+      var orderedFinalValues = finalValues.OrderBy(x => x).ToList();
+      var finalStates = Enumerable.Range(concealedStates.Count, finalValues.Count).ToList();
+      var withFinalValues = statesWithFinalValues.ToList();
+      var hopcroft = new Hopcroft(normalStates, finalStates, 5, (a, c) => GetIncoming(a, c, normalStates, finalStates, withFinalValues, concealedTransitions, orderedFinalValues));
+    }
 
-        var statesInCurrentLevel = new HashSet<int>(entryStates[meldCount]);
-        for (var i = 0; i < 9; ++i)
+    /// <summary>
+    /// Is the transition one that describes can not be reached with a legal word?
+    /// </summary>
+    /// <param name="transition">The Id of the transtion.</param>
+    /// <returns>True, if the transition can not be reached, false otherwise.</returns>
+    public bool IsNull(int transition)
+    {
+      throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Is the transition one that describes a result?
+    /// </summary>
+    /// <param name="transition">The Id of the transtion.</param>
+    /// <returns>True, if the transition is a result, false otherwise.</returns>
+    public bool IsResult(int transition)
+    {
+      throw new NotImplementedException();
+    }
+
+    private readonly string _workingDirectory;
+    private readonly int _meldCount;
+
+    private HashSet<int> GetEntryStates(List<int> transitions)
+    {
+      var entryStates = new HashSet<int>();
+      var meldLanguage = _meldCount.Yield().Concat(Enumerable.Repeat(Enumerable.Range(0, 5), 9)).CartesianProduct();
+
+      foreach (var word in meldLanguage)
+      {
+        var current = 0;
+        foreach (var c in word)
         {
-          var statesInPreviousLevel = statesInCurrentLevel;
-          statesInCurrentLevel = new HashSet<int>();
-          foreach (var state in statesInPreviousLevel)
+          current = transitions[current + c];
+          if (current == 0)
           {
-            concealedStates[meldCount].Add(state);
-
-            foreach (var c in Enumerable.Range(0, 5))
-            {
-              var n = transitions[state + c];
-              if (n == 0)
-              {
-                continue;
-              }
-              statesInCurrentLevel.Add(n);
-            }
+            break;
           }
         }
-
-        var oldToNewTransitions = new Dictionary<int, int>();
-        foreach (var state in concealedStates[meldCount])
+        if (current != 0)
         {
-          if (!oldToNewTransitions.ContainsKey(state))
-          {
-            oldToNewTransitions.Add(state, oldToNewTransitions.Count);
-          }
+          entryStates.Add(current);
         }
-        var concealedTransitions = new int[concealedStates[meldCount].Count * 5].Populate(-1);
-        var finalValues = new HashSet<int>();
-        var statesWithFinalValues = new HashSet<int>();
-        foreach (var state in concealedStates[meldCount])
+      }
+      return entryStates;
+    }
+
+    private static HashSet<int> GetConcealedStates(HashSet<int> entryStates, List<int> transitions)
+    {
+      var concealedStates = new HashSet<int>();
+
+      var statesInCurrentLevel = new HashSet<int>(entryStates);
+      for (var i = 0; i < 9; ++i)
+      {
+        var statesInPreviousLevel = statesInCurrentLevel;
+        statesInCurrentLevel = new HashSet<int>();
+        foreach (var state in statesInPreviousLevel)
         {
+          concealedStates.Add(state);
+
           foreach (var c in Enumerable.Range(0, 5))
           {
             var n = transitions[state + c];
@@ -111,26 +155,11 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
             {
               continue;
             }
-            if (oldToNewTransitions.ContainsKey(n))
-            {
-              concealedTransitions[oldToNewTransitions[state] * 5 + c] = oldToNewTransitions[n] * 5; // normal transitions
-            }
-            else
-            {
-              finalValues.Add(n);
-              statesWithFinalValues.Add(oldToNewTransitions[state]);
-              concealedTransitions[oldToNewTransitions[state] * 5 + c] = n; // final values
-            }
+            statesInCurrentLevel.Add(n);
           }
         }
-
-        var normalStates = Enumerable.Range(0, concealedStates[meldCount].Count).ToList();
-        var orderedFinalValues = finalValues.OrderBy(x => x).ToList();
-        var finalStates = Enumerable.Range(concealedStates[meldCount].Count, finalValues.Count).ToList();
-        var withFinalValues = statesWithFinalValues.ToList();
-        var hopcroft = new Hopcroft(normalStates, finalStates, 5, (a, c) => GetIncoming(a, c, normalStates, finalStates, withFinalValues, concealedTransitions, orderedFinalValues));
-
       }
+      return concealedStates;
     }
 
     private static IEnumerable<int> GetIncoming(IEnumerable<int> a, int c, IReadOnlyList<int> normalStates,
@@ -162,27 +191,5 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         }
       }
     }
-
-    /// <summary>
-    /// Is the transition one that describes can not be reached with a legal word?
-    /// </summary>
-    /// <param name="transition">The Id of the transtion.</param>
-    /// <returns>True, if the transition can not be reached, false otherwise.</returns>
-    public bool IsNull(int transition)
-    {
-      throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// Is the transition one that describes a result?
-    /// </summary>
-    /// <param name="transition">The Id of the transtion.</param>
-    /// <returns>True, if the transition is a result, false otherwise.</returns>
-    public bool IsResult(int transition)
-    {
-      throw new NotImplementedException();
-    }
-
-    private readonly string _workingDirectory;
   }
 }

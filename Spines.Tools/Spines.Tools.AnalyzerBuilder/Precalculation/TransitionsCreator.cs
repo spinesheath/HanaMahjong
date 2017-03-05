@@ -62,7 +62,11 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 
     public void CreateSuitSecondPhase()
     {
-      CreateTransitions("SuitSecondPhase.txt", GetSuitSecondPhaseBuilder);
+      CreateTransitions("SuitSecondPhase0.txt", () => GetSuitSecondPhaseBuilder(0));
+      CreateTransitions("SuitSecondPhase1.txt", () => GetSuitSecondPhaseBuilder(1));
+      CreateTransitions("SuitSecondPhase2.txt", () => GetSuitSecondPhaseBuilder(2));
+      CreateTransitions("SuitSecondPhase3.txt", () => GetSuitSecondPhaseBuilder(3));
+      CreateTransitions("SuitSecondPhase4.txt", () => GetSuitSecondPhaseBuilder(4));
     }
 
     private readonly string _workingDirectory;
@@ -100,9 +104,9 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       return builder;
     }
 
-    private IStateMachineBuilder GetSuitSecondPhaseBuilder()
+    private IStateMachineBuilder GetSuitSecondPhaseBuilder(int meldCount)
     {
-      var builder = new SuitSecondPhaseBuilder(_workingDirectory);
+      var builder = new SuitSecondPhaseBuilder(_workingDirectory, meldCount);
       builder.SetLanguage();
       return builder;
     }
