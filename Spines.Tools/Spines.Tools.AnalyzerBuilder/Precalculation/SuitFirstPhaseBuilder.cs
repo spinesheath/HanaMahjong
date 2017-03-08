@@ -284,5 +284,11 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     {
       return transition % AlphabetSize == 0;
     }
+
+    /// <summary>
+    /// The states at which the transitions can be entered.
+    /// </summary>
+    /// <returns>The ids of the states.</returns>
+    public IReadOnlyList<int> EntryStates => new[] {0};
   }
 }

@@ -63,16 +63,80 @@ namespace Spines.Mahjong.Analysis.Classification
     /// </summary>
     public int ClassifySuits(IReadOnlyList<int> melds, IReadOnlyList<int> concealed)
     {
-      var secondPhase = SuitSecondPhases[melds.Count];
       var current = 0;
-      for (var i = 0; i < melds.Count; ++i)
+      var secondPhase = SuitSecondPhases[melds.Count];
+      switch (melds.Count)
       {
-        current = SuitFirstPhase[current + melds[i] + 1];
-      }
-      current = SuitFirstPhase[current];
-      for (var i = 0; i < concealed.Count; ++i)
-      {
-        current = secondPhase[current + concealed[i]];
+        case 0:
+          current = SuitFirstPhase[current];
+          current = secondPhase[current + concealed[0]];
+          current = secondPhase[current + concealed[1]];
+          current = secondPhase[current + concealed[2]];
+          current = secondPhase[current + concealed[3]];
+          current = secondPhase[current + concealed[4]];
+          current = secondPhase[current + concealed[5]];
+          current = secondPhase[current + concealed[6]];
+          current = secondPhase[current + concealed[7]];
+          current = secondPhase[current + concealed[8]];
+          break;
+        case 1:
+          current = SuitFirstPhase[current + melds[0] + 1];
+          current = SuitFirstPhase[current];
+          current = secondPhase[current + concealed[0]];
+          current = secondPhase[current + concealed[1]];
+          current = secondPhase[current + concealed[2]];
+          current = secondPhase[current + concealed[3]] + 11752;
+          current = secondPhase[current + concealed[4]] + 30650;
+          current = secondPhase[current + concealed[5]] + 55952;
+          current = secondPhase[current + concealed[6]] + 80078;
+          current = secondPhase[current + concealed[7]] + 99750;
+          current = secondPhase[current + concealed[8]];
+          break;
+        case 2:
+          current = SuitFirstPhase[current + melds[0] + 1];
+          current = SuitFirstPhase[current + melds[1] + 1];
+          current = SuitFirstPhase[current];
+          current = secondPhase[current + concealed[0]];
+          current = secondPhase[current + concealed[1]];
+          current = secondPhase[current + concealed[2]] + 22358;
+          current = secondPhase[current + concealed[3]] + 54162;
+          current = secondPhase[current + concealed[4]] + 90481;
+          current = secondPhase[current + concealed[5]] + 120379;
+          current = secondPhase[current + concealed[6]] + 139662;
+          current = secondPhase[current + concealed[7]] + 150573;
+          current = secondPhase[current + concealed[8]];
+          break;
+        case 3:
+          current = SuitFirstPhase[current + melds[0] + 1];
+          current = SuitFirstPhase[current + melds[1] + 1];
+          current = SuitFirstPhase[current + melds[2] + 1];
+          current = SuitFirstPhase[current];
+          current = secondPhase[current + concealed[0]];
+          current = secondPhase[current + concealed[1]] + 24641;
+          current = secondPhase[current + concealed[2]] + 50680;
+          current = secondPhase[current + concealed[3]] + 76245;
+          current = secondPhase[current + concealed[4]] + 93468;
+          current = secondPhase[current + concealed[5]] + 102953;
+          current = secondPhase[current + concealed[6]] + 107217;
+          current = secondPhase[current + concealed[7]] + 108982;
+          current = secondPhase[current + concealed[8]];
+          break;
+        case 4:
+          current = SuitFirstPhase[current + melds[0] + 1];
+          current = SuitFirstPhase[current + melds[1] + 1];
+          current = SuitFirstPhase[current + melds[2] + 1];
+          current = SuitFirstPhase[current + melds[3] + 1];
+          current = SuitFirstPhase[current];
+          current = secondPhase[current + concealed[0]];
+          current = secondPhase[current + concealed[1]];
+          current = secondPhase[current + concealed[2]];
+          current = secondPhase[current + concealed[3]];
+          current = secondPhase[current + concealed[4]];
+          current = secondPhase[current + concealed[5]];
+          current = secondPhase[current + concealed[6]];
+          current = secondPhase[current + concealed[7]];
+          current = secondPhase[current + concealed[8]];
+          break;
       }
       return current;
     }

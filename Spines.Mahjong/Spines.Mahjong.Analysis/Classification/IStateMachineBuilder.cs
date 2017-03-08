@@ -47,5 +47,11 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <param name="transition">The Id of the transtion.</param>
     /// <returns>True, if the transition is a result, false otherwise.</returns>
     bool IsResult(int transition);
+
+    /// <summary>
+    /// The states at which the transitions can be entered.
+    /// </summary>
+    /// <returns>The ids of the states.</returns>
+    IReadOnlyList<int> EntryStates { get; }
   }
 }

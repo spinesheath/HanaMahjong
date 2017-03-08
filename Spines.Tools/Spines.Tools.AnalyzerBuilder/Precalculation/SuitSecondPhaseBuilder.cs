@@ -36,6 +36,12 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     public IReadOnlyList<int> Transitions { get; private set; }
 
     /// <summary>
+    /// The states at which the transitions can be entered.
+    /// </summary>
+    /// <returns>The ids of the states.</returns>
+    public IReadOnlyList<int> EntryStates { get; private set; }
+
+    /// <summary>
     /// The size of the alphabet.
     /// </summary>
     public int AlphabetSize => 5;
@@ -71,7 +77,8 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
           }
           if (oldToNewTransitions.ContainsKey(next))
           {
-            concealedTransitions[oldToNewTransitions[state] * 5 + c] = oldToNewTransitions[next] * 5; // normal transitions
+            concealedTransitions[oldToNewTransitions[state] * 5 + c] = oldToNewTransitions[next] * 5;
+              // normal transitions
           }
           else
           {
@@ -80,7 +87,9 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
           }
         }
       }
+
       Transitions = concealedTransitions;
+      EntryStates = entryStates.Select(e => oldToNewTransitions[e]).ToList();
     }
 
     /// <summary>

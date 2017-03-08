@@ -57,6 +57,12 @@ namespace Spines.Mahjong.Analysis.Classification
     }
 
     /// <summary>
+    /// The states at which the transitions can be entered.
+    /// </summary>
+    /// <returns>The ids of the states.</returns>
+    public IReadOnlyList<int> EntryStates => new [] {0};
+
+    /// <summary>
     /// Creates a minimized dfa and the corresponding transition table.
     /// </summary>
     public void SetLanguage(IEnumerable<WordWithValue> language, int alphabetSize, int wordLength)
