@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -30,18 +31,6 @@ namespace Spines.Mahjong.Analysis.Classification
   /// </summary>
   internal class Classifier
   {
-    private static readonly int[] ArrangementTransitions = GetTransitions("ArrangementTransitions.txt");
-    private static readonly int[] SuitTransitions = GetTransitions("SuitTransitions.txt");
-    private static readonly int[] HonorTransitions = GetTransitions("HonorTransitions.txt");
-
-    private static readonly int[] SuitFirstPhase = GetTransitions("SuitFirstPhase.txt");
-    private static readonly int[] SuitSecondPhase0 = GetTransitions("SuitSecondPhase0.txt");
-    private static readonly int[] SuitSecondPhase1 = GetTransitions("SuitSecondPhase1.txt");
-    private static readonly int[] SuitSecondPhase2 = GetTransitions("SuitSecondPhase2.txt");
-    private static readonly int[] SuitSecondPhase3 = GetTransitions("SuitSecondPhase3.txt");
-    private static readonly int[] SuitSecondPhase4 = GetTransitions("SuitSecondPhase4.txt");
-    private static readonly int[][] SuitSecondPhases = {SuitSecondPhase0, SuitSecondPhase1, SuitSecondPhase2, SuitSecondPhase3, SuitSecondPhase4};
-
     /// <summary>
     /// Calculates the shanten of 4 arrangements.
     /// Behavior for invalid inputs is undefined.
@@ -54,7 +43,9 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <returns>The shanten of the hand.</returns>
     public int ClassifyArrangements(int a1, int a2, int a3, int a4)
     {
-      return ArrangementTransitions[ArrangementTransitions[ArrangementTransitions[ArrangementTransitions[0 + a1] + a2] + a3] + a4];
+      return
+        ArrangementTransitions[
+          ArrangementTransitions[ArrangementTransitions[ArrangementTransitions[0 + a1] + a2] + a3] + a4];
     }
 
     /// <summary>
@@ -169,10 +160,31 @@ namespace Spines.Mahjong.Analysis.Classification
       return current;
     }
 
+    private static readonly int[] ArrangementTransitions = GetTransitions("ArrangementTransitions.txt").ToArray();
+    private static readonly int[] SuitTransitions = GetTransitions("SuitTransitions.txt").ToArray();
+    private static readonly ushort[] HonorTransitions = ToShort(GetTransitions("HonorTransitions.txt")).ToArray();
+    private static readonly ushort[] SuitFirstPhase = ToShort(GetTransitions("SuitFirstPhase.txt")).ToArray();
+    private static readonly ushort[] SuitSecondPhase0 = ToShort(GetTransitions("SuitSecondPhase0.txt")).ToArray();
+    private static readonly ushort[] SuitSecondPhase1 = ToShort(GetTransitions("SuitSecondPhase1.txt")).ToArray();
+    private static readonly ushort[] SuitSecondPhase2 = ToShort(GetTransitions("SuitSecondPhase2.txt")).ToArray();
+    private static readonly ushort[] SuitSecondPhase3 = ToShort(GetTransitions("SuitSecondPhase3.txt")).ToArray();
+    private static readonly ushort[] SuitSecondPhase4 = ToShort(GetTransitions("SuitSecondPhase4.txt")).ToArray();
+
+    private static readonly ushort[][] SuitSecondPhases =
+    {
+      SuitSecondPhase0, SuitSecondPhase1, SuitSecondPhase2,
+      SuitSecondPhase3, SuitSecondPhase4
+    };
+
+    private static IEnumerable<ushort> ToShort(IEnumerable<int> transitions)
+    {
+      return transitions.Select(i => i < 0 ? 0 : i).Select(i => (ushort) i);
+    }
+
     /// <summary>
     /// Loads the transition table from an embedded resource.
     /// </summary>
-    private static int[] GetTransitions(string resourceName)
+    private static IEnumerable<int> GetTransitions(string resourceName)
     {
       var fullResourceName = "Spines.Mahjong.Analysis.Resources." + resourceName;
       var assembly = Assembly.GetExecutingAssembly();
@@ -189,7 +201,7 @@ namespace Spines.Mahjong.Analysis.Classification
           stream = null;
           var result = reader.ReadToEnd();
           var lines = Regex.Split(result, "\r\n|\r|\n").Where(line => line.Length > 0);
-          return lines.Select(line => int.Parse(line, CultureInfo.InvariantCulture)).ToArray();
+          return lines.Select(line => Convert.ToInt32(line, CultureInfo.InvariantCulture));
         }
       }
       finally
