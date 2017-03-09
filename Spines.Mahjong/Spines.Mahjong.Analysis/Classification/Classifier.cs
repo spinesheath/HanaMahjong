@@ -43,7 +43,9 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <returns>The shanten of the hand.</returns>
     public int ClassifyArrangements(int a1, int a2, int a3, int a4)
     {
-      return ArrangementTransitions[ArrangementTransitions[ArrangementTransitions[ArrangementTransitions[0 + a1] + a2] + a3] + a4] - 1;
+      return
+        ArrangementTransitions[
+          ArrangementTransitions[ArrangementTransitions[ArrangementTransitions[0 + a1] + a2] + a3] + a4] - 1;
     }
 
     /// <summary>
@@ -145,14 +147,14 @@ namespace Spines.Mahjong.Analysis.Classification
       return current;
     }
 
-    private static readonly int[] ArrangementTransitions = GetTransitions("ArrangementTransitions.txt").ToArray();
-    private static readonly ushort[] HonorTransitions = ToShort(GetTransitions("HonorTransitions.txt")).ToArray();
-    private static readonly ushort[] SuitFirstPhase = ToShort(GetTransitions("SuitFirstPhase.txt")).ToArray();
-    private static readonly ushort[] SuitSecondPhase0 = ToShort(GetTransitions("SuitSecondPhase0.txt")).ToArray();
-    private static readonly ushort[] SuitSecondPhase1 = ToShort(GetTransitions("SuitSecondPhase1.txt")).ToArray();
-    private static readonly ushort[] SuitSecondPhase2 = ToShort(GetTransitions("SuitSecondPhase2.txt")).ToArray();
-    private static readonly ushort[] SuitSecondPhase3 = ToShort(GetTransitions("SuitSecondPhase3.txt")).ToArray();
-    private static readonly ushort[] SuitSecondPhase4 = ToShort(GetTransitions("SuitSecondPhase4.txt")).ToArray();
+    private static readonly ushort[] ArrangementTransitions = GetTransitions("ArrangementTransitions.txt").ToArray();
+    private static readonly ushort[] HonorTransitions = GetTransitions("HonorTransitions.txt").ToArray();
+    private static readonly ushort[] SuitFirstPhase = GetTransitions("SuitFirstPhase.txt").ToArray();
+    private static readonly ushort[] SuitSecondPhase0 = GetTransitions("SuitSecondPhase0.txt").ToArray();
+    private static readonly ushort[] SuitSecondPhase1 = GetTransitions("SuitSecondPhase1.txt").ToArray();
+    private static readonly ushort[] SuitSecondPhase2 = GetTransitions("SuitSecondPhase2.txt").ToArray();
+    private static readonly ushort[] SuitSecondPhase3 = GetTransitions("SuitSecondPhase3.txt").ToArray();
+    private static readonly ushort[] SuitSecondPhase4 = GetTransitions("SuitSecondPhase4.txt").ToArray();
 
     private static readonly ushort[][] SuitSecondPhases =
     {
@@ -171,7 +173,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// Loads the transition table from an embedded resource.
     /// </summary>
-    private static IEnumerable<int> GetTransitions(string resourceName)
+    private static IEnumerable<ushort> GetTransitions(string resourceName)
     {
       var fullResourceName = "Spines.Mahjong.Analysis.Resources." + resourceName;
       var assembly = Assembly.GetExecutingAssembly();
@@ -188,7 +190,7 @@ namespace Spines.Mahjong.Analysis.Classification
           stream = null;
           var result = reader.ReadToEnd();
           var lines = Regex.Split(result, "\r\n|\r|\n").Where(line => line.Length > 0);
-          return lines.Select(line => Convert.ToInt32(line, CultureInfo.InvariantCulture));
+          return ToShort(lines.Select(line => Convert.ToInt32(line, CultureInfo.InvariantCulture)));
         }
       }
       finally
