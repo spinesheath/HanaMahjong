@@ -15,8 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Spines.Mahjong.Analysis.Classification;
+using Spines.Mahjong.Analysis.Combinations;
+using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.InternalTests
 {
@@ -63,6 +68,64 @@ namespace Spines.Mahjong.Analysis.InternalTests
       var actual = c.Calculate2(hand);
 
       Assert.That(actual, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void CalculateShouldBeFast()
+    {
+      var emptyMelds = new int[0];
+      var emptySuit = new int[9];
+      var emptyHonor = new int[15];
+      var classifier = new Classifier();
+      foreach (var hand in GetChinitsuHands().Take(1000))
+      {
+        var shanten = classifier.ClassifyArrangements(
+          classifier.ClassifySuits(hand.Item1, hand.Item2),
+          classifier.ClassifySuits(emptyMelds, emptySuit),
+          classifier.ClassifySuits(emptyMelds, emptySuit),
+          classifier.ClassifyHonors(emptyHonor));
+        Assert.That(shanten, Is.GreaterThan(-2));
+      }
+    }
+
+    private static IEnumerable<Tuple<int[], int[]>> GetChinitsuHands()
+    {
+      foreach (var meldCount in Enumerable.Range(0, 5))
+      {
+        var baseLanguage = Enumerable.Repeat(Enumerable.Range(0, 25), meldCount).CartesianProduct();
+        foreach (var w in baseLanguage)
+        {
+          var meldWord = w.ToArray();
+          var oldWord = new int[9];
+          foreach (var c in meldWord)
+          {
+            if (c < 7)
+            {
+              oldWord[c + 0] += 1;
+              oldWord[c + 1] += 1;
+              oldWord[c + 2] += 1;
+            }
+            else if (c < 16)
+            {
+              oldWord[c - 7] += 3;
+            }
+            else if (c < 25)
+            {
+              oldWord[c - 16] += 4;
+            }
+          }
+          if (oldWord.Any(c => c > 4))
+          {
+            continue;
+          }
+
+          var concealeds = ConcealedCombinationCreator.ForSuits().Create(13 - meldCount * 3, new Combination(oldWord));
+          foreach (var concealed in concealeds)
+          {
+            yield return Tuple.Create(meldWord, concealed.Counts.ToArray());
+          }
+        }
+      }
     }
   }
 }

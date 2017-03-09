@@ -153,7 +153,8 @@ namespace Spines.Mahjong.Analysis.Classification
     public int ClassifyHonors(IReadOnlyList<int> word)
     {
       var current = 0;
-      for (var i = 0; i < word.Count; ++i)
+      var count = word.Count;
+      for (var i = 0; i < count; ++i)
       {
         current = HonorTransitions[current + word[i]];
       }
