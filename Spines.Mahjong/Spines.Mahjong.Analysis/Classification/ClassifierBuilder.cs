@@ -43,7 +43,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <returns>True, if the transition can not be reached, false otherwise.</returns>
     public bool IsNull(int transition)
     {
-      return Transitions[transition] == 0 && !IsResult(transition);
+      return Transitions[transition] == -1 && !IsResult(transition);
     }
 
     /// <summary>

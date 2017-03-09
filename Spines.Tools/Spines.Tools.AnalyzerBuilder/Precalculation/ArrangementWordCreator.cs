@@ -99,7 +99,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
           var shanten = analyzer.CalculateShanten();
           if (shanten < 9)
           {
-            yield return new WordWithValue(word, shanten);
+            yield return new WordWithValue(word, shanten + 1);
           }
         }
       }
