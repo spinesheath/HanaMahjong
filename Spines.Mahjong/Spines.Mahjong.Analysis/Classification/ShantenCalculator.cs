@@ -28,23 +28,6 @@ namespace Spines.Mahjong.Analysis.Classification
   {
     public int Calculate(string hand)
     {
-      var manzu = GetTileCounts(hand, 'm', 9);
-      var pinzu = GetTileCounts(hand, 'p', 9);
-      var souzu = GetTileCounts(hand, 's', 9);
-      var honor = GetTileCounts(hand, 'z', 7);
-      
-      var classifier = new Classifier();
-      var shanten = classifier.ClassifyArrangements(
-        classifier.ClassifySuits(manzu),
-        classifier.ClassifySuits(pinzu),
-        classifier.ClassifySuits(souzu),
-        classifier.ClassifyHonors(honor));
-
-      return shanten;
-    }
-
-    public int Calculate2(string hand)
-    {
       var manzu = GetTileCounts(hand, 'm', 9).Skip(10).ToList();
       var manzuMelds = GetMelds(hand, 'M').ToList();
       var pinzu = GetTileCounts(hand, 'p', 9).Skip(10).ToList();

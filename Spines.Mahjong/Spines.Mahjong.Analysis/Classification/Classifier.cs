@@ -43,9 +43,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <returns>The shanten of the hand.</returns>
     public int ClassifyArrangements(int a1, int a2, int a3, int a4)
     {
-      return
-        ArrangementTransitions[
-          ArrangementTransitions[ArrangementTransitions[ArrangementTransitions[0 + a1] + a2] + a3] + a4];
+      return ArrangementTransitions[ArrangementTransitions[ArrangementTransitions[ArrangementTransitions[0 + a1] + a2] + a3] + a4];
     }
 
     /// <summary>
@@ -133,20 +131,6 @@ namespace Spines.Mahjong.Analysis.Classification
     }
 
     /// <summary>
-    /// Returns the Arrangement for a Suit. The word is the sequence
-    /// (meld count, melded tile counts, concealed tile counts)
-    /// </summary>
-    public int ClassifySuits(IReadOnlyList<int> word)
-    {
-      var current = 0;
-      for (var i = 0; i < word.Count; ++i)
-      {
-        current = SuitTransitions[current + word[i]];
-      }
-      return current;
-    }
-
-    /// <summary>
     /// Returns the Arrangement for Honors. The word is the sequence
     /// (meld count, melded tile counts, concealed tile counts)
     /// </summary>
@@ -162,7 +146,6 @@ namespace Spines.Mahjong.Analysis.Classification
     }
 
     private static readonly int[] ArrangementTransitions = GetTransitions("ArrangementTransitions.txt").ToArray();
-    private static readonly int[] SuitTransitions = GetTransitions("SuitTransitions.txt").ToArray();
     private static readonly ushort[] HonorTransitions = ToShort(GetTransitions("HonorTransitions.txt")).ToArray();
     private static readonly ushort[] SuitFirstPhase = ToShort(GetTransitions("SuitFirstPhase.txt")).ToArray();
     private static readonly ushort[] SuitSecondPhase0 = ToShort(GetTransitions("SuitSecondPhase0.txt")).ToArray();
@@ -173,8 +156,11 @@ namespace Spines.Mahjong.Analysis.Classification
 
     private static readonly ushort[][] SuitSecondPhases =
     {
-      SuitSecondPhase0, SuitSecondPhase1, SuitSecondPhase2,
-      SuitSecondPhase3, SuitSecondPhase4
+      SuitSecondPhase0,
+      SuitSecondPhase1,
+      SuitSecondPhase2,
+      SuitSecondPhase3,
+      SuitSecondPhase4
     };
 
     private static IEnumerable<ushort> ToShort(IEnumerable<int> transitions)
