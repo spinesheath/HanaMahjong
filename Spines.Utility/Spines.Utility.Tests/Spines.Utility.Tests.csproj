@@ -63,6 +63,7 @@
     <Compile Include="CompactArrayTests.cs" />
     <Compile Include="EnumerableExtensionsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadonlyListExtensionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />

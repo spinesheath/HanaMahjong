@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Annotations.cs" />
+    <Compile Include="ReadonlyListExtensions.cs" />
     <Compile Include="BitField.cs" />
     <Compile Include="CompactArray.cs" />
     <Compile Include="ConsoleLogger.cs" />
