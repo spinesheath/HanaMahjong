@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Tools.AnalyzerBuilde
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Utility.Tests", "..\Spines.Utility\Spines.Utility.Tests\Spines.Utility.Tests.csproj", "{92EAC7C4-F74F-40A5-84A2-7F43F894329C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Tools.AnalyzerBuilder.Tests", "Spines.Tools.AnalyzerBuilder\Spines.Tools.AnalyzerBuilder.Tests\Spines.Tools.AnalyzerBuilder.Tests.csproj", "{C99F5A3C-89C3-4BDC-A8C7-398CB660610A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Tools.AnalyzerBuilder.Tests", "Spines.Tools.AnalyzerBuilder.Tests\Spines.Tools.AnalyzerBuilder.Tests.csproj", "{C99F5A3C-89C3-4BDC-A8C7-398CB660610A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

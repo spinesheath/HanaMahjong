@@ -67,8 +67,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />
     <None Include="packages.config" />
+    <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\..\CommonResources\CustomDictionary.xml">
@@ -76,7 +76,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Spines.Tools.AnalyzerBuilder.csproj">
+    <ProjectReference Include="..\Spines.Tools.AnalyzerBuilder\Spines.Tools.AnalyzerBuilder.csproj">
       <Project>{65035680-d9c2-4f4a-bfec-0496e2d964d6}</Project>
       <Name>Spines.Tools.AnalyzerBuilder</Name>
     </ProjectReference>
