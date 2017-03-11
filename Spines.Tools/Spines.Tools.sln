@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Tools.AnalyzerBuilde
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Utility.Tests", "..\Spines.Utility\Spines.Utility.Tests\Spines.Utility.Tests.csproj", "{92EAC7C4-F74F-40A5-84A2-7F43F894329C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Tools.AnalyzerBuilder.Tests", "Spines.Tools.AnalyzerBuilder\Spines.Tools.AnalyzerBuilder.Tests\Spines.Tools.AnalyzerBuilder.Tests.csproj", "{C99F5A3C-89C3-4BDC-A8C7-398CB660610A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{92EAC7C4-F74F-40A5-84A2-7F43F894329C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92EAC7C4-F74F-40A5-84A2-7F43F894329C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92EAC7C4-F74F-40A5-84A2-7F43F894329C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C99F5A3C-89C3-4BDC-A8C7-398CB660610A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C99F5A3C-89C3-4BDC-A8C7-398CB660610A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C99F5A3C-89C3-4BDC-A8C7-398CB660610A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C99F5A3C-89C3-4BDC-A8C7-398CB660610A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
