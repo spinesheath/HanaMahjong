@@ -50,6 +50,20 @@ namespace Spines.Mahjong.Analysis.InternalTests
     }
 
     [Test]
+    public void HandShouldWork()
+    {
+      var hand = new Hand(1);
+      while (hand.DrawRandom())
+      {
+        if (!hand.DiscardBest())
+        {
+          break;
+        }
+      }
+      Assert.That(hand, Is.Not.Null);
+    }
+
+    [Test]
     public void ProgressiveCalculationShouldWork()
     {
       var rand = new Random(1);
