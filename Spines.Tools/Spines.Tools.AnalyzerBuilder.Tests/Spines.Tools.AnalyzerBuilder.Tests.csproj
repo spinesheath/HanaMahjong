@@ -76,11 +76,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\..\CommonResources\CustomDictionary.xml">
-      <Link>CommonResources\CustomDictionary.xml</Link>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\Spines.Utility\Spines.Utility\Spines.Utility.csproj">
       <Project>{1ffe50e9-3d4b-418f-b4cd-3fa10ff4848f}</Project>
       <Name>Spines.Utility</Name>
@@ -89,6 +84,11 @@
       <Project>{65035680-d9c2-4f4a-bfec-0496e2d964d6}</Project>
       <Name>Spines.Tools.AnalyzerBuilder</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\CommonResources\CustomDictionary.xml">
+      <Link>CommonResources\CustomDictionary.xml</Link>
+    </Content>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
