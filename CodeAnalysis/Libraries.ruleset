@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="Rules for Spines.Tools.AnalyzerBuilder" Description="Code analysis rules for Spines.Tools.AnalyzerBuilder.csproj." ToolsVersion="14.0">
+<RuleSet Name="Spines.Libraries.Rules" Description="Code analysis rules for libraries." ToolsVersion="14.0">
   <IncludeAll Action="Warning" />
   <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
     <Rule Id="CA1303" Action="None" />
