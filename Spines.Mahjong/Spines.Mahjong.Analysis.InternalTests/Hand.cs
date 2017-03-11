@@ -15,25 +15,40 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Spines.Mahjong.Analysis.Classification;
-using Spines.Utility;
 
 namespace Spines.Mahjong.Analysis.InternalTests
 {
   internal class Hand
   {
-    public Hand(int seed)
+    public Hand()
     {
       _suits = new[] {_cManzu, _cPinzu, _cSouzu, _cJihai};
-      _rand = new Random(seed);
       _classifier = new Classifier();
-      Repeat.Action(() => DrawRandom(), 13);
     }
 
-    public bool DiscardBest()
+    public int Shanten
     {
+      get
+      {
+        return _classifier.ClassifyArrangements(
+          _classifier.ClassifySuits(_emptyMelds, _cManzu),
+          _classifier.ClassifySuits(_emptyMelds, _cPinzu),
+          _classifier.ClassifySuits(_emptyMelds, _cSouzu),
+          _classifier.ClassifyHonors(Enumerable.Repeat(0, 8).Concat(_cJihai.OrderByDescending(x => x)).ToList()));
+      }
+    }
+
+    public bool Discard()
+    {
+      if (_tilesInHand != 14)
+      {
+        return false;
+      }
+
       var shanten = _classifier.ClassifyArrangements(
         _classifier.ClassifySuits(_emptyMelds, _cManzu),
         _classifier.ClassifySuits(_emptyMelds, _cPinzu),
@@ -132,44 +147,22 @@ namespace Spines.Mahjong.Analysis.InternalTests
 
       _used[t] += 1;
       _suits[suit][index] += 1;
-      _drawCount += 1;
       _tilesInHand += 1;
 
       return true;
     }
 
-    public bool DrawRandom()
+    /// <summary>
+    /// Returns a string that represents the current object.
+    /// </summary>
+    /// <returns>
+    /// A string that represents the current object.
+    /// </returns>
+    public override string ToString()
     {
-      if (_drawCount == 136 || _tilesInHand == 14)
-      {
-        return false;
-      }
-      while (true)
-      {
-        var s = _rand.Next(136);
-        if (_drawn[s])
-        {
-          continue;
-        }
-        _drawn[s] = true;
-        var t = s / 4;
-        if (_used[t] == 4)
-        {
-          continue;
-        }
-
-        var suit = t / 9;
-        var index = t % 9;
-
-        _used[t] += 1;
-        _suits[suit][index] += 1;
-        _drawCount += 1;
-        _tilesInHand += 1;
-        return true;
-      }
+      return ToString(_cManzu, 'm') + ToString(_cPinzu, 'p') + ToString(_cSouzu, 's') + ToString(_cJihai, 'z');
     }
 
-    private readonly Random _rand;
     private readonly int[] _cManzu = new int[9];
     private readonly int[] _cSouzu = new int[9];
     private readonly int[] _cPinzu = new int[9];
@@ -177,9 +170,26 @@ namespace Spines.Mahjong.Analysis.InternalTests
     private readonly int[] _used = new int[34];
     private readonly bool[] _drawn = new bool[136];
     private readonly int[][] _suits;
-    private int _drawCount;
     private int _tilesInHand;
     private readonly Classifier _classifier;
     private readonly int[] _emptyMelds = new int[0];
+
+    private static string ToString(IReadOnlyList<int> slice, char suit)
+    {
+      var sb = new StringBuilder();
+      for (var i = 0; i < slice.Count; ++i)
+      {
+        for (var j = 0; j < slice[i]; ++j)
+        {
+          sb.Append((char) ('1' + i));
+        }
+      }
+      if (sb.Length == 0)
+      {
+        return string.Empty;
+      }
+      sb.Append(suit);
+      return sb.ToString();
+    }
   }
 }
