@@ -65,11 +65,7 @@
   <ItemGroup>
     <Compile Include="ArrangementClassifierTests.cs" />
     <Compile Include="ShantenCalculatorTests.cs" />
-    <Compile Include="TileGroupAnalyzerTests.cs" />
-    <Compile Include="ArrangementAnalyzerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SuitCombinationTests.cs" />
-    <Compile Include="ArrangementComparerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />

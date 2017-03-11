@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using Spines.Utility;
 
-namespace Spines.Mahjong.Analysis.Classification
+namespace Spines.Tools.AnalyzerBuilder.Classification
 {
   internal class StateManager
   {

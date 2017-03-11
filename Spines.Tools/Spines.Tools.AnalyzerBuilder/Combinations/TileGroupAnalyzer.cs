@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Spines.Utility;
 
-namespace Spines.Mahjong.Analysis.Combinations
+namespace Spines.Tools.AnalyzerBuilder.Combinations
 {
   /// <summary>
   /// Analyzes the part of a hand in a single suit.

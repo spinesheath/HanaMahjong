@@ -17,7 +17,7 @@
 
 using System.Collections.Generic;
 
-namespace Spines.Mahjong.Analysis.Combinations
+namespace Spines.Tools.AnalyzerBuilder.Combinations
 {
   internal class MentsuProtoGroupInserter : IProtoGroupInserter
   {

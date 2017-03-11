@@ -16,9 +16,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using Spines.Mahjong.Analysis.Combinations;
+using Spines.Tools.AnalyzerBuilder.Combinations;
 
-namespace Spines.Mahjong.Analysis.InternalTests
+namespace Spines.Tools.AnalyzerBuilder.Tests
 {
   [TestFixture]
   public class ArrangementComparerTests

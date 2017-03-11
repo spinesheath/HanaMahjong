@@ -21,6 +21,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using Spines.Mahjong.Analysis.Classification;
+using Spines.Tools.AnalyzerBuilder.Classification;
 using Spines.Utility;
 
 namespace Spines.Tools.AnalyzerBuilder.Precalculation

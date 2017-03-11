@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.Analysis.FinalState.cs
+﻿// Spines.Mahjong.Analysis.IProtoGroupInserter.cs
 // 
 // Copyright (C) 2016  Johannes Heckl
 // 
@@ -15,16 +15,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace Spines.Mahjong.Analysis.Classification
-{
-  internal class FinalState : State
-  {
-    public FinalState(int alphabetSize, int value)
-      : base(alphabetSize)
-    {
-      Value = value;
-    }
+using System.Collections.Generic;
 
-    public int Value { get; private set; }
+namespace Spines.Tools.AnalyzerBuilder.Combinations
+{
+  internal interface IProtoGroupInserter
+  {
+    bool CanInsert(IReadOnlyList<int> concealedTiles, IReadOnlyList<int> usedTiles, int offset);
+
+    void Insert(IList<int> concealedTiles, IList<int> usedTiles, int offset);
+
+    void Remove(IList<int> concealedTiles, IList<int> usedTiles, int offset);
   }
 }

@@ -18,7 +18,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Spines.Mahjong.Analysis.Combinations
+namespace Spines.Tools.AnalyzerBuilder.Combinations
 {
   /// <summary>
   /// An (in-)complete Group; either a mentsu or a jantou.

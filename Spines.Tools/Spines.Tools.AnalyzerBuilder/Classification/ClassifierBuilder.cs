@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Spines.Utility;
 
-namespace Spines.Mahjong.Analysis.Classification
+namespace Spines.Tools.AnalyzerBuilder.Classification
 {
   /// <summary>
   /// Creates the transition table for a Classifier with equal-length words.

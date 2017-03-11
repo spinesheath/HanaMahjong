@@ -27,10 +27,9 @@ namespace Spines.Mahjong.Analysis.InternalTests
     public void ClassifyShouldReturnValueOfWord()
     {
       var c = new Classifier();
-      var w = WordWithValue.FromString("0,0,0,19:8");
 
-      var a = c.ClassifyArrangements(w.Word[0], w.Word[1], w.Word[2], w.Word[3]);
-      var e = w.Value;
+      var a = c.ClassifyArrangements(0, 0, 0, 19);
+      const int e = 8;
 
       Assert.That(a, Is.EqualTo(e));
     }

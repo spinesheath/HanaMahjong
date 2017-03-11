@@ -16,10 +16,10 @@
  */
 
 using NUnit.Framework;
-using Spines.Mahjong.Analysis.Combinations;
+using Spines.Tools.AnalyzerBuilder.Combinations;
 using Spines.Utility;
 
-namespace Spines.Mahjong.Analysis.InternalTests
+namespace Spines.Tools.AnalyzerBuilder.Tests
 {
   [TestFixture]
   public class ArrangementAnalyzerTests

@@ -22,7 +22,7 @@ using System.Globalization;
 using System.Linq;
 using Spines.Utility;
 
-namespace Spines.Mahjong.Analysis.Classification
+namespace Spines.Tools.AnalyzerBuilder.Classification
 {
   /// <summary>
   /// A word with an associated value.

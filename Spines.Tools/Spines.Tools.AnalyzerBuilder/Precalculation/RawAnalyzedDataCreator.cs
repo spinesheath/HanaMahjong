@@ -18,7 +18,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Spines.Mahjong.Analysis.Combinations;
+using Spines.Tools.AnalyzerBuilder.Combinations;
 
 namespace Spines.Tools.AnalyzerBuilder.Precalculation
 {

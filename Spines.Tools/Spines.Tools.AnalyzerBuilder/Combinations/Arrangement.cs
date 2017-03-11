@@ -20,7 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Spines.Utility;
 
-namespace Spines.Mahjong.Analysis.Combinations
+namespace Spines.Tools.AnalyzerBuilder.Combinations
 {
   /// <summary>
   /// Information about an arrangement of tiles relevant for counting shanten.

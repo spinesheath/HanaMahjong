@@ -49,29 +49,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classification\Classifier.cs" />
-    <Compile Include="Classification\ClassifierBuilder.cs" />
-    <Compile Include="Classification\FinalState.cs" />
-    <Compile Include="Classification\IStateMachineBuilder.cs" />
     <Compile Include="Classification\ShantenCalculator.cs" />
-    <Compile Include="Classification\State.cs" />
-    <Compile Include="Classification\StateComparer.cs" />
-    <Compile Include="Classification\StateManager.cs" />
-    <Compile Include="Classification\WordWithValue.cs" />
-    <Compile Include="Combinations\Arrangement.cs" />
-    <Compile Include="Combinations\ArrangementAnalyzer.cs" />
-    <Compile Include="Combinations\ArrangementComparer.cs" />
-    <Compile Include="Combinations\ArrangementGroupCompacter.cs" />
-    <Compile Include="Combinations\Combination.cs" />
-    <Compile Include="Combinations\CombinationCreatorBase.cs" />
-    <Compile Include="Combinations\TileGroupAnalyzer.cs" />
-    <Compile Include="Combinations\IProtoGroupInserter.cs" />
-    <Compile Include="Combinations\MeldedCombinationsCreator.cs" />
-    <Compile Include="Combinations\Mentsu.cs" />
-    <Compile Include="Combinations\ProtoGroup.cs" />
-    <Compile Include="Combinations\MentsuProtoGroupInserter.cs" />
-    <Compile Include="Combinations\ShuntsuProtoGroupInserter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Combinations\ConcealedCombinationCreator.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\..\CommonResources\CustomDictionary.xml">
@@ -101,6 +80,7 @@
     <EmbeddedResource Include="Resources\SuitSecondPhase3.txt" />
     <EmbeddedResource Include="Resources\SuitSecondPhase4.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

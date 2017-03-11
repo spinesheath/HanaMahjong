@@ -1,6 +1,6 @@
-﻿// Spines.Mahjong.Analysis.Combination.cs
+﻿// Spines.Mahjong.Analysis.FinalState.cs
 // 
-// Copyright (C) 2014  Johannes Heckl
+// Copyright (C) 2016  Johannes Heckl
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,27 +15,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Spines.Mahjong.Analysis.Combinations
+namespace Spines.Tools.AnalyzerBuilder.Classification
 {
-  /// <summary>
-  /// A combination of tiles.
-  /// </summary>
-  public class Combination
+  internal class FinalState : State
   {
-    /// <summary>
-    /// Constructs a new Combination for a given number of types.
-    /// </summary>
-    public Combination(IEnumerable<int> counts)
+    public FinalState(int alphabetSize, int value)
+      : base(alphabetSize)
     {
-      Counts = counts.ToList();
+      Value = value;
     }
 
-    /// <summary>
-    /// The counts for each tile type in the Combination.
-    /// </summary>
-    public IReadOnlyCollection<int> Counts { get; }
+    public int Value { get; private set; }
   }
 }

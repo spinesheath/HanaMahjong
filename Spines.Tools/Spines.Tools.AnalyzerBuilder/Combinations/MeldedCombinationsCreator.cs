@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Spines.Utility;
 
-namespace Spines.Mahjong.Analysis.Combinations
+namespace Spines.Tools.AnalyzerBuilder.Combinations
 {
   /// <summary>
   /// Creates possible combinations of tiles used in melds in one suit.

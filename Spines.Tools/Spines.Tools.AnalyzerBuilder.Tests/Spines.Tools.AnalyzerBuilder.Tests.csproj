@@ -65,8 +65,11 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="ArrangementAnalyzerTests.cs" />
+    <Compile Include="ArrangementComparerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SuitCombinationTests.cs" />
+    <Compile Include="TileGroupAnalyzerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />
@@ -78,6 +81,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Spines.Utility\Spines.Utility\Spines.Utility.csproj">
+      <Project>{1ffe50e9-3d4b-418f-b4cd-3fa10ff4848f}</Project>
+      <Name>Spines.Utility</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Spines.Tools.AnalyzerBuilder\Spines.Tools.AnalyzerBuilder.csproj">
       <Project>{65035680-d9c2-4f4a-bfec-0496e2d964d6}</Project>
       <Name>Spines.Tools.AnalyzerBuilder</Name>

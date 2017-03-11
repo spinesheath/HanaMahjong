@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Spines.Utility;
 
-namespace Spines.Mahjong.Analysis.Classification
+namespace Spines.Tools.AnalyzerBuilder.Classification
 {
   internal class StateComparer : IEqualityComparer<State>
   {

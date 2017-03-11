@@ -17,7 +17,7 @@
 
 using System.Collections.Generic;
 
-namespace Spines.Mahjong.Analysis.Classification
+namespace Spines.Tools.AnalyzerBuilder.Classification
 {
   /// <summary>
   /// An interface for classes that contain information about a state machine.

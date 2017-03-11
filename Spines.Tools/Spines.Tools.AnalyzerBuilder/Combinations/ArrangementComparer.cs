@@ -17,7 +17,7 @@
 
 using Spines.Utility;
 
-namespace Spines.Mahjong.Analysis.Combinations
+namespace Spines.Tools.AnalyzerBuilder.Combinations
 {
   /// <summary>
   /// Determines whether an arrangement is worse than another.

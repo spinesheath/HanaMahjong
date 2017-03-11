@@ -20,7 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Spines.Utility;
 
-namespace Spines.Mahjong.Analysis.Combinations
+namespace Spines.Tools.AnalyzerBuilder.Combinations
 {
   /// <summary>
   /// Calculates the shanten from 4 sets of Arrangements.
