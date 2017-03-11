@@ -25,7 +25,7 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
   /// <summary>
   /// Creates possible combinations of tiles in one suit.
   /// </summary>
-  public class ConcealedCombinationCreator : CombinationCreatorBase
+  internal class ConcealedCombinationCreator : CombinationCreatorBase
   {
     /// <summary>
     /// Creates a new instance of ConcealedCombinationCreator.

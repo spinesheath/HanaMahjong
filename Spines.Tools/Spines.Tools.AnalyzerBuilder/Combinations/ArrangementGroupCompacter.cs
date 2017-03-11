@@ -23,7 +23,7 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
   /// <summary>
   /// Removes from a list of arrangements all redundant arrangements.
   /// </summary>
-  public class ArrangementGroupCompacter
+  internal class ArrangementGroupCompacter
   {
     /// <summary>
     /// If a list of arrangements matches one of these sequences by their Ids, one of these arrangements is redundant

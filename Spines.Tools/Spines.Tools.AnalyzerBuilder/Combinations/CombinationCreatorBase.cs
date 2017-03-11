@@ -24,7 +24,7 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
   /// <summary>
   /// Base class for combination creators.
   /// </summary>
-  public abstract class CombinationCreatorBase
+  internal abstract class CombinationCreatorBase
   {
     /// <summary>
     /// Creates a new instance of CombinationCreatorBase.

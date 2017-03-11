@@ -24,7 +24,7 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
   /// <summary>
   /// Analyzes the part of a hand in a single suit.
   /// </summary>
-  public class TileGroupAnalyzer
+  internal class TileGroupAnalyzer
   {
     private static readonly IReadOnlyList<ProtoGroup> SuitProtoGroups = new List<ProtoGroup>
     {

@@ -27,7 +27,7 @@ namespace Spines.Tools.AnalyzerBuilder.Classification
   /// <summary>
   /// A word with an associated value.
   /// </summary>
-  public class WordWithValue : IEnumerable<int>
+  internal class WordWithValue : IEnumerable<int>
   {
     /// <summary>
     /// Creates a new instance of WordWithValue.

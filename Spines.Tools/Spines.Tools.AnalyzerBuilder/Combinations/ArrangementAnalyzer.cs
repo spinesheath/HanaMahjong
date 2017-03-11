@@ -25,7 +25,7 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
   /// <summary>
   /// Calculates the shanten from 4 sets of Arrangements.
   /// </summary>
-  public class ArrangementAnalyzer
+  internal class ArrangementAnalyzer
   {
     private readonly IList<IEnumerable<Arrangement>> _sets = new List<IEnumerable<Arrangement>>();
 

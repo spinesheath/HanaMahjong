@@ -24,7 +24,7 @@ namespace Spines.Tools.AnalyzerBuilder.Classification
   /// <summary>
   /// Creates the transition table for a Classifier with equal-length words.
   /// </summary>
-  public class ClassifierBuilder : IStateMachineBuilder
+  internal class ClassifierBuilder : IStateMachineBuilder
   {
     /// <summary>
     /// The size of the alphabet.

@@ -22,7 +22,7 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
   /// <summary>
   /// Determines whether an arrangement is worse than another.
   /// </summary>
-  public class ArrangementComparer
+  internal class ArrangementComparer
   {
     /// <summary>
     /// Determines whether an arrangement is worse than another.

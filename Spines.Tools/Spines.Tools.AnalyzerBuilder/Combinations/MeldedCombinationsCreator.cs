@@ -24,7 +24,7 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
   /// <summary>
   /// Creates possible combinations of tiles used in melds in one suit.
   /// </summary>
-  public class MeldedCombinationsCreator : CombinationCreatorBase
+  internal class MeldedCombinationsCreator : CombinationCreatorBase
   {
     private readonly IEnumerable<Mentsu> _mentsu;
 

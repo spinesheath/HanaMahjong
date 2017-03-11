@@ -23,7 +23,7 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
   /// <summary>
   /// A combination of tiles.
   /// </summary>
-  public class Combination
+  internal class Combination
   {
     /// <summary>
     /// Constructs a new Combination for a given number of types.

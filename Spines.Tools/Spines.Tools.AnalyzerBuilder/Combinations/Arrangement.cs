@@ -26,7 +26,7 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
   /// Information about an arrangement of tiles relevant for counting shanten.
   /// Only for regular hand shapes of one pair and four mentsu.
   /// </summary>
-  public class Arrangement : IEquatable<Arrangement>
+  internal class Arrangement : IEquatable<Arrangement>
   {
     /// <summary>
     /// Creates a new Arrangement.

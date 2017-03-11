@@ -22,7 +22,7 @@ namespace Spines.Tools.AnalyzerBuilder.Classification
   /// <summary>
   /// An interface for classes that contain information about a state machine.
   /// </summary>
-  public interface IStateMachineBuilder
+  internal interface IStateMachineBuilder
   {
     /// <summary>
     /// The size of the alphabet.
