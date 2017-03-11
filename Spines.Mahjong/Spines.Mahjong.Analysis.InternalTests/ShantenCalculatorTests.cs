@@ -77,27 +77,36 @@ namespace Spines.Mahjong.Analysis.InternalTests
       var concealed = new int[34];
       var melded = new int[34];
       var discarded = new int[34];
+      var allDrawn = new bool[136];
       const int meldCount = 0;
       var shanten = 10;
       var emptyMelds = new int[0];
       var actualDraws = 0;
       for (var i = 0; i < 10000; ++i)
       {
-        if (shanten == -1 || Enumerable.Range(0, 34).All(a => concealed[a] + melded[a] + discarded[a] == 4))
+        if (shanten == -1 || allDrawn.All(x => x))
         {
           concealed.Populate(0);
           melded.Populate(0);
           discarded.Populate(0);
           shanten = 10;
+          allDrawn.Populate(false);
         }
 
-        var t = rand.Next(34);
-        var draw = ToDiscard(t);
+        var s = rand.Next(136);
+        if (allDrawn[s])
+        {
+          continue;
+        }
+        allDrawn[s] = true;
+        var t = s / 4;
+        var draw = ToTile(t);
         if (concealed[t] + melded[t] + discarded[t] == 4)
         {
           continue;
         }
         concealed[t] += 1;
+        
         actualDraws += 1;
         if (concealed.Sum() + meldCount * 3 < 14)
         {
@@ -199,7 +208,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
           discarded[j] -= 1;
         }
 
-        var discard = ToDiscard(bestDiscard);
+        var discard = ToTile(bestDiscard);
         var ukeIreTiles = ToHand(bestUkeIre);
 
         concealed[bestDiscard] -= 1;
@@ -209,10 +218,10 @@ namespace Spines.Mahjong.Analysis.InternalTests
       Assert.That(actualDraws, Is.Not.Zero);
     }
 
-    private static string ToDiscard(int discard)
+    private static string ToTile(int tile)
     {
-      var i = discard / 9;
-      var c = discard % 9;
+      var i = tile / 9;
+      var c = tile % 9;
       return (char)('1' + c) + "mpsz".Substring(i, 1);
     }
 
