@@ -225,7 +225,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
 
       if (suit == 3)
       {
-        if (_suits[suit][index] <= 2)
+        if (_cJihai[index] <= 2)
         {
           return CallResult.Ignore;
         }
@@ -329,40 +329,6 @@ namespace Spines.Mahjong.Analysis.InternalTests
       return 12;
     }
 
-    private int GetBestDiscard(int shanten)
-    {
-      var ukeIreCount = -1;
-      var bestDiscard = -1;
-      var bestShanten = 10;
-      for (var j = 0; j < 34; ++j)
-      {
-        var suit = j / 9;
-        var index = j % 9;
-
-        if (_suits[suit][index] == 0)
-        {
-          continue;
-        }
-
-        InternalDiscard(suit, index);
-
-        var shantenAfterDiscard = Shanten;
-        if (shantenAfterDiscard <= bestShanten && shantenAfterDiscard <= shanten)
-        {
-          var count = CountUkeIre(shantenAfterDiscard);
-          if (count > ukeIreCount || shantenAfterDiscard < bestShanten)
-          {
-            ukeIreCount = count;
-            bestDiscard = j;
-            bestShanten = shantenAfterDiscard;
-          }
-        }
-
-        InternalDraw(suit, index);
-      }
-      return bestDiscard;
-    }
-
     /// <summary>
     /// Assumes that the tile has already been removed from _cJihai.
     /// </summary>
@@ -383,28 +349,30 @@ namespace Spines.Mahjong.Analysis.InternalTests
 
     private void InternalDiscard(int suit, int index)
     {
-      _suits[suit][index] -= 1;
       _tilesInHand -= 1;
       if (suit == 3)
       {
+        _cJihai[index] -= 1;
         _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorDiscardActionId(index));
       }
       else
       {
+        _suits[suit][index] -= 1;
         UpdateValue(suit);
       }
     }
 
     private void InternalDraw(int suit, int index)
     {
-      _suits[suit][index] += 1;
       _tilesInHand += 1;
       if (suit == 3)
       {
+        _cJihai[index] += 1;
         _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorDrawActionId(index));
       }
       else
       {
+        _suits[suit][index] += 1;
         UpdateValue(suit);
       }
     }
@@ -440,6 +408,40 @@ namespace Spines.Mahjong.Analysis.InternalTests
     private void UpdateValue(int suit)
     {
       _arrangementValues[suit] = _suitClassifiers[suit].GetValue(_suits[suit]);
+    }
+
+    private int GetBestDiscard(int shanten)
+    {
+      var ukeIreCount = -1;
+      var bestDiscard = -1;
+      var bestShanten = 10;
+      for (var j = 0; j < 34; ++j)
+      {
+        var suit = j / 9;
+        var index = j % 9;
+
+        if (_suits[suit][index] == 0)
+        {
+          continue;
+        }
+
+        InternalDiscard(suit, index);
+
+        var shantenAfterDiscard = Shanten;
+        if (shantenAfterDiscard <= bestShanten && shantenAfterDiscard <= shanten)
+        {
+          var count = CountUkeIre(shantenAfterDiscard);
+          if (count > ukeIreCount || shantenAfterDiscard < bestShanten)
+          {
+            ukeIreCount = count;
+            bestDiscard = j;
+            bestShanten = shantenAfterDiscard;
+          }
+        }
+
+        InternalDraw(suit, index);
+      }
+      return bestDiscard;
     }
 
     /// <summary>
