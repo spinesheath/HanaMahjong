@@ -37,9 +37,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <returns>The shanten of the hand.</returns>
     public int ClassifyArrangements(int a1, int a2, int a3, int a4)
     {
-      return
-        ArrangementTransitions[
-          ArrangementTransitions[ArrangementTransitions[ArrangementTransitions[0 + a1] + a2] + a3] + a4] - 1;
+      return Arrangement[Arrangement[Arrangement[Arrangement[0 + a1] + a2] + a3] + a4] - 1;
     }
 
     /// <summary>
@@ -126,30 +124,13 @@ namespace Spines.Mahjong.Analysis.Classification
       return current;
     }
 
-    /// <summary>
-    /// Returns the Arrangement for Honors. The word is the sequence
-    /// (meld count, melded tile counts, concealed tile counts)
-    /// </summary>
-    public int ClassifyHonors(IReadOnlyList<int> word)
-    {
-      var current = 0;
-      var count = word.Count;
-      for (var i = 0; i < count; ++i)
-      {
-        current = HonorTransitions[current + word[i]];
-      }
-      return current;
-    }
-
-    private static readonly ushort[] ArrangementTransitions = Resource.Transitions("ArrangementTransitions.txt").ToArray();
-    private static readonly ushort[] HonorTransitions = Resource.Transitions("HonorTransitions.txt").ToArray();
+    private static readonly ushort[] Arrangement = Resource.Transitions("ArrangementTransitions.txt").ToArray();
     private static readonly ushort[] SuitFirstPhase = Resource.Transitions("SuitFirstPhase.txt").ToArray();
     private static readonly ushort[] SuitSecondPhase0 = Resource.Transitions("SuitSecondPhase0.txt").ToArray();
     private static readonly ushort[] SuitSecondPhase1 = Resource.Transitions("SuitSecondPhase1.txt").ToArray();
     private static readonly ushort[] SuitSecondPhase2 = Resource.Transitions("SuitSecondPhase2.txt").ToArray();
     private static readonly ushort[] SuitSecondPhase3 = Resource.Transitions("SuitSecondPhase3.txt").ToArray();
     private static readonly ushort[] SuitSecondPhase4 = Resource.Transitions("SuitSecondPhase4.txt").ToArray();
-
     private static readonly ushort[][] SuitSecondPhases =
     {
       SuitSecondPhase0,
