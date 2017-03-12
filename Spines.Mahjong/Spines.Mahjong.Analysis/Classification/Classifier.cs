@@ -52,11 +52,11 @@ namespace Spines.Mahjong.Analysis.Classification
     /// Returns the Arrangement for a Suit. The word is the sequence
     /// (meld count, melded tile counts, concealed tile counts)
     /// </summary>
-    public int ClassifySuits(IReadOnlyList<int> melds, IReadOnlyList<int> concealed)
+    public int ClassifySuits(IReadOnlyList<int> melds, int meldCount, IReadOnlyList<int> concealed)
     {
       var current = 0;
-      var secondPhase = SuitSecondPhases[melds.Count];
-      switch (melds.Count)
+      var secondPhase = SuitSecondPhases[meldCount];
+      switch (meldCount)
       {
         case 0:
           current = SuitFirstPhase[current];

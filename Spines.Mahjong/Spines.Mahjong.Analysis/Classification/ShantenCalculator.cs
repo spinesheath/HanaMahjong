@@ -38,9 +38,9 @@ namespace Spines.Mahjong.Analysis.Classification
 
       var classifier = new Classifier();
       var shanten = classifier.ClassifyArrangements(
-        classifier.ClassifySuits(manzuMelds, manzu),
-        classifier.ClassifySuits(pinzuMelds, pinzu),
-        classifier.ClassifySuits(souzuMelds, souzu),
+        classifier.ClassifySuits(manzuMelds, manzuMelds.Count, manzu),
+        classifier.ClassifySuits(pinzuMelds, pinzuMelds.Count, pinzu),
+        classifier.ClassifySuits(souzuMelds, souzuMelds.Count, souzu),
         classifier.ClassifyHonors(honor));
 
       return shanten;

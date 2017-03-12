@@ -16,7 +16,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Spines.Mahjong.Analysis.Classification;
@@ -46,9 +45,9 @@ namespace Spines.Mahjong.Analysis.InternalTests
       get
       {
         return _classifier.ClassifyArrangements(
-          _classifier.ClassifySuits(_mManzu, _cManzu),
-          _classifier.ClassifySuits(_mPinzu, _cPinzu),
-          _classifier.ClassifySuits(_mSouzu, _cSouzu),
+          _classifier.ClassifySuits(_mManzu, _meldCounts[0], _cManzu),
+          _classifier.ClassifySuits(_mPinzu, _meldCounts[1], _cPinzu),
+          _classifier.ClassifySuits(_mSouzu, _meldCounts[2], _cSouzu),
           _classifier.ClassifyHonors(Enumerable.Repeat(0, 8).Concat(_cJihai.OrderByDescending(x => x)).ToList()));
       }
     }
@@ -185,7 +184,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
               continue;
             }
             var meldId = c;
-            _melds[suit].Add(meldId);
+            _melds[suit][_meldCounts[suit]] = meldId;
+            _meldCounts[suit] += 1;
             _suits[suit][c + 0] -= 1;
             _suits[suit][c + 1] -= 1;
             _suits[suit][c + 2] -= 1;
@@ -200,7 +200,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
                 ukeIreOfBestCall = ukeIre;
               }
             }
-            _melds[suit].RemoveAt(_melds[suit].Count - 1);
+            _meldCounts[suit] -= 1;
             _suits[suit][c + 0] += 1;
             _suits[suit][c + 1] += 1;
             _suits[suit][c + 2] += 1;
@@ -210,7 +210,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
         if (_suits[suit][index] > 2)
         {
           var meldId = 7 + index;
-          _melds[suit].Add(meldId);
+          _melds[suit][_meldCounts[suit]] = meldId;
+          _meldCounts[suit] += 1;
           _suits[suit][index] -= 3;
           var shanten = Shanten;
           if (shanten <= shantenOfBestCall)
@@ -223,7 +224,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
               ukeIreOfBestCall = ukeIre;
             }
           }
-          _melds[suit].RemoveAt(_melds[suit].Count - 1);
+          _meldCounts[suit] -= 1;
           _suits[suit][index] += 3;
         }
 
@@ -237,7 +238,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
       }
 
       _suits[suit][index] += 1;
-      _melds[suit].Add(bestCall);
+      _melds[suit][_meldCounts[suit]] = bestCall;
+      _meldCounts[suit] += 1;
       if (bestCall < 7)
       {
         _suits[suit][bestCall + 0] -= 1;
@@ -261,9 +263,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
     /// </returns>
     public override string ToString()
     {
-      return ToConcealedString(_cManzu, 'm') + ToConcealedString(_cPinzu, 'p') + ToConcealedString(_cSouzu, 's') +
-             ToConcealedString(_cJihai, 'z') +
-             ToMeldString(_mManzu, 'M') + ToMeldString(_mPinzu, 'P') + ToMeldString(_mSouzu, 'S');
+      return GetConcealedString(0, 'm') + GetConcealedString(1, 'p') + GetConcealedString(2, 's') + GetConcealedString(3, 'z') +
+             GetMeldString(0, 'M') + GetMeldString(1, 'P') + GetMeldString(2, 'S');
     }
 
     private readonly int[] _cManzu = new int[9];
@@ -275,10 +276,11 @@ namespace Spines.Mahjong.Analysis.InternalTests
     private readonly int[][] _suits;
     private int _tilesInHand;
     private readonly Classifier _classifier;
-    private readonly List<int>[] _melds;
-    private readonly List<int> _mManzu = new List<int>();
-    private readonly List<int> _mPinzu = new List<int>();
-    private readonly List<int> _mSouzu = new List<int>();
+    private readonly int[][] _melds;
+    private readonly int[] _meldCounts = new int[3];
+    private readonly int[] _mManzu = new int[4];
+    private readonly int[] _mPinzu = new int[4];
+    private readonly int[] _mSouzu = new int[4];
 
     /// <summary>
     /// Finds the highest UkeIre after one discard from the hand.
@@ -368,19 +370,21 @@ namespace Spines.Mahjong.Analysis.InternalTests
     /// <summary>
     /// Creates a string that represents the melds.
     /// </summary>
-    /// <param name="meldIds">The ids of the melds.</param>
+    /// <param name="suitId">The suit for which to get the string.</param>
     /// <param name="suit">The suit identifier for the melds.</param>
     /// <returns>A string representing the melds.</returns>
-    private static string ToMeldString(IEnumerable<int> meldIds, char suit)
+    private string GetMeldString(int suitId, char suit)
     {
       var sb = new StringBuilder();
-      foreach (var meldId in meldIds)
+      var meldCount = _meldCounts[suitId];
+      for (var i = 0; i < meldCount; ++i)
       {
+        var meldId = _melds[suitId][i];
         if (meldId < 7)
         {
-          for (var i = meldId; i < meldId + 3; ++i)
+          for (var m = meldId; m < meldId + 3; ++m)
           {
-            sb.Append((char) ('1' + i));
+            sb.Append((char) ('1' + m));
           }
         }
         else if (meldId < 16)
@@ -395,13 +399,14 @@ namespace Spines.Mahjong.Analysis.InternalTests
     /// <summary>
     /// Creates a string that represents the closed tiles of a suit.
     /// </summary>
-    /// <param name="tiles">The tiles in the suit.</param>
+    /// <param name="suitId">The suit for which to get the string.</param>
     /// <param name="suit">The suit identifier.</param>
     /// <returns>A string representing the closed tiles in a suit.</returns>
-    private static string ToConcealedString(IReadOnlyList<int> tiles, char suit)
+    private string GetConcealedString(int suitId, char suit)
     {
       var sb = new StringBuilder();
-      for (var i = 0; i < tiles.Count; ++i)
+      var tiles = _suits[suitId];
+      for (var i = 0; i < tiles.Length; ++i)
       {
         for (var j = 0; j < tiles[i]; ++j)
         {

@@ -38,7 +38,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [TestCase("147m147p147s1234z", 8)]
     [TestCase("123456789m44p123S", -1)]
     [TestCase("1245p112z333P6666P", 2)]
-    public void Calculate2ShouldBeCorrect(string hand, int expected)
+    public void CalculateShouldBeCorrect(string hand, int expected)
     {
       var c = new ShantenCalculator();
 
