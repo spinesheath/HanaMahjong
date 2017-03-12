@@ -88,11 +88,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
     {
       get
       {
-        _suitClassifiers[0].SetMelds(_mManzu, _meldCounts[0]);
         var vManzu = _suitClassifiers[0].GetValue(_cManzu);
-        _suitClassifiers[1].SetMelds(_mPinzu, _meldCounts[1]);
         var vPinzu = _suitClassifiers[1].GetValue(_cPinzu);
-        _suitClassifiers[2].SetMelds(_mSouzu, _meldCounts[2]);
         var vSouzu = _suitClassifiers[2].GetValue(_cSouzu);
         return _arrangementClassifier.Classify(vManzu, vPinzu, vSouzu, _honorClassifier.Value);
       }
@@ -191,8 +188,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
               continue;
             }
             var meldId = c;
-            _melds[suit][_meldCounts[suit]] = meldId;
-            _meldCounts[suit] += 1;
+            AddMeld(suit, meldId);
             _suits[suit][c + 0] -= 1;
             _suits[suit][c + 1] -= 1;
             _suits[suit][c + 2] -= 1;
@@ -207,7 +203,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
                 ukeIreOfBestCall = ukeIre;
               }
             }
-            _meldCounts[suit] -= 1;
+            RemoveMeld(suit);
             _suits[suit][c + 0] += 1;
             _suits[suit][c + 1] += 1;
             _suits[suit][c + 2] += 1;
@@ -217,8 +213,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
         if (_suits[suit][index] > 2)
         {
           var meldId = 7 + index;
-          _melds[suit][_meldCounts[suit]] = meldId;
-          _meldCounts[suit] += 1;
+          AddMeld(suit, meldId);
           _suits[suit][index] -= 3;
           var shantenOfCurrentCall = Shanten;
           if (shantenOfCurrentCall <= shantenOfBestCall)
@@ -231,7 +226,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
               ukeIreOfBestCall = ukeIre;
             }
           }
-          _meldCounts[suit] -= 1;
+          RemoveMeld(suit);
           _suits[suit][index] += 3;
         }
       }
@@ -270,8 +265,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
       }
 
       _suits[suit][index] += 1;
-      _melds[suit][_meldCounts[suit]] = bestCall;
-      _meldCounts[suit] += 1;
+      AddMeld(suit, bestCall);
       if (bestCall < 7)
       {
         _suits[suit][bestCall + 0] -= 1;
@@ -322,9 +316,21 @@ namespace Spines.Mahjong.Analysis.InternalTests
       var list = meldIds.ToList();
       for (var i = 0; i < list.Count; ++i)
       {
-        _melds[suitId][i] = list[i];
-        _meldCounts[suitId] += 1;
+        AddMeld(suitId, list[i]);
       }
+    }
+
+    private void AddMeld(int suitId, int meldId)
+    {
+      _melds[suitId][_meldCounts[suitId]] = meldId;
+      _meldCounts[suitId] += 1;
+      _suitClassifiers[suitId].SetMelds(_melds[suitId], _meldCounts[suitId]);
+    }
+
+    private void RemoveMeld(int suitId)
+    {
+      _meldCounts[suitId] -= 1;
+      _suitClassifiers[suitId].SetMelds(_melds[suitId], _meldCounts[suitId]);
     }
 
     private int GetHonorPonActionId(int index)
