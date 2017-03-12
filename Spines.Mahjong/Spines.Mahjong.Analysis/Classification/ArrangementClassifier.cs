@@ -22,7 +22,7 @@ namespace Spines.Mahjong.Analysis.Classification
   /// <summary>
   /// Calculates shanten from arrangement values.
   /// </summary>
-  internal class ArrangementClassifier
+  internal static class ArrangementClassifier
   {
     /// <summary>
     /// Calculates the shanten of 4 arrangements.
@@ -31,7 +31,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// </summary>
     /// <param name="values">The arrangement values for the 4 suits.</param>
     /// <returns>The shanten of the hand.</returns>
-    public int Classify(int[] values)
+    public static int Classify(int[] values)
     {
       var current = 0;
       for (var i = 0; i < 4; ++i)

@@ -87,7 +87,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     /// <summary>
     /// The current Shanten of the hand.
     /// </summary>
-    public int Shanten => _arrangementClassifier.Classify(_arrangementValues);
+    public int Shanten => ArrangementClassifier.Classify(_arrangementValues);
 
     /// <summary>
     /// Discards a tile based on UkeIre.
@@ -287,7 +287,6 @@ namespace Spines.Mahjong.Analysis.InternalTests
     private readonly byte[] _visibleByType = new byte[34]; // visible tile count per type
     private readonly int[][] _suits; // all four
     private int _tilesInHand;
-    private readonly ArrangementClassifier _arrangementClassifier = new ArrangementClassifier();
     private readonly SuitClassifer[] _suitClassifiers = {new SuitClassifer(), new SuitClassifer(), new SuitClassifer()};
     private readonly ProgressiveHonorClassifier _honorClassifier = new ProgressiveHonorClassifier();
     private readonly int[][] _melds; // non-honors
