@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Spines.Mahjong.Analysis.Classification;
 using Spines.Tools.AnalyzerBuilder.Classification;
 using Spines.Tools.AnalyzerBuilder.Combinations;
 
