@@ -15,14 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Resources;
-using System.Text.RegularExpressions;
 
 namespace Spines.Mahjong.Analysis.Classification
 {
@@ -147,14 +141,14 @@ namespace Spines.Mahjong.Analysis.Classification
       return current;
     }
 
-    private static readonly ushort[] ArrangementTransitions = GetTransitions("ArrangementTransitions.txt").ToArray();
-    private static readonly ushort[] HonorTransitions = GetTransitions("HonorTransitions.txt").ToArray();
-    private static readonly ushort[] SuitFirstPhase = GetTransitions("SuitFirstPhase.txt").ToArray();
-    private static readonly ushort[] SuitSecondPhase0 = GetTransitions("SuitSecondPhase0.txt").ToArray();
-    private static readonly ushort[] SuitSecondPhase1 = GetTransitions("SuitSecondPhase1.txt").ToArray();
-    private static readonly ushort[] SuitSecondPhase2 = GetTransitions("SuitSecondPhase2.txt").ToArray();
-    private static readonly ushort[] SuitSecondPhase3 = GetTransitions("SuitSecondPhase3.txt").ToArray();
-    private static readonly ushort[] SuitSecondPhase4 = GetTransitions("SuitSecondPhase4.txt").ToArray();
+    private static readonly ushort[] ArrangementTransitions = Parse.Transitions("ArrangementTransitions.txt").ToArray();
+    private static readonly ushort[] HonorTransitions = Parse.Transitions("HonorTransitions.txt").ToArray();
+    private static readonly ushort[] SuitFirstPhase = Parse.Transitions("SuitFirstPhase.txt").ToArray();
+    private static readonly ushort[] SuitSecondPhase0 = Parse.Transitions("SuitSecondPhase0.txt").ToArray();
+    private static readonly ushort[] SuitSecondPhase1 = Parse.Transitions("SuitSecondPhase1.txt").ToArray();
+    private static readonly ushort[] SuitSecondPhase2 = Parse.Transitions("SuitSecondPhase2.txt").ToArray();
+    private static readonly ushort[] SuitSecondPhase3 = Parse.Transitions("SuitSecondPhase3.txt").ToArray();
+    private static readonly ushort[] SuitSecondPhase4 = Parse.Transitions("SuitSecondPhase4.txt").ToArray();
 
     private static readonly ushort[][] SuitSecondPhases =
     {
@@ -164,39 +158,5 @@ namespace Spines.Mahjong.Analysis.Classification
       SuitSecondPhase3,
       SuitSecondPhase4
     };
-
-    private static IEnumerable<ushort> ToShort(IEnumerable<int> transitions)
-    {
-      return transitions.Select(i => i < 0 ? 0 : i).Select(i => (ushort) i);
-    }
-
-    /// <summary>
-    /// Loads the transition table from an embedded resource.
-    /// </summary>
-    private static IEnumerable<ushort> GetTransitions(string resourceName)
-    {
-      var fullResourceName = "Spines.Mahjong.Analysis.Resources." + resourceName;
-      var assembly = Assembly.GetExecutingAssembly();
-      Stream stream = null;
-      try
-      {
-        stream = assembly.GetManifestResourceStream(fullResourceName);
-        if (stream == null)
-        {
-          throw new MissingManifestResourceException("Arrangement classifier transition resource is missing.");
-        }
-        using (var reader = new StreamReader(stream))
-        {
-          stream = null;
-          var result = reader.ReadToEnd();
-          var lines = Regex.Split(result, "\r\n|\r|\n").Where(line => line.Length > 0);
-          return ToShort(lines.Select(line => Convert.ToInt32(line, CultureInfo.InvariantCulture)));
-        }
-      }
-      finally
-      {
-        stream?.Dispose();
-      }
-    }
   }
 }

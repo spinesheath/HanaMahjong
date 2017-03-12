@@ -49,6 +49,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classification\Classifier.cs" />
+    <Compile Include="Classification\ProgressiveHonorClassifier.cs" />
+    <Compile Include="Classification\Parse.cs" />
     <Compile Include="Classification\ShantenCalculator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -80,7 +82,9 @@
     <EmbeddedResource Include="Resources\SuitSecondPhase3.txt" />
     <EmbeddedResource Include="Resources\SuitSecondPhase4.txt" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ProgressiveHonorStateMachine.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

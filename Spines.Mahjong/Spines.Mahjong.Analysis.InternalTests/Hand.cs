@@ -16,7 +16,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Linq;
 using System.Text;
 using Spines.Mahjong.Analysis.Classification;
 
@@ -33,24 +32,17 @@ namespace Spines.Mahjong.Analysis.InternalTests
     public Hand()
     {
       _suits = new[] {_cManzu, _cPinzu, _cSouzu, _cJihai};
-      _classifier = new Classifier();
       _melds = new[] {_mManzu, _mPinzu, _mSouzu};
     }
 
     /// <summary>
     /// The current Shanten of the hand.
     /// </summary>
-    public int Shanten
-    {
-      get
-      {
-        return _classifier.ClassifyArrangements(
-          _classifier.ClassifySuits(_mManzu, _meldCounts[0], _cManzu),
-          _classifier.ClassifySuits(_mPinzu, _meldCounts[1], _cPinzu),
-          _classifier.ClassifySuits(_mSouzu, _meldCounts[2], _cSouzu),
-          _classifier.ClassifyHonors(Enumerable.Repeat(0, 8).Concat(_cJihai.OrderByDescending(x => x)).ToList()));
-      }
-    }
+    public int Shanten => _suitClassifier.ClassifyArrangements(
+      _suitClassifier.ClassifySuits(_mManzu, _meldCounts[0], _cManzu),
+      _suitClassifier.ClassifySuits(_mPinzu, _meldCounts[1], _cPinzu),
+      _suitClassifier.ClassifySuits(_mSouzu, _meldCounts[2], _cSouzu),
+      _honorClassifier.Value);
 
     /// <summary>
     /// Discards a tile based on UkeIre.
@@ -68,41 +60,12 @@ namespace Spines.Mahjong.Analysis.InternalTests
         throw new InvalidOperationException("Already won.");
       }
 
-      var ukeIreCount = -1;
-      var bestDiscard = -1;
-      var bestShanten = 10;
-      for (var j = 0; j < 34; ++j)
-      {
-        var suit = j / 9;
-        var index = j % 9;
+      var bestDiscard = GetBestDiscard(shanten);
 
-        if (_suits[suit][index] == 0)
-        {
-          continue;
-        }
-        _suits[suit][index] -= 1;
+      var suit = bestDiscard / 9;
+      var index = bestDiscard % 9;
 
-        var shantenAfterDiscard = Shanten;
-        if (shantenAfterDiscard > bestShanten || shantenAfterDiscard > shanten)
-        {
-          _suits[suit][index] += 1;
-          continue;
-        }
-
-        var count = CountUkeIre(shantenAfterDiscard);
-
-        if (count > ukeIreCount || shantenAfterDiscard < bestShanten)
-        {
-          ukeIreCount = count;
-          bestDiscard = j;
-          bestShanten = shantenAfterDiscard;
-        }
-
-        _suits[suit][index] += 1;
-      }
-
-      _suits[bestDiscard / 9][bestDiscard % 9] -= 1;
-      _tilesInHand -= 1;
+      InternalDiscard(suit, index);
     }
 
     /// <summary>
@@ -126,9 +89,9 @@ namespace Spines.Mahjong.Analysis.InternalTests
       var suit = t / 9;
       var index = t % 9;
 
+      InternalDraw(suit, index);
+
       _visibleByType[t] += 1;
-      _suits[suit][index] += 1;
-      _tilesInHand += 1;
 
       return Shanten == -1 ? DrawResult.Tsumo : DrawResult.Draw;
     }
@@ -153,12 +116,6 @@ namespace Spines.Mahjong.Analysis.InternalTests
       var t = tileId / 4;
       _visibleByType[t] += 1;
 
-      var previousShanten = Shanten;
-      if (previousShanten == -1)
-      {
-        throw new InvalidOperationException("Already won.");
-      }
-
       var suit = t / 9;
       var index = t % 9;
 
@@ -166,15 +123,15 @@ namespace Spines.Mahjong.Analysis.InternalTests
       var shantenOfBestCall = 10;
       var ukeIreOfBestCall = -1;
 
+      InternalDraw(suit, index);
+
+      if (Shanten == -1)
+      {
+        return CallResult.Ron;
+      }
+
       if (suit < 3)
       {
-        _suits[suit][index] += 1;
-        _tilesInHand += 1;
-        if (Shanten == -1)
-        {
-          return CallResult.Ron;
-        }
-
         if (canChii)
         {
           for (var c = Math.Max(0, index - 2); c < Math.Min(7, index + 2); ++c)
@@ -189,14 +146,14 @@ namespace Spines.Mahjong.Analysis.InternalTests
             _suits[suit][c + 0] -= 1;
             _suits[suit][c + 1] -= 1;
             _suits[suit][c + 2] -= 1;
-            var shanten = Shanten;
-            if (shanten <= shantenOfBestCall)
+            var shantenOfCurrentCall = Shanten;
+            if (shantenOfCurrentCall <= shantenOfBestCall)
             {
               var ukeIre = CountUkeIre14();
-              if (shanten < shantenOfBestCall || ukeIre > ukeIreOfBestCall)
+              if (shantenOfCurrentCall < shantenOfBestCall || ukeIre > ukeIreOfBestCall)
               {
                 bestCall = meldId;
-                shantenOfBestCall = shanten;
+                shantenOfBestCall = shantenOfCurrentCall;
                 ukeIreOfBestCall = ukeIre;
               }
             }
@@ -213,26 +170,51 @@ namespace Spines.Mahjong.Analysis.InternalTests
           _melds[suit][_meldCounts[suit]] = meldId;
           _meldCounts[suit] += 1;
           _suits[suit][index] -= 3;
-          var shanten = Shanten;
-          if (shanten <= shantenOfBestCall)
+          var shantenOfCurrentCall = Shanten;
+          if (shantenOfCurrentCall <= shantenOfBestCall)
           {
             var ukeIre = CountUkeIre14();
-            if (shanten < shantenOfBestCall || ukeIre > ukeIreOfBestCall)
+            if (shantenOfCurrentCall < shantenOfBestCall || ukeIre > ukeIreOfBestCall)
             {
               bestCall = meldId;
-              shantenOfBestCall = shanten;
+              shantenOfBestCall = shantenOfCurrentCall;
               ukeIreOfBestCall = ukeIre;
             }
           }
           _meldCounts[suit] -= 1;
           _suits[suit][index] += 3;
         }
-
-        _suits[suit][index] -= 1;
-        _tilesInHand -= 1;
       }
 
-      if (!ShouldCall(previousShanten, shantenOfBestCall, ukeIreOfBestCall))
+      InternalDiscard(suit, index);
+
+      if (suit == 3)
+      {
+        if (_suits[suit][index] <= 2)
+        {
+          return CallResult.Ignore;
+        }
+        var shantenBeforeCall = Shanten;
+        var ukeIreBeforeCall = CountUkeIre(shantenBeforeCall);
+        _honorClassifier.Push();
+        _honorClassifier.MoveNext(GetHonorPonActionId(index));
+        _cJihai[index] -= 2;
+        _mJihai[index] += 3;
+        _tilesInHand += 1;
+
+        if (Shanten < shantenBeforeCall || CountUkeIre14() > ukeIreBeforeCall)
+        {
+          return CallResult.Call;
+        }
+
+        _tilesInHand -= 1;
+        _mJihai[index] -= 3;
+        _cJihai[index] += 2;
+        _honorClassifier.Pop();
+        return CallResult.Ignore;
+      }
+
+      if (!ShouldCall(shantenOfBestCall, ukeIreOfBestCall))
       {
         return CallResult.Ignore;
       }
@@ -263,24 +245,98 @@ namespace Spines.Mahjong.Analysis.InternalTests
     /// </returns>
     public override string ToString()
     {
-      return GetConcealedString(0, 'm') + GetConcealedString(1, 'p') + GetConcealedString(2, 's') + GetConcealedString(3, 'z') +
-             GetMeldString(0, 'M') + GetMeldString(1, 'P') + GetMeldString(2, 'S');
+      return GetConcealedString(0, 'm') + GetConcealedString(1, 'p') + GetConcealedString(2, 's') +
+             GetConcealedString(3, 'z') +
+             GetMeldString(0, 'M') + GetMeldString(1, 'P') + GetMeldString(2, 'S') + GetHonorMeldString();
     }
 
-    private readonly int[] _cManzu = new int[9];
-    private readonly int[] _cSouzu = new int[9];
-    private readonly int[] _cPinzu = new int[9];
-    private readonly int[] _cJihai = new int[7];
-    private readonly int[] _visibleByType = new int[34];
-    private readonly bool[] _visibleById = new bool[136];
-    private readonly int[][] _suits;
+    private readonly int[] _cManzu = new int[9]; // concealed tiles
+    private readonly int[] _cSouzu = new int[9]; // concealed tiles
+    private readonly int[] _cPinzu = new int[9]; // concealed tiles
+    private readonly int[] _cJihai = new int[7]; // concealed tiles
+    private readonly int[] _visibleByType = new int[34]; // visible tile count per type
+    private readonly bool[] _visibleById = new bool[136]; // visible tiles by id
+    private readonly int[][] _suits; // all four
     private int _tilesInHand;
-    private readonly Classifier _classifier;
-    private readonly int[][] _melds;
-    private readonly int[] _meldCounts = new int[3];
-    private readonly int[] _mManzu = new int[4];
-    private readonly int[] _mPinzu = new int[4];
-    private readonly int[] _mSouzu = new int[4];
+    private readonly Classifier _suitClassifier = new Classifier();
+    private readonly ProgressiveHonorClassifier _honorClassifier = new ProgressiveHonorClassifier();
+    private readonly int[][] _melds; // non-honors
+    private readonly int[] _meldCounts = new int[3]; // used meldId slots for non-honors
+    private readonly int[] _mManzu = new int[4]; // meldIds
+    private readonly int[] _mPinzu = new int[4]; // meldIds
+    private readonly int[] _mSouzu = new int[4]; // meldIds
+    private readonly int[] _mJihai = new int[7]; // melded tiles
+
+    private int GetHonorPonActionId(int index)
+    {
+      return 8 + _cJihai[index];
+    }
+
+    private int GetBestDiscard(int shanten)
+    {
+      var ukeIreCount = -1;
+      var bestDiscard = -1;
+      var bestShanten = 10;
+      for (var j = 0; j < 34; ++j)
+      {
+        var suit = j / 9;
+        var index = j % 9;
+
+        if (_suits[suit][index] == 0)
+        {
+          continue;
+        }
+
+        InternalDiscard(suit, index);
+
+        var shantenAfterDiscard = Shanten;
+        if (shantenAfterDiscard <= bestShanten && shantenAfterDiscard <= shanten)
+        {
+          var count = CountUkeIre(shantenAfterDiscard);
+          if (count > ukeIreCount || shantenAfterDiscard < bestShanten)
+          {
+            ukeIreCount = count;
+            bestDiscard = j;
+            bestShanten = shantenAfterDiscard;
+          }
+        }
+
+        InternalDraw(suit, index);
+      }
+      return bestDiscard;
+    }
+
+    private int GetHonorDiscardActionId(int index)
+    {
+      var melded = _mJihai[index];
+      return 4 + _cJihai[index] + melded + (melded & 1);
+    }
+
+    private int GetHonorDrawActionId(int index)
+    {
+      var melded = _mJihai[index];
+      return _cJihai[index] + melded + (melded & 1);
+    }
+
+    private void InternalDiscard(int suit, int index)
+    {
+      if (suit == 3)
+      {
+        _honorClassifier.MoveNext(GetHonorDiscardActionId(index));
+      }
+      _suits[suit][index] -= 1;
+      _tilesInHand -= 1;
+    }
+
+    private void InternalDraw(int suit, int index)
+    {
+      if (suit == 3)
+      {
+        _honorClassifier.MoveNext(GetHonorDrawActionId(index));
+      }
+      _suits[suit][index] += 1;
+      _tilesInHand += 1;
+    }
 
     /// <summary>
     /// Finds the highest UkeIre after one discard from the hand.
@@ -299,24 +355,20 @@ namespace Spines.Mahjong.Analysis.InternalTests
         {
           continue;
         }
-        _suits[suit][index] -= 1;
+        InternalDiscard(suit, index);
 
+        // TODO this block is repeated
         var shantenAfterDiscard = Shanten;
-        if (shantenAfterDiscard > bestShanten)
+        if (shantenAfterDiscard <= bestShanten)
         {
-          _suits[suit][index] += 1;
-          continue;
+          var count = CountUkeIre(shantenAfterDiscard);
+          if (count > ukeIreCount || shantenAfterDiscard < bestShanten)
+          {
+            ukeIreCount = count;
+            bestShanten = shantenAfterDiscard;
+          }
         }
-
-        var count = CountUkeIre(shantenAfterDiscard);
-
-        if (count > ukeIreCount || shantenAfterDiscard < bestShanten)
-        {
-          ukeIreCount = count;
-          bestShanten = shantenAfterDiscard;
-        }
-
-        _suits[suit][index] += 1;
+        InternalDraw(suit, index);
       }
       return ukeIreCount;
     }
@@ -324,17 +376,16 @@ namespace Spines.Mahjong.Analysis.InternalTests
     /// <summary>
     /// Determines if a call is beneficial.
     /// </summary>
-    /// <param name="shantenBeforeCall">The shanten before the call.</param>
     /// <param name="shantenAfterCall">The shanten the hand would have after the call.</param>
     /// <param name="ukeIreAfterCall">The UkeIre the hand would have after the call.</param>
     /// <returns>Whether tile should be called.</returns>
-    private bool ShouldCall(int shantenBeforeCall, int shantenAfterCall, int ukeIreAfterCall)
+    private bool ShouldCall(int shantenAfterCall, int ukeIreAfterCall)
     {
-      if (shantenBeforeCall != shantenAfterCall)
+      if (Shanten != shantenAfterCall)
       {
-        return shantenBeforeCall > shantenAfterCall;
+        return Shanten > shantenAfterCall;
       }
-      return ukeIreAfterCall > CountUkeIre(shantenBeforeCall);
+      return ukeIreAfterCall > CountUkeIre(Shanten);
     }
 
     /// <summary>
@@ -355,14 +406,14 @@ namespace Spines.Mahjong.Analysis.InternalTests
         var suit = k / 9;
         var index = k % 9;
 
-        _suits[suit][index] += 1;
+        InternalDraw(suit, index);
 
         if (Shanten < currentShanten)
         {
           count += 4 - _visibleByType[k];
         }
 
-        _suits[suit][index] -= 1;
+        InternalDiscard(suit, index);
       }
       return count;
     }
@@ -392,6 +443,20 @@ namespace Spines.Mahjong.Analysis.InternalTests
           sb.Append((char) ('1' + meldId - 7), 3);
         }
         sb.Append(suit);
+      }
+      return sb.ToString();
+    }
+
+    private string GetHonorMeldString()
+    {
+      var sb = new StringBuilder();
+      for (var i = 0; i < 7; ++i)
+      {
+        if (_mJihai[i] > 0)
+        {
+          sb.Append((char) ('1' + i), 3);
+          sb.Append('Z');
+        }
       }
       return sb.ToString();
     }

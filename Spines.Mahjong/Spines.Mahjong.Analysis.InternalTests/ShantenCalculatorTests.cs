@@ -63,6 +63,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
           hand.Draw(t);
         }
 
+        var before = hand.ToString();
         var playerId = 0;
         while (hand.Shanten > -1 && drawn.Any(d => !d))
         {          
@@ -92,6 +93,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
           }
           playerId = (playerId + 1) % 4;
         }
+        var after = hand.ToString();
         Assert.That(hand, Is.Not.Null);
       }
     }
