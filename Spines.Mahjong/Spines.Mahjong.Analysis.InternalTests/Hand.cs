@@ -23,21 +23,14 @@ using Spines.Mahjong.Analysis.Classification;
 
 namespace Spines.Mahjong.Analysis.InternalTests
 {
-  public enum CallResult
-  {
-    Ignore,
-    Call,
-    Ron
-  }
-
-  public enum DrawResult
-  {
-    Draw,
-    Tsumo
-  }
-
+  /// <summary>
+  /// Maintains tile counts and calculates the Shanten of a hand.
+  /// </summary>
   internal class Hand
   {
+    /// <summary>
+    /// Creates a new instance of Hand.
+    /// </summary>
     public Hand()
     {
       _suits = new[] {_cManzu, _cPinzu, _cSouzu, _cJihai};
@@ -45,6 +38,9 @@ namespace Spines.Mahjong.Analysis.InternalTests
       _melds = new[] {_mManzu, _mPinzu, _mSouzu};
     }
 
+    /// <summary>
+    /// The current Shanten of the hand.
+    /// </summary>
     public int Shanten
     {
       get
@@ -57,17 +53,20 @@ namespace Spines.Mahjong.Analysis.InternalTests
       }
     }
 
-    public bool Discard()
+    /// <summary>
+    /// Discards a tile based on UkeIre.
+    /// </summary>
+    public void Discard()
     {
       if (_tilesInHand != 14)
       {
-        return false;
+        throw new InvalidOperationException("Can't discard from a 13 tile hand.");
       }
 
       var shanten = Shanten;
       if (shanten == -1)
       {
-        return false;
+        throw new InvalidOperationException("Already won.");
       }
 
       var ukeIreCount = -1;
@@ -105,10 +104,13 @@ namespace Spines.Mahjong.Analysis.InternalTests
 
       _suits[bestDiscard / 9][bestDiscard % 9] -= 1;
       _tilesInHand -= 1;
-
-      return true;
     }
 
+    /// <summary>
+    /// Draws a tile and optionally wins the hand.
+    /// </summary>
+    /// <param name="tileId">The tile to draw.</param>
+    /// <returns>The result of the draw.</returns>
     public DrawResult Draw(int tileId)
     {
       if (_tilesInHand == 14)
@@ -132,41 +134,12 @@ namespace Spines.Mahjong.Analysis.InternalTests
       return Shanten == -1 ? DrawResult.Tsumo : DrawResult.Draw;
     }
 
-    private int CountUkeIre14()
-    {
-      var ukeIreCount = -1;
-      var bestShanten = 10;
-      for (var j = 0; j < 34; ++j)
-      {
-        var suit = j / 9;
-        var index = j % 9;
-
-        if (_suits[suit][index] == 0)
-        {
-          continue;
-        }
-        _suits[suit][index] -= 1;
-
-        var shantenAfterDiscard = Shanten;
-        if (shantenAfterDiscard > bestShanten)
-        {
-          _suits[suit][index] += 1;
-          continue;
-        }
-
-        var count = CountUkeIre(shantenAfterDiscard);
-
-        if (count > ukeIreCount || shantenAfterDiscard < bestShanten)
-        {
-          ukeIreCount = count;
-          bestShanten = shantenAfterDiscard;
-        }
-
-        _suits[suit][index] += 1;
-      }
-      return ukeIreCount;
-    }
-
+    /// <summary>
+    /// Offers to call a tile and potentially wins the hand.
+    /// </summary>
+    /// <param name="tileId">The tile offered to call.</param>
+    /// <param name="canChii">Can a chii be called?</param>
+    /// <returns>Whether the tile was called, the hand was won or the offer was ignored.</returns>
     public CallResult Call(int tileId, bool canChii)
     {
       if (_tilesInHand == 14)
@@ -307,24 +280,67 @@ namespace Spines.Mahjong.Analysis.InternalTests
     private readonly List<int> _mPinzu = new List<int>();
     private readonly List<int> _mSouzu = new List<int>();
 
-    private bool ShouldCall(int previousShanten, int shantenOfBestCall, int ukeIreOfBestCall)
+    /// <summary>
+    /// Finds the highest UkeIre after one discard from the hand.
+    /// </summary>
+    /// <returns>The number of UkeIre.</returns>
+    private int CountUkeIre14()
     {
-      if (previousShanten == shantenOfBestCall)
+      var ukeIreCount = -1;
+      var bestShanten = 10;
+      for (var j = 0; j < 34; ++j)
       {
-        var previousUkeIre = CountUkeIre(previousShanten);
-        if (ukeIreOfBestCall > previousUkeIre)
+        var suit = j / 9;
+        var index = j % 9;
+
+        if (_suits[suit][index] == 0)
         {
-          return true;
+          continue;
         }
+        _suits[suit][index] -= 1;
+
+        var shantenAfterDiscard = Shanten;
+        if (shantenAfterDiscard > bestShanten)
+        {
+          _suits[suit][index] += 1;
+          continue;
+        }
+
+        var count = CountUkeIre(shantenAfterDiscard);
+
+        if (count > ukeIreCount || shantenAfterDiscard < bestShanten)
+        {
+          ukeIreCount = count;
+          bestShanten = shantenAfterDiscard;
+        }
+
+        _suits[suit][index] += 1;
       }
-      else if (previousShanten > shantenOfBestCall)
-      {
-        return true;
-      }
-      return false;
+      return ukeIreCount;
     }
 
-    private int CountUkeIre(int previousShanten)
+    /// <summary>
+    /// Determines if a call is beneficial.
+    /// </summary>
+    /// <param name="shantenBeforeCall">The shanten before the call.</param>
+    /// <param name="shantenAfterCall">The shanten the hand would have after the call.</param>
+    /// <param name="ukeIreAfterCall">The UkeIre the hand would have after the call.</param>
+    /// <returns>Whether tile should be called.</returns>
+    private bool ShouldCall(int shantenBeforeCall, int shantenAfterCall, int ukeIreAfterCall)
+    {
+      if (shantenBeforeCall != shantenAfterCall)
+      {
+        return shantenBeforeCall > shantenAfterCall;
+      }
+      return ukeIreAfterCall > CountUkeIre(shantenBeforeCall);
+    }
+
+    /// <summary>
+    /// Counts the UkeIre for the current 13 tile hand.
+    /// </summary>
+    /// <param name="currentShanten">The shanten of the current hand.</param>
+    /// <returns>The number of UkeIre.</returns>
+    private int CountUkeIre(int currentShanten)
     {
       var count = 0;
       for (var k = 0; k < 34; ++k)
@@ -339,7 +355,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
 
         _suits[suit][index] += 1;
 
-        if (Shanten < previousShanten)
+        if (Shanten < currentShanten)
         {
           count += 4 - _visibleByType[k];
         }
@@ -349,6 +365,12 @@ namespace Spines.Mahjong.Analysis.InternalTests
       return count;
     }
 
+    /// <summary>
+    /// Creates a string that represents the melds.
+    /// </summary>
+    /// <param name="meldIds">The ids of the melds.</param>
+    /// <param name="suit">The suit identifier for the melds.</param>
+    /// <returns>A string representing the melds.</returns>
     private static string ToMeldString(IEnumerable<int> meldIds, char suit)
     {
       var sb = new StringBuilder();
@@ -370,6 +392,12 @@ namespace Spines.Mahjong.Analysis.InternalTests
       return sb.ToString();
     }
 
+    /// <summary>
+    /// Creates a string that represents the closed tiles of a suit.
+    /// </summary>
+    /// <param name="tiles">The tiles in the suit.</param>
+    /// <param name="suit">The suit identifier.</param>
+    /// <returns>A string representing the closed tiles in a suit.</returns>
     private static string ToConcealedString(IReadOnlyList<int> tiles, char suit)
     {
       var sb = new StringBuilder();
