@@ -84,10 +84,10 @@ namespace Spines.Mahjong.Analysis.InternalTests
     /// <summary>
     /// The current Shanten of the hand.
     /// </summary>
-    public int Shanten => _suitClassifier.ClassifyArrangements(
-      _suitClassifier.ClassifySuits(_mManzu, _meldCounts[0], _cManzu),
-      _suitClassifier.ClassifySuits(_mPinzu, _meldCounts[1], _cPinzu),
-      _suitClassifier.ClassifySuits(_mSouzu, _meldCounts[2], _cSouzu),
+    public int Shanten => _arrangementClassifier.Classify(
+      _suitClassifier.Classify(_mManzu, _meldCounts[0], _cManzu),
+      _suitClassifier.Classify(_mPinzu, _meldCounts[1], _cPinzu),
+      _suitClassifier.Classify(_mSouzu, _meldCounts[2], _cSouzu),
       _honorClassifier.Value);
 
     /// <summary>
@@ -299,7 +299,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
     private readonly int[] _visibleByType = new int[34]; // visible tile count per type
     private readonly int[][] _suits; // all four
     private int _tilesInHand;
-    private readonly Classifier _suitClassifier = new Classifier();
+    private readonly ArrangementClassifier _arrangementClassifier = new ArrangementClassifier();
+    private readonly SuitClassifer _suitClassifier = new SuitClassifer();
     private readonly ProgressiveHonorClassifier _honorClassifier = new ProgressiveHonorClassifier();
     private readonly int[][] _melds; // non-honors
     private readonly int[] _meldCounts = new int[3]; // used meldId slots for non-honors

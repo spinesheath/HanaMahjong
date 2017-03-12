@@ -26,9 +26,9 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [Test]
     public void ClassifyShouldReturnValueOfWord()
     {
-      var c = new Classifier();
+      var c = new ArrangementClassifier();
 
-      var a = c.ClassifyArrangements(0, 0, 0, 19);
+      var a = c.Classify(0, 0, 0, 19);
       const int e = 8;
 
       Assert.That(a, Is.EqualTo(e));

@@ -48,7 +48,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classification\Classifier.cs" />
+    <Compile Include="Classification\ArrangementClassifier.cs" />
+    <Compile Include="Classification\SuitClassifer.cs" />
     <Compile Include="Classification\ProgressiveHonorClassifier.cs" />
     <Compile Include="Classification\Resource.cs" />
     <Compile Include="Classification\ShorthandParser.cs" />

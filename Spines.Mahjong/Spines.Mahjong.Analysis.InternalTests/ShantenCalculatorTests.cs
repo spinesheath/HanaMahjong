@@ -52,7 +52,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     public void HandShouldWork()
     {
       var rand = new Random(5);
-      for (var iterations = 0; iterations < 100; iterations++)
+      for (var iterations = 0; iterations < 10000; iterations++)
       {
         var drawn = new bool[136];
 

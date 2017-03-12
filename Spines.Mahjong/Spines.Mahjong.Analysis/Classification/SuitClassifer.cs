@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.Analysis.Classifier.cs
+﻿// Spines.Mahjong.Analysis.SuitClassifer.cs
 // 
 // Copyright (C) 2017  Johannes Heckl
 // 
@@ -15,36 +15,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Spines.Mahjong.Analysis.Classification
 {
   /// <summary>
-  /// Calculates the shanten of a set of four arrangements.
+  /// Calculates arrangement value of a suit.
   /// </summary>
-  internal class Classifier
+  internal class SuitClassifer
   {
-    /// <summary>
-    /// Calculates the shanten of 4 arrangements.
-    /// Behavior for invalid inputs is undefined.
-    /// Input is invalid if there is no legal 14 tile hand that is represented by these arrangements.
-    /// </summary>
-    /// <param name="a1">Id of the first arrangement as used in the transition data.</param>
-    /// <param name="a2">Id of the second arrangement as used in the transition data.</param>
-    /// <param name="a3">Id of the third arrangement as used in the transition data.</param>
-    /// <param name="a4">Id of the fourth arrangement as used in the transition data.</param>
-    /// <returns>The shanten of the hand.</returns>
-    public int ClassifyArrangements(int a1, int a2, int a3, int a4)
-    {
-      return Arrangement[Arrangement[Arrangement[Arrangement[0 + a1] + a2] + a3] + a4] - 1;
-    }
-
     /// <summary>
     /// Returns the Arrangement for a Suit. The word is the sequence
     /// (meld count, melded tile counts, concealed tile counts)
     /// </summary>
-    public int ClassifySuits(IReadOnlyList<int> melds, int meldCount, IReadOnlyList<int> concealed)
+    public int Classify(int[] melds, int meldCount, int[] concealed)
     {
       var current = 0;
       var secondPhase = SuitSecondPhases[meldCount];
@@ -124,13 +108,13 @@ namespace Spines.Mahjong.Analysis.Classification
       return current;
     }
 
-    private static readonly ushort[] Arrangement = Resource.Transitions("ArrangementTransitions.txt").ToArray();
     private static readonly ushort[] SuitFirstPhase = Resource.Transitions("SuitFirstPhase.txt").ToArray();
     private static readonly ushort[] SuitSecondPhase0 = Resource.Transitions("SuitSecondPhase0.txt").ToArray();
     private static readonly ushort[] SuitSecondPhase1 = Resource.Transitions("SuitSecondPhase1.txt").ToArray();
     private static readonly ushort[] SuitSecondPhase2 = Resource.Transitions("SuitSecondPhase2.txt").ToArray();
     private static readonly ushort[] SuitSecondPhase3 = Resource.Transitions("SuitSecondPhase3.txt").ToArray();
     private static readonly ushort[] SuitSecondPhase4 = Resource.Transitions("SuitSecondPhase4.txt").ToArray();
+
     private static readonly ushort[][] SuitSecondPhases =
     {
       SuitSecondPhase0,
