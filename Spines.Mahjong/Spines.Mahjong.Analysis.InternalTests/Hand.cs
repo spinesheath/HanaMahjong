@@ -35,8 +35,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
     {
       // Don't need to initialize _arrangementValues here because the value for an empty hand is 0.
       // Don't need to set the melds in the suit classifiers here because entry state for concealed suits for a hand without melds is 0.
-      _suits = new[] {_cManzu, _cPinzu, _cSouzu, _cJihai};
-      _melds = new[] {_mManzu, _mPinzu, _mSouzu};
+      _suits = new[] {new int[9], new int[9], new int[9], _cJihai};
+      _melds = new[] {new int[4], new int[4], new int[4]};
     }
 
     public Hand(string initial)
@@ -282,10 +282,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
              GetConcealedString(3, 'z') +
              GetMeldString(0, 'M') + GetMeldString(1, 'P') + GetMeldString(2, 'S') + GetHonorMeldString();
     }
-
-    private readonly int[] _cManzu = new int[9]; // concealed tiles
-    private readonly int[] _cSouzu = new int[9]; // concealed tiles
-    private readonly int[] _cPinzu = new int[9]; // concealed tiles
+    
     private readonly int[] _cJihai = new int[7]; // concealed tiles
     private readonly int[] _visibleByType = new int[34]; // visible tile count per type
     private readonly int[][] _suits; // all four
@@ -295,9 +292,6 @@ namespace Spines.Mahjong.Analysis.InternalTests
     private readonly ProgressiveHonorClassifier _honorClassifier = new ProgressiveHonorClassifier();
     private readonly int[][] _melds; // non-honors
     private readonly int[] _meldCounts = new int[3]; // used meldId slots for non-honors
-    private readonly int[] _mManzu = new int[4]; // meldIds
-    private readonly int[] _mPinzu = new int[4]; // meldIds
-    private readonly int[] _mSouzu = new int[4]; // meldIds
     private readonly int[] _mJihai = new int[7]; // melded tiles
     private readonly int[] _arrangementValues = new int[4];
 
