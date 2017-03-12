@@ -87,13 +87,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     /// <summary>
     /// The current Shanten of the hand.
     /// </summary>
-    public int Shanten
-    {
-      get
-      {
-        return _arrangementClassifier.Classify(_arrangementValues[0], _arrangementValues[1], _arrangementValues[2], _arrangementValues[3]);
-      }
-    }
+    public int Shanten => _arrangementClassifier.Classify(_arrangementValues);
 
     /// <summary>
     /// Discards a tile based on UkeIre.

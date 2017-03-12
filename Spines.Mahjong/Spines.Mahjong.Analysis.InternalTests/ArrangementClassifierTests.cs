@@ -28,7 +28,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     {
       var c = new ArrangementClassifier();
 
-      var a = c.Classify(0, 0, 0, 19);
+      var a = c.Classify(new [] {0, 0, 0, 19});
       const int e = 8;
 
       Assert.That(a, Is.EqualTo(e));

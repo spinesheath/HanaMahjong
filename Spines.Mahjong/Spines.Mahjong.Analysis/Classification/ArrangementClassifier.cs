@@ -27,16 +27,18 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// Calculates the shanten of 4 arrangements.
     /// Behavior for invalid inputs is undefined.
-    /// Input is invalid if there is no legal 14 tile hand that is represented by these arrangements.
+    /// Input is invalid if there is no legal 13 or 14 tile hand that is represented by these arrangements.
     /// </summary>
-    /// <param name="a1">Id of the first arrangement as used in the transition data.</param>
-    /// <param name="a2">Id of the second arrangement as used in the transition data.</param>
-    /// <param name="a3">Id of the third arrangement as used in the transition data.</param>
-    /// <param name="a4">Id of the fourth arrangement as used in the transition data.</param>
+    /// <param name="values">The arrangement values for the 4 suits.</param>
     /// <returns>The shanten of the hand.</returns>
-    public int Classify(int a1, int a2, int a3, int a4)
+    public int Classify(int[] values)
     {
-      return Arrangement[Arrangement[Arrangement[Arrangement[0 + a1] + a2] + a3] + a4] - 1;
+      var current = 0;
+      for (var i = 0; i < 4; ++i)
+      {
+        current = Arrangement[current + values[i]];
+      }
+      return current - 1;
     }
 
     private static readonly ushort[] Arrangement = Resource.Transitions("ArrangementTransitions.txt").ToArray();
