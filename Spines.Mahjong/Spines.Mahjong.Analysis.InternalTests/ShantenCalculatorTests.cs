@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Spines.Mahjong.Analysis.Classification;
 
@@ -49,10 +50,10 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [Test]
     public void HandShouldWork()
     {
+      var rand = new Random(5);
       for (var iterations = 0; iterations < 100; iterations++)
       {
         var drawn = new bool[136];
-        var rand = new Random(5);
 
         var hand = new Hand();
         for (var i = 0; i < 13; ++i)
@@ -62,12 +63,34 @@ namespace Spines.Mahjong.Analysis.InternalTests
           hand.Draw(t);
         }
 
-        while (hand.Shanten > -1)
-        {
+        var playerId = 0;
+        while (hand.Shanten > -1 && drawn.Any(d => !d))
+        {          
           var t = GetRandomTile(rand, drawn);
           drawn[t] = true;
-          hand.Draw(t);
-          hand.Discard();
+          if (playerId == 0)
+          {
+            var drawResult = hand.Draw(t);
+            if (drawResult == DrawResult.Tsumo)
+            {
+              break;
+            }
+            hand.Discard();
+          }
+          else
+          {
+            var callResult = hand.Call(t,  playerId == 3);
+            if (callResult == CallResult.Call)
+            {
+              hand.Discard();
+              playerId = 0;
+            }
+            else if (callResult == CallResult.Ron)
+            {
+              break;
+            }
+          }
+          playerId = (playerId + 1) % 4;
         }
         Assert.That(hand, Is.Not.Null);
       }
