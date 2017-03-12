@@ -26,11 +26,6 @@ namespace Spines.Mahjong.Analysis.Classification
   internal class ProgressiveHonorClassifier
   {
     /// <summary>
-    /// The arrangement value of the current state.
-    /// </summary>
-    public int Value { get; private set; }
-
-    /// <summary>
     /// Advances the current state by one and returns the arrangement value of the new state.
     /// </summary>
     /// <param name="actionId">The id of the action used to advance the state.</param>
@@ -53,10 +48,10 @@ namespace Spines.Mahjong.Analysis.Classification
     /// 1, 3, chakan 13
     /// 4, 0, ankan 14
     /// </remarks>
-    public void MoveNext(int actionId)
+    public int MoveNext(int actionId)
     {
       _current = Transitions[_current + actionId + 1];
-      Value = Transitions[_current];
+      return Transitions[_current];
     }
 
     /// <summary>

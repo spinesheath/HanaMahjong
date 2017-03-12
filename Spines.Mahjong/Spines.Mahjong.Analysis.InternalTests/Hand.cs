@@ -33,6 +33,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
     /// </summary>
     public Hand()
     {
+      // Don't need to initialize _arrangementValues here because the value for an empty hand is 0.
+      // Don't need to set the melds in the suit classifiers here because entry state for concealed suits for a hand without melds is 0.
       _suits = new[] {_cManzu, _cPinzu, _cSouzu, _cJihai};
       _melds = new[] {_mManzu, _mPinzu, _mSouzu};
     }
@@ -41,14 +43,6 @@ namespace Spines.Mahjong.Analysis.InternalTests
       : this()
     {
       var parser = new ShorthandParser(initial);
-      var concealed = parser.Concealed.ToList();
-      for (var t = 0; t < concealed.Count; ++t)
-      {
-        for (var i = 0; i < concealed[t]; ++i)
-        {
-          Draw(t);
-        }
-      }
       InitializeMelds(parser.ManzuMeldIds, 0);
       InitializeMelds(parser.PinzuMeldIds, 1);
       InitializeMelds(parser.SouzuMeldIds, 2);
@@ -61,7 +55,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
           var tileType = index + 27;
           Draw(tileType);
           Draw(tileType);
-          _honorClassifier.MoveNext(GetHonorPonActionId(index));
+          _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorPonActionId(index));
           _cJihai[index] -= 2;
           _mJihai[index] += 3;
           _tilesInHand += 1;
@@ -73,10 +67,19 @@ namespace Spines.Mahjong.Analysis.InternalTests
           Draw(tileType);
           Draw(tileType);
           Draw(tileType);
-          _honorClassifier.MoveNext(GetHonorDaiminkanActionId());
+          _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorDaiminkanActionId());
           _cJihai[index] -= 3;
           _mJihai[index] += 4;
           _tilesInHand += 1;
+        }
+      }
+
+      var concealed = parser.Concealed.ToList();
+      for (var t = 0; t < concealed.Count; ++t)
+      {
+        for (var i = 0; i < concealed[t]; ++i)
+        {
+          Draw(t);
         }
       }
     }
@@ -88,10 +91,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     {
       get
       {
-        var vManzu = _suitClassifiers[0].GetValue(_cManzu);
-        var vPinzu = _suitClassifiers[1].GetValue(_cPinzu);
-        var vSouzu = _suitClassifiers[2].GetValue(_cSouzu);
-        return _arrangementClassifier.Classify(vManzu, vPinzu, vSouzu, _honorClassifier.Value);
+        return _arrangementClassifier.Classify(_arrangementValues[0], _arrangementValues[1], _arrangementValues[2], _arrangementValues[3]);
       }
     }
 
@@ -189,9 +189,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
             }
             var meldId = c;
             AddMeld(suit, meldId);
-            _suits[suit][c + 0] -= 1;
-            _suits[suit][c + 1] -= 1;
-            _suits[suit][c + 2] -= 1;
+            RemoveShuntsu(suit, c);
             var shantenOfCurrentCall = Shanten;
             if (shantenOfCurrentCall <= shantenOfBestCall)
             {
@@ -204,9 +202,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
               }
             }
             RemoveMeld(suit);
-            _suits[suit][c + 0] += 1;
-            _suits[suit][c + 1] += 1;
-            _suits[suit][c + 2] += 1;
+            AddShuntsu(suit, c);
           }
         }
 
@@ -214,7 +210,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
         {
           var meldId = 7 + index;
           AddMeld(suit, meldId);
-          _suits[suit][index] -= 3;
+          RemoveKoutsu(suit, index);
           var shantenOfCurrentCall = Shanten;
           if (shantenOfCurrentCall <= shantenOfBestCall)
           {
@@ -227,7 +223,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
             }
           }
           RemoveMeld(suit);
-          _suits[suit][index] += 3;
+          AddKoutsu(suit, index);
         }
       }
 
@@ -265,19 +261,18 @@ namespace Spines.Mahjong.Analysis.InternalTests
       }
 
       _suits[suit][index] += 1;
+      _tilesInHand += 1;
+
       AddMeld(suit, bestCall);
       if (bestCall < 7)
       {
-        _suits[suit][bestCall + 0] -= 1;
-        _suits[suit][bestCall + 1] -= 1;
-        _suits[suit][bestCall + 2] -= 1;
+        RemoveShuntsu(suit, bestCall);
       }
       else if (bestCall < 16)
       {
-        _suits[suit][bestCall - 7] -= 3;
+        RemoveKoutsu(suit, bestCall - 7);
       }
 
-      _tilesInHand += 1;
       return CallResult.Call;
     }
 
@@ -310,6 +305,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     private readonly int[] _mPinzu = new int[4]; // meldIds
     private readonly int[] _mSouzu = new int[4]; // meldIds
     private readonly int[] _mJihai = new int[7]; // melded tiles
+    private readonly int[] _arrangementValues = new int[4];
 
     private void InitializeMelds(IEnumerable<int> meldIds, int suitId)
     {
@@ -325,12 +321,14 @@ namespace Spines.Mahjong.Analysis.InternalTests
       _melds[suitId][_meldCounts[suitId]] = meldId;
       _meldCounts[suitId] += 1;
       _suitClassifiers[suitId].SetMelds(_melds[suitId], _meldCounts[suitId]);
+      UpdateValue(suitId);
     }
 
     private void RemoveMeld(int suitId)
     {
       _meldCounts[suitId] -= 1;
       _suitClassifiers[suitId].SetMelds(_melds[suitId], _meldCounts[suitId]);
+      UpdateValue(suitId);
     }
 
     private int GetHonorPonActionId(int index)
@@ -377,36 +375,83 @@ namespace Spines.Mahjong.Analysis.InternalTests
       return bestDiscard;
     }
 
+    /// <summary>
+    /// Assumes that the tile has already been removed from _cJihai.
+    /// </summary>
     private int GetHonorDiscardActionId(int index)
     {
       var melded = _mJihai[index];
-      return 4 + _cJihai[index] + melded + (melded & 1);
+      return 5 + _cJihai[index] + melded + (melded & 1);
     }
-
+    
+    /// <summary>
+    /// Assumes that the tile has already been added to _cJihai.
+    /// </summary>
     private int GetHonorDrawActionId(int index)
     {
       var melded = _mJihai[index];
-      return _cJihai[index] + melded + (melded & 1);
+      return _cJihai[index] + melded + (melded & 1) - 1;
     }
 
     private void InternalDiscard(int suit, int index)
     {
-      if (suit == 3)
-      {
-        _honorClassifier.MoveNext(GetHonorDiscardActionId(index));
-      }
       _suits[suit][index] -= 1;
       _tilesInHand -= 1;
+      if (suit == 3)
+      {
+        _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorDiscardActionId(index));
+      }
+      else
+      {
+        UpdateValue(suit);
+      }
     }
 
     private void InternalDraw(int suit, int index)
     {
-      if (suit == 3)
-      {
-        _honorClassifier.MoveNext(GetHonorDrawActionId(index));
-      }
       _suits[suit][index] += 1;
       _tilesInHand += 1;
+      if (suit == 3)
+      {
+        _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorDrawActionId(index));
+      }
+      else
+      {
+        UpdateValue(suit);
+      }
+    }
+
+    private void AddShuntsu(int suit, int c)
+    {
+      _suits[suit][c + 0] += 1;
+      _suits[suit][c + 1] += 1;
+      _suits[suit][c + 2] += 1;
+      UpdateValue(suit);
+    }
+
+    private void RemoveShuntsu(int suit, int c)
+    {
+      _suits[suit][c + 0] -= 1;
+      _suits[suit][c + 1] -= 1;
+      _suits[suit][c + 2] -= 1;
+      UpdateValue(suit);
+    }
+
+    private void AddKoutsu(int suit, int index)
+    {
+      _suits[suit][index] += 3;
+      UpdateValue(suit);
+    }
+
+    private void RemoveKoutsu(int suit, int index)
+    {
+      _suits[suit][index] -= 3;
+      UpdateValue(suit);
+    }
+
+    private void UpdateValue(int suit)
+    {
+      _arrangementValues[suit] = _suitClassifiers[suit].GetValue(_suits[suit]);
     }
 
     /// <summary>
