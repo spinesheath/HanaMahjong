@@ -141,14 +141,14 @@ namespace Spines.Mahjong.Analysis.Classification
       return current;
     }
 
-    private static readonly ushort[] ArrangementTransitions = Parse.Transitions("ArrangementTransitions.txt").ToArray();
-    private static readonly ushort[] HonorTransitions = Parse.Transitions("HonorTransitions.txt").ToArray();
-    private static readonly ushort[] SuitFirstPhase = Parse.Transitions("SuitFirstPhase.txt").ToArray();
-    private static readonly ushort[] SuitSecondPhase0 = Parse.Transitions("SuitSecondPhase0.txt").ToArray();
-    private static readonly ushort[] SuitSecondPhase1 = Parse.Transitions("SuitSecondPhase1.txt").ToArray();
-    private static readonly ushort[] SuitSecondPhase2 = Parse.Transitions("SuitSecondPhase2.txt").ToArray();
-    private static readonly ushort[] SuitSecondPhase3 = Parse.Transitions("SuitSecondPhase3.txt").ToArray();
-    private static readonly ushort[] SuitSecondPhase4 = Parse.Transitions("SuitSecondPhase4.txt").ToArray();
+    private static readonly ushort[] ArrangementTransitions = Resource.Transitions("ArrangementTransitions.txt").ToArray();
+    private static readonly ushort[] HonorTransitions = Resource.Transitions("HonorTransitions.txt").ToArray();
+    private static readonly ushort[] SuitFirstPhase = Resource.Transitions("SuitFirstPhase.txt").ToArray();
+    private static readonly ushort[] SuitSecondPhase0 = Resource.Transitions("SuitSecondPhase0.txt").ToArray();
+    private static readonly ushort[] SuitSecondPhase1 = Resource.Transitions("SuitSecondPhase1.txt").ToArray();
+    private static readonly ushort[] SuitSecondPhase2 = Resource.Transitions("SuitSecondPhase2.txt").ToArray();
+    private static readonly ushort[] SuitSecondPhase3 = Resource.Transitions("SuitSecondPhase3.txt").ToArray();
+    private static readonly ushort[] SuitSecondPhase4 = Resource.Transitions("SuitSecondPhase4.txt").ToArray();
 
     private static readonly ushort[][] SuitSecondPhases =
     {

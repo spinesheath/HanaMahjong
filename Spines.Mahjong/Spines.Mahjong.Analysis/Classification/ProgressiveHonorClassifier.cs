@@ -75,7 +75,7 @@ namespace Spines.Mahjong.Analysis.Classification
       _current = _stack.Pop();
     }
 
-    private static readonly ushort[] Transitions = Parse.Transitions("ProgressiveHonorStateMachine.txt").ToArray();
+    private static readonly ushort[] Transitions = Resource.Transitions("ProgressiveHonorStateMachine.txt").ToArray();
     private int _current;
     private readonly Stack<int> _stack = new Stack<int>();
   }

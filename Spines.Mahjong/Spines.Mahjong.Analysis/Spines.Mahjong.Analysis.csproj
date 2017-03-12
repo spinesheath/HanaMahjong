@@ -50,8 +50,9 @@
   <ItemGroup>
     <Compile Include="Classification\Classifier.cs" />
     <Compile Include="Classification\ProgressiveHonorClassifier.cs" />
-    <Compile Include="Classification\Parse.cs" />
+    <Compile Include="Classification\Resource.cs" />
     <Compile Include="Classification\ShantenCalculator.cs" />
+    <Compile Include="Classification\ShorthandParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

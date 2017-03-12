@@ -16,6 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Spines.Mahjong.Analysis.Classification;
 
@@ -33,6 +35,50 @@ namespace Spines.Mahjong.Analysis.InternalTests
     {
       _suits = new[] {_cManzu, _cPinzu, _cSouzu, _cJihai};
       _melds = new[] {_mManzu, _mPinzu, _mSouzu};
+    }
+
+    public Hand(string initial)
+      : this()
+    {
+      var parser = new ShorthandParser(initial);
+      var concealed = parser.Concealed.ToList();
+      for (var t = 0; t < concealed.Count; ++t)
+      {
+        for (var i = 0; i < concealed[t]; ++i)
+        {
+          Draw(t);
+        }
+      }
+      InitializeMelds(parser.ManzuMeldIds, 0);
+      InitializeMelds(parser.PinzuMeldIds, 1);
+      InitializeMelds(parser.SouzuMeldIds, 2);
+
+      foreach (var meldId in parser.JihaiMeldIds)
+      {
+        if (meldId < 7 + 9)
+        {
+          var index = meldId - 7;
+          var tileType = index + 27;
+          Draw(tileType);
+          Draw(tileType);
+          _honorClassifier.MoveNext(GetHonorPonActionId(index));
+          _cJihai[index] -= 2;
+          _mJihai[index] += 3;
+          _tilesInHand += 1;
+        }
+        else
+        {
+          var index = meldId - 16;
+          var tileType = index + 27;
+          Draw(tileType);
+          Draw(tileType);
+          Draw(tileType);
+          _honorClassifier.MoveNext(GetHonorDaiminkanActionId());
+          _cJihai[index] -= 3;
+          _mJihai[index] += 4;
+          _tilesInHand += 1;
+        }
+      }
     }
 
     /// <summary>
@@ -71,27 +117,25 @@ namespace Spines.Mahjong.Analysis.InternalTests
     /// <summary>
     /// Draws a tile and optionally wins the hand.
     /// </summary>
-    /// <param name="tileId">The tile to draw.</param>
+    /// <param name="tileType">The tile to draw.</param>
     /// <returns>The result of the draw.</returns>
-    public DrawResult Draw(int tileId)
+    public DrawResult Draw(int tileType)
     {
       if (_tilesInHand == 14)
       {
         throw new InvalidOperationException("Can't draw with a 14 tile hand.");
       }
-      if (_visibleById[tileId])
+      if (_visibleByType[tileType] == 4)
       {
-        throw new InvalidOperationException("Can't draw a tile that is already visible.");
+        throw new InvalidOperationException("Can't draw a tile that already has 4 visible.");
       }
-      _visibleById[tileId] = true;
-      var t = tileId / 4;
 
-      var suit = t / 9;
-      var index = t % 9;
+      var suit = tileType / 9;
+      var index = tileType % 9;
 
       InternalDraw(suit, index);
 
-      _visibleByType[t] += 1;
+      _visibleByType[tileType] += 1;
 
       return Shanten == -1 ? DrawResult.Tsumo : DrawResult.Draw;
     }
@@ -99,25 +143,23 @@ namespace Spines.Mahjong.Analysis.InternalTests
     /// <summary>
     /// Offers to call a tile and potentially wins the hand.
     /// </summary>
-    /// <param name="tileId">The tile offered to call.</param>
+    /// <param name="tileType">The tile offered to call.</param>
     /// <param name="canChii">Can a chii be called?</param>
     /// <returns>Whether the tile was called, the hand was won or the offer was ignored.</returns>
-    public CallResult Call(int tileId, bool canChii)
+    public CallResult OfferCall(int tileType, bool canChii)
     {
       if (_tilesInHand == 14)
       {
         throw new InvalidOperationException("Can't call with a 14 tile hand.");
       }
-      if (_visibleById[tileId])
+      if (_visibleByType[tileType] == 4)
       {
-        throw new InvalidOperationException("Can't call a tile that is already visible.");
+        throw new InvalidOperationException("Can't call a tile that already has 4 visible.");
       }
-      _visibleById[tileId] = true;
-      var t = tileId / 4;
-      _visibleByType[t] += 1;
+      _visibleByType[tileType] += 1;
 
-      var suit = t / 9;
-      var index = t % 9;
+      var suit = tileType / 9;
+      var index = tileType % 9;
 
       var bestCall = -1;
       var shantenOfBestCall = 10;
@@ -255,7 +297,6 @@ namespace Spines.Mahjong.Analysis.InternalTests
     private readonly int[] _cPinzu = new int[9]; // concealed tiles
     private readonly int[] _cJihai = new int[7]; // concealed tiles
     private readonly int[] _visibleByType = new int[34]; // visible tile count per type
-    private readonly bool[] _visibleById = new bool[136]; // visible tiles by id
     private readonly int[][] _suits; // all four
     private int _tilesInHand;
     private readonly Classifier _suitClassifier = new Classifier();
@@ -267,9 +308,24 @@ namespace Spines.Mahjong.Analysis.InternalTests
     private readonly int[] _mSouzu = new int[4]; // meldIds
     private readonly int[] _mJihai = new int[7]; // melded tiles
 
+    private void InitializeMelds(IEnumerable<int> meldIds, int suitId)
+    {
+      var list = meldIds.ToList();
+      for (var i = 0; i < list.Count; ++i)
+      {
+        _melds[suitId][i] = list[i];
+        _meldCounts[suitId] += 1;
+      }
+    }
+
     private int GetHonorPonActionId(int index)
     {
       return 8 + _cJihai[index];
+    }
+
+    private int GetHonorDaiminkanActionId()
+    {
+      return 12;
     }
 
     private int GetBestDiscard(int shanten)

@@ -1,4 +1,4 @@
-﻿// Spines.Mahjong.Analysis.Parse.cs
+﻿// Spines.Mahjong.Analysis.Resource.cs
 // 
 // Copyright (C) 2017  Johannes Heckl
 // 
@@ -29,7 +29,7 @@ namespace Spines.Mahjong.Analysis.Classification
   /// <summary>
   /// Parses embedded resources.
   /// </summary>
-  internal static class Parse
+  internal static class Resource
   {
     /// <summary>
     /// Loads the transition table from an embedded resource.

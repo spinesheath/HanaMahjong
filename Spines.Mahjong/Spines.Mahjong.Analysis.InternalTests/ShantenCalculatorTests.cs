@@ -47,6 +47,29 @@ namespace Spines.Mahjong.Analysis.InternalTests
       Assert.That(actual, Is.EqualTo(expected));
     }
 
+    [TestCase("123456789m12344p", -1)]
+    [TestCase("123456789m1234p", 0)]
+    [TestCase("123456789m1245p", 1)]
+    [TestCase("123456789m147p1s", 2)]
+    [TestCase("12345679m147p14s", 3)]
+    [TestCase("1345679m147p147s", 4)]
+    [TestCase("145679m147p147s1z", 5)]
+    [TestCase("14679m147p147s12z", 6)]
+    [TestCase("1479m147p147s123z", 7)]
+    [TestCase("147m147p147s1234z", 8)]
+    [TestCase("123456789m44p123S", -1)]
+    [TestCase("1245p112z333P6666P", 2)]
+    [TestCase("123456789m44p111Z", -1)]
+    [TestCase("1245p112z444Z3333Z", 1)]
+    public void ShantenShouldBeCorrect(string hand, int expected)
+    {
+      var c = new Hand(hand);
+
+      var actual = c.Shanten;
+
+      Assert.That(actual, Is.EqualTo(expected));
+    }
+
     [Test]
     public void HandShouldWork()
     {
@@ -58,20 +81,20 @@ namespace Spines.Mahjong.Analysis.InternalTests
         var hand = new Hand();
         for (var i = 0; i < 13; ++i)
         {
-          var t = GetRandomTile(rand, drawn);
-          drawn[t] = true;
-          hand.Draw(t);
+          var tileId = GetRandomTile(rand, drawn);
+          drawn[tileId] = true;
+          hand.Draw(tileId / 4);
         }
 
         var before = hand.ToString();
         var playerId = 0;
         while (hand.Shanten > -1 && drawn.Any(d => !d))
         {          
-          var t = GetRandomTile(rand, drawn);
-          drawn[t] = true;
+          var tileId = GetRandomTile(rand, drawn);
+          drawn[tileId] = true;
           if (playerId == 0)
           {
-            var drawResult = hand.Draw(t);
+            var drawResult = hand.Draw(tileId / 4);
             if (drawResult == DrawResult.Tsumo)
             {
               break;
@@ -80,7 +103,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
           }
           else
           {
-            var callResult = hand.Call(t,  playerId == 3);
+            var callResult = hand.OfferCall(tileId / 4,  playerId == 3);
             if (callResult == CallResult.Call)
             {
               hand.Discard();
