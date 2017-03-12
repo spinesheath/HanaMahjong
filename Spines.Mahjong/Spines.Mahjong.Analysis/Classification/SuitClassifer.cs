@@ -42,15 +42,6 @@ namespace Spines.Mahjong.Analysis.Classification
       current = secondPhase[current + tiles[0]];
       switch (_meldCount)
       {
-        case 0:
-          current = secondPhase[current + tiles[1]];
-          current = secondPhase[current + tiles[2]];
-          current = secondPhase[current + tiles[3]];
-          current = secondPhase[current + tiles[4]];
-          current = secondPhase[current + tiles[5]];
-          current = secondPhase[current + tiles[6]];
-          current = secondPhase[current + tiles[7]];
-          break;
         case 1:
           current = secondPhase[current + tiles[1]];
           current = secondPhase[current + tiles[2]];
@@ -78,6 +69,7 @@ namespace Spines.Mahjong.Analysis.Classification
           current = secondPhase[current + tiles[6]] + 107217;
           current = secondPhase[current + tiles[7]] + 108982;
           break;
+        case 0:
         case 4:
           current = secondPhase[current + tiles[1]];
           current = secondPhase[current + tiles[2]];
