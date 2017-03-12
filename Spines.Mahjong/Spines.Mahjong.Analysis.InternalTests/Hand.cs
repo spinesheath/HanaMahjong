@@ -84,11 +84,19 @@ namespace Spines.Mahjong.Analysis.InternalTests
     /// <summary>
     /// The current Shanten of the hand.
     /// </summary>
-    public int Shanten => _arrangementClassifier.Classify(
-      _suitClassifier.Classify(_mManzu, _meldCounts[0], _cManzu),
-      _suitClassifier.Classify(_mPinzu, _meldCounts[1], _cPinzu),
-      _suitClassifier.Classify(_mSouzu, _meldCounts[2], _cSouzu),
-      _honorClassifier.Value);
+    public int Shanten
+    {
+      get
+      {
+        _suitClassifiers[0].SetMelds(_mManzu, _meldCounts[0]);
+        var vManzu = _suitClassifiers[0].GetValue(_cManzu);
+        _suitClassifiers[1].SetMelds(_mPinzu, _meldCounts[1]);
+        var vPinzu = _suitClassifiers[1].GetValue(_cPinzu);
+        _suitClassifiers[2].SetMelds(_mSouzu, _meldCounts[2]);
+        var vSouzu = _suitClassifiers[2].GetValue(_cSouzu);
+        return _arrangementClassifier.Classify(vManzu, vPinzu, vSouzu, _honorClassifier.Value);
+      }
+    }
 
     /// <summary>
     /// Discards a tile based on UkeIre.
@@ -300,7 +308,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     private readonly int[][] _suits; // all four
     private int _tilesInHand;
     private readonly ArrangementClassifier _arrangementClassifier = new ArrangementClassifier();
-    private readonly SuitClassifer _suitClassifier = new SuitClassifer();
+    private readonly SuitClassifer[] _suitClassifiers = {new SuitClassifer(), new SuitClassifer(), new SuitClassifer()};
     private readonly ProgressiveHonorClassifier _honorClassifier = new ProgressiveHonorClassifier();
     private readonly int[][] _melds; // non-honors
     private readonly int[] _meldCounts = new int[3]; // used meldId slots for non-honors

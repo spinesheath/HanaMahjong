@@ -24,69 +24,29 @@ namespace Spines.Mahjong.Analysis.Classification
   /// </summary>
   internal class SuitClassifer
   {
-    /// <summary>
-    /// Returns the Arrangement for a Suit. The word is the sequence
-    /// (meld count, melded tile counts, concealed tile counts)
-    /// </summary>
-    public int Classify(int[] melds, int meldCount, int[] concealed)
+    public void SetMelds(int[] melds, int meldCount)
     {
+      _meldCount = meldCount;
       var current = 0;
-      var secondPhase = SuitSecondPhases[meldCount];
-      switch (meldCount)
+      switch (_meldCount)
       {
         case 0:
           current = SuitFirstPhase[current];
-          current = secondPhase[current + concealed[0]];
-          current = secondPhase[current + concealed[1]];
-          current = secondPhase[current + concealed[2]];
-          current = secondPhase[current + concealed[3]];
-          current = secondPhase[current + concealed[4]];
-          current = secondPhase[current + concealed[5]];
-          current = secondPhase[current + concealed[6]];
-          current = secondPhase[current + concealed[7]];
-          current = secondPhase[current + concealed[8]];
           break;
         case 1:
           current = SuitFirstPhase[current + melds[0] + 1];
           current = SuitFirstPhase[current];
-          current = secondPhase[current + concealed[0]];
-          current = secondPhase[current + concealed[1]];
-          current = secondPhase[current + concealed[2]];
-          current = secondPhase[current + concealed[3]] + 11752;
-          current = secondPhase[current + concealed[4]] + 30650;
-          current = secondPhase[current + concealed[5]] + 55952;
-          current = secondPhase[current + concealed[6]] + 80078;
-          current = secondPhase[current + concealed[7]] + 99750;
-          current = secondPhase[current + concealed[8]];
           break;
         case 2:
           current = SuitFirstPhase[current + melds[0] + 1];
           current = SuitFirstPhase[current + melds[1] + 1];
           current = SuitFirstPhase[current];
-          current = secondPhase[current + concealed[0]];
-          current = secondPhase[current + concealed[1]];
-          current = secondPhase[current + concealed[2]] + 22358;
-          current = secondPhase[current + concealed[3]] + 54162;
-          current = secondPhase[current + concealed[4]] + 90481;
-          current = secondPhase[current + concealed[5]] + 120379;
-          current = secondPhase[current + concealed[6]] + 139662;
-          current = secondPhase[current + concealed[7]] + 150573;
-          current = secondPhase[current + concealed[8]];
           break;
         case 3:
           current = SuitFirstPhase[current + melds[0] + 1];
           current = SuitFirstPhase[current + melds[1] + 1];
           current = SuitFirstPhase[current + melds[2] + 1];
           current = SuitFirstPhase[current];
-          current = secondPhase[current + concealed[0]];
-          current = secondPhase[current + concealed[1]] + 24641;
-          current = secondPhase[current + concealed[2]] + 50680;
-          current = secondPhase[current + concealed[3]] + 76245;
-          current = secondPhase[current + concealed[4]] + 93468;
-          current = secondPhase[current + concealed[5]] + 102953;
-          current = secondPhase[current + concealed[6]] + 107217;
-          current = secondPhase[current + concealed[7]] + 108982;
-          current = secondPhase[current + concealed[8]];
           break;
         case 4:
           current = SuitFirstPhase[current + melds[0] + 1];
@@ -94,19 +54,69 @@ namespace Spines.Mahjong.Analysis.Classification
           current = SuitFirstPhase[current + melds[2] + 1];
           current = SuitFirstPhase[current + melds[3] + 1];
           current = SuitFirstPhase[current];
-          current = secondPhase[current + concealed[0]];
-          current = secondPhase[current + concealed[1]];
-          current = secondPhase[current + concealed[2]];
-          current = secondPhase[current + concealed[3]];
-          current = secondPhase[current + concealed[4]];
-          current = secondPhase[current + concealed[5]];
-          current = secondPhase[current + concealed[6]];
-          current = secondPhase[current + concealed[7]];
-          current = secondPhase[current + concealed[8]];
           break;
       }
-      return current;
+      _entry = current;
     }
+
+    public int GetValue(int[] tiles)
+    {
+      var current = _entry;
+      var secondPhase = SuitSecondPhases[_meldCount];
+      current = secondPhase[current + tiles[0]];
+      switch (_meldCount)
+      {
+        case 0:
+          current = secondPhase[current + tiles[1]];
+          current = secondPhase[current + tiles[2]];
+          current = secondPhase[current + tiles[3]];
+          current = secondPhase[current + tiles[4]];
+          current = secondPhase[current + tiles[5]];
+          current = secondPhase[current + tiles[6]];
+          current = secondPhase[current + tiles[7]];
+          break;
+        case 1:
+          current = secondPhase[current + tiles[1]];
+          current = secondPhase[current + tiles[2]];
+          current = secondPhase[current + tiles[3]] + 11752;
+          current = secondPhase[current + tiles[4]] + 30650;
+          current = secondPhase[current + tiles[5]] + 55952;
+          current = secondPhase[current + tiles[6]] + 80078;
+          current = secondPhase[current + tiles[7]] + 99750;
+          break;
+        case 2:
+          current = secondPhase[current + tiles[1]];
+          current = secondPhase[current + tiles[2]] + 22358;
+          current = secondPhase[current + tiles[3]] + 54162;
+          current = secondPhase[current + tiles[4]] + 90481;
+          current = secondPhase[current + tiles[5]] + 120379;
+          current = secondPhase[current + tiles[6]] + 139662;
+          current = secondPhase[current + tiles[7]] + 150573;
+          break;
+        case 3:
+          current = secondPhase[current + tiles[1]] + 24641;
+          current = secondPhase[current + tiles[2]] + 50680;
+          current = secondPhase[current + tiles[3]] + 76245;
+          current = secondPhase[current + tiles[4]] + 93468;
+          current = secondPhase[current + tiles[5]] + 102953;
+          current = secondPhase[current + tiles[6]] + 107217;
+          current = secondPhase[current + tiles[7]] + 108982;
+          break;
+        case 4:
+          current = secondPhase[current + tiles[1]];
+          current = secondPhase[current + tiles[2]];
+          current = secondPhase[current + tiles[3]];
+          current = secondPhase[current + tiles[4]];
+          current = secondPhase[current + tiles[5]];
+          current = secondPhase[current + tiles[6]];
+          current = secondPhase[current + tiles[7]];
+          break;
+      }
+      return secondPhase[current + tiles[8]];
+    }
+
+    private int _meldCount;
+    private int _entry;
 
     private static readonly ushort[] SuitFirstPhase = Resource.Transitions("SuitFirstPhase.txt").ToArray();
     private static readonly ushort[] SuitSecondPhase0 = Resource.Transitions("SuitSecondPhase0.txt").ToArray();
