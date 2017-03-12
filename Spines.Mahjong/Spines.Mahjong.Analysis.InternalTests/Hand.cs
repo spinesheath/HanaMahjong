@@ -284,7 +284,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     }
     
     private readonly int[] _cJihai = new int[7]; // concealed tiles
-    private readonly int[] _visibleByType = new int[34]; // visible tile count per type
+    private readonly byte[] _visibleByType = new byte[34]; // visible tile count per type
     private readonly int[][] _suits; // all four
     private int _tilesInHand;
     private readonly ArrangementClassifier _arrangementClassifier = new ArrangementClassifier();
