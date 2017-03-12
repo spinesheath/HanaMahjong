@@ -28,35 +28,11 @@ namespace Spines.Mahjong.Analysis.Classification
     {
       _meldCount = meldCount;
       var current = 0;
-      switch (_meldCount)
+      for (var i = 0; i < meldCount; ++i)
       {
-        case 0:
-          current = SuitFirstPhase[current];
-          break;
-        case 1:
-          current = SuitFirstPhase[current + melds[0] + 1];
-          current = SuitFirstPhase[current];
-          break;
-        case 2:
-          current = SuitFirstPhase[current + melds[0] + 1];
-          current = SuitFirstPhase[current + melds[1] + 1];
-          current = SuitFirstPhase[current];
-          break;
-        case 3:
-          current = SuitFirstPhase[current + melds[0] + 1];
-          current = SuitFirstPhase[current + melds[1] + 1];
-          current = SuitFirstPhase[current + melds[2] + 1];
-          current = SuitFirstPhase[current];
-          break;
-        case 4:
-          current = SuitFirstPhase[current + melds[0] + 1];
-          current = SuitFirstPhase[current + melds[1] + 1];
-          current = SuitFirstPhase[current + melds[2] + 1];
-          current = SuitFirstPhase[current + melds[3] + 1];
-          current = SuitFirstPhase[current];
-          break;
+        current = SuitFirstPhase[current + melds[i] + 1];
       }
-      _entry = current;
+      _entry = SuitFirstPhase[current];
     }
 
     public int GetValue(int[] tiles)
