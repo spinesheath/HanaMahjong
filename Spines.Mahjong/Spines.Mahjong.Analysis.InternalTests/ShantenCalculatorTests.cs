@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Spines.Mahjong.Analysis.Classification;
 
 namespace Spines.Mahjong.Analysis.InternalTests
 {
@@ -52,7 +53,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     public void HandShouldWork()
     {
       var rand = new Random(5);
-      for (var iterations = 0; iterations < 40000; iterations++)
+      for (var iterations = 0; iterations < 80000; iterations++)
       {
         var drawn = new bool[136];
 

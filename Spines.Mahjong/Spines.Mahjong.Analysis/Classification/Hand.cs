@@ -19,9 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Spines.Mahjong.Analysis.Classification;
 
-namespace Spines.Mahjong.Analysis.InternalTests
+namespace Spines.Mahjong.Analysis.Classification
 {
   /// <summary>
   /// Maintains tile counts and calculates the Shanten of a hand.

@@ -49,6 +49,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classification\ArrangementClassifier.cs" />
+    <Compile Include="Classification\CallResult.cs" />
+    <Compile Include="Classification\DrawResult.cs" />
+    <Compile Include="Classification\Hand.cs" />
     <Compile Include="Classification\SuitClassifer.cs" />
     <Compile Include="Classification\ProgressiveHonorClassifier.cs" />
     <Compile Include="Classification\Resource.cs" />

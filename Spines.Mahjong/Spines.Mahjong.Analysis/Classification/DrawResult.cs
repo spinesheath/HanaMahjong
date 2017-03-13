@@ -1,4 +1,4 @@
-// Spines.Mahjong.Analysis.InternalTests.CallResult.cs
+// Spines.Mahjong.Analysis.DrawResult.cs
 // 
 // Copyright (C) 2017  Johannes Heckl
 // 
@@ -15,12 +15,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace Spines.Mahjong.Analysis.InternalTests
+namespace Spines.Mahjong.Analysis.Classification
 {
-  public enum CallResult
+  /// <summary>
+  /// The result of a draw.
+  /// </summary>
+  internal enum DrawResult
   {
-    Ignore,
-    Call,
-    Ron
+    /// <summary>
+    /// The tile was drawn normally.
+    /// </summary>
+    Draw,
+
+    /// <summary>
+    /// The hand was won off the tile.
+    /// </summary>
+    Tsumo
   }
 }
