@@ -486,11 +486,12 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <returns>Whether tile should be called.</returns>
     private bool ShouldCall(int shantenAfterCall, int ukeIreAfterCall)
     {
-      if (ArrangementClassifier.Classify(_arrangementValues) != shantenAfterCall)
+      var shantenBeforeCall = ArrangementClassifier.Classify(_arrangementValues);
+      if (shantenBeforeCall != shantenAfterCall)
       {
-        return ArrangementClassifier.Classify(_arrangementValues) > shantenAfterCall;
+        return shantenBeforeCall > shantenAfterCall;
       }
-      return ukeIreAfterCall > CountUkeIre(ArrangementClassifier.Classify(_arrangementValues));
+      return ukeIreAfterCall > CountUkeIre(shantenBeforeCall);
     }
 
     /// <summary>
