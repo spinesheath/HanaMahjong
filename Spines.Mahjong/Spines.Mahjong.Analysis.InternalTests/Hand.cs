@@ -513,7 +513,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
             {
               count += 4 - _visibleByType[tileType];
             }
-            InternalDiscardNoUpdate(suit, index);
+            _tilesInHand -= 1;
+            _suits[suit][index] -= 1;
           }
           tileType += 1;
         }
@@ -533,20 +534,6 @@ namespace Spines.Mahjong.Analysis.InternalTests
         tileType += 1;
       }
       return count;
-    }
-
-    private void InternalDiscardNoUpdate(int suit, int index)
-    {
-      _tilesInHand -= 1;
-      if (suit == 3)
-      {
-        _cJihai[index] -= 1;
-        _honorClassifier.MoveNext(GetHonorDiscardActionId(index));
-      }
-      else
-      {
-        _suits[suit][index] -= 1;
-      }
     }
 
     /// <summary>
