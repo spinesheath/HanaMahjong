@@ -231,7 +231,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
         }
         var shantenBeforeCall = Shanten;
         var ukeIreBeforeCall = CountUkeIre(shantenBeforeCall);
-        _honorClassifier.Push();
+        var hc = _honorClassifier.Fork();
+        var a = _arrangementValues[3];
         _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorPonActionId(index));
         _cJihai[index] -= 2;
         _mJihai[index] += 3;
@@ -245,7 +246,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
         _tilesInHand -= 1;
         _mJihai[index] -= 3;
         _cJihai[index] += 2;
-        _honorClassifier.Pop();
+        _arrangementValues[3] = a;
+        _honorClassifier = hc;
         return CallResult.Ignore;
       }
 
@@ -288,7 +290,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     private readonly int[][] _suits; // all four
     private int _tilesInHand;
     private readonly SuitClassifer[] _suitClassifiers = {new SuitClassifer(), new SuitClassifer(), new SuitClassifer()};
-    private readonly ProgressiveHonorClassifier _honorClassifier = new ProgressiveHonorClassifier();
+    private ProgressiveHonorClassifier _honorClassifier;
     private readonly int[][] _melds; // non-honors
     private readonly int[] _meldCounts = new int[3]; // used meldId slots for non-honors
     private readonly int[] _mJihai = new int[7]; // melded tiles
@@ -524,13 +526,11 @@ namespace Spines.Mahjong.Analysis.InternalTests
       {
         if (_visibleByType[tileType] != 4)
         {
-          _honorClassifier.Push();
-          localArrangements[3] = _honorClassifier.MoveNext(GetHonorDrawActionId(index));
+          localArrangements[3] = _honorClassifier.Fork().MoveNext(GetHonorDrawActionId(index));
           if (ArrangementClassifier.Classify(localArrangements) < currentShanten)
           {
             count += 4 - _visibleByType[tileType];
           }
-          _honorClassifier.Pop();
         }
         tileType += 1;
       }

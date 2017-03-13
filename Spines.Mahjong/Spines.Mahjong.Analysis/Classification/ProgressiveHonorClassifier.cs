@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Spines.Mahjong.Analysis.Classification
@@ -23,8 +22,17 @@ namespace Spines.Mahjong.Analysis.Classification
   /// <summary>
   /// Returns the arrangement value of honors after the execution of a single action.
   /// </summary>
-  internal class ProgressiveHonorClassifier
+  internal struct ProgressiveHonorClassifier
   {
+    /// <summary>
+    /// Creates an instance of ProgressiveHonorClassifier with the same state as the current one.
+    /// </summary>
+    /// <returns>A new instance of ProgressiveHonorClassifier.</returns>
+    public ProgressiveHonorClassifier Fork()
+    {
+      return new ProgressiveHonorClassifier {_current = _current};
+    }
+
     /// <summary>
     /// Advances the current state by one and returns the arrangement value of the new state.
     /// </summary>
@@ -54,24 +62,7 @@ namespace Spines.Mahjong.Analysis.Classification
       return Transitions[_current];
     }
 
-    /// <summary>
-    /// Pushes the current state on an internal stack.
-    /// </summary>
-    public void Push()
-    {
-      _stack.Push(_current);
-    }
-
-    /// <summary>
-    /// Resets the current state to the state on top of the internal stack.
-    /// </summary>
-    public void Pop()
-    {
-      _current = _stack.Pop();
-    }
-
     private static readonly ushort[] Transitions = Resource.Transitions("ProgressiveHonorStateMachine.txt").ToArray();
     private int _current;
-    private readonly Stack<int> _stack = new Stack<int>();
   }
 }
