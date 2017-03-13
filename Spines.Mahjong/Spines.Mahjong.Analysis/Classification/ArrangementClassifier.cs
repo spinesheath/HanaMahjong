@@ -25,7 +25,7 @@ namespace Spines.Mahjong.Analysis.Classification
   internal static class ArrangementClassifier
   {
     /// <summary>
-    /// Calculates the shanten of 4 arrangements.
+    /// Calculates the shanten + 1 of 4 arrangements.
     /// Behavior for invalid inputs is undefined.
     /// Input is invalid if there is no legal 13 or 14 tile hand that is represented by these arrangements.
     /// </summary>
@@ -38,7 +38,7 @@ namespace Spines.Mahjong.Analysis.Classification
       {
         current = Arrangement[current + values[i]];
       }
-      return current - 1;
+      return current;
     }
 
     private static readonly ushort[] Arrangement = Resource.Transitions("ArrangementTransitions.txt").ToArray();

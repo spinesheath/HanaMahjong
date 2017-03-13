@@ -86,7 +86,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// The current Shanten of the hand.
     /// </summary>
-    public int Shanten => ArrangementClassifier.Classify(_arrangementValues);
+    public int Shanten => ArrangementClassifier.Classify(_arrangementValues) - 1;
 
     /// <summary>
     /// Discards a tile based on UkeIre.
@@ -98,8 +98,8 @@ namespace Spines.Mahjong.Analysis.Classification
         throw new InvalidOperationException("Can't discard from a 13 tile hand.");
       }
 
-      var shanten = Shanten;
-      if (shanten == -1)
+      var shanten = ArrangementClassifier.Classify(_arrangementValues);
+      if (shanten == 0)
       {
         throw new InvalidOperationException("Already won.");
       }
@@ -135,7 +135,7 @@ namespace Spines.Mahjong.Analysis.Classification
 
       _visibleByType[tileType] += 1;
 
-      return Shanten == -1 ? DrawResult.Tsumo : DrawResult.Draw;
+      return ArrangementClassifier.Classify(_arrangementValues) == 0 ? DrawResult.Tsumo : DrawResult.Draw;
     }
 
     /// <summary>
@@ -165,7 +165,7 @@ namespace Spines.Mahjong.Analysis.Classification
 
       InternalDraw(suit, index);
 
-      if (Shanten == -1)
+      if (ArrangementClassifier.Classify(_arrangementValues) == 0)
       {
         return CallResult.Ron;
       }
@@ -183,7 +183,7 @@ namespace Spines.Mahjong.Analysis.Classification
             var meldId = c;
             AddMeld(suit, meldId);
             RemoveShuntsu(suit, c);
-            var shantenOfCurrentCall = Shanten;
+            var shantenOfCurrentCall = ArrangementClassifier.Classify(_arrangementValues);
             if (shantenOfCurrentCall <= shantenOfBestCall)
             {
               var ukeIre = CountUkeIre14();
@@ -204,7 +204,7 @@ namespace Spines.Mahjong.Analysis.Classification
           var meldId = 7 + index;
           AddMeld(suit, meldId);
           RemoveKoutsu(suit, index);
-          var shantenOfCurrentCall = Shanten;
+          var shantenOfCurrentCall = ArrangementClassifier.Classify(_arrangementValues);
           if (shantenOfCurrentCall <= shantenOfBestCall)
           {
             var ukeIre = CountUkeIre14();
@@ -228,7 +228,7 @@ namespace Spines.Mahjong.Analysis.Classification
         {
           return CallResult.Ignore;
         }
-        var shantenBeforeCall = Shanten;
+        var shantenBeforeCall = ArrangementClassifier.Classify(_arrangementValues);
         var ukeIreBeforeCall = CountUkeIre(shantenBeforeCall);
         var hc = _honorClassifier.Fork();
         var a = _arrangementValues[3];
@@ -237,7 +237,7 @@ namespace Spines.Mahjong.Analysis.Classification
         _mJihai[index] += 3;
         _tilesInHand += 1;
 
-        if (Shanten < shantenBeforeCall || CountUkeIre14() > ukeIreBeforeCall)
+        if (ArrangementClassifier.Classify(_arrangementValues) < shantenBeforeCall || CountUkeIre14() > ukeIreBeforeCall)
         {
           return CallResult.Call;
         }
@@ -427,7 +427,7 @@ namespace Spines.Mahjong.Analysis.Classification
 
         InternalDiscard(suit, index);
 
-        var shantenAfterDiscard = Shanten;
+        var shantenAfterDiscard = ArrangementClassifier.Classify(_arrangementValues);
         if (shantenAfterDiscard <= bestShanten && shantenAfterDiscard <= shanten)
         {
           var count = CountUkeIre(shantenAfterDiscard);
@@ -463,7 +463,7 @@ namespace Spines.Mahjong.Analysis.Classification
         }
         InternalDiscard(suit, index);
         
-        var shantenAfterDiscard = Shanten;
+        var shantenAfterDiscard = ArrangementClassifier.Classify(_arrangementValues);
         if (shantenAfterDiscard <= bestShanten)
         {
           var count = CountUkeIre(shantenAfterDiscard);
@@ -486,11 +486,11 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <returns>Whether tile should be called.</returns>
     private bool ShouldCall(int shantenAfterCall, int ukeIreAfterCall)
     {
-      if (Shanten != shantenAfterCall)
+      if (ArrangementClassifier.Classify(_arrangementValues) != shantenAfterCall)
       {
-        return Shanten > shantenAfterCall;
+        return ArrangementClassifier.Classify(_arrangementValues) > shantenAfterCall;
       }
-      return ukeIreAfterCall > CountUkeIre(Shanten);
+      return ukeIreAfterCall > CountUkeIre(ArrangementClassifier.Classify(_arrangementValues));
     }
 
     /// <summary>
