@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using Spines.Mahjong.Analysis.Classification;
@@ -52,51 +53,62 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [Test]
     public void HandShouldWork()
     {
-      var rand = new Random(5);
-      for (var iterations = 0; iterations < 80000; iterations++)
+      Console.WriteLine(new Hand("123456789m12344p").Shanten);
+
+      for(var f = 0; f < 5; ++f)
       {
-        var drawn = new bool[136];
+        var rand = new Random(5);
 
-        var hand = new Hand();
-        for (var i = 0; i < 13; ++i)
+        var sw = new Stopwatch();
+        sw.Start();
+
+        for (var iterations = 0; iterations < 40000; iterations++)
         {
-          var tileId = GetRandomTile(rand, drawn);
-          drawn[tileId] = true;
-          hand.Draw(tileId / 4);
+          var drawn = new bool[136];
+
+          var hand = new Hand();
+          for (var i = 0; i < 13; ++i)
+          {
+            var tileId = GetRandomTile(rand, drawn);
+            drawn[tileId] = true;
+            hand.Draw(tileId / 4);
+          }
+
+          var playerId = 0;
+          while (hand.Shanten > -1 && drawn.Any(d => !d))
+          {          
+            var tileId = GetRandomTile(rand, drawn);
+            drawn[tileId] = true;
+            if (playerId == 0)
+            {
+              var drawResult = hand.Draw(tileId / 4);
+              if (drawResult == DrawResult.Tsumo)
+              {
+                break;
+              }
+              hand.Discard();
+            }
+            else
+            {
+              var callResult = hand.OfferCall(tileId / 4,  playerId == 3);
+              if (callResult == CallResult.Call)
+              {
+                hand.Discard();
+                playerId = 0;
+              }
+              else if (callResult == CallResult.Ron)
+              {
+                break;
+              }
+            }
+            playerId = (playerId + 1) % 4;
+          }
         }
 
-        var before = hand.ToString();
-        var playerId = 0;
-        while (hand.Shanten > -1 && drawn.Any(d => !d))
-        {          
-          var tileId = GetRandomTile(rand, drawn);
-          drawn[tileId] = true;
-          if (playerId == 0)
-          {
-            var drawResult = hand.Draw(tileId / 4);
-            if (drawResult == DrawResult.Tsumo)
-            {
-              break;
-            }
-            hand.Discard();
-          }
-          else
-          {
-            var callResult = hand.OfferCall(tileId / 4,  playerId == 3);
-            if (callResult == CallResult.Call)
-            {
-              hand.Discard();
-              playerId = 0;
-            }
-            else if (callResult == CallResult.Ron)
-            {
-              break;
-            }
-          }
-          playerId = (playerId + 1) % 4;
-        }
-        var after = hand.ToString();
-        Assert.That(hand, Is.Not.Null);
+        sw.Stop();
+        Console.WriteLine(sw.ElapsedTicks);
+
+        Assert.That(sw.ElapsedTicks, Is.GreaterThan(0));
       }
     }
 
