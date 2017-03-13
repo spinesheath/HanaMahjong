@@ -524,12 +524,14 @@ namespace Spines.Mahjong.Analysis.InternalTests
       {
         if (_visibleByType[tileType] != 4)
         {
-          InternalDraw(3, index);
+          _cJihai[index] += 1;
+          _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorDrawActionId(index));
           if (Shanten < currentShanten)
           {
             count += 4 - _visibleByType[tileType];
           }
-          InternalDiscard(3, index);
+          _cJihai[index] -= 1;
+          _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorDiscardActionId(index));
         }
         tileType += 1;
       }
