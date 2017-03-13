@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using NUnit.Framework;
 using Spines.Mahjong.Analysis.Classification;
 
@@ -53,6 +54,10 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [Test]
     public void HandShouldWork()
     {
+      Process.GetCurrentProcess().ProcessorAffinity = new IntPtr(2);
+      Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
+      Thread.CurrentThread.Priority = ThreadPriority.Highest;
+
       Console.WriteLine(new Hand("123456789m12344p").Shanten);
 
       for(var f = 0; f < 5; ++f)
@@ -60,7 +65,12 @@ namespace Spines.Mahjong.Analysis.InternalTests
         var rand = new Random(5);
 
         var sw = new Stopwatch();
-        sw.Start();
+
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+
+        sw.Restart();
 
         for (var iterations = 0; iterations < 40000; iterations++)
         {
