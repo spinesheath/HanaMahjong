@@ -507,7 +507,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
       {
         for (var index = 0; index < 9; ++index)
         {
-          if (_visibleByType[tileType] != 4) // TODO is it faster to remove this?
+          if (_visibleByType[tileType] != 4)
           {
             _suits[suit][index] += 1;
             localArrangements[suit] = _suitClassifiers[suit].GetValue(_suits[suit]);
@@ -523,7 +523,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
       }
       for (var index = 0; index < 7; ++index)
       {
-        if (_visibleByType[tileType] != 4) // TODO is it faster to remove this?
+        if (_visibleByType[tileType] != 4)
         {
           _cJihai[index] += 1;
           localArrangements[3] = _honorClassifier.MoveNext(GetHonorDrawActionId(index));
