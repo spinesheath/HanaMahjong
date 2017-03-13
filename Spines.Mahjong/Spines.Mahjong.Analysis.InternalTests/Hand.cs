@@ -282,7 +282,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
              GetConcealedString(3, 'z') +
              GetMeldString(0, 'M') + GetMeldString(1, 'P') + GetMeldString(2, 'S') + GetHonorMeldString();
     }
-    
+
     private readonly int[] _cJihai = new int[7]; // concealed tiles
     private readonly byte[] _visibleByType = new byte[34]; // visible tile count per type
     private readonly int[][] _suits; // all four
@@ -336,7 +336,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
       var melded = _mJihai[index];
       return 5 + _cJihai[index] + melded + (melded & 1);
     }
-    
+
     /// <summary>
     /// Assumes that the tile has already been added to _cJihai.
     /// </summary>
@@ -501,26 +501,52 @@ namespace Spines.Mahjong.Analysis.InternalTests
     private int CountUkeIre(int currentShanten)
     {
       var count = 0;
-      for (var k = 0; k < 34; ++k)
+      var tileType = 0;
+      for (var suit = 0; suit < 3; ++suit)
       {
-        if (_visibleByType[k] == 4)
+        for (var index = 0; index < 9; ++index)
         {
-          continue;
+          if (_visibleByType[tileType] != 4)
+          {
+            InternalDraw(suit, index);
+            if (Shanten < currentShanten)
+            {
+              count += 4 - _visibleByType[tileType];
+            }
+            InternalDiscardNoUpdate(suit, index);
+          }
+          tileType += 1;
         }
-
-        var suit = k / 9;
-        var index = k % 9;
-
-        InternalDraw(suit, index);
-
-        if (Shanten < currentShanten)
+        UpdateValue(suit);
+      }
+      for (var index = 0; index < 7; ++index)
+      {
+        if (_visibleByType[tileType] != 4)
         {
-          count += 4 - _visibleByType[k];
+          InternalDraw(3, index);
+          if (Shanten < currentShanten)
+          {
+            count += 4 - _visibleByType[tileType];
+          }
+          InternalDiscard(3, index);
         }
-
-        InternalDiscard(suit, index);
+        tileType += 1;
       }
       return count;
+    }
+
+    private void InternalDiscardNoUpdate(int suit, int index)
+    {
+      _tilesInHand -= 1;
+      if (suit == 3)
+      {
+        _cJihai[index] -= 1;
+        _honorClassifier.MoveNext(GetHonorDiscardActionId(index));
+      }
+      else
+      {
+        _suits[suit][index] -= 1;
+      }
     }
 
     /// <summary>
