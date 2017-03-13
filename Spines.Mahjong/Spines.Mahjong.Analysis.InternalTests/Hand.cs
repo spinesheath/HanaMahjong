@@ -232,7 +232,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
         var shantenBeforeCall = Shanten;
         var ukeIreBeforeCall = CountUkeIre(shantenBeforeCall);
         _honorClassifier.Push();
-        _honorClassifier.MoveNext(GetHonorPonActionId(index));
+        _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorPonActionId(index));
         _cJihai[index] -= 2;
         _mJihai[index] += 3;
         _tilesInHand += 1;
