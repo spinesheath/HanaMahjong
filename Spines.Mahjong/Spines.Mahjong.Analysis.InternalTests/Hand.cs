@@ -502,36 +502,37 @@ namespace Spines.Mahjong.Analysis.InternalTests
     {
       var count = 0;
       var tileType = 0;
+      var localArrangements = new[] {_arrangementValues[0], _arrangementValues[1], _arrangementValues[2], _arrangementValues[3]};
       for (var suit = 0; suit < 3; ++suit)
       {
         for (var index = 0; index < 9; ++index)
         {
-          if (_visibleByType[tileType] != 4)
+          if (_visibleByType[tileType] != 4) // TODO is it faster to remove this?
           {
-            InternalDraw(suit, index);
-            if (Shanten < currentShanten)
+            _suits[suit][index] += 1;
+            localArrangements[suit] = _suitClassifiers[suit].GetValue(_suits[suit]);
+            if (ArrangementClassifier.Classify(localArrangements) < currentShanten)
             {
               count += 4 - _visibleByType[tileType];
             }
-            _tilesInHand -= 1;
             _suits[suit][index] -= 1;
           }
           tileType += 1;
         }
-        UpdateValue(suit);
+        localArrangements[suit] = _arrangementValues[suit];
       }
       for (var index = 0; index < 7; ++index)
       {
-        if (_visibleByType[tileType] != 4)
+        if (_visibleByType[tileType] != 4) // TODO is it faster to remove this?
         {
           _cJihai[index] += 1;
-          _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorDrawActionId(index));
-          if (Shanten < currentShanten)
+          localArrangements[3] = _honorClassifier.MoveNext(GetHonorDrawActionId(index));
+          if (ArrangementClassifier.Classify(localArrangements) < currentShanten)
           {
             count += 4 - _visibleByType[tileType];
           }
           _cJihai[index] -= 1;
-          _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorDiscardActionId(index));
+          _honorClassifier.MoveNext(GetHonorDiscardActionId(index));
         }
         tileType += 1;
       }
