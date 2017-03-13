@@ -338,12 +338,12 @@ namespace Spines.Mahjong.Analysis.InternalTests
     }
 
     /// <summary>
-    /// Assumes that the tile has already been added to _cJihai.
+    /// Assumes that the tile has not yet been added to _cJihai.
     /// </summary>
     private int GetHonorDrawActionId(int index)
     {
       var melded = _mJihai[index];
-      return _cJihai[index] + melded + (melded & 1) - 1;
+      return _cJihai[index] + melded + (melded & 1);
     }
 
     private void InternalDiscard(int suit, int index)
@@ -366,8 +366,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
       _tilesInHand += 1;
       if (suit == 3)
       {
-        _cJihai[index] += 1;
         _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorDrawActionId(index));
+        _cJihai[index] += 1;
       }
       else
       {
@@ -461,8 +461,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
           continue;
         }
         InternalDiscard(suit, index);
-
-        // TODO this block is repeated
+        
         var shantenAfterDiscard = Shanten;
         if (shantenAfterDiscard <= bestShanten)
         {
@@ -525,14 +524,13 @@ namespace Spines.Mahjong.Analysis.InternalTests
       {
         if (_visibleByType[tileType] != 4)
         {
-          _cJihai[index] += 1;
+          _honorClassifier.Push();
           localArrangements[3] = _honorClassifier.MoveNext(GetHonorDrawActionId(index));
           if (ArrangementClassifier.Classify(localArrangements) < currentShanten)
           {
             count += 4 - _visibleByType[tileType];
           }
-          _cJihai[index] -= 1;
-          _honorClassifier.MoveNext(GetHonorDiscardActionId(index));
+          _honorClassifier.Pop();
         }
         tileType += 1;
       }
