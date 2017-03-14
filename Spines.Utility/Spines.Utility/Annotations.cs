@@ -1,4 +1,7 @@
-﻿using System;
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.CodeDom.Compiler;
 using System.Diagnostics;
 
@@ -11,40 +14,49 @@ using System.Diagnostics;
 // ReSharper disable InconsistentNaming
 
 // ReSharper disable once CheckNamespace
+
 namespace JetBrains.Annotations
 {
   /// <summary>
   /// Indicates that the value of the marked element could be <c>null</c> sometimes,
   /// so the check for <c>null</c> is necessary before its usage
   /// </summary>
-  /// <example><code>
+  /// <example>
+  /// <code>
   /// [CanBeNull] public object Test() { return null; }
   /// public void UseTest() {
   ///   var p = Test();
   ///   var s = p.ToString(); // Warning: Possible 'System.NullReferenceException'
   /// }
-  /// </code></example>
+  /// </code>
+  /// </example>
   [AttributeUsage(
     AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property |
     AttributeTargets.Delegate | AttributeTargets.Field | AttributeTargets.Event)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class CanBeNullAttribute : Attribute { }
+  public sealed class CanBeNullAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// Indicates that the value of the marked element could never be <c>null</c>
   /// </summary>
-  /// <example><code>
+  /// <example>
+  /// <code>
   /// [NotNull] public object Foo() {
   ///   return null; // Warning: Possible 'null' assignment
   /// }
-  /// </code></example>
+  /// </code>
+  /// </example>
   [AttributeUsage(
     AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property |
     AttributeTargets.Delegate | AttributeTargets.Field | AttributeTargets.Event)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class NotNullAttribute : Attribute { }
+  public sealed class NotNullAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// Indicates that collection or enumerable value does not contain null elements
@@ -54,7 +66,9 @@ namespace JetBrains.Annotations
     AttributeTargets.Delegate | AttributeTargets.Field)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class ItemNotNullAttribute : Attribute { }
+  public sealed class ItemNotNullAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// Indicates that collection or enumerable value can contain null elements
@@ -64,20 +78,24 @@ namespace JetBrains.Annotations
     AttributeTargets.Delegate | AttributeTargets.Field)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class ItemCanBeNullAttribute : Attribute { }
+  public sealed class ItemCanBeNullAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// Indicates that the marked method builds string by format pattern and (optional) arguments.
   /// Parameter, which contains format string, should be given in constructor. The format string
-  /// should be in <see cref="string.Format(IFormatProvider,string,object[])"/>-like form
+  /// should be in <see cref="string.Format(IFormatProvider,string,object[])" />-like form
   /// </summary>
-  /// <example><code>
+  /// <example>
+  /// <code>
   /// [StringFormatMethod("message")]
   /// public void ShowError(string message, params object[] args) { /* do something */ }
   /// public void Foo() {
   ///   ShowError("Failed: {0}"); // Warning: Non-existing argument in format string
   /// }
-  /// </code></example>
+  /// </code>
+  /// </example>
   [AttributeUsage(
     AttributeTargets.Constructor | AttributeTargets.Method | AttributeTargets.Delegate)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
@@ -116,18 +134,22 @@ namespace JetBrains.Annotations
   /// <summary>
   /// Indicates that the function argument should be string literal and match one
   /// of the parameters of the caller function. For example, ReSharper annotates
-  /// the parameter of <see cref="System.ArgumentNullException"/>
+  /// the parameter of <see cref="System.ArgumentNullException" />
   /// </summary>
-  /// <example><code>
+  /// <example>
+  /// <code>
   /// public void Foo(string param) {
   ///   if (param == null)
   ///     throw new ArgumentNullException("par"); // Warning: Cannot resolve symbol
   /// }
-  /// </code></example>
+  /// </code>
+  /// </example>
   [AttributeUsage(AttributeTargets.Parameter)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class InvokerParameterNameAttribute : Attribute { }
+  public sealed class InvokerParameterNameAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// Indicates that the method is contained in a type that implements
@@ -137,32 +159,51 @@ namespace JetBrains.Annotations
   /// <remarks>
   /// The method should be non-static and conform to one of the supported signatures:
   /// <list>
-  /// <item><c>NotifyChanged(string)</c></item>
-  /// <item><c>NotifyChanged(params string[])</c></item>
-  /// <item><c>NotifyChanged{T}(Expression{Func{T}})</c></item>
-  /// <item><c>NotifyChanged{T,U}(Expression{Func{T,U}})</c></item>
-  /// <item><c>SetProperty{T}(ref T, T, string)</c></item>
+  /// <item>
+  /// <c>NotifyChanged(string)</c>
+  /// </item>
+  /// <item>
+  /// <c>NotifyChanged(params string[])</c>
+  /// </item>
+  /// <item>
+  /// <c>NotifyChanged{T}(Expression{Func{T}})</c>
+  /// </item>
+  /// <item>
+  /// <c>NotifyChanged{T,U}(Expression{Func{T,U}})</c>
+  /// </item>
+  /// <item>
+  /// <c>SetProperty{T}(ref T, T, string)</c>
+  /// </item>
   /// </list>
   /// </remarks>
-  /// <example><code>
-  /// public class Foo : INotifyPropertyChanged {
-  ///   public event PropertyChangedEventHandler PropertyChanged;
-  ///   [NotifyPropertyChangedInvocator]
-  ///   protected virtual void NotifyChanged(string propertyName) { ... }
-  ///
-  ///   private string _name;
-  ///   public string Name {
-  ///     get { return _name; }
-  ///     set { _name = value; NotifyChanged("LastName"); /* Warning */ }
-  ///   }
-  /// }
-  /// </code>
+  /// <example>
+  /// <code>
+  ///  public class Foo : INotifyPropertyChanged {
+  ///    public event PropertyChangedEventHandler PropertyChanged;
+  ///    [NotifyPropertyChangedInvocator]
+  ///    protected virtual void NotifyChanged(string propertyName) { ... }
+  /// 
+  ///    private string _name;
+  ///    public string Name {
+  ///      get { return _name; }
+  ///      set { _name = value; NotifyChanged("LastName"); /* Warning */ }
+  ///    }
+  ///  }
+  ///  </code>
   /// Examples of generated notifications:
   /// <list>
-  /// <item><c>NotifyChanged("Property")</c></item>
-  /// <item><c>NotifyChanged(() =&gt; Property)</c></item>
-  /// <item><c>NotifyChanged((VM x) =&gt; x.Property)</c></item>
-  /// <item><c>SetProperty(ref myField, value, "Property")</c></item>
+  /// <item>
+  /// <c>NotifyChanged("Property")</c>
+  /// </item>
+  /// <item>
+  /// <c>NotifyChanged(() =&gt; Property)</c>
+  /// </item>
+  /// <item>
+  /// <c>NotifyChanged((VM x) =&gt; x.Property)</c>
+  /// </item>
+  /// <item>
+  /// <c>SetProperty(ref myField, value, "Property")</c>
+  /// </item>
   /// </list>
   /// </example>
   [AttributeUsage(AttributeTargets.Method)]
@@ -170,7 +211,10 @@ namespace JetBrains.Annotations
   [GeneratedCode("Resharper", "9.0.0.0")]
   public sealed class NotifyPropertyChangedInvocatorAttribute : Attribute
   {
-    public NotifyPropertyChangedInvocatorAttribute() { }
+    public NotifyPropertyChangedInvocatorAttribute()
+    {
+    }
+
     public NotifyPropertyChangedInvocatorAttribute(string parameterName)
     {
       ParameterName = parameterName;
@@ -191,44 +235,58 @@ namespace JetBrains.Annotations
   /// <item>Output   ::= [ParameterName: Value]* {halt|stop|void|nothing|Value}</item>
   /// <item>Value    ::= true | false | null | notnull | canbenull</item>
   /// </list>
-  /// If method has single input parameter, it's name could be omitted.<br/>
+  /// If method has single input parameter, it's name could be omitted.<br />
   /// Using <c>halt</c> (or <c>void</c>/<c>nothing</c>, which is the same)
-  /// for method output means that the methos doesn't return normally.<br/>
-  /// <c>canbenull</c> annotation is only applicable for output parameters.<br/>
+  /// for method output means that the methos doesn't return normally.<br />
+  /// <c>canbenull</c> annotation is only applicable for output parameters.<br />
   /// You can use multiple <c>[ContractAnnotation]</c> for each FDT row,
-  /// or use single attribute with rows separated by semicolon.<br/>
+  /// or use single attribute with rows separated by semicolon.<br />
   /// </syntax>
-  /// <examples><list>
-  /// <item><code>
+  /// <examples>
+  /// <list>
+  /// <item>
+  /// <code>
   /// [ContractAnnotation("=> halt")]
   /// public void TerminationMethod()
-  /// </code></item>
-  /// <item><code>
+  /// </code>
+  /// </item>
+  /// <item>
+  /// <code>
   /// [ContractAnnotation("halt &lt;= condition: false")]
   /// public void Assert(bool condition, string text) // regular assertion method
-  /// </code></item>
-  /// <item><code>
+  /// </code>
+  /// </item>
+  /// <item>
+  /// <code>
   /// [ContractAnnotation("s:null => true")]
   /// public bool IsNullOrEmpty(string s) // string.IsNullOrEmpty()
-  /// </code></item>
-  /// <item><code>
+  /// </code>
+  /// </item>
+  /// <item>
+  /// <code>
   /// // A method that returns null if the parameter is null,
   /// // and not null if the parameter is not null
   /// [ContractAnnotation("null => null; notnull => notnull")]
   /// public object Transform(object data) 
-  /// </code></item>
-  /// <item><code>
+  /// </code>
+  /// </item>
+  /// <item>
+  /// <code>
   /// [ContractAnnotation("s:null=>false; =>true,result:notnull; =>false, result:null")]
   /// public bool TryParse(string s, out Person result)
-  /// </code></item>
-  /// </list></examples>
+  /// </code>
+  /// </item>
+  /// </list>
+  /// </examples>
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
   public sealed class ContractAnnotationAttribute : Attribute
   {
     public ContractAnnotationAttribute([NotNull] string contract)
-      : this(contract, false) { }
+      : this(contract, false)
+    {
+    }
 
     public ContractAnnotationAttribute([NotNull] string contract, bool forceFullStates)
     {
@@ -243,18 +301,23 @@ namespace JetBrains.Annotations
   /// <summary>
   /// Indicates that marked element should be localized or not
   /// </summary>
-  /// <example><code>
+  /// <example>
+  /// <code>
   /// [LocalizationRequiredAttribute(true)]
   /// public class Foo {
   ///   private string str = "my string"; // Warning: Localizable string
   /// }
-  /// </code></example>
+  /// </code>
+  /// </example>
   [AttributeUsage(AttributeTargets.All)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
   public sealed class LocalizationRequiredAttribute : Attribute
   {
-    public LocalizationRequiredAttribute() : this(true) { }
+    public LocalizationRequiredAttribute() : this(true)
+    {
+    }
+
     public LocalizationRequiredAttribute(bool required)
     {
       Required = required;
@@ -269,7 +332,8 @@ namespace JetBrains.Annotations
   /// should be used instead. However, using '==' or '!=' for comparison
   /// with <c>null</c> is always permitted.
   /// </summary>
-  /// <example><code>
+  /// <example>
+  /// <code>
   /// [CannotApplyEqualityOperator]
   /// class NoEquality { }
   /// class UsesNoEquality {
@@ -281,23 +345,28 @@ namespace JetBrains.Annotations
   ///     }
   ///   }
   /// }
-  /// </code></example>
+  /// </code>
+  /// </example>
   [AttributeUsage(
     AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Struct)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class CannotApplyEqualityOperatorAttribute : Attribute { }
+  public sealed class CannotApplyEqualityOperatorAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// When applied to a target attribute, specifies a requirement for any type marked
   /// with the target attribute to implement or inherit specific type or types.
   /// </summary>
-  /// <example><code>
+  /// <example>
+  /// <code>
   /// [BaseTypeRequired(typeof(IComponent)] // Specify requirement
   /// public class ComponentAttribute : Attribute { }
   /// [Component] // ComponentAttribute requires implementing IComponent interface
   /// public class MyComponent : IComponent { }
-  /// </code></example>
+  /// </code>
+  /// </example>
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
   [BaseTypeRequired(typeof(Attribute))]
   [Conditional("JETBRAINS_ANNOTATIONS")]
@@ -324,13 +393,19 @@ namespace JetBrains.Annotations
   public sealed class UsedImplicitlyAttribute : Attribute
   {
     public UsedImplicitlyAttribute()
-      : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default) { }
+      : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default)
+    {
+    }
 
     public UsedImplicitlyAttribute(ImplicitUseKindFlags useKindFlags)
-      : this(useKindFlags, ImplicitUseTargetFlags.Default) { }
+      : this(useKindFlags, ImplicitUseTargetFlags.Default)
+    {
+    }
 
     public UsedImplicitlyAttribute(ImplicitUseTargetFlags targetFlags)
-      : this(ImplicitUseKindFlags.Default, targetFlags) { }
+      : this(ImplicitUseKindFlags.Default, targetFlags)
+    {
+    }
 
     public UsedImplicitlyAttribute(
       ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags)
@@ -354,13 +429,19 @@ namespace JetBrains.Annotations
   public sealed class MeansImplicitUseAttribute : Attribute
   {
     public MeansImplicitUseAttribute()
-      : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default) { }
+      : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default)
+    {
+    }
 
     public MeansImplicitUseAttribute(ImplicitUseKindFlags useKindFlags)
-      : this(useKindFlags, ImplicitUseTargetFlags.Default) { }
+      : this(useKindFlags, ImplicitUseTargetFlags.Default)
+    {
+    }
 
     public MeansImplicitUseAttribute(ImplicitUseTargetFlags targetFlags)
-      : this(ImplicitUseKindFlags.Default, targetFlags) { }
+      : this(ImplicitUseKindFlags.Default, targetFlags)
+    {
+    }
 
     public MeansImplicitUseAttribute(
       ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags)
@@ -371,6 +452,7 @@ namespace JetBrains.Annotations
 
     [UsedImplicitly]
     public ImplicitUseKindFlags UseKindFlags { get; private set; }
+
     [UsedImplicitly]
     public ImplicitUseTargetFlags TargetFlags { get; private set; }
   }
@@ -380,22 +462,26 @@ namespace JetBrains.Annotations
   public enum ImplicitUseKindFlags
   {
     Default = Access | Assign | InstantiatedWithFixedConstructorSignature,
+
     /// <summary>Only entity marked with attribute considered used</summary>
     Access = 1,
+
     /// <summary>Indicates implicit assignment to a member</summary>
     Assign = 2,
+
     /// <summary>
     /// Indicates implicit instantiation of a type with fixed constructor signature.
     /// That means any unused constructor parameters won't be reported as such.
     /// </summary>
     InstantiatedWithFixedConstructorSignature = 4,
+
     /// <summary>Indicates implicit instantiation of a type</summary>
-    InstantiatedNoFixedConstructorSignature = 8,
+    InstantiatedNoFixedConstructorSignature = 8
   }
 
   /// <summary>
   /// Specify what is considered used implicitly when marked
-  /// with <see cref="MeansImplicitUseAttribute"/> or <see cref="UsedImplicitlyAttribute"/>
+  /// with <see cref="MeansImplicitUseAttribute" /> or <see cref="UsedImplicitlyAttribute" />
   /// </summary>
   [Flags]
   [GeneratedCode("Resharper", "9.0.0.0")]
@@ -403,8 +489,10 @@ namespace JetBrains.Annotations
   {
     Default = Itself,
     Itself = 1,
+
     /// <summary>Members of entity marked with attribute are considered used</summary>
     Members = 2,
+
     /// <summary>Entity marked with attribute and all its members considered used</summary>
     WithMembers = Itself | Members
   }
@@ -418,7 +506,10 @@ namespace JetBrains.Annotations
   [GeneratedCode("Resharper", "9.0.0.0")]
   public sealed class PublicAPIAttribute : Attribute
   {
-    public PublicAPIAttribute() { }
+    public PublicAPIAttribute()
+    {
+    }
+
     public PublicAPIAttribute([NotNull] string comment)
     {
       Comment = comment;
@@ -437,23 +528,29 @@ namespace JetBrains.Annotations
   [AttributeUsage(AttributeTargets.Parameter)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class InstantHandleAttribute : Attribute { }
+  public sealed class InstantHandleAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// Indicates that a method does not make any observable state changes.
   /// The same as <c>System.Diagnostics.Contracts.PureAttribute</c>
   /// </summary>
-  /// <example><code>
+  /// <example>
+  /// <code>
   /// [Pure] private int Multiply(int x, int y) { return x * y; }
   /// public void Foo() {
   ///   const int a = 2, b = 2;
   ///   Multiply(a, b); // Waring: Return value of pure method is not used
   /// }
-  /// </code></example>
+  /// </code>
+  /// </example>
   [AttributeUsage(AttributeTargets.Method)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class PureAttribute : Attribute { }
+  public sealed class PureAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// Indicates that a parameter is a path to a file or a folder within a web project.
@@ -464,7 +561,10 @@ namespace JetBrains.Annotations
   [GeneratedCode("Resharper", "9.0.0.0")]
   public class PathReferenceAttribute : Attribute
   {
-    public PathReferenceAttribute() { }
+    public PathReferenceAttribute()
+    {
+    }
+
     public PathReferenceAttribute([PathReference] string basePath)
     {
       BasePath = basePath;
@@ -562,7 +662,10 @@ namespace JetBrains.Annotations
   [GeneratedCode("Resharper", "9.0.0.0")]
   public sealed class AspMvcActionAttribute : Attribute
   {
-    public AspMvcActionAttribute() { }
+    public AspMvcActionAttribute()
+    {
+    }
+
     public AspMvcActionAttribute(string anonymousProperty)
     {
       AnonymousProperty = anonymousProperty;
@@ -581,7 +684,10 @@ namespace JetBrains.Annotations
   [GeneratedCode("Resharper", "9.0.0.0")]
   public sealed class AspMvcAreaAttribute : PathReferenceAttribute
   {
-    public AspMvcAreaAttribute() { }
+    public AspMvcAreaAttribute()
+    {
+    }
+
     public AspMvcAreaAttribute(string anonymousProperty)
     {
       AnonymousProperty = anonymousProperty;
@@ -601,7 +707,10 @@ namespace JetBrains.Annotations
   [GeneratedCode("Resharper", "9.0.0.0")]
   public sealed class AspMvcControllerAttribute : Attribute
   {
-    public AspMvcControllerAttribute() { }
+    public AspMvcControllerAttribute()
+    {
+    }
+
     public AspMvcControllerAttribute(string anonymousProperty)
     {
       AnonymousProperty = anonymousProperty;
@@ -617,7 +726,9 @@ namespace JetBrains.Annotations
   [AttributeUsage(AttributeTargets.Parameter)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class AspMvcMasterAttribute : Attribute { }
+  public sealed class AspMvcMasterAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// ASP.NET MVC attribute. Indicates that a parameter is an MVC model type. Use this attribute
@@ -626,7 +737,9 @@ namespace JetBrains.Annotations
   [AttributeUsage(AttributeTargets.Parameter)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class AspMvcModelTypeAttribute : Attribute { }
+  public sealed class AspMvcModelTypeAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter is an MVC
@@ -637,7 +750,9 @@ namespace JetBrains.Annotations
   [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class AspMvcPartialViewAttribute : PathReferenceAttribute { }
+  public sealed class AspMvcPartialViewAttribute : PathReferenceAttribute
+  {
+  }
 
   /// <summary>
   /// ASP.NET MVC attribute. Allows disabling inspections for MVC views within a class or a method
@@ -645,17 +760,21 @@ namespace JetBrains.Annotations
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class AspMvcSupressViewErrorAttribute : Attribute { }
+  public sealed class AspMvcSupressViewErrorAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// ASP.NET MVC attribute. Indicates that a parameter is an MVC display template.
-  /// Use this attribute for custom wrappers similar to 
+  /// Use this attribute for custom wrappers similar to
   /// <c>System.Web.Mvc.Html.DisplayExtensions.DisplayForModel(HtmlHelper, String)</c>
   /// </summary>
   [AttributeUsage(AttributeTargets.Parameter)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class AspMvcDisplayTemplateAttribute : Attribute { }
+  public sealed class AspMvcDisplayTemplateAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// ASP.NET MVC attribute. Indicates that a parameter is an MVC editor template.
@@ -665,7 +784,9 @@ namespace JetBrains.Annotations
   [AttributeUsage(AttributeTargets.Parameter)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class AspMvcEditorTemplateAttribute : Attribute { }
+  public sealed class AspMvcEditorTemplateAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// ASP.NET MVC attribute. Indicates that a parameter is an MVC template.
@@ -675,7 +796,9 @@ namespace JetBrains.Annotations
   [AttributeUsage(AttributeTargets.Parameter)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class AspMvcTemplateAttribute : Attribute { }
+  public sealed class AspMvcTemplateAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter
@@ -686,23 +809,29 @@ namespace JetBrains.Annotations
   [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class AspMvcViewAttribute : PathReferenceAttribute { }
+  public sealed class AspMvcViewAttribute : PathReferenceAttribute
+  {
+  }
 
   /// <summary>
   /// ASP.NET MVC attribute. When applied to a parameter of an attribute,
   /// indicates that this parameter is an MVC action name
   /// </summary>
-  /// <example><code>
+  /// <example>
+  /// <code>
   /// [ActionName("Foo")]
   /// public ActionResult Login(string returnUrl) {
   ///   ViewBag.ReturnUrl = Url.Action("Foo"); // OK
   ///   return RedirectToAction("Bar"); // Error: Cannot resolve action
   /// }
-  /// </code></example>
+  /// </code>
+  /// </example>
   [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class AspMvcActionSelectorAttribute : Attribute { }
+  public sealed class AspMvcActionSelectorAttribute : Attribute
+  {
+  }
 
   [AttributeUsage(
     AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field)]
@@ -710,7 +839,10 @@ namespace JetBrains.Annotations
   [GeneratedCode("Resharper", "9.0.0.0")]
   public sealed class HtmlElementAttributesAttribute : Attribute
   {
-    public HtmlElementAttributesAttribute() { }
+    public HtmlElementAttributesAttribute()
+    {
+    }
+
     public HtmlElementAttributesAttribute(string name)
     {
       Name = name;
@@ -736,13 +868,15 @@ namespace JetBrains.Annotations
 
   /// <summary>
   /// Razor attribute. Indicates that a parameter or a method is a Razor section.
-  /// Use this attribute for custom wrappers similar to 
+  /// Use this attribute for custom wrappers similar to
   /// <c>System.Web.WebPages.WebPageBase.RenderSection(String)</c>
   /// </summary>
   [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class RazorSectionAttribute : Attribute { }
+  public sealed class RazorSectionAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// Indicates how method invocation affects content of the collection
@@ -766,27 +900,32 @@ namespace JetBrains.Annotations
   {
     /// <summary>Method does not use or modify content of the collection</summary>
     None = 0,
+
     /// <summary>Method only reads content of the collection but does not modify it</summary>
     Read = 1,
+
     /// <summary>Method can change content of the collection but does not add new elements</summary>
     ModifyExistingContent = 2,
+
     /// <summary>Method can add new elements to the collection</summary>
     UpdatedContent = ModifyExistingContent | 4
   }
 
   /// <summary>
   /// Indicates that the marked method is assertion method, i.e. it halts control flow if
-  /// one of the conditions is satisfied. To set the condition, mark one of the parameters with 
-  /// <see cref="AssertionConditionAttribute"/> attribute
+  /// one of the conditions is satisfied. To set the condition, mark one of the parameters with
+  /// <see cref="AssertionConditionAttribute" /> attribute
   /// </summary>
   [AttributeUsage(AttributeTargets.Method)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class AssertionMethodAttribute : Attribute { }
+  public sealed class AssertionMethodAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// Indicates the condition parameter of the assertion method. The method itself should be
-  /// marked by <see cref="AssertionMethodAttribute"/> attribute. The mandatory argument of
+  /// marked by <see cref="AssertionMethodAttribute" /> attribute. The mandatory argument of
   /// the attribute is the assertion type.
   /// </summary>
   [AttributeUsage(AttributeTargets.Parameter)]
@@ -811,12 +950,15 @@ namespace JetBrains.Annotations
   {
     /// <summary>Marked parameter should be evaluated to true</summary>
     IS_TRUE = 0,
+
     /// <summary>Marked parameter should be evaluated to false</summary>
     IS_FALSE = 1,
+
     /// <summary>Marked parameter should be evaluated to null value</summary>
     IS_NULL = 2,
+
     /// <summary>Marked parameter should be evaluated to not null value</summary>
-    IS_NOT_NULL = 3,
+    IS_NOT_NULL = 3
   }
 
   /// <summary>
@@ -827,7 +969,9 @@ namespace JetBrains.Annotations
   [AttributeUsage(AttributeTargets.Method)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class TerminatesProgramAttribute : Attribute { }
+  public sealed class TerminatesProgramAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// Indicates that method is pure LINQ method, with postponed enumeration (like Enumerable.Select,
@@ -837,7 +981,9 @@ namespace JetBrains.Annotations
   [AttributeUsage(AttributeTargets.Method)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class LinqTunnelAttribute : Attribute { }
+  public sealed class LinqTunnelAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// Indicates that IEnumerable, passed as parameter, is not enumerated.
@@ -845,7 +991,9 @@ namespace JetBrains.Annotations
   [AttributeUsage(AttributeTargets.Parameter)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class NoEnumerationAttribute : Attribute { }
+  public sealed class NoEnumerationAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// Indicates that parameter is regular expression pattern.
@@ -853,7 +1001,9 @@ namespace JetBrains.Annotations
   [AttributeUsage(AttributeTargets.Parameter)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class RegexPatternAttribute : Attribute { }
+  public sealed class RegexPatternAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// XAML attribute. Indicates the type that has <c>ItemsSource</c> property and should be
@@ -863,7 +1013,9 @@ namespace JetBrains.Annotations
   [AttributeUsage(AttributeTargets.Class)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class XamlItemsControlAttribute : Attribute { }
+  public sealed class XamlItemsControlAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// XAML attibute. Indicates the property of some <c>BindingBase</c>-derived type, that
@@ -872,12 +1024,14 @@ namespace JetBrains.Annotations
   /// </summary>
   /// <remarks>
   /// Property should have the tree ancestor of the <c>ItemsControl</c> type or
-  /// marked with the <see cref="XamlItemsControlAttribute"/> attribute.
+  /// marked with the <see cref="XamlItemsControlAttribute" /> attribute.
   /// </remarks>
   [AttributeUsage(AttributeTargets.Property)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class XamlItemBindingOfItemsControlAttribute : Attribute { }
+  public sealed class XamlItemBindingOfItemsControlAttribute : Attribute
+  {
+  }
 
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
@@ -897,17 +1051,23 @@ namespace JetBrains.Annotations
   [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class AspDataFieldAttribute : Attribute { }
+  public sealed class AspDataFieldAttribute : Attribute
+  {
+  }
 
   [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class AspDataFieldsAttribute : Attribute { }
+  public sealed class AspDataFieldsAttribute : Attribute
+  {
+  }
 
   [AttributeUsage(AttributeTargets.Property)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class AspMethodPropertyAttribute : Attribute { }
+  public sealed class AspMethodPropertyAttribute : Attribute
+  {
+  }
 
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
@@ -927,12 +1087,12 @@ namespace JetBrains.Annotations
   [GeneratedCode("Resharper", "9.0.0.0")]
   public sealed class AspTypePropertyAttribute : Attribute
   {
-    public bool CreateConstructorReferences { get; private set; }
-
     public AspTypePropertyAttribute(bool createConstructorReferences)
     {
       CreateConstructorReferences = createConstructorReferences;
     }
+
+    public bool CreateConstructorReferences { get; private set; }
   }
 
   [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
@@ -966,27 +1126,37 @@ namespace JetBrains.Annotations
   [AttributeUsage(AttributeTargets.Method)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class RazorHelperCommonAttribute : Attribute { }
+  public sealed class RazorHelperCommonAttribute : Attribute
+  {
+  }
 
   [AttributeUsage(AttributeTargets.Property)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class RazorLayoutAttribute : Attribute { }
+  public sealed class RazorLayoutAttribute : Attribute
+  {
+  }
 
   [AttributeUsage(AttributeTargets.Method)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class RazorWriteLiteralMethodAttribute : Attribute { }
+  public sealed class RazorWriteLiteralMethodAttribute : Attribute
+  {
+  }
 
   [AttributeUsage(AttributeTargets.Method)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class RazorWriteMethodAttribute : Attribute { }
+  public sealed class RazorWriteMethodAttribute : Attribute
+  {
+  }
 
   [AttributeUsage(AttributeTargets.Parameter)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class RazorWriteMethodParameterAttribute : Attribute { }
+  public sealed class RazorWriteMethodParameterAttribute : Attribute
+  {
+  }
 
   /// <summary>
   /// Prevents the Member Reordering feature from tossing members of the marked class.
@@ -997,5 +1167,7 @@ namespace JetBrains.Annotations
   [AttributeUsage(AttributeTargets.All)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
   [GeneratedCode("Resharper", "9.0.0.0")]
-  public sealed class NoReorder : Attribute { }
+  public sealed class NoReorder : Attribute
+  {
+  }
 }

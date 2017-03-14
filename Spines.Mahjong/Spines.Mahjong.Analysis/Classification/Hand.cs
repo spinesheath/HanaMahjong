@@ -1,19 +1,5 @@
-// Spines.Mahjong.Analysis.InternalTests.Hand.cs
-// 
-// Copyright (C) 2017  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -462,7 +448,7 @@ namespace Spines.Mahjong.Analysis.Classification
           continue;
         }
         InternalDiscard(suit, index);
-        
+
         var shantenAfterDiscard = ArrangementClassifier.Classify(_arrangementValues);
         if (shantenAfterDiscard <= bestShanten)
         {
@@ -503,7 +489,8 @@ namespace Spines.Mahjong.Analysis.Classification
     {
       var count = 0;
       var tileType = 0;
-      var localArrangements = new[] {_arrangementValues[0], _arrangementValues[1], _arrangementValues[2], _arrangementValues[3]};
+      var localArrangements = new[]
+      {_arrangementValues[0], _arrangementValues[1], _arrangementValues[2], _arrangementValues[3]};
       for (var suit = 0; suit < 3; ++suit)
       {
         for (var index = 0; index < 9; ++index)

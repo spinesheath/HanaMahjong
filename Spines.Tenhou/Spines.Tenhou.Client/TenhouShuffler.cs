@@ -1,19 +1,5 @@
-﻿// Spines.Tenhou.Client.TenhouShuffler.cs
-// 
-// Copyright (C) 2015  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -26,14 +12,6 @@ namespace Spines.Tenhou.Client
   /// </summary>
   internal class TenhouShuffler
   {
-    private const int NumberOfWords = 624;
-    private const int ParallelSequenceNumber = 397;
-    private const uint UpperMask = 0x80000000;
-    private const uint LowerMask = 0x7fffffff;
-    private readonly uint[] _evenOddXorValues = {0, 0x9908b0df};
-    private readonly uint[] _words = new uint[NumberOfWords];
-    private uint _nextWordIndex;
-
     /// <summary>
     /// Creates a new instance of TenhouShuffler and initializes it with a seed.
     /// </summary>
@@ -99,14 +77,13 @@ namespace Spines.Tenhou.Client
       return unchecked ((int) Temper(t));
     }
 
-    private static uint Temper(uint y)
-    {
-      y ^= (y >> 11);
-      y ^= (y << 7) & 0x9d2c5680;
-      y ^= (y << 15) & 0xefc60000;
-      y ^= (y >> 18);
-      return y;
-    }
+    private const int NumberOfWords = 624;
+    private const int ParallelSequenceNumber = 397;
+    private const uint UpperMask = 0x80000000;
+    private const uint LowerMask = 0x7fffffff;
+    private readonly uint[] _evenOddXorValues = {0, 0x9908b0df};
+    private readonly uint[] _words = new uint[NumberOfWords];
+    private uint _nextWordIndex;
 
     private void CreateNextState()
     {
@@ -133,6 +110,15 @@ namespace Spines.Tenhou.Client
     private uint PreviousXor(uint i)
     {
       return _words[i - 1] ^ (_words[i - 1] >> 30);
+    }
+
+    private static uint Temper(uint y)
+    {
+      y ^= y >> 11;
+      y ^= (y << 7) & 0x9d2c5680;
+      y ^= (y << 15) & 0xefc60000;
+      y ^= y >> 18;
+      return y;
     }
   }
 }

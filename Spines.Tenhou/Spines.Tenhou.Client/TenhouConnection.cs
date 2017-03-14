@@ -1,19 +1,5 @@
-﻿// Spines.Tenhou.Client.TenhouTcpClient.cs
-// 
-// Copyright (C) 2015  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Linq;
@@ -32,13 +18,6 @@ namespace Spines.Tenhou.Client
   /// </summary>
   internal class TenhouConnection : ITenhouConnection, IDisposable
   {
-    private const int Port = 10080;
-    private readonly IPAddress _address = IPAddress.Parse("133.242.10.78");
-    private readonly ILogger _logger;
-    private TcpClient _client;
-    private CancellationTokenSource _receiverCancellationTokenSource;
-    private Task _receiverTask;
-
     /// <summary>
     /// Creates a new instance of TenhouTcpClient.
     /// </summary>
@@ -46,15 +25,6 @@ namespace Spines.Tenhou.Client
     public TenhouConnection(ILogger logger)
     {
       _logger = logger;
-    }
-
-    /// <summary>
-    /// Disposes this.
-    /// </summary>
-    public void Dispose()
-    {
-      Dispose(true);
-      GC.SuppressFinalize(this);
     }
 
     /// <summary>
@@ -66,6 +36,15 @@ namespace Spines.Tenhou.Client
     /// Is raised once the client successfully connected to the connection.
     /// </summary>
     public event EventHandler Connected;
+
+    /// <summary>
+    /// Disposes this.
+    /// </summary>
+    public void Dispose()
+    {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
 
     /// <summary>
     /// Sends a message to the connection.
@@ -129,6 +108,13 @@ namespace Spines.Tenhou.Client
         Close();
       }
     }
+
+    private const int Port = 10080;
+    private readonly IPAddress _address = IPAddress.Parse("133.242.10.78");
+    private readonly ILogger _logger;
+    private TcpClient _client;
+    private CancellationTokenSource _receiverCancellationTokenSource;
+    private Task _receiverTask;
 
     private void ReadMessage(NetworkStream stream)
     {

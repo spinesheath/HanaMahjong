@@ -1,19 +1,5 @@
-﻿// Spines.Tools.AnalyzerBuilder.CompactAnalyzedDataCreator.cs
-// 
-// Copyright (C) 2017  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
 using System.IO;
@@ -28,9 +14,6 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
   /// </summary>
   internal class CompactAnalyzedDataCreator
   {
-    private const int HandLength = 1 + 9 + 9;
-    private readonly string _workingDirectory;
-
     public CompactAnalyzedDataCreator(string workingDirectory)
     {
       _workingDirectory = workingDirectory;
@@ -49,14 +32,6 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       return distinct.Select(a => Arrangement.MultipleFromString(a).ToList());
     }
 
-    private IEnumerable<string> Create()
-    {
-      var honorFiles = RawAnalyzedDataCreator.ForHonors().Create(_workingDirectory);
-      var suitFiles = RawAnalyzedDataCreator.ForSuits().Create(_workingDirectory);
-
-      return CreateCompactData(honorFiles).Concat(CreateCompactData(suitFiles));
-    }
-
     public IEnumerable<WordWithValue> CreateHonorWords()
     {
       var files = RawAnalyzedDataCreator.ForHonors().Create(_workingDirectory);
@@ -67,6 +42,17 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     {
       var files = RawAnalyzedDataCreator.ForSuits().Create(_workingDirectory);
       return CreateWords(files);
+    }
+
+    private const int HandLength = 1 + 9 + 9;
+    private readonly string _workingDirectory;
+
+    private IEnumerable<string> Create()
+    {
+      var honorFiles = RawAnalyzedDataCreator.ForHonors().Create(_workingDirectory);
+      var suitFiles = RawAnalyzedDataCreator.ForSuits().Create(_workingDirectory);
+
+      return CreateCompactData(honorFiles).Concat(CreateCompactData(suitFiles));
     }
 
     private IEnumerable<WordWithValue> CreateWords(IEnumerable<string> files)
@@ -107,16 +93,6 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
           }
         }
       }
-    }
-
-    private static string Compact(string line, IReadOnlyDictionary<string, string> redundancies)
-    {
-      var arrangements = line.Substring(HandLength);
-      while (redundancies.ContainsKey(arrangements))
-      {
-        arrangements = redundancies[arrangements];
-      }
-      return line.Substring(0, HandLength) + arrangements;
     }
 
     private Dictionary<string, string> CreateRedundantArrangements(string workingDirectory)
@@ -234,6 +210,25 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       return replacements;
     }
 
+    private IEnumerable<List<Arrangement>> GetAllArrangements()
+    {
+      var honorFiles = RawAnalyzedDataCreator.ForHonors().Create(_workingDirectory);
+      var suitFiles = RawAnalyzedDataCreator.ForSuits().Create(_workingDirectory);
+      var allLines = honorFiles.Concat(suitFiles).SelectMany(File.ReadAllLines);
+      var arrangementStrings = allLines.Select(a => a.Substring(HandLength)).Distinct();
+      return arrangementStrings.Select(Arrangement.MultipleFromString).Select(a => a.ToList());
+    }
+
+    private static string Compact(string line, IReadOnlyDictionary<string, string> redundancies)
+    {
+      var arrangements = line.Substring(HandLength);
+      while (redundancies.ContainsKey(arrangements))
+      {
+        arrangements = redundancies[arrangements];
+      }
+      return line.Substring(0, HandLength) + arrangements;
+    }
+
     /// <summary>
     /// Creates all permutations of length 4 of the numbers 0 through alphabetSize - 1.
     /// </summary>
@@ -254,15 +249,6 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
           }
         }
       }
-    }
-
-    private IEnumerable<List<Arrangement>> GetAllArrangements()
-    {
-      var honorFiles = RawAnalyzedDataCreator.ForHonors().Create(_workingDirectory);
-      var suitFiles = RawAnalyzedDataCreator.ForSuits().Create(_workingDirectory);
-      var allLines = honorFiles.Concat(suitFiles).SelectMany(File.ReadAllLines);
-      var arrangementStrings = allLines.Select(a => a.Substring(HandLength)).Distinct();
-      return arrangementStrings.Select(Arrangement.MultipleFromString).Select(a => a.ToList());
     }
   }
 }

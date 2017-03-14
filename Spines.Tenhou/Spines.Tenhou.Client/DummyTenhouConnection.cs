@@ -1,19 +1,5 @@
-﻿// Spines.Tenhou.Client.DummyTenhouTcpClient.cs
-// 
-// Copyright (C) 2015  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -28,8 +14,6 @@ namespace Spines.Tenhou.Client
   /// </summary>
   internal class DummyTenhouConnection : ITenhouConnection
   {
-    private readonly ILogger _logger;
-
     /// <summary>
     /// Creates a new instance of DummyTenhouTcpClient.
     /// </summary>
@@ -38,6 +22,16 @@ namespace Spines.Tenhou.Client
     {
       _logger = logger;
     }
+
+    /// <summary>
+    /// Is raised in response to Process.
+    /// </summary>
+    public event TypedEventHandler<ITenhouConnection, ReceivedMessageEventArgs> ReceivedMessage;
+
+    /// <summary>
+    /// Is raised once the client successfully connected to the connection.
+    /// </summary>
+    public event EventHandler Connected;
 
     /// <summary>
     /// Emulates the tenhou.net connection.
@@ -59,7 +53,7 @@ namespace Spines.Tenhou.Client
         var t = message.Attributes().FirstOrDefault(a => a.Name == "t");
         if (t != null)
         {
-          var parts = t.Value.Split(new[] {','});
+          var parts = t.Value.Split(',');
           if (parts.Count() == 2)
           {
             FakeRecieveRejoin(parts);
@@ -73,22 +67,14 @@ namespace Spines.Tenhou.Client
     }
 
     /// <summary>
-    /// Is raised in response to Process.
-    /// </summary>
-    public event TypedEventHandler<ITenhouConnection, ReceivedMessageEventArgs> ReceivedMessage;
-
-    /// <summary>
-    /// Is raised once the client successfully connected to the connection.
-    /// </summary>
-    public event EventHandler Connected;
-
-    /// <summary>
     /// Raises the Connected event.
     /// </summary>
     public void Connect()
     {
       Validate.InvokeSafely(Connected, this);
     }
+
+    private readonly ILogger _logger;
 
     private void FakeReceiveHelo()
     {

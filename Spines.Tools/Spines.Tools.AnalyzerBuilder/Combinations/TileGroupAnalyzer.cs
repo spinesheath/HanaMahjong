@@ -1,19 +1,5 @@
-﻿// Spines.Mahjong.Analysis.TileGroupAnalyzer.cs
-// 
-// Copyright (C) 2016  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +12,54 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
   /// </summary>
   internal class TileGroupAnalyzer
   {
+    /// <summary>
+    /// Creates a new instance of TileGroupAnalyzer for analyzing honors.
+    /// </summary>
+    public static TileGroupAnalyzer ForHonors(Combination concealedTiles, Combination meldedTiles, int meldCount)
+    {
+      return new TileGroupAnalyzer(concealedTiles, meldedTiles, meldCount, false);
+    }
+
+    /// <summary>
+    /// Creates a new instance of TileGroupAnalyzer for analyzing suits.
+    /// </summary>
+    public static TileGroupAnalyzer ForSuits(Combination concealedTiles, Combination meldedTiles, int meldCount)
+    {
+      return new TileGroupAnalyzer(concealedTiles, meldedTiles, meldCount, true);
+    }
+
+    /// <summary>
+    /// Returns all possible arrangements for the given hand.
+    /// </summary>
+    public IEnumerable<Arrangement> Analyze()
+    {
+      var comparer = new ArrangementComparer();
+      var arrangement = new Arrangement(0, _meldCount, _meldCount * 3);
+      _usedMelds = _meldCount;
+      _jantouValue = 0;
+      Analyze(arrangement, 0, 0);
+      var arrangements =
+        _arrangements.Where(a => !_arrangements.Any(other => comparer.IsWorseThan(a, other))).OrderBy(a => a.Id);
+      var compacter = new ArrangementGroupCompacter();
+      return compacter.GetCompacted(arrangements);
+    }
+
+    /// <summary>
+    /// Creates a new instance of TileGroupAnalyzer.
+    /// </summary>
+    private TileGroupAnalyzer(Combination concealedTiles, Combination meldedTiles, int meldCount, bool allowShuntsu)
+    {
+      Validate.NotNull(concealedTiles, nameof(concealedTiles));
+      Validate.NotNull(meldedTiles, nameof(meldedTiles));
+      Validate.InRange(meldCount, 0, 4, nameof(meldCount));
+
+      _meldCount = meldCount;
+      _concealed = concealedTiles.Counts.ToList();
+      _used = meldedTiles.Counts.ToList();
+      _tileTypeCount = concealedTiles.Counts.Count;
+      _protoGroups = allowShuntsu ? SuitProtoGroups : HonorProtoGroups;
+    }
+
     private static readonly IReadOnlyList<ProtoGroup> SuitProtoGroups = new List<ProtoGroup>
     {
       ProtoGroup.Jantou2,
@@ -61,54 +95,6 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
     private readonly List<int> _used;
     private int _jantouValue;
     private int _usedMelds;
-
-    /// <summary>
-    /// Creates a new instance of TileGroupAnalyzer.
-    /// </summary>
-    private TileGroupAnalyzer(Combination concealedTiles, Combination meldedTiles, int meldCount, bool allowShuntsu)
-    {
-      Validate.NotNull(concealedTiles, nameof(concealedTiles));
-      Validate.NotNull(meldedTiles, nameof(meldedTiles));
-      Validate.InRange(meldCount, 0, 4, nameof(meldCount));
-
-      _meldCount = meldCount;
-      _concealed = concealedTiles.Counts.ToList();
-      _used = meldedTiles.Counts.ToList();
-      _tileTypeCount = concealedTiles.Counts.Count;
-      _protoGroups = allowShuntsu ? SuitProtoGroups : HonorProtoGroups;
-    }
-
-    /// <summary>
-    /// Creates a new instance of TileGroupAnalyzer for analyzing honors.
-    /// </summary>
-    public static TileGroupAnalyzer ForHonors(Combination concealedTiles, Combination meldedTiles, int meldCount)
-    {
-      return new TileGroupAnalyzer(concealedTiles, meldedTiles, meldCount, false);
-    }
-
-    /// <summary>
-    /// Creates a new instance of TileGroupAnalyzer for analyzing suits.
-    /// </summary>
-    public static TileGroupAnalyzer ForSuits(Combination concealedTiles, Combination meldedTiles, int meldCount)
-    {
-      return new TileGroupAnalyzer(concealedTiles, meldedTiles, meldCount, true);
-    }
-
-    /// <summary>
-    /// Returns all possible arrangements for the given hand.
-    /// </summary>
-    public IEnumerable<Arrangement> Analyze()
-    {
-      var comparer = new ArrangementComparer();
-      var arrangement = new Arrangement(0, _meldCount, _meldCount * 3);
-      _usedMelds = _meldCount;
-      _jantouValue = 0;
-      Analyze(arrangement, 0, 0);
-      var arrangements =
-        _arrangements.Where(a => !_arrangements.Any(other => comparer.IsWorseThan(a, other))).OrderBy(a => a.Id);
-      var compacter = new ArrangementGroupCompacter();
-      return compacter.GetCompacted(arrangements);
-    }
 
     private void Analyze(Arrangement arrangement, int currentTileType, int currentProtoGroup)
     {

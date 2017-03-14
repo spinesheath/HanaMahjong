@@ -1,22 +1,8 @@
-﻿// Spines.Tenhou.Client.MatchInformation.cs
-// 
-// Copyright (C) 2015  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
-using Spines.Utility;
 using System.Xml.Linq;
+using Spines.Utility;
 
 namespace Spines.Tenhou.Client
 {
@@ -25,16 +11,6 @@ namespace Spines.Tenhou.Client
   /// </summary>
   public class MatchInformation
   {
-    /// <summary>
-    /// Instantiates a new instance of MatchInformation.
-    /// </summary>
-    internal MatchInformation(XElement message)
-    {
-      MatchType = new MatchType(InvariantConvert.ToInt32(message.Attribute("type").Value));
-      Lobby = InvariantConvert.ToInt32(message.Attribute("lobby").Value);
-      MatchId = message.Attribute("gpid").Value;
-    }
-
     /// <summary>
     /// The type of the match.
     /// </summary>
@@ -49,5 +25,15 @@ namespace Spines.Tenhou.Client
     /// The match id, required for rejoining a match after losing connection.
     /// </summary>
     public string MatchId { get; private set; }
+
+    /// <summary>
+    /// Instantiates a new instance of MatchInformation.
+    /// </summary>
+    internal MatchInformation(XElement message)
+    {
+      MatchType = new MatchType(InvariantConvert.ToInt32(message.Attribute("type").Value));
+      Lobby = InvariantConvert.ToInt32(message.Attribute("lobby").Value);
+      MatchId = message.Attribute("gpid").Value;
+    }
   }
 }

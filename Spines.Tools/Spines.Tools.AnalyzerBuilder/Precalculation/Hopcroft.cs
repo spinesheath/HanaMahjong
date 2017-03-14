@@ -1,19 +1,5 @@
-﻿// Spines.Tools.AnalyzerBuilder.Hopcroft.cs
-// 
-// Copyright (C) 2017  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -51,9 +37,11 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 
       var s = Enumerable.Range(0, alphabetSize).ToList(); // The alphabet.
       var n = new HashSet<int>(normalStates); // All nonfinal states.
-      var f = finalStates.Select(fs => new HashSet<int> {fs}).ToList(); // Final states are assumed to have different values.
+      var f = finalStates.Select(fs => new HashSet<int> {fs}).ToList();
+        // Final states are assumed to have different values.
       var p = new HashSet<HashSet<int>> {n}; // The partition.
-      var q = f.Select(ff => ff.First()).ToList(); // Single element sets of the partition are collected here for performance.
+      var q = f.Select(ff => ff.First()).ToList();
+        // Single element sets of the partition are collected here for performance.
       var w = new HashSet<HashSet<int>>(f); // The remaining sets to check.
 
       while (w.Count > 0)
@@ -68,7 +56,8 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
           {
             continue; // Intersections with an empty set are always empty.
           }
-          foreach (var y in p.ToList()) // p is modified in this loop, but all new elements are inserted into w and checked later.
+          foreach (var y in p.ToList())
+            // p is modified in this loop, but all new elements are inserted into w and checked later.
           {
             if (IsIntersectionEmpty(x, y))
             {

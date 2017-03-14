@@ -1,19 +1,5 @@
-﻿// Spines.Tools.AnalyzerBuilder.RawAnalyzedDataCreator.cs
-// 
-// Copyright (C) 2017  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
 using System.IO;
@@ -71,6 +57,27 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     protected abstract string GetFileName(int count);
 
     /// <summary>
+    /// Returns a TileGroupAnalyzer for the the given data.
+    /// </summary>
+    /// <param name="concealed">The concealed tiles to analyze.</param>
+    /// <param name="melded">The melded tiles to analyze.</param>
+    /// <param name="meldCount">The number of melds.</param>
+    /// <returns>An instance of TileGroupAnalyzer.</returns>
+    protected abstract TileGroupAnalyzer GetTileGroupAnalyzer(Combination concealed, Combination melded, int meldCount);
+
+    /// <summary>
+    /// Returns a ConcealedCombinationCreator.
+    /// </summary>
+    /// <returns>An instance of ConcealedCombinationCreator.</returns>
+    protected abstract ConcealedCombinationCreator GetConcealedCombinationCreator();
+
+    /// <summary>
+    /// Returns a MeldedCombinationsCreator.
+    /// </summary>
+    /// <returns>An instance of MeldedCombinationsCreator.</returns>
+    protected abstract MeldedCombinationsCreator GetMeldedCombinationsCreator();
+
+    /// <summary>
     /// Creates the analyzed data for a given number of concealed tiles.
     /// </summary>
     /// <param name="tileCount">The number of concealed tiles to use for the analysis.</param>
@@ -95,26 +102,5 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         }
       }
     }
-
-    /// <summary>
-    /// Returns a TileGroupAnalyzer for the the given data.
-    /// </summary>
-    /// <param name="concealed">The concealed tiles to analyze.</param>
-    /// <param name="melded">The melded tiles to analyze.</param>
-    /// <param name="meldCount">The number of melds.</param>
-    /// <returns>An instance of TileGroupAnalyzer.</returns>
-    protected abstract TileGroupAnalyzer GetTileGroupAnalyzer(Combination concealed, Combination melded, int meldCount);
-
-    /// <summary>
-    /// Returns a ConcealedCombinationCreator.
-    /// </summary>
-    /// <returns>An instance of ConcealedCombinationCreator.</returns>
-    protected abstract ConcealedCombinationCreator GetConcealedCombinationCreator();
-
-    /// <summary>
-    /// Returns a MeldedCombinationsCreator.
-    /// </summary>
-    /// <returns>An instance of MeldedCombinationsCreator.</returns>
-    protected abstract MeldedCombinationsCreator GetMeldedCombinationsCreator();
   }
 }

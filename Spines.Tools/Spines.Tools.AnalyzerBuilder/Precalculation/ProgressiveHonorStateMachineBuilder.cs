@@ -1,3 +1,6 @@
+// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
 using System.Collections.Generic;
 using System.Linq;
 using Spines.Tools.AnalyzerBuilder.Classification;
@@ -6,15 +9,54 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 {
   internal class ProgressiveHonorStateMachineBuilder : IStateMachineBuilder
   {
-    private readonly Dictionary<int, int> _idToValue = new Dictionary<int, int>();
-    private readonly Dictionary<int, int> _idToStateColumn = new Dictionary<int, int>();
-    private readonly List<int> _stateColumnToId = new List<int>();
+    /// <summary>
+    /// The size of the alphabet.
+    /// </summary>
+    public int AlphabetSize => 15 + 1;
+
+    /// <summary>
+    /// The transitions for the specified language.
+    /// </summary>
+    public IReadOnlyList<int> Transitions => _transitions;
+
+    /// <summary>
+    /// The states at which the transitions can be entered.
+    /// </summary>
+    /// <returns>The ids of the states.</returns>
+    public IReadOnlyList<int> EntryStates => new[] {0};
 
     public void SetLanguage(IEnumerable<WordWithValue> language)
     {
       CreateLookupData(language);
       CreateTransitions();
     }
+
+    /// <summary>
+    /// Is the transition one that describes can not be reached with a legal word?
+    /// </summary>
+    /// <param name="transition">The Id of the transtion.</param>
+    /// <returns>True, if the transition can not be reached, false otherwise.</returns>
+    public bool IsNull(int transition)
+    {
+      return _nullTransitionIds.Contains(transition);
+    }
+
+    /// <summary>
+    /// Is the transition one that describes a result?
+    /// </summary>
+    /// <param name="transition">The Id of the transtion.</param>
+    /// <returns>True, if the transition is a result, false otherwise.</returns>
+    public bool IsResult(int transition)
+    {
+      return transition % AlphabetSize == 0;
+    }
+
+    private readonly Dictionary<int, int> _idToValue = new Dictionary<int, int>();
+    private readonly Dictionary<int, int> _idToStateColumn = new Dictionary<int, int>();
+    private readonly List<int> _stateColumnToId = new List<int>();
+
+    private ISet<int> _nullTransitionIds;
+    private int[] _transitions;
 
     private void CreateTransitions()
     {
@@ -42,44 +84,23 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       }
     }
 
-    private ISet<int> _nullTransitionIds;
-    private int[] _transitions;
-
-    /// <summary>
-    /// The size of the alphabet.
-    /// </summary>
-    public int AlphabetSize => 15 + 1;
-
-    /// <summary>
-    /// The transitions for the specified language.
-    /// </summary>
-    public IReadOnlyList<int> Transitions => _transitions;
-
-    /// <summary>
-    /// Is the transition one that describes can not be reached with a legal word?
-    /// </summary>
-    /// <param name="transition">The Id of the transtion.</param>
-    /// <returns>True, if the transition can not be reached, false otherwise.</returns>
-    public bool IsNull(int transition)
+    private void CreateLookupData(IEnumerable<WordWithValue> language)
     {
-      return _nullTransitionIds.Contains(transition);
-    }
+      foreach (var word in language)
+      {
+        var id = GetId(word.Word);
+        if (!_idToValue.ContainsKey(id))
+        {
+          _idToValue.Add(id, word.Value);
+        }
+      }
 
-    /// <summary>
-    /// Is the transition one that describes a result?
-    /// </summary>
-    /// <param name="transition">The Id of the transtion.</param>
-    /// <returns>True, if the transition is a result, false otherwise.</returns>
-    public bool IsResult(int transition)
-    {
-      return transition % AlphabetSize == 0;
+      _stateColumnToId.AddRange(_idToValue.Keys.OrderBy(x => x));
+      for (var i = 0; i < _stateColumnToId.Count; ++i)
+      {
+        _idToStateColumn.Add(_stateColumnToId[i], i);
+      }
     }
-
-    /// <summary>
-    /// The states at which the transitions can be entered.
-    /// </summary>
-    /// <returns>The ids of the states.</returns>
-    public IReadOnlyList<int> EntryStates => new[] {0};
 
     private static int? GetNext(int s, int c)
     {
@@ -256,24 +277,6 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       }
 
       return GetId(word);
-    }
-
-    private void CreateLookupData(IEnumerable<WordWithValue> language)
-    {
-      foreach (var word in language)
-      {
-        var id = GetId(word.Word);
-        if (!_idToValue.ContainsKey(id))
-        {
-          _idToValue.Add(id, word.Value);
-        }
-      }
-
-      _stateColumnToId.AddRange(_idToValue.Keys.OrderBy(x => x));
-      for (var i = 0; i < _stateColumnToId.Count; ++i)
-      {
-        _idToStateColumn.Add(_stateColumnToId[i], i);
-      }
     }
 
     private static int GetId(IReadOnlyList<int> word)

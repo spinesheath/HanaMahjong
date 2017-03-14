@@ -1,19 +1,5 @@
-﻿/*
- *  Copyright (C) 2016  Johannes Heckl
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System.Linq;
 using NUnit.Framework;
@@ -35,13 +21,6 @@ namespace Spines.Tools.AnalyzerBuilder.Tests
       VerifyMeld(2, 284);
       VerifyMeld(3, 1914);
       VerifyMeld(4, 8439);
-    }
-
-    private static void VerifyMeld(int numberOfMelds, int numberOfCombinations)
-    {
-      var creator = MeldedCombinationsCreator.ForSuits();
-      var combinations = creator.Create(numberOfMelds);
-      Assert.AreEqual(numberOfCombinations, combinations.Count(), "Count of meld combinations was wrong");
     }
 
     /// <summary>
@@ -71,13 +50,6 @@ namespace Spines.Tools.AnalyzerBuilder.Tests
       //VerifyConcealed(18, 90453);
       //VerifyConcealed(19, 88138);
       //VerifyConcealed(20, 81564);
-    }
-
-    private static void VerifyConcealed(int numberOfTiles, int numberOfCombinations)
-    {
-      var creator = ConcealedCombinationCreator.ForSuits();
-      var combinations = creator.Create(numberOfTiles);
-      Assert.AreEqual(numberOfCombinations, combinations.Count(), "Count of concealed combinations was wrong");
     }
 
     /// <summary>
@@ -119,6 +91,20 @@ namespace Spines.Tools.AnalyzerBuilder.Tests
       //VerifyMixed(4, 1, 31814);
       //VerifyMixed(4, 2, 129749);
       //VerifyMixed(4, 3, 388080);
+    }
+
+    private static void VerifyMeld(int numberOfMelds, int numberOfCombinations)
+    {
+      var creator = MeldedCombinationsCreator.ForSuits();
+      var combinations = creator.Create(numberOfMelds);
+      Assert.AreEqual(numberOfCombinations, combinations.Count(), "Count of meld combinations was wrong");
+    }
+
+    private static void VerifyConcealed(int numberOfTiles, int numberOfCombinations)
+    {
+      var creator = ConcealedCombinationCreator.ForSuits();
+      var combinations = creator.Create(numberOfTiles);
+      Assert.AreEqual(numberOfCombinations, combinations.Count(), "Count of concealed combinations was wrong");
     }
 
     private static void VerifyMixed(int numberOfMelds, int numberOfTiles, int numberOfCombinations)

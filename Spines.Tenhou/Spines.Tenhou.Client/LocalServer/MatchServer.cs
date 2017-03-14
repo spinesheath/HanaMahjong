@@ -1,19 +1,5 @@
-﻿// Spines.Tenhou.Client.MatchServer.cs
-// 
-// Copyright (C) 2015  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -22,11 +8,6 @@ namespace Spines.Tenhou.Client.LocalServer
 {
   internal class MatchServer
   {
-    private readonly IDictionary<string, Match> _accountIdToMatch = new Dictionary<string, Match>();
-    private readonly ISet<string> _queue = new HashSet<string>();
-    private readonly ISeedGenerator _seedGenerator;
-    private readonly LogOnService _logOnService;
-
     public MatchServer(ISeedGenerator seedGenerator, LogOnService logOnService)
     {
       _seedGenerator = seedGenerator;
@@ -76,6 +57,11 @@ namespace Spines.Tenhou.Client.LocalServer
     {
       GetMatch(message.SenderId).ProcessMessage(message);
     }
+
+    private readonly IDictionary<string, Match> _accountIdToMatch = new Dictionary<string, Match>();
+    private readonly ISet<string> _queue = new HashSet<string>();
+    private readonly ISeedGenerator _seedGenerator;
+    private readonly LogOnService _logOnService;
 
     private void CreateNewMatch(List<string> accountIds, int lobby, MatchType matchType)
     {

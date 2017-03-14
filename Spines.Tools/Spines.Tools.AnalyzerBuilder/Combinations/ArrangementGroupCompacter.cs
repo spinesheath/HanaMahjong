@@ -1,19 +1,5 @@
-﻿// Spines.Mahjong.Analysis.ArrangementGroupCompacter.cs
-// 
-// Copyright (C) 2016  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +11,21 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
   /// </summary>
   internal class ArrangementGroupCompacter
   {
+    /// <summary>
+    /// Returns the non-redundant arrangements.
+    /// </summary>
+    public IEnumerable<Arrangement> GetCompacted(IEnumerable<Arrangement> arrangements)
+    {
+      var list = arrangements.ToList();
+      var key = string.Join(",", list.Select(a => a.Id));
+      if (!RedundantIndices.ContainsKey(key))
+      {
+        return list;
+      }
+      var toRemove = RedundantIndices[key];
+      return GetCompacted(list.Where((a, i) => i != toRemove));
+    }
+
     /// <summary>
     /// If a list of arrangements matches one of these sequences by their Ids, one of these arrangements is redundant
     /// in this combination. The value in the dictionary is the Id of the redundant arrangement in the sequence.
@@ -264,20 +265,5 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
       {"58,64,71", 0},
       {"64,72", 0}
     };
-
-    /// <summary>
-    /// Returns the non-redundant arrangements.
-    /// </summary>
-    public IEnumerable<Arrangement> GetCompacted(IEnumerable<Arrangement> arrangements)
-    {
-      var list = arrangements.ToList();
-      var key = string.Join(",", list.Select(a => a.Id));
-      if (!RedundantIndices.ContainsKey(key))
-      {
-        return list;
-      }
-      var toRemove = RedundantIndices[key];
-      return GetCompacted(list.Where((a, i) => i != toRemove));
-    }
   }
 }

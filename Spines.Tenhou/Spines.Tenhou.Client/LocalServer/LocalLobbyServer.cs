@@ -1,19 +1,5 @@
-﻿// Spines.Tenhou.Client.LocalLobbyServer.cs
-// 
-// Copyright (C) 2015  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -26,13 +12,6 @@ namespace Spines.Tenhou.Client.LocalServer
 {
   internal class LocalLobbyServer
   {
-    private readonly MatchServer _matchServer;
-
-    private readonly IDictionary<LocalConnection, StateMachine> _stateMachines =
-      new Dictionary<LocalConnection, StateMachine>();
-
-    private readonly LogOnService _logOnService;
-
     public LocalLobbyServer(ISeedGenerator seedGenerator)
     {
       _logOnService = new LogOnService();
@@ -58,6 +37,13 @@ namespace Spines.Tenhou.Client.LocalServer
       }
       stateMachine.Process(new Message(InvariantConvert.ToString(connection.GetHashCode()), message));
     }
+
+    private readonly MatchServer _matchServer;
+
+    private readonly IDictionary<LocalConnection, StateMachine> _stateMachines =
+      new Dictionary<LocalConnection, StateMachine>();
+
+    private readonly LogOnService _logOnService;
 
     private void OnConnectionEnded(object sender, EventArgs e)
     {

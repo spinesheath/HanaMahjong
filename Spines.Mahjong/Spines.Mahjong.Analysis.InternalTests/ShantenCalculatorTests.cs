@@ -1,19 +1,5 @@
-﻿// Spines.Mahjong.Analysis.InternalTests.ShantenCalculatorTests.cs
-// 
-// Copyright (C) 2017  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -60,7 +46,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
 
       Console.WriteLine(new Hand("123456789m12344p").Shanten);
 
-      for(var f = 0; f < 5; ++f)
+      for (var f = 0; f < 5; ++f)
       {
         var rand = new Random(5);
 
@@ -86,7 +72,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
 
           var playerId = 0;
           while (hand.Shanten > -1 && drawn.Any(d => !d))
-          {          
+          {
             var tileId = GetRandomTile(rand, drawn);
             drawn[tileId] = true;
             if (playerId == 0)
@@ -100,7 +86,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
             }
             else
             {
-              var callResult = hand.OfferCall(tileId / 4,  playerId == 3);
+              var callResult = hand.OfferCall(tileId / 4, playerId == 3);
               if (callResult == CallResult.Call)
               {
                 hand.Discard();

@@ -1,19 +1,5 @@
-﻿// Spines.Tenhou.Client.Match.cs
-// 
-// Copyright (C) 2015  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -27,28 +13,8 @@ namespace Spines.Tenhou.Client.LocalServer
   // TODO why do the initial messages joins take so long
 
 
-
   internal class Match
   {
-    private const int CurrentNagareCount = 0;
-    private const int CurrentHonbaCount = 0;
-    private readonly int _firstOyaIndex;
-    private readonly int _lobby;
-    private readonly LogOnService _logOnService;
-    private readonly MatchType _matchType;
-
-    private readonly IDictionary<string, PlayerStatus> _players =
-      new Dictionary<string, PlayerStatus>();
-
-    private readonly WallGenerator _shuffler;
-    private readonly StateMachine _stateMachine;
-    private int _currentActivePlayerIndex;
-    private int _currentGameIndex = 0;
-    // roundNumber = seed[0] / 4
-    // gameNumber = seed[0] % 4
-    private Wall _currentWall;
-    private int _timesOyaChanged = 0;
-
     public Match(string seed, IEnumerable<string> accountIds, int lobby, MatchType matchType, LogOnService logOnService)
     {
       _lobby = lobby;
@@ -254,6 +220,25 @@ namespace Spines.Tenhou.Client.LocalServer
       }
       SendDraw();
     }
+
+    private const int CurrentNagareCount = 0;
+    private const int CurrentHonbaCount = 0;
+    private readonly int _firstOyaIndex;
+    private readonly int _lobby;
+    private readonly LogOnService _logOnService;
+    private readonly MatchType _matchType;
+
+    private readonly IDictionary<string, PlayerStatus> _players =
+      new Dictionary<string, PlayerStatus>();
+
+    private readonly WallGenerator _shuffler;
+    private readonly StateMachine _stateMachine;
+    private int _currentActivePlayerIndex;
+    private readonly int _currentGameIndex = 0;
+    // roundNumber = seed[0] / 4
+    // gameNumber = seed[0] % 4
+    private Wall _currentWall;
+    private readonly int _timesOyaChanged = 0;
 
     private void OnFinished(object sender, EventArgs e)
     {

@@ -1,19 +1,5 @@
-﻿// Spines.Mahjong.Analysis.StateManager.cs
-// 
-// Copyright (C) 2016  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -23,12 +9,6 @@ namespace Spines.Tools.AnalyzerBuilder.Classification
 {
   internal class StateManager
   {
-    private readonly int _alphabetSize;
-    private readonly Dictionary<int, FinalState> _finalStates;
-    private readonly int _heights;
-    private readonly Dictionary<State, State>[] _uniqueStates;
-    private int[] _transitions;
-
     public StateManager(int alphabetSize, int wordLength)
     {
       _alphabetSize = alphabetSize;
@@ -46,6 +26,11 @@ namespace Spines.Tools.AnalyzerBuilder.Classification
     public State StartingState { get; }
 
     /// <summary>
+    /// Indices of the transitions that contain a final value in the transitions array.
+    /// </summary>
+    public ISet<int> ResultIndexes { get; private set; }
+
+    /// <summary>
     /// If this method is called before all states are finalized, the result will not be correct.
     /// Usage:
     /// int current = 0;
@@ -54,11 +39,6 @@ namespace Spines.Tools.AnalyzerBuilder.Classification
     /// return current;
     /// </summary>
     public IReadOnlyList<int> Transitions => _transitions;
-
-    /// <summary>
-    /// Indices of the transitions that contain a final value in the transitions array.
-    /// </summary>
-    public ISet<int> ResultIndexes { get; private set; }
 
     /// <summary>
     /// Assigns each state a unique Id and creates a transition table.
@@ -107,14 +87,6 @@ namespace Spines.Tools.AnalyzerBuilder.Classification
       }
     }
 
-    /// <summary>
-    /// The index of a transition in the transition table.
-    /// </summary>
-    private int GetIndex(int state, int character)
-    {
-      return _alphabetSize * state + character;
-    }
-
     public void RemoveUniqueState(State state, int height)
     {
       if (!_uniqueStates[height].Remove(state))
@@ -145,6 +117,20 @@ namespace Spines.Tools.AnalyzerBuilder.Classification
       var final = new FinalState(_alphabetSize, value);
       _finalStates.Add(value, final);
       return final;
+    }
+
+    private readonly int _alphabetSize;
+    private readonly Dictionary<int, FinalState> _finalStates;
+    private readonly int _heights;
+    private readonly Dictionary<State, State>[] _uniqueStates;
+    private int[] _transitions;
+
+    /// <summary>
+    /// The index of a transition in the transition table.
+    /// </summary>
+    private int GetIndex(int state, int character)
+    {
+      return _alphabetSize * state + character;
     }
   }
 }

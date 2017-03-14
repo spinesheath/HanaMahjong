@@ -1,19 +1,5 @@
-﻿// Spines.Tenhou.Client.AccountInformation.cs
-// 
-// Copyright (C) 2015  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -28,42 +14,25 @@ namespace Spines.Tenhou.Client
   /// </summary>
   public class AccountInformation
   {
-    internal AccountInformation(XElement message)
-    {
-      RatingScales = GetRatingScales(message);
-      ExpireDays = InvariantConvert.ToInt32(message.Attribute("expiredays").Value);
-      ExpireDate = GetExpireDate(message);
-      UserName = new UserName(message.Attribute("uname").Value);
-    }
-
-    internal XElement ToMessage()
-    {
-      var uname = new XAttribute("uname", UserName.EncodedName);
-      var expire = new XAttribute("expire", InvariantConvert.Format("{0}{1}{2}", ExpireDate.Year, ExpireDate.Month, ExpireDate.Day));
-      var days = new XAttribute("expiredays", ExpireDays);
-      var scale = new XAttribute("ratingscale", string.Join("&", RatingScales.Select(p => InvariantConvert.Format("{0}={1}", p.Key, p.Value))));
-      return new XElement("HELO", uname, expire, days, scale);
-    }
-
     /// <summary>
     /// The username of the account that was logged on.
     /// </summary>
-    public UserName UserName { get; private set; }
+    public UserName UserName { get; }
 
     /// <summary>
     /// The date of expiry for the account.
     /// </summary>
-    public DateTime ExpireDate { get; private set; }
+    public DateTime ExpireDate { get; }
 
     /// <summary>
     /// The number of days until the account expires.
     /// </summary>
-    public int ExpireDays { get; private set; }
+    public int ExpireDays { get; }
 
     /// <summary>
     /// The rating scales for the account.
     /// </summary>
-    public IDictionary<string, double> RatingScales { get; private set; }
+    public IDictionary<string, double> RatingScales { get; }
 
     private static DateTime GetExpireDate(XElement message)
     {
@@ -79,6 +48,25 @@ namespace Spines.Tenhou.Client
       var entries = message.Attribute("ratingscale").Value.Split(new[] {"&"}, StringSplitOptions.RemoveEmptyEntries);
       var entryParts = entries.Select(entry => entry.Split(new[] {"="}, StringSplitOptions.RemoveEmptyEntries));
       return entryParts.ToDictionary(parts => parts[0], parts => InvariantConvert.ToDouble(parts[1]));
+    }
+
+    internal AccountInformation(XElement message)
+    {
+      RatingScales = GetRatingScales(message);
+      ExpireDays = InvariantConvert.ToInt32(message.Attribute("expiredays").Value);
+      ExpireDate = GetExpireDate(message);
+      UserName = new UserName(message.Attribute("uname").Value);
+    }
+
+    internal XElement ToMessage()
+    {
+      var uname = new XAttribute("uname", UserName.EncodedName);
+      var expire = new XAttribute("expire",
+        InvariantConvert.Format("{0}{1}{2}", ExpireDate.Year, ExpireDate.Month, ExpireDate.Day));
+      var days = new XAttribute("expiredays", ExpireDays);
+      var scale = new XAttribute("ratingscale",
+        string.Join("&", RatingScales.Select(p => InvariantConvert.Format("{0}={1}", p.Key, p.Value))));
+      return new XElement("HELO", uname, expire, days, scale);
     }
   }
 }

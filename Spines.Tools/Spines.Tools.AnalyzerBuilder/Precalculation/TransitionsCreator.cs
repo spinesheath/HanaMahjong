@@ -1,19 +1,5 @@
-﻿// Spines.Tools.AnalyzerBuilder.TransitionsCreator.cs
-// 
-// Copyright (C) 2017  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -137,7 +123,8 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     /// <summary>
     /// Creates the transitions file if it doesn't exist.
     /// </summary>
-    private void CreateTransitionsWithMinOffsets(string fileName, Func<IStateMachineBuilder> createBuilder, int wordLength)
+    private void CreateTransitionsWithMinOffsets(string fileName, Func<IStateMachineBuilder> createBuilder,
+      int wordLength)
     {
       var targetPath = Path.Combine(_workingDirectory, fileName);
       if (File.Exists(targetPath))
@@ -163,13 +150,15 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       File.WriteAllLines(minOffsetPath, minOffsetLines);
     }
 
-    private static IReadOnlyList<int> GetMinOffsets(IStateMachineBuilder builder, TransitionCompacter compacter, int wordLength)
+    private static IReadOnlyList<int> GetMinOffsets(IStateMachineBuilder builder, TransitionCompacter compacter,
+      int wordLength)
     {
       var alphabet = Enumerable.Range(0, builder.AlphabetSize).ToList();
       var minOffsets = new int[wordLength];
       var maxOffsets = new int[wordLength];
       var transitionsInCurrentLevel = new HashSet<int>(builder.EntryStates.Select(e => e * builder.AlphabetSize));
-      var compactTransitionsInCurrentLevel = new HashSet<int>(builder.EntryStates.Select(e => e * builder.AlphabetSize - compacter.Offsets[e]));
+      var compactTransitionsInCurrentLevel =
+        new HashSet<int>(builder.EntryStates.Select(e => e * builder.AlphabetSize - compacter.Offsets[e]));
       for (var i = 0; i < wordLength; ++i)
       {
         var transitionsInPreviousLevel = transitionsInCurrentLevel;
@@ -212,11 +201,13 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       return minOffsets;
     }
 
-    private static IEnumerable<int> SubtractOffsets(IStateMachineBuilder builder, TransitionCompacter compacter, IReadOnlyList<int> minOffsets, int wordLength)
+    private static IEnumerable<int> SubtractOffsets(IStateMachineBuilder builder, TransitionCompacter compacter,
+      IReadOnlyList<int> minOffsets, int wordLength)
     {
       var alphabet = Enumerable.Range(0, builder.AlphabetSize).ToList();
       var transitionsInCurrentLevel = new HashSet<int>(builder.EntryStates.Select(e => e * builder.AlphabetSize));
-      var compactTransitionsInCurrentLevel = new HashSet<int>(builder.EntryStates.Select(e => e * builder.AlphabetSize - compacter.Offsets[e]));
+      var compactTransitionsInCurrentLevel =
+        new HashSet<int>(builder.EntryStates.Select(e => e * builder.AlphabetSize - compacter.Offsets[e]));
       var transitionsWithMinOffsets = new int[compacter.Transitions.Count].Populate(-1);
       for (var i = 0; i < wordLength; ++i)
       {
@@ -246,7 +237,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
         }
       }
       return transitionsWithMinOffsets;
-    } 
+    }
 
     private static IStateMachineBuilder GetClassifierBuilder(IEnumerable<WordWithValue> language)
     {

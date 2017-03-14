@@ -1,19 +1,5 @@
-﻿// Spines.Tenhou.Client.MeldCode.cs
-// 
-// Copyright (C) 2015  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
 using System.Linq;
@@ -26,11 +12,6 @@ namespace Spines.Tenhou.Client
   /// </summary>
   internal class MeldCode
   {
-    /// <summary>
-    /// The code of the meld.
-    /// </summary>
-    private readonly BitField _code;
-
     /// <summary>
     /// Instantiates a new instance of MeldCode.
     /// </summary>
@@ -48,7 +29,7 @@ namespace Spines.Tenhou.Client
     /// <summary>
     /// The id of the owner of the meld.
     /// </summary>
-    public int OwnerId { get; private set; }
+    public int OwnerId { get; }
 
     /// <summary>
     /// The id of the player that discarded the called tile, or the owner in case of a closed kan. Not sure about added kan.
@@ -63,7 +44,12 @@ namespace Spines.Tenhou.Client
     /// <summary>
     /// The type of the meld.
     /// </summary>
-    public MeldType Type { get; private set; }
+    public MeldType Type { get; }
+
+    /// <summary>
+    /// The code of the meld.
+    /// </summary>
+    private readonly BitField _code;
 
     /// <summary>
     /// Gets the tile that was added to a koutsu.
@@ -82,7 +68,7 @@ namespace Spines.Tenhou.Client
       if (Type == MeldType.Shuntsu)
       {
         var t = _code.ExtractSegment(6, 10) / 3;
-        return ((t / 7) * 9 + t % 7) * 4;
+        return (t / 7 * 9 + t % 7) * 4;
       }
       if (Type == MeldType.AddedKan || Type == MeldType.Koutsu)
       {
@@ -123,7 +109,7 @@ namespace Spines.Tenhou.Client
     /// <param name="index">The index that will be shifted.</param>
     private int GetKoutsuShiftedIndex(int index)
     {
-      return index + ((GetUnusedOrAddedTileIndex() <= index) ? 1 : 0);
+      return index + (GetUnusedOrAddedTileIndex() <= index ? 1 : 0);
     }
 
     /// <summary>

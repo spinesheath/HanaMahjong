@@ -1,19 +1,5 @@
-﻿// Spines.Tenhou.Client.Wall.cs
-// 
-// Copyright (C) 2015  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
 using System.Linq;
@@ -22,20 +8,6 @@ namespace Spines.Tenhou.Client.LocalServer
 {
   internal class Wall
   {
-    private readonly IList<Tile> _doras;
-    private readonly LinkedList<Tile> _draws;
-    private readonly Stack<Tile> _rinshanDraws;
-
-    private readonly IList<IList<Tile>> _startingHands = new List<IList<Tile>>
-    {
-      new List<Tile>(),
-      new List<Tile>(),
-      new List<Tile>(),
-      new List<Tile>()
-    };
-
-    private readonly IList<Tile> _uraDoras;
-
     public Wall(IEnumerable<Tile> tiles)
     {
       var tileList = tiles.ToList();
@@ -45,7 +17,7 @@ namespace Spines.Tenhou.Client.LocalServer
       _uraDoras = new List<Tile>(new[] {tileList[4], tileList[6], tileList[8], tileList[10]});
       for (var i = 0; i < 12 * 4; ++i)
       {
-        var drawOrderIndex = (i / 4) % 4;
+        var drawOrderIndex = i / 4 % 4;
         _startingHands[drawOrderIndex].Add(PopDraw());
       }
       for (var i = 0; i < 4; ++i)
@@ -87,5 +59,19 @@ namespace Spines.Tenhou.Client.LocalServer
       _draws.RemoveFirst();
       return _rinshanDraws.Pop();
     }
+
+    private readonly IList<Tile> _doras;
+    private readonly LinkedList<Tile> _draws;
+    private readonly Stack<Tile> _rinshanDraws;
+
+    private readonly IList<IList<Tile>> _startingHands = new List<IList<Tile>>
+    {
+      new List<Tile>(),
+      new List<Tile>(),
+      new List<Tile>(),
+      new List<Tile>()
+    };
+
+    private readonly IList<Tile> _uraDoras;
   }
 }

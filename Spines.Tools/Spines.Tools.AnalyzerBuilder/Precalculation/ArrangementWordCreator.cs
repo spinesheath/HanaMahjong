@@ -1,19 +1,5 @@
-﻿// Spines.Tools.AnalyzerBuilder.ArrangementWordCreator.cs
-// 
-// Copyright (C) 2017  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -26,8 +12,6 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 {
   internal class ArrangementWordCreator
   {
-    private readonly string _workingDirectory;
-
     public ArrangementWordCreator(string workingDirectory)
     {
       _workingDirectory = workingDirectory;
@@ -35,13 +19,16 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 
     public IEnumerable<WordWithValue> CreateUnordered()
     {
-      return Create("ArrangementWords.txt", () => new CompactAnalyzedDataCreator(_workingDirectory).GetUniqueArrangements());
+      return Create("ArrangementWords.txt",
+        () => new CompactAnalyzedDataCreator(_workingDirectory).GetUniqueArrangements());
     }
 
     public IEnumerable<WordWithValue> CreateOrdered()
     {
       return Create("OrderedArrangementWords.txt", () => new OrderedArrangementsCreator(_workingDirectory).Create());
     }
+
+    private readonly string _workingDirectory;
 
     private IEnumerable<WordWithValue> Create(string fileName, Func<IEnumerable<IList<Arrangement>>> wordCreator)
     {

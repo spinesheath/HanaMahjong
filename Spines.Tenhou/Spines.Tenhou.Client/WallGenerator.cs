@@ -1,19 +1,5 @@
-// Spines.Tenhou.Client.WallGenerator.cs
-// 
-// Copyright (C) 2015  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -28,10 +14,6 @@ namespace Spines.Tenhou.Client
   /// </summary>
   internal class WallGenerator
   {
-    private readonly IList<IEnumerable<int>> _dice = new List<IEnumerable<int>>();
-    private readonly TenhouShuffler _shuffler;
-    private readonly IList<IEnumerable<Tile>> _walls = new List<IEnumerable<Tile>>();
-
     /// <summary>
     /// Creates a new instance of WallGenerator.
     /// </summary>
@@ -72,6 +54,33 @@ namespace Spines.Tenhou.Client
         Generate();
       }
       return _walls[gameIndex];
+    }
+
+    private readonly IList<IEnumerable<int>> _dice = new List<IEnumerable<int>>();
+    private readonly TenhouShuffler _shuffler;
+    private readonly IList<IEnumerable<Tile>> _walls = new List<IEnumerable<Tile>>();
+
+    /// <summary>
+    /// Creates 9 chunks, then creates 9 hashes of 64 bytes each, which are converted into a total of 144 ints.
+    /// </summary>
+    /// <returns>144 random integers.</returns>
+    private IEnumerable<int> Create144RandomValues()
+    {
+      // ToList to make sure that the shuffler is actually called 288 times and not lazily because GetNext modifies the shuffler's state.
+      var values = Enumerable.Repeat(0, 288).Select(n => _shuffler.GetNext()).ToList();
+      return CreateChunks(IntsToBytes(values), 128).SelectMany(ComputeHash);
+    }
+
+    private void Generate()
+    {
+      var rnd = Create144RandomValues().Select(v => unchecked ((uint) v)).ToList();
+      var wall = Enumerable.Range(0, 136).Select(t => new Tile(t)).ToList();
+      for (var i = 0; i < wall.Count - 1; ++i)
+      {
+        Swap(wall, i, i + Convert.ToInt16(rnd[i] % (136 - i)));
+      }
+      _walls.Add(wall);
+      _dice.Add(new[] {CreateDice(rnd[135]), CreateDice(rnd[136])});
     }
 
     /// <summary>
@@ -147,29 +156,6 @@ namespace Spines.Tenhou.Client
       var t = wall[index1];
       wall[index1] = wall[index2];
       wall[index2] = t;
-    }
-
-    /// <summary>
-    /// Creates 9 chunks, then creates 9 hashes of 64 bytes each, which are converted into a total of 144 ints.
-    /// </summary>
-    /// <returns>144 random integers.</returns>
-    private IEnumerable<int> Create144RandomValues()
-    {
-      // ToList to make sure that the shuffler is actually called 288 times and not lazily because GetNext modifies the shuffler's state.
-      var values = Enumerable.Repeat(0, 288).Select(n => _shuffler.GetNext()).ToList();
-      return CreateChunks(IntsToBytes(values), 128).SelectMany(ComputeHash);
-    }
-
-    private void Generate()
-    {
-      var rnd = Create144RandomValues().Select(v => unchecked ((uint) v)).ToList();
-      var wall = Enumerable.Range(0, 136).Select(t => new Tile(t)).ToList();
-      for (var i = 0; i < wall.Count - 1; ++i)
-      {
-        Swap(wall, i, i + Convert.ToInt16(rnd[i] % (136 - i)));
-      }
-      _walls.Add(wall);
-      _dice.Add(new[] {CreateDice(rnd[135]), CreateDice(rnd[136])});
     }
   }
 }

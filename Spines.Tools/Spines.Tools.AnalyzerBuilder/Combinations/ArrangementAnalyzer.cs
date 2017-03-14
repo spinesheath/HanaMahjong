@@ -1,19 +1,5 @@
-﻿// Spines.Mahjong.Analysis.ArrangementAnalyzer.cs
-// 
-// Copyright (C) 2016  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -27,8 +13,6 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
   /// </summary>
   internal class ArrangementAnalyzer
   {
-    private readonly IList<IEnumerable<Arrangement>> _sets = new List<IEnumerable<Arrangement>>();
-
     /// <summary>
     /// Adds a set of arrangements to the analyzer. Usually there will be at most 4 sets.
     /// </summary>
@@ -48,6 +32,8 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
       return 13 - maxValue;
     }
 
+    private readonly IList<IEnumerable<Arrangement>> _sets = new List<IEnumerable<Arrangement>>();
+
     private static int SumUsefulTiles(IEnumerable<Arrangement> arrangements)
     {
       var mentsuCount = 0;
@@ -58,7 +44,9 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
         jantouValue = Math.Max(jantouValue, a.JantouValue);
         var mentsuToAdd = Math.Min(4 - mentsuCount, a.MentsuCount);
         if (mentsuToAdd == 0)
+        {
           continue;
+        }
         mentsuCount += mentsuToAdd;
         // Worst case: tiles are spread evenly across the groups, with some groups having one more tile than the rest.
         mentsuValue += a.MentsuValue / a.MentsuCount * mentsuToAdd;

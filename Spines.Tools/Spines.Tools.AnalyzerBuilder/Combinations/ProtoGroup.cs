@@ -1,19 +1,5 @@
-﻿// Spines.Mahjong.Analysis.ProtoGroup.cs
-// 
-// Copyright (C) 2016  Johannes Heckl
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+﻿// This file is licensed to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,6 +12,29 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
   [DebuggerDisplay("ProtoGroup {Value}")]
   internal class ProtoGroup
   {
+    /// <summary>
+    /// The Value of the ProtoGroup.
+    /// </summary>
+    public int Value { get; }
+
+    /// <summary>
+    /// Can this ProtoGroup be used in an arrangement?
+    /// </summary>
+    public bool CanInsert(IReadOnlyList<int> concealedTiles, IReadOnlyList<int> usedTiles, int offset)
+    {
+      return _protoGroupInserter.CanInsert(concealedTiles, usedTiles, offset);
+    }
+
+    public void Insert(IList<int> concealedTiles, IList<int> usedTiles, int offset)
+    {
+      _protoGroupInserter.Insert(concealedTiles, usedTiles, offset);
+    }
+
+    public void Remove(IList<int> concealedTiles, IList<int> usedTiles, int offset)
+    {
+      _protoGroupInserter.Remove(concealedTiles, usedTiles, offset);
+    }
+
     /// <summary>
     /// A full jantou.
     /// </summary>
@@ -87,11 +96,6 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
     public static readonly ProtoGroup Shuntsu001 = new ProtoGroup(1, new ShuntsuProtoGroupInserter(0, 0, 1));
 
     /// <summary>
-    /// Can this ProtoGroup be used in an arrangement?
-    /// </summary>
-    private readonly IProtoGroupInserter _protoGroupInserter;
-
-    /// <summary>
     /// Creates a new instance of ProtoGroup.
     /// </summary>
     private ProtoGroup(int value, IProtoGroupInserter protoGroupInserter)
@@ -101,26 +105,8 @@ namespace Spines.Tools.AnalyzerBuilder.Combinations
     }
 
     /// <summary>
-    /// The Value of the ProtoGroup.
-    /// </summary>
-    public int Value { get; }
-
-    /// <summary>
     /// Can this ProtoGroup be used in an arrangement?
     /// </summary>
-    public bool CanInsert(IReadOnlyList<int> concealedTiles, IReadOnlyList<int> usedTiles, int offset)
-    {
-      return _protoGroupInserter.CanInsert(concealedTiles, usedTiles, offset);
-    }
-
-    public void Insert(IList<int> concealedTiles, IList<int> usedTiles, int offset)
-    {
-      _protoGroupInserter.Insert(concealedTiles, usedTiles, offset);
-    }
-
-    public void Remove(IList<int> concealedTiles, IList<int> usedTiles, int offset)
-    {
-      _protoGroupInserter.Remove(concealedTiles, usedTiles, offset);
-    }
+    private readonly IProtoGroupInserter _protoGroupInserter;
   }
 }
