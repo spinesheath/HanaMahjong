@@ -9,7 +9,7 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_Help">
-                <MenuItem Header="_About"/>
+                <MenuItem Header="_About" Click="OnAbout"/>
             </MenuItem>
         </Menu>
         <ContentControl x:Name="MainContent"/>
