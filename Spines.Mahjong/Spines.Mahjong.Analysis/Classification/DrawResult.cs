@@ -6,7 +6,7 @@ namespace Spines.Mahjong.Analysis.Classification
   /// <summary>
   /// The result of a draw.
   /// </summary>
-  internal enum DrawResult
+  public enum DrawResult
   {
     /// <summary>
     /// The tile was drawn normally.

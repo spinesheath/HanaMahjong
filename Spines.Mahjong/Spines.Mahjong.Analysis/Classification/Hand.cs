@@ -11,7 +11,7 @@ namespace Spines.Mahjong.Analysis.Classification
   /// <summary>
   /// Maintains tile counts and calculates the Shanten of a hand.
   /// </summary>
-  internal class Hand
+  public class Hand
   {
     /// <summary>
     /// Creates a new instance of Hand.
@@ -24,6 +24,10 @@ namespace Spines.Mahjong.Analysis.Classification
       _melds = new[] {new int[4], new int[4], new int[4]};
     }
 
+    /// <summary>
+    /// Creates a hand initialized with the tiles specified in shorthand form.
+    /// </summary>
+    /// <param name="initial">The shorthand form of the initial hand.</param>
     public Hand(string initial)
       : this()
     {
@@ -68,6 +72,11 @@ namespace Spines.Mahjong.Analysis.Classification
         }
       }
     }
+
+    /// <summary>
+    /// Is the hand in a valid state?
+    /// </summary>
+    public bool IsValid => _tilesInHand == 13 || _tilesInHand == 14;
 
     /// <summary>
     /// The current Shanten of the hand.
@@ -288,6 +297,7 @@ namespace Spines.Mahjong.Analysis.Classification
       {
         AddMeld(suitId, list[i]);
       }
+      _tilesInHand += list.Count * 3;
     }
 
     private void AddMeld(int suitId, int meldId)

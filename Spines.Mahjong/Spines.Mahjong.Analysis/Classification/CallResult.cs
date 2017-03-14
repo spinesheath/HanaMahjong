@@ -6,7 +6,7 @@ namespace Spines.Mahjong.Analysis.Classification
   /// <summary>
   /// The result of a call offer.
   /// </summary>
-  internal enum CallResult
+  public enum CallResult
   {
     /// <summary>
     /// The call offer was ignored.
