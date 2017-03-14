@@ -2,6 +2,8 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Windows;
+using Spines.MachiKae.ViewModels;
+using Spines.MachiKae.Views;
 
 namespace Spines.MachiKae
 {
@@ -13,6 +15,9 @@ namespace Spines.MachiKae
     public MainWindow()
     {
       InitializeComponent();
+
+      var mainView = new MainView {DataContext = new MainViewModel()};
+      MainContent.Content = mainView;
     }
   }
 }

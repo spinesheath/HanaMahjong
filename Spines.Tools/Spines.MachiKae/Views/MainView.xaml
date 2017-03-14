@@ -1,0 +1,14 @@
+﻿<UserControl x:Class="Spines.MachiKae.Views.MainView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:Spines.MachiKae.ViewModels"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance viewModels:MainViewModel}">
+    <DockPanel LastChildFill="False">
+        <TextBox Text="{Binding Hand}" HorizontalAlignment="Stretch" VerticalAlignment="Top" DockPanel.Dock="Top"/>
+        <Border DockPanel.Dock="Top" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="100" Background="DarkOrange"/>
+    </DockPanel>
+</UserControl>
+
