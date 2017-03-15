@@ -30,7 +30,8 @@ namespace Spines.MachiKae.ViewModels
         _shorthand = value;
         try
         {
-          _currentHand = new Hand(value);
+          var shorthand = new ShorthandParser(value);
+          _currentHand = new Hand(shorthand);
           _invalidFormat = false;
         }
         catch

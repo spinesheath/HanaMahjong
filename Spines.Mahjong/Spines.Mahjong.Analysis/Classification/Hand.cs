@@ -28,15 +28,14 @@ namespace Spines.Mahjong.Analysis.Classification
     /// Creates a hand initialized with the tiles specified in shorthand form.
     /// </summary>
     /// <param name="initial">The shorthand form of the initial hand.</param>
-    public Hand(string initial)
+    public Hand(ShorthandParser initial)
       : this()
     {
-      var parser = new ShorthandParser(initial);
-      InitializeMelds(parser.ManzuMeldIds, 0);
-      InitializeMelds(parser.PinzuMeldIds, 1);
-      InitializeMelds(parser.SouzuMeldIds, 2);
+      InitializeMelds(initial.ManzuMeldIds, 0);
+      InitializeMelds(initial.PinzuMeldIds, 1);
+      InitializeMelds(initial.SouzuMeldIds, 2);
 
-      foreach (var meldId in parser.JihaiMeldIds)
+      foreach (var meldId in initial.JihaiMeldIds)
       {
         if (meldId < 7 + 9)
         {
@@ -63,7 +62,7 @@ namespace Spines.Mahjong.Analysis.Classification
         }
       }
 
-      var concealed = parser.Concealed.ToList();
+      var concealed = initial.Concealed.ToList();
       for (var t = 0; t < concealed.Count; ++t)
       {
         for (var i = 0; i < concealed[t]; ++i)

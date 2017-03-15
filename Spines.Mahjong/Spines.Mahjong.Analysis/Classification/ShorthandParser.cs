@@ -8,30 +8,19 @@ using System.Text.RegularExpressions;
 
 namespace Spines.Mahjong.Analysis.Classification
 {
-  internal class ShorthandParser
+  /// <summary>
+  /// Parses the shorthand representation of a hand.
+  /// </summary>
+  public class ShorthandParser
   {
+    /// <summary>
+    /// Creates a new instance of ShorthandParser.
+    /// </summary>
+    /// <param name="hand">The string that represents the hand.</param>
     public ShorthandParser(string hand)
     {
       _hand = hand;
     }
-
-    public IEnumerable<int> Concealed => Manzu.Concat(Pinzu).Concat(Souzu).Concat(Jihai);
-
-    public IEnumerable<int> Manzu => GetTiles('m', 9, new char[0]);
-
-    public IEnumerable<int> Pinzu => GetTiles('p', 9, new char[0]);
-
-    public IEnumerable<int> Souzu => GetTiles('s', 9, new char[0]);
-
-    public IEnumerable<int> Jihai => GetTiles('z', 7, new[] {'0', '8', '9'});
-
-    public IEnumerable<int> ManzuMeldIds => GetMelds('M', new char[0]);
-
-    public IEnumerable<int> PinzuMeldIds => GetMelds('P', new char[0]);
-
-    public IEnumerable<int> SouzuMeldIds => GetMelds('S', new char[0]);
-
-    public IEnumerable<int> JihaiMeldIds => GetMelds('Z', new[] {'0', '8', '9'});
 
     private readonly string _hand;
 
@@ -99,5 +88,38 @@ namespace Spines.Mahjong.Analysis.Classification
       }
       return numericValue - 1;
     }
+
+    /// <summary>
+    /// The counts of the 34 tile types, in order manzu 1-9, pinzu 1-9, souzu 1-9, honors 1-7.
+    /// </summary>
+    internal IEnumerable<int> Concealed => Manzu.Concat(Pinzu).Concat(Souzu).Concat(Jihai);
+
+    /// <summary>
+    /// The counts of the 9 manzu types, in order 1-9.
+    /// </summary>
+    internal IEnumerable<int> Manzu => GetTiles('m', 9, new char[0]);
+
+    /// <summary>
+    /// The counts of the 9 pinzu types, in order 1-9.
+    /// </summary>
+    internal IEnumerable<int> Pinzu => GetTiles('p', 9, new char[0]);
+
+    /// <summary>
+    /// The counts of the 9 souzu types, in order 1-9.
+    /// </summary>
+    internal IEnumerable<int> Souzu => GetTiles('s', 9, new char[0]);
+
+    /// <summary>
+    /// The counts of the 7 honor types, in order 1-7.
+    /// </summary>
+    internal IEnumerable<int> Jihai => GetTiles('z', 7, new[] {'0', '8', '9'});
+
+    internal IEnumerable<int> ManzuMeldIds => GetMelds('M', new char[0]);
+
+    internal IEnumerable<int> PinzuMeldIds => GetMelds('P', new char[0]);
+
+    internal IEnumerable<int> SouzuMeldIds => GetMelds('S', new char[0]);
+
+    internal IEnumerable<int> JihaiMeldIds => GetMelds('Z', new[] {'0', '8', '9'});
   }
 }
