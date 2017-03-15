@@ -22,6 +22,26 @@ namespace Spines.Mahjong.Analysis.Classification
       _hand = hand;
     }
 
+    /// <summary>
+    /// The concealed tiles in the hand.
+    /// </summary>
+    public IEnumerable<Tile> Tiles
+    {
+      get
+      {
+        var concealed = Concealed.ToList();
+        for (var i = 0; i < 34; ++i)
+        {
+          for (var c = 0; c < concealed[i]; ++c)
+          {
+            yield return new Tile {Suit = _idToSuit[i / 9], Index = i % 9};
+          }
+        }
+      }
+    }
+
+    private readonly Suit[] _idToSuit = {Suit.Manzu, Suit.Pinzu, Suit.Souzu, Suit.Jihai};
+
     private readonly string _hand;
 
     private IEnumerable<int> GetMelds(char tileGroupName, char[] forbidden)

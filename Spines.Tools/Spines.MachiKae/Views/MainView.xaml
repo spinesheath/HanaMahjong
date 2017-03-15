@@ -22,7 +22,18 @@
             </TextBox>
         </DockPanel>
 
-        <Border DockPanel.Dock="Top" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="100" Background="DarkOrange"/>
+        <ItemsControl ItemsSource="{Binding TileIcons}" DockPanel.Dock="Top">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Image Source="{Binding}" Height="36"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
 
         <TextBlock Text="{Binding Shanten, StringFormat={}{0} Shanten}" VerticalAlignment="Top" DockPanel.Dock="Top">
             <TextBlock.Style>

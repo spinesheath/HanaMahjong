@@ -52,10 +52,12 @@
     <Compile Include="Classification\CallResult.cs" />
     <Compile Include="Classification\DrawResult.cs" />
     <Compile Include="Classification\Hand.cs" />
+    <Compile Include="Classification\Suit.cs" />
     <Compile Include="Classification\SuitClassifer.cs" />
     <Compile Include="Classification\ProgressiveHonorClassifier.cs" />
     <Compile Include="Classification\Resource.cs" />
     <Compile Include="Classification\ShorthandParser.cs" />
+    <Compile Include="Classification\Tile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows.Input;
 using Spines.MachiKae.Commands;
 using Spines.Mahjong.Analysis.Classification;
@@ -18,6 +20,8 @@ namespace Spines.MachiKae.ViewModels
 
     public ICommand Randomize { get; }
 
+    public ICollection<string> TileIcons { get; } = new ObservableCollection<string>();
+
     public string Hand
     {
       get { return _shorthand; }
@@ -30,9 +34,10 @@ namespace Spines.MachiKae.ViewModels
         _shorthand = value;
         try
         {
-          var shorthand = new ShorthandParser(value);
-          _currentHand = new Hand(shorthand);
+          var parser = new ShorthandParser(value);
+          _currentHand = new Hand(parser);
           _invalidFormat = false;
+          UpdateIcons(parser);
         }
         catch
         {
@@ -58,9 +63,32 @@ namespace Spines.MachiKae.ViewModels
       }
     }
 
+    private const string IconBasePath = @"Resources/Tiles/Perspective";
+
+    private static readonly Dictionary<Suit, char> SuitCharacters = new Dictionary<Suit, char>
+    {
+      {Suit.Manzu, 'm'},
+      {Suit.Pinzu, 'p'},
+      {Suit.Souzu, 's'},
+      {Suit.Jihai, 'j'}
+    };
+
     private string _shorthand;
     private Hand _currentHand;
     private bool _invalidFormat;
+
+    private void UpdateIcons(ShorthandParser parser)
+    {
+      var tiles = parser.Tiles;
+      TileIcons.Clear();
+      foreach (var tile in tiles)
+      {
+        var c = SuitCharacters[tile.Suit];
+        var i = tile.Index + 1;
+        var fileName = Path.Combine(IconBasePath, $"0{c}{i}.png");
+        TileIcons.Add(Path.GetFullPath(fileName));
+      }
+    }
 
     private void OnRandomize(object obj)
     {
@@ -78,6 +106,8 @@ namespace Spines.MachiKae.ViewModels
       OnPropertyChanged(nameof(Hand));
       OnPropertyChanged(nameof(Shanten));
       OnPropertyChanged(nameof(InvalidFormat));
+      var parser = new ShorthandParser(_shorthand);
+      UpdateIcons(parser);
     }
 
     private static int GetRandomTile(Random rand, IReadOnlyList<bool> drawn)
