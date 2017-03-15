@@ -7,9 +7,34 @@
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance viewModels:MainViewModel}">
     <DockPanel LastChildFill="False">
-        <TextBox Text="{Binding Hand, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Top" DockPanel.Dock="Top"/>
+        <DockPanel DockPanel.Dock="Top">
+            <Button DockPanel.Dock="Right" Command="{Binding Randomize}" Content="Roll"/>
+            <TextBox Text="{Binding Hand, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Top" DockPanel.Dock="Left">
+                <TextBox.Style>
+                    <Style TargetType="{x:Type TextBox}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding InvalidFormat}" Value="True">
+                                <Setter Property="Foreground" Value="Red"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
+        </DockPanel>
+
         <Border DockPanel.Dock="Top" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="100" Background="DarkOrange"/>
-        <TextBlock Text="{Binding Shanten, StringFormat={}{0} Shanten}" VerticalAlignment="Top" DockPanel.Dock="Top"/>
+
+        <TextBlock Text="{Binding Shanten, StringFormat={}{0} Shanten}" VerticalAlignment="Top" DockPanel.Dock="Top">
+            <TextBlock.Style>
+                <Style TargetType="{x:Type TextBlock}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding InvalidFormat}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
     </DockPanel>
 </UserControl>
 

@@ -67,6 +67,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Commands\DelegateCommand.cs" />
     <Compile Include="Dialogs\AboutDialog.xaml.cs">
       <DependentUpon>AboutDialog.xaml</DependentUpon>
     </Compile>
@@ -126,9 +127,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="..\..\CommonResources\CustomDictionary.xml">
+    <CodeAnalysisDictionary Include="..\..\CommonResources\CustomDictionary.xml">
       <Link>CommonResources\CustomDictionary.xml</Link>
-    </Resource>
+    </CodeAnalysisDictionary>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\machikae.ico" />
