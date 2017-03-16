@@ -3,7 +3,7 @@
 
 using System.Windows.Controls;
 
-namespace Spines.MachiKae.Views
+namespace Spines.Hana.Clay.Views
 {
   /// <summary>
   /// Interaction logic for MainView.xaml

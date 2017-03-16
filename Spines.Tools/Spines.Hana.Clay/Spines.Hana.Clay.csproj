@@ -7,7 +7,7 @@
     <ProjectGuid>{4BB172B0-3B9B-4872-AB05-4A28D964F4C8}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Spines.MachiKae</RootNamespace>
+    <RootNamespace>Spines.Hana.Clay</RootNamespace>
     <AssemblyName>Hana Clay</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

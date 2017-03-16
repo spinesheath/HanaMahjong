@@ -2,11 +2,11 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Windows;
-using Spines.MachiKae.Dialogs;
-using Spines.MachiKae.ViewModels;
-using Spines.MachiKae.Views;
+using Spines.Hana.Clay.Dialogs;
+using Spines.Hana.Clay.ViewModels;
+using Spines.Hana.Clay.Views;
 
-namespace Spines.MachiKae
+namespace Spines.Hana.Clay
 {
   /// <summary>
   /// Interaction logic for MainWindow.xaml

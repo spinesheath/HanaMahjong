@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Input;
-using Spines.MachiKae.Commands;
+using Spines.Hana.Clay.Commands;
 using Spines.Mahjong.Analysis.Classification;
 
-namespace Spines.MachiKae.ViewModels
+namespace Spines.Hana.Clay.ViewModels
 {
   internal class MainViewModel : ViewModelBase
   {

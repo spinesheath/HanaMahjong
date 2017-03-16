@@ -3,7 +3,7 @@
 
 using System.Windows;
 
-namespace Spines.MachiKae
+namespace Spines.Hana.Clay
 {
   /// <summary>
   /// Interaction logic for App.xaml

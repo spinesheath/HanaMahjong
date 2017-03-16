@@ -4,7 +4,7 @@
 using System;
 using System.Windows.Input;
 
-namespace Spines.MachiKae.Commands
+namespace Spines.Hana.Clay.Commands
 {
   /// <summary>
   /// Wraps an action with the ICommand interface.

@@ -3,9 +3,9 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Spines.MachiKae.Annotations;
+using Spines.Hana.Clay.Properties;
 
-namespace Spines.MachiKae.ViewModels
+namespace Spines.Hana.Clay.ViewModels
 {
   internal class ViewModelBase : INotifyPropertyChanged
   {

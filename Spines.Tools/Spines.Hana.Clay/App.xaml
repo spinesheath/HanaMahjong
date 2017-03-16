@@ -1,7 +1,6 @@
-﻿<Application x:Class="Spines.MachiKae.App"
+﻿<Application x:Class="Spines.Hana.Clay.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Spines.MachiKae"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
          

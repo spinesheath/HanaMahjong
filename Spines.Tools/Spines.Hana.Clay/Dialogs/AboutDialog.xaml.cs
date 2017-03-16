@@ -4,7 +4,7 @@
 using System.Diagnostics;
 using System.Windows;
 
-namespace Spines.MachiKae.Dialogs
+namespace Spines.Hana.Clay.Dialogs
 {
   /// <summary>
   /// Interaction logic for AboutDialog.xaml
