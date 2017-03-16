@@ -5,11 +5,25 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:Spines.Hana.Clay.ViewModels"
              mc:Ignorable="d" 
+             d:DesignHeight="350" 
+             d:DesignWidth="525"
              d:DataContext="{d:DesignInstance viewModels:MainViewModel}">
-    <DockPanel LastChildFill="False">
-        <DockPanel DockPanel.Dock="Top">
-            <Button DockPanel.Dock="Right" Command="{Binding Randomize}" Content="Roll"/>
-            <TextBox Text="{Binding Hand, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Top" DockPanel.Dock="Left">
+    
+    <DockPanel LastChildFill="False" Margin="10">
+        <DockPanel DockPanel.Dock="Top" LastChildFill="False">
+            <Button DockPanel.Dock="Left" Command="{Binding Randomize}" Content="Roll" VerticalAlignment="Center">
+                <Button.Template>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border BorderThickness="2" BorderBrush="{StaticResource FennelPrimaryMedium}" Padding="4">
+                            <ContentPresenter Content="{TemplateBinding Content}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <TextBox Text="{Binding Hand, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Top" DockPanel.Dock="Left"
+                     BorderBrush="{StaticResource FennelPrimaryMedium}" BorderThickness="0,0,0,2"
+                     Margin="8,2,8,2"
+                     Width="200">
                 <TextBox.Style>
                     <Style TargetType="{x:Type TextBox}">
                         <Style.Triggers>
@@ -22,7 +36,7 @@
             </TextBox>
         </DockPanel>
 
-        <ItemsControl ItemsSource="{Binding TileIcons}" DockPanel.Dock="Top">
+        <ItemsControl ItemsSource="{Binding TileIcons}" DockPanel.Dock="Top" Margin="0,10,0,10">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal"/>

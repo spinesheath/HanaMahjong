@@ -14,15 +14,6 @@
         WindowStyle="None"
         ResizeMode="CanResizeWithGrip">
 
-    <Window.Resources>
-        <SolidColorBrush x:Key="FennelPrimaryLight" Color="#FBFFE2"/>
-        <SolidColorBrush x:Key="FennelPrimaryMedium" Color="#B7AF84"/>
-        <SolidColorBrush x:Key="FennelPrimaryDark" Color="#706841"/>
-        <SolidColorBrush x:Key="FennelAccentLight" Color="#AF1650"/>
-        <SolidColorBrush x:Key="FennelAccentMedium" Color="#560B28"/>
-        <SolidColorBrush x:Key="FennelAccentDark" Color="#120022"/>
-    </Window.Resources>
-
     <Border Background="White" BorderThickness="1" BorderBrush="{StaticResource FennelPrimaryMedium}">
         <Grid>
             <DockPanel>
