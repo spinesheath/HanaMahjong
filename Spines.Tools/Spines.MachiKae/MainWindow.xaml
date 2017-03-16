@@ -6,13 +6,29 @@
         mc:Ignorable="d"
         Title="MachiKae" Height="350" Width="525"
         Icon="Resources/machikae.ico">
-    <DockPanel>
-        <Menu DockPanel.Dock="Top">
-            <MenuItem Header="_Help">
-                <MenuItem Header="_About" Click="OnAbout"/>
-            </MenuItem>
-        </Menu>
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="Mint0" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="Mint1" Color="#FECD73"/>
+        <SolidColorBrush x:Key="Mint2" Color="#C663AD"/>
+        <SolidColorBrush x:Key="Mint3" Color="#FFDEC5"/>
+        <SolidColorBrush x:Key="Fennel0" Color="#FBFFE2"/>
+        <SolidColorBrush x:Key="Fennel1" Color="#B7AF84"/>
+        <SolidColorBrush x:Key="Fennel2" Color="#AF1650"/>
+        <SolidColorBrush x:Key="Fennel3" Color="#DA0205"/>
+    </Window.Resources>
+    
+    <Grid>
         <ContentControl x:Name="MainContent"/>
-    </DockPanel>
+        <Button Click="OnAbout" HorizontalAlignment="Right" VerticalAlignment="Top" Width="36" Height="36">
+            <Button.Template>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border Background="{StaticResource Fennel0}" BorderBrush="{StaticResource Fennel1}" BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Path Stroke="{StaticResource Fennel1}" Data="M 6,7 L 28,7 M 6,17 L 28,17 M 6,27 L 28,27" StrokeThickness="5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                    </Border>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+    </Grid>
 </Window>
 

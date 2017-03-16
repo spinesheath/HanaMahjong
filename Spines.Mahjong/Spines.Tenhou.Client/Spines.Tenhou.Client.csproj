@@ -40,7 +40,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>CommonResources\Spines.TenView.StrongNameKeyFile.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>CommonResources\Spines.HanaMahjong.StrongNameKeyFile.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -110,9 +110,6 @@
     <Compile Include="WallGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />
-  </ItemGroup>
-  <ItemGroup>
     <CodeAnalysisDictionary Include="..\..\CommonResources\CustomDictionary.xml">
       <Link>CommonResources\CustomDictionary.xml</Link>
     </CodeAnalysisDictionary>
@@ -122,6 +119,9 @@
       <Project>{1ffe50e9-3d4b-418f-b4cd-3fa10ff4848f}</Project>
       <Name>Spines.Utility</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CommonResources\Spines.HanaMahjong.StrongNameKeyFile.pfx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -50,7 +50,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>CommonResources\Spines.TenView.StrongNameKeyFile.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>CommonResources\Spines.HanaMahjong.StrongNameKeyFile.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.WindowsAPICodePack">
@@ -152,7 +152,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-    <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />
+    <None Include="CommonResources\Spines.HanaMahjong.StrongNameKeyFile.pfx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

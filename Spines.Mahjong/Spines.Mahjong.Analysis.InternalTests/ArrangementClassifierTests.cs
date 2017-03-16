@@ -12,7 +12,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [Test]
     public void ClassifyShouldReturnValueOfWord()
     {
-      var a = ArrangementClassifier.Classify(new[] {0, 0, 0, 19});
+      var a = ArrangementClassifier.Classify(new[] { 0, 0, 0, 19 });
       const int e = 9;
 
       Assert.That(a, Is.EqualTo(e));

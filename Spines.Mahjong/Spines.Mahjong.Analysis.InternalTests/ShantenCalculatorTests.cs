@@ -30,7 +30,8 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [TestCase("1245p112z444Z3333Z", 1)]
     public void ShantenShouldBeCorrect(string hand, int expected)
     {
-      var c = new Hand(hand);
+      var parser = new ShorthandParser(hand);
+      var c = new Hand(parser);
 
       var actual = c.Shanten;
 
@@ -43,8 +44,9 @@ namespace Spines.Mahjong.Analysis.InternalTests
       Process.GetCurrentProcess().ProcessorAffinity = new IntPtr(2);
       Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
       Thread.CurrentThread.Priority = ThreadPriority.Highest;
-
-      Console.WriteLine(new Hand("123456789m12344p").Shanten);
+      
+      var parser = new ShorthandParser("123456789m12344p");
+      Console.WriteLine(new Hand(parser).Shanten);
 
       for (var f = 0; f < 5; ++f)
       {

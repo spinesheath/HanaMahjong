@@ -44,8 +44,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: CLSCompliant(true)]
 [assembly: InternalsVisibleTo("Spines.Mahjong.Analysis.InternalTests,PublicKey=" +
-                              "00240000048000009400000006020000002400005253413100040000010001002f388592d01391" +
-                              "6f47be930a324ac604fc0142f79be1435100e97c3591a004138cb394b1820a24b60b2bb0817fa7" +
-                              "1387d761bcc7344396572905b49af4c4b84e63aab7f3c03aa7fd7472bb23c7aa747ee192ccbc65" +
-                              "8202231ca66e36c452bcf64f7639c55171cb218d8c32e86a26701ea19fd449f7dd35a0bb5ff589" +
-                              "a145d296")]
+                              "002400000480000094000000060200000024000052534131000400000100010007ca96c66e3191" +
+                              "92af174ff88eb1fcfc933a687a063592a7375ff4c4936930b7ed7c0b9d67184b6ca5d03b43388c" +
+                              "a9b502daff079b363745b691d85cb74b98c33343e71a09f4be1e95b9ece485c4598cd8954875ec" +
+                              "bc35dfa49e597f2c31b803993ddb6c04361ff8755554ef98940b455deec98bec84fb2242b5b924" +
+                              "932cedc1")]

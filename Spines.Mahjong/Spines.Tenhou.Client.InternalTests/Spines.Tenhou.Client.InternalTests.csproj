@@ -42,7 +42,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>CommonResources\Spines.TenView.StrongNameKeyFile.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>CommonResources\Spines.HanaMahjong.StrongNameKeyFile.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -67,9 +67,6 @@
     <Compile Include="WallGeneratorTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />
-  </ItemGroup>
-  <ItemGroup>
     <CodeAnalysisDictionary Include="..\..\CommonResources\CustomDictionary.xml">
       <Link>CommonResources\CustomDictionary.xml</Link>
     </CodeAnalysisDictionary>
@@ -79,6 +76,9 @@
       <Project>{4F66968A-36E4-423D-9D0E-8AC5DC8C9B18}</Project>
       <Name>Spines.Tenhou.Client</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CommonResources\Spines.HanaMahjong.StrongNameKeyFile.pfx" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

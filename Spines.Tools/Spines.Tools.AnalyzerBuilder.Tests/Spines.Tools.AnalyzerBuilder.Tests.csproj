@@ -43,7 +43,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>CommonResources\Spines.TenView.StrongNameKeyFile.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>CommonResources\Spines.HanaMahjong.StrongNameKeyFile.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NSubstitute, Version=2.0.2.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
@@ -72,8 +72,8 @@
     <Compile Include="TileGroupAnalyzerTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />
     <None Include="packages.config" />
+    <None Include="CommonResources\Spines.HanaMahjong.StrongNameKeyFile.pfx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Spines.Utility\Spines.Utility\Spines.Utility.csproj">

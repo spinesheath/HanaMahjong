@@ -41,7 +41,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>CommonResources\Spines.TenView.StrongNameKeyFile.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>CommonResources\Spines.HanaMahjong.StrongNameKeyFile.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -66,12 +66,12 @@
     <Compile Include="Validate.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="CommonResources\Spines.TenView.StrongNameKeyFile.pfx" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="..\..\CommonResources\CustomDictionary.xml">
       <Link>CommonResources\CustomDictionary.xml</Link>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CommonResources\Spines.HanaMahjong.StrongNameKeyFile.pfx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
