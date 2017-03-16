@@ -2,6 +2,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.CodeDom.Compiler;
 
 #pragma warning disable 1591
 // ReSharper disable UnusedMember.Global
@@ -376,23 +377,29 @@ namespace Spines.Hana.Clay.Properties
     {
     }
 
+    [GeneratedCode("", "")]
     public UsedImplicitlyAttribute(ImplicitUseKindFlags useKindFlags)
       : this(useKindFlags, ImplicitUseTargetFlags.Default)
     {
     }
 
+    [GeneratedCode("", "")]
     public UsedImplicitlyAttribute(ImplicitUseTargetFlags targetFlags)
       : this(ImplicitUseKindFlags.Default, targetFlags)
     {
     }
 
+    [GeneratedCode("", "")]
     public UsedImplicitlyAttribute(ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags)
     {
       UseKindFlags = useKindFlags;
       TargetFlags = targetFlags;
     }
 
+    [GeneratedCode("", "")]
     public ImplicitUseKindFlags UseKindFlags { get; private set; }
+
+    [GeneratedCode("", "")]
     public ImplicitUseTargetFlags TargetFlags { get; private set; }
   }
 
@@ -408,29 +415,35 @@ namespace Spines.Hana.Clay.Properties
     {
     }
 
+    [GeneratedCode("", "")]
     public MeansImplicitUseAttribute(ImplicitUseKindFlags useKindFlags)
       : this(useKindFlags, ImplicitUseTargetFlags.Default)
     {
     }
 
+    [GeneratedCode("", "")]
     public MeansImplicitUseAttribute(ImplicitUseTargetFlags targetFlags)
       : this(ImplicitUseKindFlags.Default, targetFlags)
     {
     }
 
+    [GeneratedCode("", "")]
     public MeansImplicitUseAttribute(ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags)
     {
       UseKindFlags = useKindFlags;
       TargetFlags = targetFlags;
     }
 
+    [GeneratedCode("", "")]
     [UsedImplicitly]
     public ImplicitUseKindFlags UseKindFlags { get; private set; }
 
+    [GeneratedCode("", "")]
     [UsedImplicitly]
     public ImplicitUseTargetFlags TargetFlags { get; private set; }
   }
 
+  [GeneratedCode("", "")]
   [Flags]
   public enum ImplicitUseKindFlags
   {
@@ -456,6 +469,7 @@ namespace Spines.Hana.Clay.Properties
   /// Specify what is considered used implicitly when marked
   /// with <see cref="MeansImplicitUseAttribute" /> or <see cref="UsedImplicitlyAttribute" />.
   /// </summary>
+  [GeneratedCode("", "")]
   [Flags]
   public enum ImplicitUseTargetFlags
   {
@@ -473,6 +487,7 @@ namespace Spines.Hana.Clay.Properties
   /// This attribute is intended to mark publicly available API
   /// which should not be removed and so is treated as used.
   /// </summary>
+  [GeneratedCode("", "")]
   [MeansImplicitUse(ImplicitUseTargetFlags.WithMembers)]
   public sealed class PublicAPIAttribute : Attribute
   {
@@ -660,6 +675,7 @@ namespace Spines.Hana.Clay.Properties
     public string Target { get; set; }
   }
 
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
   public sealed class AspMvcAreaMasterLocationFormatAttribute : Attribute
   {
@@ -671,6 +687,7 @@ namespace Spines.Hana.Clay.Properties
     public string Format { get; private set; }
   }
 
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
   public sealed class AspMvcAreaPartialViewLocationFormatAttribute : Attribute
   {
@@ -682,6 +699,7 @@ namespace Spines.Hana.Clay.Properties
     public string Format { get; private set; }
   }
 
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
   public sealed class AspMvcAreaViewLocationFormatAttribute : Attribute
   {
@@ -693,6 +711,7 @@ namespace Spines.Hana.Clay.Properties
     public string Format { get; private set; }
   }
 
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
   public sealed class AspMvcMasterLocationFormatAttribute : Attribute
   {
@@ -704,6 +723,7 @@ namespace Spines.Hana.Clay.Properties
     public string Format { get; private set; }
   }
 
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
   public sealed class AspMvcPartialViewLocationFormatAttribute : Attribute
   {
@@ -715,6 +735,7 @@ namespace Spines.Hana.Clay.Properties
     public string Format { get; private set; }
   }
 
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
   public sealed class AspMvcViewLocationFormatAttribute : Attribute
   {
@@ -732,6 +753,7 @@ namespace Spines.Hana.Clay.Properties
   /// implicitly from the context. Use this attribute for custom wrappers similar to
   /// <c>System.Web.Mvc.Html.ChildActionExtensions.RenderAction(HtmlHelper, String)</c>.
   /// </summary>
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
   public sealed class AspMvcActionAttribute : Attribute
   {
@@ -752,6 +774,7 @@ namespace Spines.Hana.Clay.Properties
   /// Use this attribute for custom wrappers similar to
   /// <c>System.Web.Mvc.Html.ChildActionExtensions.RenderAction(HtmlHelper, String)</c>.
   /// </summary>
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Parameter)]
   public sealed class AspMvcAreaAttribute : Attribute
   {
@@ -773,6 +796,7 @@ namespace Spines.Hana.Clay.Properties
   /// implicitly from the context. Use this attribute for custom wrappers similar to
   /// <c>System.Web.Mvc.Html.ChildActionExtensions.RenderAction(HtmlHelper, String, String)</c>.
   /// </summary>
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
   public sealed class AspMvcControllerAttribute : Attribute
   {
@@ -792,6 +816,7 @@ namespace Spines.Hana.Clay.Properties
   /// ASP.NET MVC attribute. Indicates that a parameter is an MVC Master. Use this attribute
   /// for custom wrappers similar to <c>System.Web.Mvc.Controller.View(String, String)</c>.
   /// </summary>
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Parameter)]
   public sealed class AspMvcMasterAttribute : Attribute
   {
@@ -801,6 +826,7 @@ namespace Spines.Hana.Clay.Properties
   /// ASP.NET MVC attribute. Indicates that a parameter is an MVC model type. Use this attribute
   /// for custom wrappers similar to <c>System.Web.Mvc.Controller.View(String, Object)</c>.
   /// </summary>
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Parameter)]
   public sealed class AspMvcModelTypeAttribute : Attribute
   {
@@ -812,6 +838,7 @@ namespace Spines.Hana.Clay.Properties
   /// from the context. Use this attribute for custom wrappers similar to
   /// <c>System.Web.Mvc.Html.RenderPartialExtensions.RenderPartial(HtmlHelper, String)</c>.
   /// </summary>
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
   public sealed class AspMvcPartialViewAttribute : Attribute
   {
@@ -820,6 +847,7 @@ namespace Spines.Hana.Clay.Properties
   /// <summary>
   /// ASP.NET MVC attribute. Allows disabling inspections for MVC views within a class or a method.
   /// </summary>
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
   public sealed class AspMvcSuppressViewErrorAttribute : Attribute
   {
@@ -830,6 +858,7 @@ namespace Spines.Hana.Clay.Properties
   /// Use this attribute for custom wrappers similar to
   /// <c>System.Web.Mvc.Html.DisplayExtensions.DisplayForModel(HtmlHelper, String)</c>.
   /// </summary>
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Parameter)]
   public sealed class AspMvcDisplayTemplateAttribute : Attribute
   {
@@ -840,6 +869,7 @@ namespace Spines.Hana.Clay.Properties
   /// Use this attribute for custom wrappers similar to
   /// <c>System.Web.Mvc.Html.EditorExtensions.EditorForModel(HtmlHelper, String)</c>.
   /// </summary>
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Parameter)]
   public sealed class AspMvcEditorTemplateAttribute : Attribute
   {
@@ -850,6 +880,7 @@ namespace Spines.Hana.Clay.Properties
   /// Use this attribute for custom wrappers similar to
   /// <c>System.ComponentModel.DataAnnotations.UIHintAttribute(System.String)</c>.
   /// </summary>
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Parameter)]
   public sealed class AspMvcTemplateAttribute : Attribute
   {
@@ -861,6 +892,7 @@ namespace Spines.Hana.Clay.Properties
   /// from the context. Use this attribute for custom wrappers similar to
   /// <c>System.Web.Mvc.Controller.View(Object)</c>.
   /// </summary>
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
   public sealed class AspMvcViewAttribute : Attribute
   {
@@ -870,6 +902,7 @@ namespace Spines.Hana.Clay.Properties
   /// ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter
   /// is an MVC view component name.
   /// </summary>
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Parameter)]
   public sealed class AspMvcViewComponentAttribute : Attribute
   {
@@ -879,6 +912,7 @@ namespace Spines.Hana.Clay.Properties
   /// ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter
   /// is an MVC view component view. If applied to a method, the MVC view component view name is default.
   /// </summary>
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
   public sealed class AspMvcViewComponentViewAttribute : Attribute
   {
@@ -897,6 +931,7 @@ namespace Spines.Hana.Clay.Properties
   /// }
   /// </code>
   /// </example>
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
   public sealed class AspMvcActionSelectorAttribute : Attribute
   {
@@ -954,6 +989,7 @@ namespace Spines.Hana.Clay.Properties
     public CollectionAccessType CollectionAccessType { get; private set; }
   }
 
+  [GeneratedCode("", "")]
   [Flags]
   public enum CollectionAccessType
   {
@@ -1000,6 +1036,7 @@ namespace Spines.Hana.Clay.Properties
   /// Specifies assertion type. If the assertion method argument satisfies the condition,
   /// then the execution continues. Otherwise, execution is assumed to be halted.
   /// </summary>
+  [GeneratedCode("", "")]
   public enum AssertionConditionType
   {
     /// <summary>Marked parameter should be evaluated to true.</summary>
@@ -1135,6 +1172,7 @@ namespace Spines.Hana.Clay.Properties
     public string Name { get; private set; }
   }
 
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
   public sealed class RazorInjectionAttribute : Attribute
   {
@@ -1179,6 +1217,7 @@ namespace Spines.Hana.Clay.Properties
   /// <remarks>
   /// The attribute must be mentioned in your member reordering patterns
   /// </remarks>
+  [GeneratedCode("", "")]
   [AttributeUsage(AttributeTargets.All)]
   public sealed class NoReorder : Attribute
   {
