@@ -3,9 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:Spines.Hana.Clay.ViewModels"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance viewModels:MainViewModel}">
-    <DockPanel LastChildFill="False" Margin="0, 36, 0, 0">
+    <DockPanel LastChildFill="False">
         <DockPanel DockPanel.Dock="Top">
             <Button DockPanel.Dock="Right" Command="{Binding Randomize}" Content="Roll"/>
             <TextBox Text="{Binding Hand, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Top" DockPanel.Dock="Left">
