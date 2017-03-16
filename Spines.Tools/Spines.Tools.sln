@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Utility.Tests", "..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Tools.AnalyzerBuilder.Tests", "Spines.Tools.AnalyzerBuilder.Tests\Spines.Tools.AnalyzerBuilder.Tests.csproj", "{C99F5A3C-89C3-4BDC-A8C7-398CB660610A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.MachiKae", "Spines.MachiKae\Spines.MachiKae.csproj", "{4BB172B0-3B9B-4872-AB05-4A28D964F4C8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Hana.Clay", "Spines.Hana.Clay\Spines.Hana.Clay.csproj", "{4BB172B0-3B9B-4872-AB05-4A28D964F4C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
