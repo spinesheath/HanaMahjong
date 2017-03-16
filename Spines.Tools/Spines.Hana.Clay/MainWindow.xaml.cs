@@ -2,6 +2,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Windows;
+using System.Windows.Input;
 using Spines.Hana.Clay.Dialogs;
 using Spines.Hana.Clay.ViewModels;
 using Spines.Hana.Clay.Views;
@@ -25,6 +26,16 @@ namespace Spines.Hana.Clay
     {
       var about = new AboutDialog();
       about.ShowDialog();
+    }
+
+    private void OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+      DragMove();
+    }
+
+    private void OnClose(object sender, RoutedEventArgs e)
+    {
+      Application.Current.Shutdown();
     }
   }
 }
