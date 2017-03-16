@@ -34,13 +34,13 @@ namespace Spines.Mahjong.Analysis.Classification
         {
           for (var c = 0; c < concealed[i]; ++c)
           {
-            yield return new Tile {Suit = _idToSuit[i / 9], Index = i % 9};
+            yield return new Tile {Suit = IdToSuit[i / 9], Index = i % 9};
           }
         }
       }
     }
 
-    private readonly Suit[] _idToSuit = {Suit.Manzu, Suit.Pinzu, Suit.Souzu, Suit.Jihai};
+    private static readonly Suit[] IdToSuit = {Suit.Manzu, Suit.Pinzu, Suit.Souzu, Suit.Jihai};
 
     private readonly string _hand;
 

@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Windows.Input;
 using Spines.Hana.Clay.Commands;
 using Spines.Mahjong.Analysis.Classification;
@@ -16,6 +18,7 @@ namespace Spines.Hana.Clay.ViewModels
     public MainViewModel()
     {
       Randomize = new DelegateCommand(OnRandomize);
+      OnRandomize(13);
     }
 
     public ICommand Randomize { get; }
@@ -88,15 +91,29 @@ namespace Spines.Hana.Clay.ViewModels
         var fileName = Path.Combine(IconBasePath, $"0{c}{i}.png");
         TileIcons.Add(Path.GetFullPath(fileName));
       }
+
+      UkeIre.Clear();
+      if (_currentHand.IsValid)
+      {
+        var ukeIre = _currentHand.GetUkeIre().OrderByDescending(u => u.Outs.Values.DefaultIfEmpty(0).Sum());
+        foreach (var ukeIreInfo in ukeIre)
+        {
+          UkeIre.Add(new UkeIreViewModel(ukeIreInfo));
+        }
+      }
     }
+
+    public ICollection<UkeIreViewModel> UkeIre { get; } = new ObservableCollection<UkeIreViewModel>();
 
     private void OnRandomize(object obj)
     {
+      var count = Convert.ToInt32(obj, CultureInfo.InvariantCulture);
+
       var rand = new Random((int) DateTime.Now.Ticks);
       var drawn = new bool[136];
 
       _currentHand = new Hand();
-      for (var i = 0; i < 13; ++i)
+      for (var i = 0; i < count; ++i)
       {
         var tileId = GetRandomTile(rand, drawn);
         drawn[tileId] = true;

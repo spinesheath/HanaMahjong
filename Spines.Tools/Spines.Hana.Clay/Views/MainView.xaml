@@ -11,7 +11,16 @@
     
     <DockPanel LastChildFill="False" Margin="10">
         <DockPanel DockPanel.Dock="Top" LastChildFill="False">
-            <Button DockPanel.Dock="Left" Command="{Binding Randomize}" Content="Roll" VerticalAlignment="Center">
+            <Button DockPanel.Dock="Left" Command="{Binding Randomize}" CommandParameter="13" Content="13" VerticalAlignment="Center">
+                <Button.Template>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border BorderThickness="2" BorderBrush="{StaticResource FennelPrimaryMedium}" Padding="4">
+                            <ContentPresenter Content="{TemplateBinding Content}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <Button DockPanel.Dock="Left" Command="{Binding Randomize}" CommandParameter="14" Content="14" VerticalAlignment="Center">
                 <Button.Template>
                     <ControlTemplate TargetType="{x:Type Button}">
                         <Border BorderThickness="2" BorderBrush="{StaticResource FennelPrimaryMedium}" Padding="4">
@@ -60,6 +69,36 @@
                 </Style>
             </TextBlock.Style>
         </TextBlock>
+
+
+        <ItemsControl ItemsSource="{Binding UkeIre}" DockPanel.Dock="Top" Margin="0,5,0,5">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type viewModels:UkeIreViewModel}">
+                    <DockPanel LastChildFill="False">
+                        <TextBlock DockPanel.Dock="Left" Text="{Binding Count}" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <Image DockPanel.Dock="Left" Source="{Binding DiscardIcon}" Height="36" Margin="0,0,10,0"/>
+                        <ItemsControl DockPanel.Dock="Left" ItemsSource="{Binding TileIcons}" Margin="0,5,0,5">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Image Source="{Binding}" Height="36"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </DockPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
     </DockPanel>
 </UserControl>
 

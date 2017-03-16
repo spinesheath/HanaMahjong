@@ -83,6 +83,96 @@ namespace Spines.Mahjong.Analysis.Classification
     public int Shanten => ArrangementClassifier.Classify(_arrangementValues) - 1;
 
     /// <summary>
+    /// Calculates the UkeIre of the hand.
+    /// </summary>
+    /// <returns>Information about the UkeIre of the hand.</returns>
+    private Dictionary<Tile, int> GetUkeIreFor13()
+    {
+      var currentShanten = ArrangementClassifier.Classify(_arrangementValues);
+
+      var ukeIre = new Dictionary<Tile, int>();
+      var tileType = 0;
+      var localArrangements = new[]
+      {_arrangementValues[0], _arrangementValues[1], _arrangementValues[2], _arrangementValues[3]};
+      for (var suit = 0; suit < 3; ++suit)
+      {
+        for (var index = 0; index < 9; ++index)
+        {
+          if (_visibleByType[tileType] != 4) // TODO need an array for tiles in hand, not all visible ones!
+          {
+            _suits[suit][index] += 1;
+            localArrangements[suit] = _suitClassifiers[suit].GetValue(_suits[suit]);
+            if (ArrangementClassifier.Classify(localArrangements) < currentShanten)
+            {
+              ukeIre.Add(new Tile { Suit = IdToSuit[suit], Index = index }, 4 - _visibleByType[tileType]);
+            }
+            _suits[suit][index] -= 1;
+          }
+          tileType += 1;
+        }
+        localArrangements[suit] = _arrangementValues[suit];
+      }
+      for (var index = 0; index < 7; ++index)
+      {
+        if (_visibleByType[tileType] != 4)
+        {
+          localArrangements[3] = _honorClassifier.Fork().MoveNext(GetHonorDrawActionId(index));
+          if (ArrangementClassifier.Classify(localArrangements) < currentShanten)
+          {
+            ukeIre.Add(new Tile { Suit = Suit.Jihai, Index = index }, 4 - _visibleByType[tileType]);
+          }
+        }
+        tileType += 1;
+      }
+
+      return ukeIre;
+    }
+
+    /// <summary>
+    /// Calculates the UkeIre of the hand.
+    /// </summary>
+    /// <returns>Information about the UkeIre of the hand.</returns>
+    public IEnumerable<UkeIreInfo> GetUkeIre()
+    {
+      if (_tilesInHand == 13)
+      {
+        yield return new UkeIreInfo(null, GetUkeIreFor13());
+        yield break;
+      }
+      if (_tilesInHand != 14)
+      {
+        throw new InvalidOperationException("Can only calculate UkeIre for discards with 14 tiles in hand.");
+      }
+      var currentShanten = ArrangementClassifier.Classify(_arrangementValues);
+
+      for (var j = 0; j < 34; ++j)
+      {
+        var discardSuit = j / 9;
+        var discardIndex = j % 9;
+
+        if (_suits[discardSuit][discardIndex] == 0)
+        {
+          continue;
+        }
+        InternalDiscard(discardSuit, discardIndex);
+
+        var shantenAfterDiscard = ArrangementClassifier.Classify(_arrangementValues);
+        if (shantenAfterDiscard <= currentShanten)
+        {
+          var ukeIre = GetUkeIreFor13();
+          if (ukeIre.Any())
+          {
+            yield return new UkeIreInfo(new Tile { Suit = IdToSuit[discardSuit], Index = discardIndex }, ukeIre);
+          }
+        }
+
+        InternalDraw(discardSuit, discardIndex);
+      }
+    }
+
+    private static readonly Suit[] IdToSuit = { Suit.Manzu, Suit.Pinzu, Suit.Souzu, Suit.Jihai };
+
+    /// <summary>
     /// Discards a tile based on UkeIre.
     /// </summary>
     public void Discard()
