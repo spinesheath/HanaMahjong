@@ -37,5 +37,24 @@ namespace Spines.Hana.Clay
     {
       Application.Current.Shutdown();
     }
+
+    private void OnMaximize(object sender, RoutedEventArgs e)
+    {
+      if (Application.Current.MainWindow.WindowState == WindowState.Normal)
+      {
+        Application.Current.MainWindow.WindowState = WindowState.Maximized;
+        WindowBorder.Margin = new Thickness(6);
+      }
+      else
+      {
+        Application.Current.MainWindow.WindowState = WindowState.Normal;
+        WindowBorder.Margin = new Thickness(0);
+      }
+    }
+
+    private void OnMinimize(object sender, RoutedEventArgs e)
+    {
+      Application.Current.MainWindow.WindowState = WindowState.Minimized;
+    }
   }
 }

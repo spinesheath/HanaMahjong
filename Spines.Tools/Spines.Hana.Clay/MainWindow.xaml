@@ -15,18 +15,31 @@
         WindowStyle="None"
         ResizeMode="CanResizeWithGrip">
 
-    <Border Background="White" BorderThickness="1" BorderBrush="{StaticResource FennelPrimaryMedium}">
+    <Border x:Name="WindowBorder" Background="White" BorderThickness="1" BorderBrush="{StaticResource FennelPrimaryMedium}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="38"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <ContentControl Grid.Row="0" x:Name="HeaderContent"/>
-            <Border Grid.Row="0" MouseDown="OnMouseDown" Background="Transparent" BorderThickness="0"/>
+            <Border Grid.Row="0" 
+                    Background="Transparent" 
+                    BorderThickness="0"
+                    MouseDown="OnMouseDown"/>
             <ContentControl Grid.Row="1" x:Name="MainContent"/>
             <DockPanel Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" LastChildFill="False">
-                <controls:FlatButton Click="OnClose" Width="36" Height="36" Margin="1" DockPanel.Dock="Right" Data="M 7,7 L 27,27 M 7,27 L 27,7"/>
-                <controls:FlatButton Click="OnAbout" Width="36" Height="36" Margin="1" DockPanel.Dock="Right" Data="M 6,7 L 28,7 M 6,17 L 28,17 M 6,27 L 28,27"/>
+                <DockPanel.Resources>
+                    <Style TargetType="{x:Type controls:FlatButton}">
+                        <Setter Property="Width" Value="36"/>
+                        <Setter Property="Height" Value="36"/>
+                        <Setter Property="Margin" Value="1"/>
+                        <Setter Property="DockPanel.Dock" Value="Right"/>
+                    </Style>
+                </DockPanel.Resources>
+                <controls:FlatButton Click="OnClose" Data="M 7,7 L 27,27 M 22,12 L 27,7 M 7,27 L 12,22"/>
+                <controls:FlatButton Click="OnMaximize" Data="M 7,7 L 27,7 L 27,27 L 7,27 L 7,15"/>
+                <controls:FlatButton Click="OnMinimize" Data="M 9,27 L 25,27"/>
+                <controls:FlatButton Click="OnAbout" Data="M 6,7 L 28,7 M 6,17 L 28,17 M 6,27 L 28,27"/>
             </DockPanel>
         </Grid>
     </Border>
