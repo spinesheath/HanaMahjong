@@ -13,36 +13,18 @@ namespace Spines.Hana.Clay.ViewModels
   {
     public UkeIreViewModel(UkeIreInfo ukeIre)
     {
-      DiscardIcon = ukeIre.Discard == null ? null : GetFileName(ukeIre.Discard.Value);
+      Discard = ukeIre.Discard;
       foreach (var tile in ukeIre.Outs.Keys)
       {
-        var fileName = GetFileName(tile);
-        TileIcons.Add(fileName);
+        Tiles.Add(tile);
       }
       Count = ukeIre.Outs.Values.DefaultIfEmpty(0).Sum();
     }
 
     public int Count { get; }
 
-    public string DiscardIcon { get; }
+    public Tile? Discard { get; }
 
-    public ICollection<string> TileIcons { get; } = new ObservableCollection<string>();
-
-    private const string IconBasePath = @"Resources/Tiles/Perspective";
-
-    private static readonly Dictionary<Suit, char> SuitCharacters = new Dictionary<Suit, char>
-    {
-      {Suit.Manzu, 'm'},
-      {Suit.Pinzu, 'p'},
-      {Suit.Souzu, 's'},
-      {Suit.Jihai, 'j'}
-    };
-
-    private static string GetFileName(Tile tile)
-    {
-      var c = SuitCharacters[tile.Suit];
-      var i = tile.Index + 1;
-      return Path.GetFullPath(Path.Combine(IconBasePath, $"0{c}{i}.png"));
-    }
+    public ICollection<Tile> Tiles { get; } = new ObservableCollection<Tile>();
   }
 }

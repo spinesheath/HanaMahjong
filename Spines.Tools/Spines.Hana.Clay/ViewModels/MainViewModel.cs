@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Windows.Input;
 using Spines.Hana.Clay.Commands;
@@ -23,7 +22,9 @@ namespace Spines.Hana.Clay.ViewModels
 
     public ICommand Randomize { get; }
 
-    public ICollection<string> TileIcons { get; } = new ObservableCollection<string>();
+    public ICollection<Tile> Tiles { get; } = new ObservableCollection<Tile>();
+
+    public ICollection<UkeIreViewModel> UkeIre { get; } = new ObservableCollection<UkeIreViewModel>();
 
     public string Hand
     {
@@ -66,16 +67,6 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
-    private const string IconBasePath = @"Resources/Tiles/Perspective";
-
-    private static readonly Dictionary<Suit, char> SuitCharacters = new Dictionary<Suit, char>
-    {
-      {Suit.Manzu, 'm'},
-      {Suit.Pinzu, 'p'},
-      {Suit.Souzu, 's'},
-      {Suit.Jihai, 'j'}
-    };
-
     private string _shorthand;
     private Hand _currentHand;
     private bool _invalidFormat;
@@ -83,27 +74,23 @@ namespace Spines.Hana.Clay.ViewModels
     private void UpdateIcons(ShorthandParser parser)
     {
       var tiles = parser.Tiles;
-      TileIcons.Clear();
+      Tiles.Clear();
       foreach (var tile in tiles)
       {
-        var c = SuitCharacters[tile.Suit];
-        var i = tile.Index + 1;
-        var fileName = Path.Combine(IconBasePath, $"0{c}{i}.png");
-        TileIcons.Add(Path.GetFullPath(fileName));
+        Tiles.Add(tile);
       }
 
       UkeIre.Clear();
-      if (_currentHand.IsValid)
+      if (!_currentHand.IsValid)
       {
-        var ukeIre = _currentHand.GetUkeIre().OrderByDescending(u => u.Outs.Values.DefaultIfEmpty(0).Sum());
-        foreach (var ukeIreInfo in ukeIre)
-        {
-          UkeIre.Add(new UkeIreViewModel(ukeIreInfo));
-        }
+        return;
+      }
+      var ukeIre = _currentHand.GetUkeIre().OrderByDescending(u => u.Outs.Values.DefaultIfEmpty(0).Sum());
+      foreach (var ukeIreInfo in ukeIre)
+      {
+        UkeIre.Add(new UkeIreViewModel(ukeIreInfo));
       }
     }
-
-    public ICollection<UkeIreViewModel> UkeIre { get; } = new ObservableCollection<UkeIreViewModel>();
 
     private void OnRandomize(object obj)
     {
