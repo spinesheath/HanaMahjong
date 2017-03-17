@@ -3,6 +3,8 @@
 
 using System.Windows;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -12,7 +14,10 @@ namespace Spines.Hana.Clay.Controls
   {
     public FlatButton()
     {
-      Background = Brushes.White;
+      Background = (SolidColorBrush) FindResource("FennelPrimaryLight");
+      Foreground = (SolidColorBrush) FindResource("FennelPrimaryMedium");
+      MouseEnter += OnMouseEnter;
+      MouseLeave += OnMouseLeave;
     }
 
     public Geometry Data
@@ -29,19 +34,37 @@ namespace Spines.Hana.Clay.Controls
       DefaultStyleKeyProperty.OverrideMetadata(typeof(FlatButton), new FrameworkPropertyMetadata(typeof(FlatButton)));
     }
 
+    private void OnMouseLeave(object sender, MouseEventArgs e)
+    {
+      Background = (SolidColorBrush) FindResource("FennelPrimaryLight");
+      Foreground = (SolidColorBrush) FindResource("FennelPrimaryMedium");
+    }
+
+    private void OnMouseEnter(object sender, MouseEventArgs e)
+    {
+      Background = (SolidColorBrush) FindResource("FennelAccentMedium");
+      Foreground = (SolidColorBrush) FindResource("FennelAccentLight");
+    }
+
     private static void OnDataChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
       var b = (FlatButton) d;
-      var stroke = (SolidColorBrush) b.FindResource("FennelPrimaryMedium");
-      b.Content = new Path
+      b.UpdateContent();
+    }
+
+    private void UpdateContent()
+    {
+      var b = new Binding {Source = this, Path = new PropertyPath(nameof(Foreground))};
+      var p = new Path
       {
-        Data = b.Data,
+        Data = Data,
         StrokeThickness = 5,
         StrokeStartLineCap = PenLineCap.Round,
         StrokeEndLineCap = PenLineCap.Round,
-        StrokeLineJoin = PenLineJoin.Round,
-        Stroke = stroke
+        StrokeLineJoin = PenLineJoin.Round
       };
+      p.SetBinding(Shape.StrokeProperty, b);
+      Content = p;
     }
   }
 }
