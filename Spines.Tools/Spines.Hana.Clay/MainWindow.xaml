@@ -3,12 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:Spines.Hana.Clay.Controls"
         mc:Ignorable="d"
         Title="Hana Clay" 
         MinHeight="350" 
         MinWidth="525"
-        Height="350" 
-        Width="525"
+        Height="500" 
+        Width="800"
         Icon="Resources/machikae.ico"
         AllowsTransparency="True"
         WindowStyle="None"
@@ -16,34 +17,16 @@
 
     <Border Background="White" BorderThickness="1" BorderBrush="{StaticResource FennelPrimaryMedium}">
         <Grid>
-            <DockPanel>
-                <Grid Height="36" DockPanel.Dock="Top" Margin="0,0,36,0">
-                    <ContentControl x:Name="HeaderContent"/>
-                    <Border Height="36" HorizontalAlignment="Stretch" MouseDown="OnMouseDown" Background="Transparent" BorderThickness="0"/>
-                </Grid>
-                <ContentControl x:Name="MainContent"/>
-            </DockPanel>
-            <DockPanel HorizontalAlignment="Right" VerticalAlignment="Top" LastChildFill="False">
-                <Button Click="OnClose" Width="36" Height="36" DockPanel.Dock="Right">
-                    <Button.Template>
-                        <ControlTemplate TargetType="{x:Type Button}">
-                            <Border Background="White" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                                <Path Stroke="{StaticResource FennelPrimaryMedium}" StrokeThickness="5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                                  Data="M 7,7 L 27,27 M 7,27 L 27,7" />
-                            </Border>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
-                <Button Click="OnAbout" Width="36" Height="36" DockPanel.Dock="Right">
-                    <Button.Template>
-                        <ControlTemplate TargetType="{x:Type Button}">
-                            <Border Background="White" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                                <Path Stroke="{StaticResource FennelPrimaryMedium}" StrokeThickness="5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                                  Data="M 6,7 L 28,7 M 6,17 L 28,17 M 6,27 L 28,27" />
-                            </Border>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="38"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <ContentControl Grid.Row="0" x:Name="HeaderContent"/>
+            <Border Grid.Row="0" MouseDown="OnMouseDown" Background="Transparent" BorderThickness="0"/>
+            <ContentControl Grid.Row="1" x:Name="MainContent"/>
+            <DockPanel Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" LastChildFill="False">
+                <controls:PathButton Click="OnClose" Width="36" Height="36" Margin="1" DockPanel.Dock="Right" Data="M 7,7 L 27,27 M 7,27 L 27,7"/>
+                <controls:PathButton Click="OnAbout" Width="36" Height="36" Margin="1" DockPanel.Dock="Right" Data="M 6,7 L 28,7 M 6,17 L 28,17 M 6,27 L 28,27"/>
             </DockPanel>
         </Grid>
     </Border>
