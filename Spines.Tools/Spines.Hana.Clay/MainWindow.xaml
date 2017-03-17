@@ -25,8 +25,8 @@
             <Border Grid.Row="0" MouseDown="OnMouseDown" Background="Transparent" BorderThickness="0"/>
             <ContentControl Grid.Row="1" x:Name="MainContent"/>
             <DockPanel Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" LastChildFill="False">
-                <controls:PathButton Click="OnClose" Width="36" Height="36" Margin="1" DockPanel.Dock="Right" Data="M 7,7 L 27,27 M 7,27 L 27,7"/>
-                <controls:PathButton Click="OnAbout" Width="36" Height="36" Margin="1" DockPanel.Dock="Right" Data="M 6,7 L 28,7 M 6,17 L 28,17 M 6,27 L 28,27"/>
+                <controls:FlatButton Click="OnClose" Width="36" Height="36" Margin="1" DockPanel.Dock="Right" Data="M 7,7 L 27,27 M 7,27 L 27,7"/>
+                <controls:FlatButton Click="OnAbout" Width="36" Height="36" Margin="1" DockPanel.Dock="Right" Data="M 6,7 L 28,7 M 6,17 L 28,17 M 6,27 L 28,27"/>
             </DockPanel>
         </Grid>
     </Border>

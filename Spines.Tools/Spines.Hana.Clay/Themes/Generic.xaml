@@ -10,18 +10,15 @@
     <SolidColorBrush x:Key="FennelAccentMedium" Color="#560B28"/>
     <SolidColorBrush x:Key="FennelAccentDark" Color="#120022"/>
 
-    <Style TargetType="{x:Type controls:PathButton}">
+    <Style TargetType="{x:Type controls:FlatButton}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type controls:PathButton}">
+                <ControlTemplate TargetType="{x:Type controls:FlatButton}">
                     <Border Background="{TemplateBinding Background}" 
                             BorderBrush="{StaticResource FennelPrimaryMedium}"
-                            BorderThickness="1">
-                        <Path Stroke="{StaticResource FennelPrimaryMedium}" 
-                              StrokeThickness="5" 
-                              StrokeStartLineCap="Round" 
-                              StrokeEndLineCap="Round"
-                              Data="{TemplateBinding Data}" />
+                            BorderThickness="1"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter Content="{TemplateBinding Content}"/>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

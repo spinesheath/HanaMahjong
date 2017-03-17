@@ -12,24 +12,8 @@
     
     <DockPanel LastChildFill="False" Margin="10">
         <DockPanel DockPanel.Dock="Top" LastChildFill="False">
-            <Button DockPanel.Dock="Left" Command="{Binding Randomize}" CommandParameter="13" Content="13" VerticalAlignment="Center">
-                <Button.Template>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border BorderThickness="2" BorderBrush="{StaticResource FennelPrimaryMedium}" Padding="4">
-                            <ContentPresenter Content="{TemplateBinding Content}"/>
-                        </Border>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
-            <Button DockPanel.Dock="Left" Command="{Binding Randomize}" CommandParameter="14" Content="14" VerticalAlignment="Center">
-                <Button.Template>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border BorderThickness="2" BorderBrush="{StaticResource FennelPrimaryMedium}" Padding="4">
-                            <ContentPresenter Content="{TemplateBinding Content}"/>
-                        </Border>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
+            <controls:FlatButton DockPanel.Dock="Left" Command="{Binding Randomize}" CommandParameter="13" Content="13" VerticalAlignment="Center" Padding="4" Margin="1"/>
+            <controls:FlatButton DockPanel.Dock="Left" Command="{Binding Randomize}" CommandParameter="14" Content="14" VerticalAlignment="Center" Padding="4" Margin="1"/>
             <TextBox Text="{Binding Hand, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Top" DockPanel.Dock="Left"
                      BorderBrush="{StaticResource FennelPrimaryMedium}" BorderThickness="0,0,0,2"
                      Margin="8,2,8,2"
