@@ -47,6 +47,8 @@ namespace Spines.Mahjong.Analysis.Classification
           _cJihai[index] -= 2;
           _mJihai[index] += 3;
           _tilesInHand += 1;
+          _visibleByType[index] += 1;
+          _inHandByType[index] += 1;
         }
         else
         {
@@ -59,6 +61,8 @@ namespace Spines.Mahjong.Analysis.Classification
           _cJihai[index] -= 3;
           _mJihai[index] += 4;
           _tilesInHand += 1;
+          _visibleByType[index] += 1;
+          _inHandByType[index] += 1;
         }
       }
 
@@ -98,7 +102,7 @@ namespace Spines.Mahjong.Analysis.Classification
       {
         for (var index = 0; index < 9; ++index)
         {
-          if (_visibleByType[tileType] != 4) // TODO need an array for tiles in hand, not all visible ones!
+          if (_inHandByType[tileType] != 4)
           {
             _suits[suit][index] += 1;
             localArrangements[suit] = _suitClassifiers[suit].GetValue(_suits[suit]);
@@ -114,7 +118,7 @@ namespace Spines.Mahjong.Analysis.Classification
       }
       for (var index = 0; index < 7; ++index)
       {
-        if (_visibleByType[tileType] != 4)
+        if (_inHandByType[tileType] != 4)
         {
           localArrangements[3] = _honorClassifier.Fork().MoveNext(GetHonorDrawActionId(index));
           if (ArrangementClassifier.Classify(localArrangements) < currentShanten)
@@ -218,6 +222,7 @@ namespace Spines.Mahjong.Analysis.Classification
       InternalDraw(suit, index);
 
       _visibleByType[tileType] += 1;
+      _inHandByType[tileType] += 1;
 
       return ArrangementClassifier.Classify(_arrangementValues) == 0 ? DrawResult.Tsumo : DrawResult.Draw;
     }
@@ -323,6 +328,7 @@ namespace Spines.Mahjong.Analysis.Classification
 
         if (ArrangementClassifier.Classify(_arrangementValues) < shantenBeforeCall || CountUkeIre14() > ukeIreBeforeCall)
         {
+          _inHandByType[tileType] += 1;
           return CallResult.Call;
         }
 
@@ -341,6 +347,7 @@ namespace Spines.Mahjong.Analysis.Classification
 
       _suits[suit][index] += 1;
       _tilesInHand += 1;
+      _inHandByType[tileType] += 1;
 
       AddMeld(suit, bestCall);
       if (bestCall < 7)
@@ -370,6 +377,7 @@ namespace Spines.Mahjong.Analysis.Classification
 
     private readonly int[] _cJihai = new int[7]; // concealed tiles
     private readonly byte[] _visibleByType = new byte[34]; // visible tile count per type
+    private readonly byte[] _inHandByType = new byte[34]; // visible tile count per type
     private readonly int[][] _suits; // all four
     private int _tilesInHand;
     private readonly SuitClassifer[] _suitClassifiers = {new SuitClassifer(), new SuitClassifer(), new SuitClassifer()};
@@ -384,7 +392,31 @@ namespace Spines.Mahjong.Analysis.Classification
       var list = meldIds.ToList();
       for (var i = 0; i < list.Count; ++i)
       {
-        AddMeld(suitId, list[i]);
+        var meldId = list[i];
+        AddMeld(suitId, meldId);
+
+        if (meldId < 7)
+        {
+          var start = 9 * suitId + meldId;
+          _visibleByType[start + 0] += 1;
+          _inHandByType[start + 0] += 1;
+          _visibleByType[start + 1] += 1;
+          _inHandByType[start + 1] += 1;
+          _visibleByType[start + 2] += 1;
+          _inHandByType[start + 2] += 1;
+        }
+        else if (meldId < 16)
+        {
+          var start = 9 * suitId + meldId - 7;
+          _visibleByType[start] += 3;
+          _inHandByType[start] += 3;
+        }
+        else
+        {
+          var start = 9 * suitId + meldId - 16;
+          _visibleByType[start] += 4;
+          _inHandByType[start] += 4;
+        }
       }
       _tilesInHand += list.Count * 3;
     }
@@ -594,7 +626,7 @@ namespace Spines.Mahjong.Analysis.Classification
       {
         for (var index = 0; index < 9; ++index)
         {
-          if (_visibleByType[tileType] != 4)
+          if (_inHandByType[tileType] != 4)
           {
             _suits[suit][index] += 1;
             localArrangements[suit] = _suitClassifiers[suit].GetValue(_suits[suit]);
@@ -610,7 +642,7 @@ namespace Spines.Mahjong.Analysis.Classification
       }
       for (var index = 0; index < 7; ++index)
       {
-        if (_visibleByType[tileType] != 4)
+        if (_inHandByType[tileType] != 4)
         {
           localArrangements[3] = _honorClassifier.Fork().MoveNext(GetHonorDrawActionId(index));
           if (ArrangementClassifier.Classify(localArrangements) < currentShanten)
