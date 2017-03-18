@@ -3,22 +3,22 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="clr-namespace:Spines.Hana.Clay.Controls">
 
-    <SolidColorBrush x:Key="FennelPrimaryLight" Color="#FBFFE2"/>
-    <SolidColorBrush x:Key="FennelPrimaryMedium" Color="#B7AF84"/>
-    <SolidColorBrush x:Key="FennelPrimaryDark" Color="#706841"/>
-    <SolidColorBrush x:Key="FennelAccentLight" Color="#AF1650"/>
-    <SolidColorBrush x:Key="FennelAccentMedium" Color="#560B28"/>
-    <SolidColorBrush x:Key="FennelAccentDark" Color="#120022"/>
+    <SolidColorBrush x:Key="FennelPrimaryLight" Color="#FBFFE2" />
+    <SolidColorBrush x:Key="FennelPrimaryMedium" Color="#B7AF84" />
+    <SolidColorBrush x:Key="FennelPrimaryDark" Color="#706841" />
+    <SolidColorBrush x:Key="FennelAccentLight" Color="#AF1650" />
+    <SolidColorBrush x:Key="FennelAccentMedium" Color="#560B28" />
+    <SolidColorBrush x:Key="FennelAccentDark" Color="#120022" />
 
     <Style TargetType="{x:Type controls:FlatButton}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type controls:FlatButton}">
-                    <Border Background="{TemplateBinding Background}" 
+                    <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding Foreground}"
                             BorderThickness="1"
                             Padding="{TemplateBinding Padding}">
-                        <ContentPresenter Content="{TemplateBinding Content}"/>
+                        <ContentPresenter Content="{TemplateBinding Content}" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
@@ -29,10 +29,63 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type controls:TileImage}">
-                    <Image Source="{TemplateBinding Source}" Height="36" Width="24"/>
+                    <Image Source="{TemplateBinding Source}" Height="36" Width="24" />
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
-    
+
+    <Style TargetType="{x:Type controls:BusyIcon}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:BusyIcon}">
+                    <Canvas RenderTransformOrigin="0.5,0.5" Width="36" Height="36">
+                        <Canvas.RenderTransform>
+                            <RotateTransform CenterX="0.5" CenterY="0.5" />
+                        </Canvas.RenderTransform>
+                        <Canvas.Triggers>
+                            <EventTrigger RoutedEvent="Canvas.Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation
+                                            Storyboard.TargetProperty="(Canvas.RenderTransform).(RotateTransform.Angle)"
+                                            To="360"
+                                            Duration="0:0:10"
+                                            RepeatBehavior="Forever" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Canvas.Triggers>
+                        <Path Data="M 8,8 L 28,8 L 28,28 L 8,28 L 8,8"
+                              Stroke="{StaticResource FennelAccentMedium}"
+                              StrokeThickness="5"
+                              StrokeEndLineCap="Round"
+                              StrokeStartLineCap="Round"
+                              StrokeLineJoin="Round" />
+                        <Path Data="M 8,8 L 28,8 L 28,28 L 8,28 L 8,8"
+                              Stroke="{StaticResource FennelAccentLight}"
+                              StrokeThickness="5"
+                              StrokeEndLineCap="Round"
+                              StrokeStartLineCap="Round"
+                              StrokeLineJoin="Round"
+                              StrokeDashArray="4,4"
+                              StrokeDashCap="Round">
+                            <Path.Triggers>
+                                <EventTrigger RoutedEvent="Path.Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="(Path.StrokeDashOffset)"
+                                                             To="360"
+                                                             Duration="0:1:30"
+                                                             RepeatBehavior="Forever" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Path.Triggers>
+                        </Path>
+                    </Canvas>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

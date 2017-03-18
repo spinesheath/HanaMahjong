@@ -83,6 +83,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Commands\DelegateCommand.cs" />
+    <Compile Include="Controls\BusyIcon.cs" />
     <Compile Include="Controls\FlatButton.cs" />
     <Compile Include="Controls\TileImage.cs" />
     <Compile Include="Dialogs\AboutDialog.xaml.cs">
