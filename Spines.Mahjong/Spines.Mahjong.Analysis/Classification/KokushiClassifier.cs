@@ -18,27 +18,28 @@ namespace Spines.Mahjong.Analysis.Classification
     /// </summary>
     public int Shanten;
 
-    /// <summary>
-    /// 0: draw with 0 in hand
-    /// 1: draw with 1 in hand
-    /// 2: discard with 1 in hand
-    /// 3: discard with 2 in hand
-    /// </summary>
-    /// <param name="actionId">The id of the action used to change the value.</param>
-    /// <returns></returns>
-    public void MoveNext(int actionId)
+    public void Draw(int previousTileCount)
     {
-      switch (actionId)
+      switch (previousTileCount)
       {
         case 0:
-        case 2:
-          Shanten += actionId - 1;
+          Shanten += -1;
           break;
         case 1:
           Shanten -= _pairs == 0 ? 1 : 0;
           _pairs += 1;
           break;
-        case 3:
+      }
+    }
+
+    public void Discard(int previousTileCount)
+    {
+      switch (previousTileCount)
+      {
+        case 1:
+          Shanten += 1;
+          break;
+        case 2:
           _pairs -= 1;
           Shanten += _pairs == 0 ? 1 : 0;
           break;

@@ -339,7 +339,7 @@ namespace Spines.Mahjong.Analysis.Classification
     private readonly int[] _meldCounts = new int[3]; // used meldId slots for non-honors
     private readonly int[] _mJihai = new int[7]; // melded tiles
     private readonly int[] _arrangementValues = new int[4];
-    private int _kokushiShanten = 14;
+    private KokushiClassifier _kokushi = KokushiClassifier.Create();
 
     /// <summary>
     /// Calculates the UkeIre of the hand.
@@ -351,19 +351,26 @@ namespace Spines.Mahjong.Analysis.Classification
 
       var ukeIre = new Dictionary<Tile, int>();
       var tileType = 0;
-      var localArrangements = new[]
-      {_arrangementValues[0], _arrangementValues[1], _arrangementValues[2], _arrangementValues[3]};
+      var localArrangements = new[] {_arrangementValues[0], _arrangementValues[1], _arrangementValues[2], _arrangementValues[3]};
       for (var suit = 0; suit < 3; ++suit)
       {
         for (var index = 0; index < 9; ++index)
         {
           if (_inHandByType[tileType] != 4)
           {
+            if (index == 0 || index == 8)
+            {
+              _kokushi.Draw(_suits[suit][index]);
+            }
             _suits[suit][index] += 1;
             localArrangements[suit] = _suitClassifiers[suit].GetValue(_suits[suit]);
             if (CalculateShanten(localArrangements) < currentShanten)
             {
               ukeIre.Add(new Tile {Suit = IdToSuit[suit], Index = index}, 4 - _visibleByType[tileType]);
+            }
+            if (index == 0 || index == 8)
+            {
+              _kokushi.Discard(_suits[suit][index]);
             }
             _suits[suit][index] -= 1;
           }
@@ -375,11 +382,14 @@ namespace Spines.Mahjong.Analysis.Classification
       {
         if (_inHandByType[tileType] != 4)
         {
+          var previousTileCount = _cJihai[index];
+          _kokushi.Draw(previousTileCount);
           localArrangements[3] = _honorClassifier.Fork().MoveNext(GetHonorDrawActionId(index));
           if (CalculateShanten(localArrangements) < currentShanten)
           {
             ukeIre.Add(new Tile {Suit = Suit.Jihai, Index = index}, 4 - _visibleByType[tileType]);
           }
+          _kokushi.Discard(previousTileCount + 1);
         }
         tileType += 1;
       }
@@ -441,7 +451,7 @@ namespace Spines.Mahjong.Analysis.Classification
       return 8 + _cJihai[index];
     }
 
-    private int GetHonorDaiminkanActionId()
+    private static int GetHonorDaiminkanActionId()
     {
       return 12;
     }
@@ -469,11 +479,16 @@ namespace Spines.Mahjong.Analysis.Classification
       _tilesInHand -= 1;
       if (suit == 3)
       {
+        _kokushi.Discard(_cJihai[index]);
         _cJihai[index] -= 1;
         _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorDiscardActionId(index));
       }
       else
       {
+        if (index == 0 || index == 8)
+        {
+          _kokushi.Discard(_suits[suit][index]);
+        }
         _suits[suit][index] -= 1;
         UpdateValue(suit);
       }
@@ -485,10 +500,15 @@ namespace Spines.Mahjong.Analysis.Classification
       if (suit == 3)
       {
         _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorDrawActionId(index));
+        _kokushi.Draw(_cJihai[index]);
         _cJihai[index] += 1;
       }
       else
       {
+        if (index == 0 || index == 8)
+        {
+          _kokushi.Draw(_suits[suit][index]);
+        }
         _suits[suit][index] += 1;
         UpdateValue(suit);
       }
@@ -628,11 +648,19 @@ namespace Spines.Mahjong.Analysis.Classification
         {
           if (_inHandByType[tileType] != 4)
           {
+            if (index == 0 || index == 8)
+            {
+              _kokushi.Draw(_suits[suit][index]);
+            }
             _suits[suit][index] += 1;
             localArrangements[suit] = _suitClassifiers[suit].GetValue(_suits[suit]);
             if (CalculateShanten(localArrangements) < currentShanten)
             {
               count += 4 - _visibleByType[tileType];
+            }
+            if (index == 0 || index == 8)
+            {
+              _kokushi.Discard(_suits[suit][index]);
             }
             _suits[suit][index] -= 1;
           }
@@ -644,11 +672,14 @@ namespace Spines.Mahjong.Analysis.Classification
       {
         if (_inHandByType[tileType] != 4)
         {
+          var previousTileCount = _cJihai[index];
+          _kokushi.Draw(previousTileCount);
           localArrangements[3] = _honorClassifier.Fork().MoveNext(GetHonorDrawActionId(index));
           if (CalculateShanten(localArrangements) < currentShanten)
           {
             count += 4 - _visibleByType[tileType];
           }
+          _kokushi.Draw(previousTileCount + 1);
         }
         tileType += 1;
       }
@@ -732,7 +763,7 @@ namespace Spines.Mahjong.Analysis.Classification
       }
 
       var chiiToiShanten = GetChiitoiShanten();
-      return Math.Min(shanten, Math.Min(_kokushiShanten, chiiToiShanten));
+      return Math.Min(shanten, Math.Min(_kokushi.Shanten, chiiToiShanten));
     }
 
     private int GetChiitoiShanten()

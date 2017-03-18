@@ -14,17 +14,17 @@ namespace Spines.Mahjong.Analysis.InternalTests
     public void HandShouldHaveCorrectShanten()
     {
       var classifier = KokushiClassifier.Create();
-      Repeat.Action(() => classifier.MoveNext(0), 13);
+      Repeat.Action(() => classifier.Draw(0), 13);
       Assert.That(classifier.Shanten, Is.EqualTo(1));
-      classifier.MoveNext(1);
+      classifier.Draw(1);
       Assert.That(classifier.Shanten, Is.EqualTo(0));
-      classifier.MoveNext(2);
+      classifier.Discard(1);
       Assert.That(classifier.Shanten, Is.EqualTo(1));
-      classifier.MoveNext(1);
+      classifier.Draw(1);
       Assert.That(classifier.Shanten, Is.EqualTo(1));
-      classifier.MoveNext(3);
+      classifier.Discard(2);
       Assert.That(classifier.Shanten, Is.EqualTo(1));
-      classifier.MoveNext(3);
+      classifier.Discard(2);
       Assert.That(classifier.Shanten, Is.EqualTo(2));
     }
   }
