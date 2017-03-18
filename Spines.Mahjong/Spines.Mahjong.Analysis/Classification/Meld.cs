@@ -33,7 +33,5 @@ namespace Spines.Mahjong.Analysis.Classification
       }
       return Enumerable.Repeat(meldId - 16, 4).Select(i => new Tile {Index = i, Suit = suit});
     }
-
-    private static readonly Suit[] IdToSuit = {Suit.Manzu, Suit.Pinzu, Suit.Souzu, Suit.Jihai};
   }
 }
