@@ -29,11 +29,20 @@ namespace Spines.Hana.Clay.Controls
       private set { SetValue(SourceProperty, value); }
     }
 
+    public bool Melded
+    {
+      get { return (bool) GetValue(MeldedProperty); }
+      set { SetValue(MeldedProperty, value); }
+    }
+
     public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
       "Source", typeof(ImageSource), typeof(TileImage), new PropertyMetadata(default(ImageSource)));
 
     public static readonly DependencyProperty TileProperty = DependencyProperty.Register(
       "Tile", typeof(Tile?), typeof(TileImage), new PropertyMetadata(default(Tile?), OnChange));
+
+    public static readonly DependencyProperty MeldedProperty = DependencyProperty.Register(
+      "Melded", typeof(bool), typeof(TileImage), new PropertyMetadata(default(bool), OnChange));
 
     static TileImage()
     {
@@ -63,10 +72,19 @@ namespace Spines.Hana.Clay.Controls
       }
       var c = SuitCharacters[Tile.Value.Suit];
       var i = Tile.Value.Index + 1;
-      var path = Path.Combine(IconBasePath, $"0{c}{i}.png");
+      var path = GetPath(c, i);
       var image = new BitmapImage(new Uri(path, UriKind.Absolute));
       image.Freeze();
       return image;
+    }
+
+    private string GetPath(char c, int i)
+    {
+      if (Melded)
+      {
+        return Path.Combine(IconBasePath, $"1{c}{i}.png");
+      }
+      return Path.Combine(IconBasePath, $"0{c}{i}.png");
     }
 
     private static void OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)

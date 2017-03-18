@@ -125,7 +125,7 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <controls:TileImage Tile="{Binding Mode=OneTime}"/>
+                                                <controls:TileImage Tile="{Binding Mode=OneTime}" Melded="True"/>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
