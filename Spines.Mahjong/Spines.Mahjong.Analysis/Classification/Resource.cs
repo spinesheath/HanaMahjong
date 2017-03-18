@@ -2,7 +2,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -20,7 +19,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// Loads the transition table from an embedded resource.
     /// </summary>
-    public static IEnumerable<ushort> Transitions(string resourceName)
+    public static ushort[] Transitions(string resourceName)
     {
       var fullResourceName = "Spines.Mahjong.Analysis.Resources." + resourceName;
       var assembly = Assembly.GetExecutingAssembly();
@@ -38,7 +37,7 @@ namespace Spines.Mahjong.Analysis.Classification
           var result = reader.ReadToEnd();
           var lines = Regex.Split(result, "\r\n|\r|\n").Where(line => line.Length > 0);
           var ints = lines.Select(line => Convert.ToInt32(line, CultureInfo.InvariantCulture));
-          return ints.Select(i => i < 0 ? 0 : i).Select(i => (ushort) i);
+          return ints.Select(i => i < 0 ? 0 : i).Select(i => (ushort) i).ToArray();
         }
       }
       finally

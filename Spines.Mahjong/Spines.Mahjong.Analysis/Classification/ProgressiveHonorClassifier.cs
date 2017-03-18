@@ -48,7 +48,7 @@ namespace Spines.Mahjong.Analysis.Classification
       return Transitions[_current];
     }
 
-    private static readonly ushort[] Transitions = Resource.Transitions("ProgressiveHonorStateMachine.txt").ToArray();
+    private static readonly ushort[] Transitions = Resource.Transitions("ProgressiveHonorStateMachine.txt");
     private int _current;
   }
 }

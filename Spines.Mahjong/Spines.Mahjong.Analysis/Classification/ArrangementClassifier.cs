@@ -27,6 +27,6 @@ namespace Spines.Mahjong.Analysis.Classification
       return current;
     }
 
-    private static readonly ushort[] Arrangement = Resource.Transitions("ArrangementTransitions.txt").ToArray();
+    private static readonly ushort[] Arrangement = Resource.Transitions("ArrangementTransitions.txt");
   }
 }
