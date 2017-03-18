@@ -14,8 +14,8 @@ namespace Spines.Hana.Clay.Controls
   {
     public FlatButton()
     {
-      Background = (SolidColorBrush) FindResource("FennelPrimaryLight");
-      Foreground = (SolidColorBrush) FindResource("FennelPrimaryMedium");
+      Background = (SolidColorBrush) FindResource("PrimaryLight");
+      Foreground = (SolidColorBrush) FindResource("PrimaryMedium");
       MouseEnter += OnMouseEnter;
       MouseLeave += OnMouseLeave;
     }
@@ -36,14 +36,14 @@ namespace Spines.Hana.Clay.Controls
 
     private void OnMouseLeave(object sender, MouseEventArgs e)
     {
-      Background = (SolidColorBrush) FindResource("FennelPrimaryLight");
-      Foreground = (SolidColorBrush) FindResource("FennelPrimaryMedium");
+      Background = (SolidColorBrush) FindResource("PrimaryLight");
+      Foreground = (SolidColorBrush) FindResource("PrimaryMedium");
     }
 
     private void OnMouseEnter(object sender, MouseEventArgs e)
     {
-      Background = (SolidColorBrush) FindResource("FennelAccentMedium");
-      Foreground = (SolidColorBrush) FindResource("FennelAccentLight");
+      Background = (SolidColorBrush) FindResource("AccentMedium");
+      Foreground = (SolidColorBrush) FindResource("AccentLight");
     }
 
     private static void OnDataChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

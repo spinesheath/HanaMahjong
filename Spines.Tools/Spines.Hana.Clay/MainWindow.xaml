@@ -15,7 +15,7 @@
         WindowStyle="None"
         ResizeMode="CanResizeWithGrip">
 
-    <Border x:Name="WindowBorder" Background="White" BorderThickness="1" BorderBrush="{StaticResource FennelPrimaryMedium}">
+    <Border x:Name="WindowBorder" Background="White" BorderThickness="1" BorderBrush="{StaticResource PrimaryMedium}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="38"/>
