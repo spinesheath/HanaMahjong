@@ -22,8 +22,6 @@ namespace Spines.Hana.Clay.ViewModels
 
     public ICommand Randomize { get; }
 
-    public HandViewModel Hand { get; } = new HandViewModel();
-
     public ICollection<UkeIreViewModel> UkeIre { get; } = new ObservableCollection<UkeIreViewModel>();
 
     public string Shorthand
@@ -46,12 +44,17 @@ namespace Spines.Hana.Clay.ViewModels
         catch
         {
           _invalidFormat = true;
+          UkeIre.Clear();
         }
         OnPropertyChanged();
         OnPropertyChanged(nameof(Shanten));
         OnPropertyChanged(nameof(InvalidFormat));
       }
     }
+
+    public ICollection<Tile> Tiles { get; } = new ObservableCollection<Tile>();
+
+    public ICollection<Meld> Melds { get; } = new ObservableCollection<Meld>();
 
     public bool InvalidFormat => _invalidFormat || _shorthand == null || !_currentHand.IsValid;
 
@@ -73,15 +76,15 @@ namespace Spines.Hana.Clay.ViewModels
 
     private void UpdateIcons(ShorthandParser parser)
     {
-      Hand.Tiles.Clear();
+      Tiles.Clear();
       foreach (var tile in parser.Tiles)
       {
-        Hand.Tiles.Add(tile);
+        Tiles.Add(tile);
       }
-      Hand.Melds.Clear();
+      Melds.Clear();
       foreach (var meld in parser.Melds)
       {
-        Hand.Melds.Add(meld);
+        Melds.Add(meld);
       }
 
       UkeIre.Clear();

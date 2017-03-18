@@ -30,8 +30,8 @@
             </TextBox>
         </DockPanel>
 
-        <controls:HandDisplay Tiles="{Binding Hand.Tiles}" 
-                              Melds="{Binding Hand.Melds}"
+        <controls:HandDisplay Tiles="{Binding Tiles}" 
+                              Melds="{Binding Melds}"
                               DockPanel.Dock="Top" Margin="0,10,0,10"/>
 
         <TextBlock Text="{Binding Shanten, StringFormat={}{0} Shanten}" VerticalAlignment="Top" DockPanel.Dock="Top">
