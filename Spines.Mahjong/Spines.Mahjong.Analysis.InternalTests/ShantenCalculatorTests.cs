@@ -14,8 +14,9 @@ namespace Spines.Mahjong.Analysis.InternalTests
   [TestFixture]
   public class ShantenCalculatorTests
   {
-    [TestCase("1m19p9s1234457z555Z", 3)]
-    public void DiscardShouldNotThrow(string hand, int expected)
+    [TestCase("3366p11s11577z444S")]
+    [TestCase("1m19p9s1234457z555Z")]
+    public void DiscardShouldNotThrow(string hand)
     {
       var parser = new ShorthandParser(hand);
       var c = new Hand(parser);

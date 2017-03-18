@@ -46,6 +46,7 @@ namespace Spines.Mahjong.Analysis.Classification
           _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorPonActionId(index));
           _cJihai[index] -= 2;
           _mJihai[index] += 3;
+          _meldCount += 1;
           _tilesInHand += 1;
           _visibleByType[tileType] += 1;
           _inHandByType[tileType] += 1;
@@ -60,6 +61,7 @@ namespace Spines.Mahjong.Analysis.Classification
           _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorDaiminkanActionId());
           _cJihai[index] -= 3;
           _mJihai[index] += 4;
+          _meldCount += 1;
           _visibleByType[tileType] += 1;
           _inHandByType[tileType] += 1;
         }
@@ -275,6 +277,7 @@ namespace Spines.Mahjong.Analysis.Classification
         _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorPonActionId(index));
         _cJihai[index] -= 2;
         _mJihai[index] += 3;
+        _meldCount += 1;
         _tilesInHand += 1;
 
         if (CalculateShanten(_arrangementValues) < shantenBeforeCall || CountUkeIre14() > ukeIreBeforeCall)
@@ -283,6 +286,7 @@ namespace Spines.Mahjong.Analysis.Classification
           return CallResult.Call;
         }
 
+        _meldCount -= 1;
         _tilesInHand -= 1;
         _mJihai[index] -= 3;
         _cJihai[index] += 2;
@@ -341,6 +345,7 @@ namespace Spines.Mahjong.Analysis.Classification
     private readonly int[] _arrangementValues = new int[4];
     private KokushiClassifier _kokushi = KokushiClassifier.Create();
     private ChiitoiClassifier _chiitoi = ChiitoiClassifier.Create();
+    private int _meldCount;
 
     /// <summary>
     /// Calculates the UkeIre of the hand.
@@ -442,6 +447,7 @@ namespace Spines.Mahjong.Analysis.Classification
     {
       _melds[suitId][_meldCounts[suitId]] = meldId;
       _meldCounts[suitId] += 1;
+      _meldCount += 1;
       _suitClassifiers[suitId].SetMelds(_melds[suitId], _meldCounts[suitId]);
       UpdateValue(suitId);
     }
@@ -449,6 +455,7 @@ namespace Spines.Mahjong.Analysis.Classification
     private void RemoveMeld(int suitId)
     {
       _meldCounts[suitId] -= 1;
+      _meldCount -= 1;
       _suitClassifiers[suitId].SetMelds(_melds[suitId], _meldCounts[suitId]);
       UpdateValue(suitId);
     }
@@ -456,11 +463,6 @@ namespace Spines.Mahjong.Analysis.Classification
     private int GetHonorPonActionId(int index)
     {
       return 8 + _cJihai[index];
-    }
-
-    private static int GetHonorDaiminkanActionId()
-    {
-      return 12;
     }
 
     /// <summary>
@@ -525,28 +527,48 @@ namespace Spines.Mahjong.Analysis.Classification
       }
     }
 
-    private void AddShuntsu(int suit, int c)
+    /// <summary>
+    /// Adds the tiles of a shuntsu to the concealed part of the hand.
+    /// </summary>
+    /// <param name="suit">The suit of the shuntsu.</param>
+    /// <param name="index">The index of the first tile of the shuntsu.</param>
+    private void AddShuntsu(int suit, int index)
     {
-      _suits[suit][c + 0] += 1;
-      _suits[suit][c + 1] += 1;
-      _suits[suit][c + 2] += 1;
+      _suits[suit][index + 0] += 1;
+      _suits[suit][index + 1] += 1;
+      _suits[suit][index + 2] += 1;
       UpdateValue(suit);
     }
 
-    private void RemoveShuntsu(int suit, int c)
+    /// <summary>
+    /// Removed the tiles of a shuntsu from the concealed part of the hand.
+    /// </summary>
+    /// <param name="suit">The suit of the shuntsu.</param>
+    /// <param name="index">The index of the first tile of the shuntsu.</param>
+    private void RemoveShuntsu(int suit, int index)
     {
-      _suits[suit][c + 0] -= 1;
-      _suits[suit][c + 1] -= 1;
-      _suits[suit][c + 2] -= 1;
+      _suits[suit][index + 0] -= 1;
+      _suits[suit][index + 1] -= 1;
+      _suits[suit][index + 2] -= 1;
       UpdateValue(suit);
     }
 
+    /// <summary>
+    /// Adds the tiles of a koutsu to the concealed part of the hand.
+    /// </summary>
+    /// <param name="suit">The suit of the shuntsu.</param>
+    /// <param name="index">The index of the tiles of the koutsu.</param>
     private void AddKoutsu(int suit, int index)
     {
       _suits[suit][index] += 3;
       UpdateValue(suit);
     }
 
+    /// <summary>
+    /// Removes the tiles of a koutsu from the concealed part of the hand.
+    /// </summary>
+    /// <param name="suit">The suit of the shuntsu.</param>
+    /// <param name="index">The index of the tiles of the koutsu.</param>
     private void RemoveKoutsu(int suit, int index)
     {
       _suits[suit][index] -= 3;
@@ -701,6 +723,16 @@ namespace Spines.Mahjong.Analysis.Classification
       return count;
     }
 
+    private int CalculateShanten(int[] arrangementValues)
+    {
+      var shanten = ArrangementClassifier.Classify(arrangementValues);
+      if (_meldCount > 0)
+      {
+        return shanten;
+      }
+      return Math.Min(shanten, Math.Min(_kokushi.Shanten, _chiitoi.Shanten));
+    }
+
     /// <summary>
     /// Creates a string that represents the melds.
     /// </summary>
@@ -769,15 +801,9 @@ namespace Spines.Mahjong.Analysis.Classification
       return sb.ToString();
     }
 
-    private int CalculateShanten(int[] arrangementValues)
+    private static int GetHonorDaiminkanActionId()
     {
-      var shanten = ArrangementClassifier.Classify(arrangementValues);
-      if (_meldCounts.Sum() > 0 || _mJihai.Sum() > 0)
-      {
-        return shanten;
-      }
-      
-      return Math.Min(shanten, Math.Min(_kokushi.Shanten, _chiitoi.Shanten));
+      return 12;
     }
   }
 }
