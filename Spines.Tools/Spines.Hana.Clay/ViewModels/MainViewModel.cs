@@ -22,11 +22,11 @@ namespace Spines.Hana.Clay.ViewModels
 
     public ICommand Randomize { get; }
 
-    public ICollection<Tile> Tiles { get; } = new ObservableCollection<Tile>();
+    public HandViewModel Hand { get; } = new HandViewModel();
 
     public ICollection<UkeIreViewModel> UkeIre { get; } = new ObservableCollection<UkeIreViewModel>();
 
-    public string Hand
+    public string Shorthand
     {
       get { return _shorthand; }
       set
@@ -73,11 +73,15 @@ namespace Spines.Hana.Clay.ViewModels
 
     private void UpdateIcons(ShorthandParser parser)
     {
-      var tiles = parser.Tiles;
-      Tiles.Clear();
-      foreach (var tile in tiles)
+      Hand.Tiles.Clear();
+      foreach (var tile in parser.Tiles)
       {
-        Tiles.Add(tile);
+        Hand.Tiles.Add(tile);
+      }
+      Hand.Melds.Clear();
+      foreach (var meld in parser.Melds)
+      {
+        Hand.Melds.Add(meld);
       }
 
       UkeIre.Clear();
@@ -107,7 +111,7 @@ namespace Spines.Hana.Clay.ViewModels
         _currentHand.Draw(tileId / 4);
       }
       _shorthand = _currentHand.ToString();
-      OnPropertyChanged(nameof(Hand));
+      OnPropertyChanged(nameof(Shorthand));
       OnPropertyChanged(nameof(Shanten));
       OnPropertyChanged(nameof(InvalidFormat));
       var parser = new ShorthandParser(_shorthand);

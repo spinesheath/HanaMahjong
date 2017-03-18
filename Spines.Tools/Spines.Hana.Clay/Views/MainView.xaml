@@ -14,7 +14,7 @@
         <DockPanel DockPanel.Dock="Top" LastChildFill="False">
             <controls:FlatButton DockPanel.Dock="Left" Command="{Binding Randomize}" CommandParameter="13" Content="13" VerticalAlignment="Center" Padding="4" Margin="1"/>
             <controls:FlatButton DockPanel.Dock="Left" Command="{Binding Randomize}" CommandParameter="14" Content="14" VerticalAlignment="Center" Padding="4" Margin="1"/>
-            <TextBox Text="{Binding Hand, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Top" DockPanel.Dock="Left"
+            <TextBox Text="{Binding Shorthand, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Top" DockPanel.Dock="Left"
                      BorderBrush="{StaticResource PrimaryMedium}" BorderThickness="0,0,0,2"
                      Margin="8,2,8,2"
                      Width="200">
@@ -30,18 +30,9 @@
             </TextBox>
         </DockPanel>
 
-        <ItemsControl ItemsSource="{Binding Tiles}" DockPanel.Dock="Top" Margin="0,10,0,10">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <controls:TileImage Tile="{Binding}"/>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        <controls:HandDisplay Tiles="{Binding Hand.Tiles}" 
+                              Melds="{Binding Hand.Melds}"
+                              DockPanel.Dock="Top" Margin="0,10,0,10"/>
 
         <TextBlock Text="{Binding Shanten, StringFormat={}{0} Shanten}" VerticalAlignment="Top" DockPanel.Dock="Top">
             <TextBlock.Style>

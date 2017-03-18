@@ -85,11 +85,13 @@
     <Compile Include="Commands\DelegateCommand.cs" />
     <Compile Include="Controls\BusyIcon.cs" />
     <Compile Include="Controls\FlatButton.cs" />
+    <Compile Include="Controls\HandDisplay.cs" />
     <Compile Include="Controls\TileImage.cs" />
     <Compile Include="Dialogs\AboutDialog.xaml.cs">
       <DependentUpon>AboutDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="ViewModels\HandViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\UkeIreViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />

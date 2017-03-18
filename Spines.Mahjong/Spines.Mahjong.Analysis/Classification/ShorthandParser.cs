@@ -40,6 +40,21 @@ namespace Spines.Mahjong.Analysis.Classification
       }
     }
 
+    /// <summary>
+    /// The melds in the hand.
+    /// </summary>
+    public IEnumerable<Meld> Melds
+    {
+      get
+      {
+        var manzu = ManzuMeldIds.Select(meldId => new Meld(meldId, Suit.Manzu));
+        var pinzu = PinzuMeldIds.Select(meldId => new Meld(meldId, Suit.Pinzu));
+        var souzu = SouzuMeldIds.Select(meldId => new Meld(meldId, Suit.Souzu));
+        var jihai = JihaiMeldIds.Select(meldId => new Meld(meldId, Suit.Jihai));
+        return manzu.Concat(pinzu).Concat(souzu).Concat(jihai);
+      }
+    }
+
     private static readonly Suit[] IdToSuit = {Suit.Manzu, Suit.Pinzu, Suit.Souzu, Suit.Jihai};
 
     private readonly string _hand;

@@ -47,8 +47,8 @@ namespace Spines.Mahjong.Analysis.Classification
           _cJihai[index] -= 2;
           _mJihai[index] += 3;
           _tilesInHand += 1;
-          _visibleByType[index] += 1;
-          _inHandByType[index] += 1;
+          _visibleByType[tileType] += 1;
+          _inHandByType[tileType] += 1;
         }
         else
         {
@@ -60,9 +60,8 @@ namespace Spines.Mahjong.Analysis.Classification
           _arrangementValues[3] = _honorClassifier.MoveNext(GetHonorDaiminkanActionId());
           _cJihai[index] -= 3;
           _mJihai[index] += 4;
-          _tilesInHand += 1;
-          _visibleByType[index] += 1;
-          _inHandByType[index] += 1;
+          _visibleByType[tileType] += 1;
+          _inHandByType[tileType] += 1;
         }
       }
 
