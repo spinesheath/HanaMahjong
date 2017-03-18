@@ -339,6 +339,7 @@ namespace Spines.Mahjong.Analysis.Classification
     private readonly int[] _meldCounts = new int[3]; // used meldId slots for non-honors
     private readonly int[] _mJihai = new int[7]; // melded tiles
     private readonly int[] _arrangementValues = new int[4];
+    private int _kokushiShanten = 14;
 
     /// <summary>
     /// Calculates the UkeIre of the hand.
@@ -730,9 +731,8 @@ namespace Spines.Mahjong.Analysis.Classification
         return shanten;
       }
 
-      var kokushiShanten = GetKokushiShanten();
       var chiiToiShanten = GetChiitoiShanten();
-      return Math.Min(shanten, Math.Min(kokushiShanten, chiiToiShanten));
+      return Math.Min(shanten, Math.Min(_kokushiShanten, chiiToiShanten));
     }
 
     private int GetChiitoiShanten()
@@ -749,28 +749,6 @@ namespace Spines.Mahjong.Analysis.Classification
         }
       }
       return 14 - 2 * pairCount - Math.Min(singleCount, 7 - pairCount);
-    }
-
-    private int GetKokushiShanten()
-    {
-      var kokushiCount = 0;
-      var kokushiPair = false;
-      for (var suit = 0; suit < 3; ++suit)
-      {
-        var one = _suits[suit][0];
-        kokushiCount += one > 0 ? 1 : 0;
-        kokushiPair |= one > 1;
-        var nine = _suits[suit][8];
-        kokushiCount += nine > 0 ? 1 : 0;
-        kokushiPair |= nine > 1;
-      }
-      for (var index = 0; index < 7; ++index)
-      {
-        var jihai = _cJihai[index];
-        kokushiCount += jihai > 0 ? 1 : 0;
-        kokushiPair |= jihai > 1;
-      }
-      return 14 - ((kokushiPair ? 1 : 0) + kokushiCount);
     }
   }
 }
