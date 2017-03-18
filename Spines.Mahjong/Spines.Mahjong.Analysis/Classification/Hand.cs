@@ -722,9 +722,33 @@ namespace Spines.Mahjong.Analysis.Classification
       return sb.ToString();
     }
 
-    private static int CalculateShanten(int[] arrangementValues)
+    private int CalculateShanten(int[] arrangementValues)
     {
-      return ArrangementClassifier.Classify(arrangementValues);
+      var shanten = ArrangementClassifier.Classify(arrangementValues);
+      if (_meldCounts.Sum() > 0 || _mJihai.Sum() > 0)
+      {
+        return shanten;
+      }
+
+      var kokushiCount = 0;
+      var kokushiPair = false;
+      for(var suit = 0; suit < 3; ++suit)
+      {
+        var one = _suits[suit][0];
+        kokushiCount += one > 0 ? 1 : 0;
+        kokushiPair |= one > 1;
+        var nine = _suits[suit][8];
+        kokushiCount += nine > 0 ? 1 : 0;
+        kokushiPair |= nine > 1;
+      }
+      for (var index = 0; index < 7; ++index)
+      {
+        var jihai = _cJihai[index];
+        kokushiCount += jihai > 0 ? 1 : 0;
+        kokushiPair |= jihai > 1;
+      }
+      var kokushiShanten = 14 - ((kokushiPair ? 1 : 0) + kokushiCount);
+      return Math.Min(shanten, kokushiShanten);
     }
   }
 }

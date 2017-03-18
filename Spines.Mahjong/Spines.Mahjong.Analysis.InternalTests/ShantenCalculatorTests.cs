@@ -14,6 +14,14 @@ namespace Spines.Mahjong.Analysis.InternalTests
   [TestFixture]
   public class ShantenCalculatorTests
   {
+    [TestCase("1m19p9s1234457z555Z", 3)]
+    public void DiscardShouldNotThrow(string hand, int expected)
+    {
+      var parser = new ShorthandParser(hand);
+      var c = new Hand(parser);
+      Assert.DoesNotThrow(() => c.Discard());
+    }
+
     [TestCase("123456789m12344p", -1)]
     [TestCase("123456789m1234p", 0)]
     [TestCase("123456789m1245p", 1)]
@@ -44,7 +52,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
       Process.GetCurrentProcess().ProcessorAffinity = new IntPtr(2);
       Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
       Thread.CurrentThread.Priority = ThreadPriority.Highest;
-      
+
       var parser = new ShorthandParser("123456789m12344p");
       Console.WriteLine(new Hand(parser).Shanten);
 
