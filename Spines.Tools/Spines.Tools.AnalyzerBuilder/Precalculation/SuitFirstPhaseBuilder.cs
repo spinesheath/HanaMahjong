@@ -68,7 +68,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       // Apply Hopcroft
       var normalStates = Enumerable.Range(0, columns.Count);
       var finalStates = Enumerable.Range(columns.Count, finalValueToStateId.Count);
-      var hopcroft = new Hopcroft(normalStates, finalStates, 26, (a, c) => a.SelectMany(aa => incoming[aa][c]));
+      var hopcroft = new Hopcroft(normalStates, finalStates.Select(fs => fs.Yield()), 26, (a, c) => a.SelectMany(aa => incoming[aa][c]));
       var equivalenceGroups = hopcroft.EquivalenceGroups;
       var oldToNewIds =
         equivalenceGroups.OrderBy(g => g.Min())

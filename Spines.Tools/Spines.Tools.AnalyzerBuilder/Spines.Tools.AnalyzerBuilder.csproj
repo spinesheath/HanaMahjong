@@ -102,6 +102,7 @@
     <Compile Include="Combinations\ShuntsuProtoGroupInserter.cs" />
     <Compile Include="Combinations\TileGroupAnalyzer.cs" />
     <Compile Include="Precalculation\Hopcroft.cs" />
+    <Compile Include="Precalculation\ProgressiveKokushiBuilder.cs" />
     <Compile Include="Precalculation\SuitFirstPhaseBuilder.cs" />
     <Compile Include="Precalculation\SuitSecondPhaseBuilder.cs" />
     <Compile Include="Precalculation\TransitionCompacter.cs" />

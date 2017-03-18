@@ -42,6 +42,11 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
       CreateTransitions("ProgressiveHonorStateMachine.txt", GetProgressiveHonorBuilder);
     }
 
+    public void CreateProgressiveKokushiTransitions()
+    {
+      CreateTransitions("ProgressiveKokushiStateMachine.txt", GetProgressiveKokushiBuilder);
+    }
+
     public void CreateSuitFirstPhase()
     {
       CreateTransitions("SuitFirstPhase.txt", GetSuitFirstPhaseBuilder);
@@ -74,6 +79,11 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
     {
       var language = new CompactAnalyzedDataCreator(_workingDirectory).CreateHonorWords();
       return GetClassifierBuilder(language);
+    }
+
+    private static IStateMachineBuilder GetProgressiveKokushiBuilder()
+    {
+      return new ProgressiveKokushiBuilder();
     }
 
     private IStateMachineBuilder GetProgressiveHonorBuilder()

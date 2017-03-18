@@ -9,40 +9,34 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
 {
   internal class Hopcroft
   {
-    public Hopcroft(IEnumerable<int> normalStates, IEnumerable<int> finalStates, int alphabetSize,
-      Func<HashSet<int>, int, IEnumerable<int>> getIncomingStates)
+    public Hopcroft(IEnumerable<int> normalStates, IEnumerable<IEnumerable<int>> finalStates, int alphabetSize, Func<HashSet<int>, int, IEnumerable<int>> getIncomingStates)
     {
-      /*
-       * From Wikipedia
-       * 
-       * P := {F, Q \ F};
-         W := {F};
-         while (W is not empty) do
-           choose and remove a set A from W
-           for each c in Σ do
-             let X be the set of states for which a transition on c leads to a state in A
-             for each set Y in P for which X ∩ Y is nonempty and Y \ X is nonempty do
-               replace Y in P by the two sets X ∩ Y and Y \ X
-               if Y is in W
-                 replace Y in W by the same two sets
-               else
-                 if |X ∩ Y| <= |Y \ X|
-                   add X ∩ Y to W
-                 else
-                   add Y \ X to W
-             end;
-           end;
-         end;
-       */
+      // From Wikipedia
+      // P := {F, Q \ F};
+      // W := {F};
+      // while (W is not empty) do
+      //   choose and remove a set A from W
+      //   for each c in Σ do
+      //     let X be the set of states for which a transition on c leads to a state in A
+      //     for each set Y in P for which X ∩ Y is nonempty and Y \ X is nonempty do
+      //       replace Y in P by the two sets X ∩ Y and Y \ X
+      //       if Y is in W
+      //         replace Y in W by the same two sets
+      //       else
+      //         if |X ∩ Y| <= |Y \ X|
+      //           add X ∩ Y to W
+      //         else
+      //           add Y \ X to W
+      //     end;
+      //   end;
+      // end;
 
       var s = Enumerable.Range(0, alphabetSize).ToList(); // The alphabet.
       var n = new HashSet<int>(normalStates); // All nonfinal states.
-      var f = finalStates.Select(fs => new HashSet<int> {fs}).ToList();
-        // Final states are assumed to have different values.
+      var f = finalStates.Select(fs => new HashSet<int>(fs)).ToList();
       var p = new HashSet<HashSet<int>> {n}; // The partition.
-      var q = f.Select(ff => ff.First()).ToList();
-        // Single element sets of the partition are collected here for performance.
-      var w = new HashSet<HashSet<int>>(f); // The remaining sets to check.
+      var q = new HashSet<int>(f.Where(ff => ff.Count == 1).Select(ff => ff.First())); // Single element sets of the partition are collected here for performance.
+      var w = new HashSet<HashSet<int>>(f.Where(ff => ff.Count > 1)); // The remaining sets to check.
 
       while (w.Count > 0)
       {
@@ -56,8 +50,7 @@ namespace Spines.Tools.AnalyzerBuilder.Precalculation
           {
             continue; // Intersections with an empty set are always empty.
           }
-          foreach (var y in p.ToList())
-            // p is modified in this loop, but all new elements are inserted into w and checked later.
+          foreach (var y in p.ToList()) // p is modified in this loop, but all new elements are inserted into w and checked later.
           {
             if (IsIntersectionEmpty(x, y))
             {
