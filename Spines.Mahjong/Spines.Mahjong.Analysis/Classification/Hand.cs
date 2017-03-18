@@ -730,9 +730,32 @@ namespace Spines.Mahjong.Analysis.Classification
         return shanten;
       }
 
+      var kokushiShanten = GetKokushiShanten();
+      var chiiToiShanten = GetChiitoiShanten();
+      return Math.Min(shanten, Math.Min(kokushiShanten, chiiToiShanten));
+    }
+
+    private int GetChiitoiShanten()
+    {
+      var pairCount = 0;
+      var singleCount = 0;
+      for (var suit = 0; suit < 4; ++suit)
+      {
+        for (var index = 0; index < _suits[suit].Length; ++index)
+        {
+          var count = _suits[suit][index];
+          pairCount += count > 1 ? 1 : 0;
+          singleCount += count == 1 ? 1 : 0;
+        }
+      }
+      return 14 - 2 * pairCount - Math.Min(singleCount, 7 - pairCount);
+    }
+
+    private int GetKokushiShanten()
+    {
       var kokushiCount = 0;
       var kokushiPair = false;
-      for(var suit = 0; suit < 3; ++suit)
+      for (var suit = 0; suit < 3; ++suit)
       {
         var one = _suits[suit][0];
         kokushiCount += one > 0 ? 1 : 0;
@@ -747,8 +770,7 @@ namespace Spines.Mahjong.Analysis.Classification
         kokushiCount += jihai > 0 ? 1 : 0;
         kokushiPair |= jihai > 1;
       }
-      var kokushiShanten = 14 - ((kokushiPair ? 1 : 0) + kokushiCount);
-      return Math.Min(shanten, kokushiShanten);
+      return 14 - ((kokushiPair ? 1 : 0) + kokushiCount);
     }
   }
 }

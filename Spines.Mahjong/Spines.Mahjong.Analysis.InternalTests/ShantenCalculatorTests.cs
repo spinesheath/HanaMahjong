@@ -30,12 +30,14 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [TestCase("1345679m147p147s", 4)]
     [TestCase("145679m147p147s1z", 5)]
     [TestCase("14679m147p147s12z", 6)]
-    [TestCase("1479m147p147s123z", 7)]
-    [TestCase("147m147p147s1234z", 8)]
+    [TestCase("1479m147p147s123z", 6)]
+    [TestCase("147m147p147s1234z", 6)]
     [TestCase("123456789m44p123S", -1)]
     [TestCase("1245p112z333P6666P", 2)]
     [TestCase("123456789m44p111Z", -1)]
     [TestCase("1245p112z444Z3333Z", 1)]
+    [TestCase("19m19p19s1234567z", 0)]
+    [TestCase("114477m114477p11s", -1)]
     public void ShantenShouldBeCorrect(string hand, int expected)
     {
       var parser = new ShorthandParser(hand);
