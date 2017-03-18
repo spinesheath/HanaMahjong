@@ -64,6 +64,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ArrangementClassifierTests.cs" />
+    <Compile Include="ChiitoiClassifierTests.cs" />
     <Compile Include="KokushiClassifierTests.cs" />
     <Compile Include="ShantenCalculatorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

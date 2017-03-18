@@ -3,14 +3,11 @@
 
 namespace Spines.Mahjong.Analysis.Classification
 {
-  /// <summary>
-  /// Progressively calculates the Shanten for Kokushi.
-  /// </summary>
-  internal struct KokushiClassifier
+  internal struct ChiitoiClassifier
   {
-    public static KokushiClassifier Create()
+    public static ChiitoiClassifier Create()
     {
-      return new KokushiClassifier(14, 0);
+      return new ChiitoiClassifier(14, 0);
     }
 
     /// <summary>
@@ -23,11 +20,11 @@ namespace Spines.Mahjong.Analysis.Classification
       switch (previousTileCount)
       {
         case 0:
-          Shanten -= 1;
+          Shanten -= _usedSlots < 7 ? 1 : 0;
+          _usedSlots += 1;
           break;
         case 1:
-          Shanten -= _pairs == 0 ? 1 : 0;
-          _pairs += 1;
+          Shanten -= 1;
           break;
       }
     }
@@ -37,21 +34,21 @@ namespace Spines.Mahjong.Analysis.Classification
       switch (previousTileCount)
       {
         case 1:
-          Shanten += 1;
+          Shanten += _usedSlots > 7 ? 0 : 1;
+          _usedSlots -= 1;
           break;
         case 2:
-          _pairs -= 1;
-          Shanten += _pairs == 0 ? 1 : 0;
+          Shanten += 1;
           break;
       }
     }
 
-    private int _pairs;
+    private int _usedSlots;
 
-    private KokushiClassifier(int shanten, int pairs)
+    private ChiitoiClassifier(int shanten, int usedSlots)
     {
       Shanten = shanten;
-      _pairs = pairs;
+      _usedSlots = usedSlots;
     }
   }
 }
