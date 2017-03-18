@@ -175,7 +175,6 @@ namespace Spines.Mahjong.Analysis.Classification
       InternalDraw(suit, index);
 
       _visibleByType[tileType] += 1;
-      _inHandByType[tileType] += 1;
 
       return CalculateShanten(_arrangementValues) == 0 ? DrawResult.Tsumo : DrawResult.Draw;
     }
@@ -462,6 +461,7 @@ namespace Spines.Mahjong.Analysis.Classification
 
     private void InternalDiscard(int suit, int index)
     {
+      _inHandByType[suit * 9 + index] -= 1;
       _tilesInHand -= 1;
       if (suit == 3)
       {
@@ -484,6 +484,7 @@ namespace Spines.Mahjong.Analysis.Classification
 
     private void InternalDraw(int suit, int index)
     {
+      _inHandByType[suit * 9 + index] += 1;
       _tilesInHand += 1;
       if (suit == 3)
       {
