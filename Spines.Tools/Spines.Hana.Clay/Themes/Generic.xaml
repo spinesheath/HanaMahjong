@@ -30,7 +30,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type controls:TileImage}">
-                    <Image Source="{TemplateBinding Source}" Stretch="None" VerticalAlignment="Bottom"/>
+                    <Image Source="{TemplateBinding Source}" Stretch="None" VerticalAlignment="Bottom" SnapsToDevicePixels="True"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
