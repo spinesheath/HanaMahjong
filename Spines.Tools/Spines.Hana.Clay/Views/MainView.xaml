@@ -57,7 +57,7 @@
                 <DataTemplate DataType="{x:Type viewModels:UkeIreViewModel}">
                     <DockPanel LastChildFill="False">
                         <TextBlock DockPanel.Dock="Left" Text="{Binding Count}" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                        <controls:TileImage DockPanel.Dock="Left" Margin="0,0,10,0" Tile="{Binding Discard}"/>
+                        <controls:TileImage DockPanel.Dock="Left" Margin="0,0,10,0" Tile="{Binding Discard}" VerticalAlignment="Center"/>
                         <ItemsControl DockPanel.Dock="Left" ItemsSource="{Binding Tiles}" Margin="0,5,0,5">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>

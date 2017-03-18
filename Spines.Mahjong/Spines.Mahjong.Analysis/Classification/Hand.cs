@@ -119,7 +119,7 @@ namespace Spines.Mahjong.Analysis.Classification
           var ukeIre = GetUkeIreFor13();
           if (ukeIre.Any())
           {
-            yield return new UkeIreInfo(new Tile {Suit = IdToSuit[discardSuit], Index = discardIndex}, ukeIre);
+            yield return new UkeIreInfo(new Tile {Suit = IdToSuit[discardSuit], Index = discardIndex, Location = TileLocation.Discarded}, ukeIre);
           }
         }
 
