@@ -22,5 +22,10 @@ namespace Spines.Mahjong.Analysis.Classification
     /// Is it a red tile?
     /// </summary>
     public bool Aka { get; internal set; }
+
+    /// <summary>
+    /// The location of the tile.
+    /// </summary>
+    public TileLocation Location { get; internal set; }
   }
 }

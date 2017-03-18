@@ -30,7 +30,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type controls:TileImage}">
-                    <Image Source="{TemplateBinding Source}" Height="36" Width="24" />
+                    <Image Source="{TemplateBinding Source}" Stretch="None" VerticalAlignment="Bottom"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -125,7 +125,7 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <controls:TileImage Tile="{Binding Mode=OneTime}" Melded="True"/>
+                                                <controls:TileImage Tile="{Binding Mode=OneTime}"/>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>

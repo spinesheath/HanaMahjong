@@ -29,27 +29,19 @@ namespace Spines.Hana.Clay.Controls
       private set { SetValue(SourceProperty, value); }
     }
 
-    public bool Melded
-    {
-      get { return (bool) GetValue(MeldedProperty); }
-      set { SetValue(MeldedProperty, value); }
-    }
-
     public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
       "Source", typeof(ImageSource), typeof(TileImage), new PropertyMetadata(default(ImageSource)));
 
     public static readonly DependencyProperty TileProperty = DependencyProperty.Register(
       "Tile", typeof(Tile?), typeof(TileImage), new PropertyMetadata(default(Tile?), OnChange));
 
-    public static readonly DependencyProperty MeldedProperty = DependencyProperty.Register(
-      "Melded", typeof(bool), typeof(TileImage), new PropertyMetadata(default(bool), OnChange));
-
     static TileImage()
     {
       DefaultStyleKeyProperty.OverrideMetadata(typeof(TileImage), new FrameworkPropertyMetadata(typeof(TileImage)));
     }
 
-    private static readonly string IconBasePath = Path.GetFullPath(@"Resources/Tiles/Perspective");
+    private static readonly string PerspectivePath = Path.GetFullPath(@"Resources/Tiles/Perspective");
+    private static readonly string FlatPath = Path.GetFullPath(@"Resources/Tiles/Flat");
 
     private static readonly Dictionary<Suit, char> SuitCharacters = new Dictionary<Suit, char>
     {
@@ -70,21 +62,32 @@ namespace Spines.Hana.Clay.Controls
       {
         return null;
       }
-      var c = SuitCharacters[Tile.Value.Suit];
-      var i = Tile.Value.Index + 1;
-      var path = GetPath(c, i);
+      var tile = Tile.Value;
+      var c = SuitCharacters[tile.Suit];
+      var i = tile.Index + 1;
+      var path = GetPath(c, i, tile.Location);
       var image = new BitmapImage(new Uri(path, UriKind.Absolute));
       image.Freeze();
       return image;
     }
 
-    private string GetPath(char c, int i)
+    private static string GetPath(char c, int tileNumber, TileLocation location)
     {
-      if (Melded)
+      switch (location)
       {
-        return Path.Combine(IconBasePath, $"1{c}{i}.png");
+        case TileLocation.Concealed:
+          return Path.Combine(PerspectivePath, $"0{c}{tileNumber}.png");
+        case TileLocation.Discarded:
+        case TileLocation.Melded:
+          return Path.Combine(PerspectivePath, $"1{c}{tileNumber}.png");
+        case TileLocation.Added:
+        case TileLocation.Called:
+          return Path.Combine(PerspectivePath, $"2{c}{tileNumber}.png");
+        case TileLocation.FaceDown:
+          return Path.Combine(PerspectivePath, "1j9.png");
+        default:
+          return Path.Combine(FlatPath, $"{c}{tileNumber}.png");
       }
-      return Path.Combine(IconBasePath, $"0{c}{i}.png");
     }
 
     private static void OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)

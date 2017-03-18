@@ -59,6 +59,7 @@
     <Compile Include="Classification\Resource.cs" />
     <Compile Include="Classification\ShorthandParser.cs" />
     <Compile Include="Classification\Tile.cs" />
+    <Compile Include="Classification\TileLocation.cs" />
     <Compile Include="Classification\UkeIreInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -16,22 +16,44 @@ namespace Spines.Mahjong.Analysis.Classification
     /// </summary>
     public IEnumerable<Tile> Tiles { get; }
 
-    internal Meld(int meldId, Suit suit)
+    internal Meld(Suit suit, int meldId)
     {
-      Tiles = GetTiles(meldId, suit).ToList();
+      Tiles = GetTiles(suit, meldId).ToList();
     }
 
-    private static IEnumerable<Tile> GetTiles(int meldId, Suit suit)
+    private static IEnumerable<Tile> GetTiles(Suit suit, int meldId)
     {
       if (meldId < 7)
       {
-        return Enumerable.Range(meldId, 3).Select(i => new Tile {Index = i, Suit = suit});
+        return GetShuntsuTiles(suit, meldId);
       }
       if (meldId < 16)
       {
-        return Enumerable.Repeat(meldId - 7, 3).Select(i => new Tile {Index = i, Suit = suit});
+        return GetKoutsuTiles(suit, meldId - 7);
       }
-      return Enumerable.Repeat(meldId - 16, 4).Select(i => new Tile {Index = i, Suit = suit});
+      return GetKantsuTiles(suit, meldId - 16);
+    }
+
+    private static IEnumerable<Tile> GetKantsuTiles(Suit suit, int index)
+    {
+      yield return new Tile { Index = index, Suit = suit, Location = TileLocation.FaceDown };
+      yield return new Tile { Index = index, Suit = suit, Location = TileLocation.Melded };
+      yield return new Tile { Index = index, Suit = suit, Location = TileLocation.Melded };
+      yield return new Tile { Index = index, Suit = suit, Location = TileLocation.FaceDown };
+    }
+
+    private static IEnumerable<Tile> GetKoutsuTiles(Suit suit, int index)
+    {
+      yield return new Tile { Index = index, Suit = suit, Location = TileLocation.Called };
+      yield return new Tile { Index = index, Suit = suit, Location = TileLocation.Melded };
+      yield return new Tile { Index = index, Suit = suit, Location = TileLocation.Melded };
+    }
+
+    private static IEnumerable<Tile> GetShuntsuTiles(Suit suit, int index)
+    {
+      yield return new Tile {Index = index + 0, Suit = suit, Location = TileLocation.Called};
+      yield return new Tile {Index = index + 1, Suit = suit, Location = TileLocation.Melded};
+      yield return new Tile {Index = index + 2, Suit = suit, Location = TileLocation.Melded};
     }
   }
 }

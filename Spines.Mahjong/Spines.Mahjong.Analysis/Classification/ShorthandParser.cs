@@ -34,7 +34,7 @@ namespace Spines.Mahjong.Analysis.Classification
         {
           for (var c = 0; c < concealed[i]; ++c)
           {
-            yield return new Tile {Suit = IdToSuit[i / 9], Index = i % 9};
+            yield return new Tile {Suit = IdToSuit[i / 9], Index = i % 9, Location = TileLocation.Concealed};
           }
         }
       }
@@ -47,10 +47,10 @@ namespace Spines.Mahjong.Analysis.Classification
     {
       get
       {
-        var manzu = ManzuMeldIds.Select(meldId => new Meld(meldId, Suit.Manzu));
-        var pinzu = PinzuMeldIds.Select(meldId => new Meld(meldId, Suit.Pinzu));
-        var souzu = SouzuMeldIds.Select(meldId => new Meld(meldId, Suit.Souzu));
-        var jihai = JihaiMeldIds.Select(meldId => new Meld(meldId, Suit.Jihai));
+        var manzu = ManzuMeldIds.Select(meldId => new Meld(Suit.Manzu, meldId));
+        var pinzu = PinzuMeldIds.Select(meldId => new Meld(Suit.Pinzu, meldId));
+        var souzu = SouzuMeldIds.Select(meldId => new Meld(Suit.Souzu, meldId));
+        var jihai = JihaiMeldIds.Select(meldId => new Meld(Suit.Jihai, meldId));
         return manzu.Concat(pinzu).Concat(souzu).Concat(jihai);
       }
     }
