@@ -52,7 +52,6 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [Test]
     public void HandShouldWork()
     {
-      Process.GetCurrentProcess().ProcessorAffinity = new IntPtr(2);
       Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
       Thread.CurrentThread.Priority = ThreadPriority.Highest;
 
