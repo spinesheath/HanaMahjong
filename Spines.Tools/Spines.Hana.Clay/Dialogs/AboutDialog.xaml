@@ -3,20 +3,37 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:Spines.Hana.Clay.Controls"
         mc:Ignorable="d"
-        Title="About" Height="300" Width="300" x:ClassModifier="internal">
-    <DockPanel>
-        <TextBlock DockPanel.Dock="Top" Text="Hana Clay"/>
-        <TextBlock DockPanel.Dock="Top">
-            <Hyperlink Click="OnGoToHanaMahjong">
-                <TextBlock>https://github.com/spinesheath/HanaMahjong</TextBlock>
-            </Hyperlink>
-        </TextBlock>
-        <TextBlock DockPanel.Dock="Top" Text="Tile images taken from:"/>
-        <TextBlock DockPanel.Dock="Top">
-            <Hyperlink Click="OnGoToTileImages">
-                <TextBlock>http://suzume.hakata21.com/5zats/haiga.html</TextBlock>
-            </Hyperlink>
-        </TextBlock>
-    </DockPanel>
+        Title="About" 
+        Height="200" 
+        Width="300" 
+        x:ClassModifier="internal"
+        WindowStyle="None"
+        AllowsTransparency="True">
+    <Border BorderBrush="{StaticResource PrimaryMedium}" BorderThickness="1" Background="White">
+        <DockPanel Margin="10,0,0,0">
+            <Border DockPanel.Dock="Top"
+                    Background="Transparent" 
+                    BorderThickness="0"
+                    MouseDown="OnMouseDown">
+                <DockPanel LastChildFill="False">
+                    <TextBlock DockPanel.Dock="Left" Text="Hana Clay" FontSize="16" VerticalAlignment="Center"/>
+                    <controls:FlatButton DockPanel.Dock="Right" Click="OnClose" Data="M 7,7 L 27,27 M 22,12 L 27,7 M 7,27 L 12,22" Width="36" Height="36" Margin="1"/>
+                </DockPanel>
+            </Border>
+            <TextBlock DockPanel.Dock="Top" Text="Project:" Margin="0,10,0,0"/>
+            <TextBlock DockPanel.Dock="Top" Margin="10,0,0,0">
+                <Hyperlink Click="OnGoToHanaMahjong">
+                    <TextBlock>https://github.com/spinesheath/HanaMahjong</TextBlock>
+                </Hyperlink>
+            </TextBlock>
+            <TextBlock DockPanel.Dock="Top" Text="Tile images taken from:" Margin="0,10,0,0"/>
+            <TextBlock DockPanel.Dock="Top" Margin="10,0,0,0">
+                <Hyperlink Click="OnGoToTileImages">
+                    <TextBlock>http://suzume.hakata21.com/5zats/haiga.html</TextBlock>
+                </Hyperlink>
+            </TextBlock>
+        </DockPanel>
+    </Border>
 </Window>

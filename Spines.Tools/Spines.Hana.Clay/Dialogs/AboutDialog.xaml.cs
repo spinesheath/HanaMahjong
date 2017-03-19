@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Input;
 
 namespace Spines.Hana.Clay.Dialogs
 {
@@ -24,6 +25,16 @@ namespace Spines.Hana.Clay.Dialogs
     private void OnGoToHanaMahjong(object sender, RoutedEventArgs e)
     {
       OpenUrl("https://github.com/spinesheath/HanaMahjong");
+    }
+
+    private void OnClose(object sender, RoutedEventArgs e)
+    {
+      Close();
+    }
+
+    private void OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+      DragMove();
     }
 
     private static void OpenUrl(string url)
