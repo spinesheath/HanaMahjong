@@ -373,20 +373,37 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// Calculates the UkeIre of the hand along with a value representing improval rate.
     /// </summary>
+    /// <param name="draws">The number of draws to consider.</param>
+    /// <param name="shantenToGain">The target amount of shanten to gain.</param>
     /// <returns>Information about the UkeIre of the hand.</returns>
-    public IEnumerable<UkeIreInfo> GetDeepUkeIre()
+    /// <exception cref="InvalidOperationException">Thrown if the hand is not in a legal state.</exception>
+    public IEnumerable<UkeIreInfo> GetDeepUkeIre(int draws, int shantenToGain)
     {
+      if (draws < shantenToGain)
+      {
+        throw new ArgumentException("Need at least as many draws as shanten to be gained.");
+      }
+
       var currentShanten = CalculateShanten(_arrangementValues);
       var hiddenTiles = 136 - _visibleByType.Select(b => (int) b).Sum();
 
+      var targetShanten = Math.Max(currentShanten - shantenToGain, 0);
+      if (targetShanten == currentShanten)
+      {
+        yield break;
+      }
       if (_tilesInHand == 13)
       {
-        yield return new UkeIreInfo(null, GetUkeIreFor13(), GetImproveChance(currentShanten - 2, 3, 1, hiddenTiles));
+        var improvementRate = GetImproveChance(targetShanten, draws, 1, hiddenTiles);
+        if (improvementRate > 0)
+        {
+          yield return new UkeIreInfo(null, GetUkeIreFor13(), improvementRate);
+        }
         yield break;
       }
       if (_tilesInHand != 14)
       {
-        throw new InvalidOperationException("Can only calculate UkeIre for discards with 14 tiles in hand.");
+        throw new InvalidOperationException("Can only calculate UkeIre for hands with 13 or 14 tiles.");
       }
 
       for (var j = 0; j < 34; ++j)
@@ -401,7 +418,11 @@ namespace Spines.Mahjong.Analysis.Classification
         InternalDiscard(discardSuit, discardIndex);
 
         var discard = new Tile {Suit = IdToSuit[discardSuit], Index = discardIndex, Location = TileLocation.Discarded};
-        yield return new UkeIreInfo(discard, GetUkeIreFor13(), GetImproveChance(currentShanten - 2, 3, 1, hiddenTiles));
+        var improvementRate = GetImproveChance(targetShanten, draws, 1, hiddenTiles);
+        if (improvementRate > 0)
+        {
+          yield return new UkeIreInfo(discard, GetUkeIreFor13(), improvementRate);
+        }
 
         InternalDraw(discardSuit, discardIndex);
       }
