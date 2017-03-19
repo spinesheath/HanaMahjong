@@ -12,8 +12,9 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="600"/>
+            <ColumnDefinition Width="180"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="200"/>
         </Grid.ColumnDefinitions>
         <DockPanel LastChildFill="False" Margin="10" Grid.Column="0">
             <DockPanel DockPanel.Dock="Top" LastChildFill="False">
