@@ -58,7 +58,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
       var parser = new ShorthandParser("123456789m12344p");
       Console.WriteLine(new Hand(parser).Shanten);
 
-      for (var f = 0; f < 5; ++f)
+      for (var f = 0; f < 1; ++f)
       {
         var rand = new Random(5);
 

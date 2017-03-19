@@ -83,6 +83,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Commands\DelegateCommand.cs" />
+    <Compile Include="Controls\BusyContent.cs" />
     <Compile Include="Controls\BusyIcon.cs" />
     <Compile Include="Controls\FlatButton.cs" />
     <Compile Include="Controls\HandDisplay.cs" />

@@ -61,35 +61,35 @@
                 </TextBlock.Style>
             </TextBlock>
 
-
-            <ItemsControl ItemsSource="{Binding UkeIre}" DockPanel.Dock="Top" Margin="0,5,0,5"
-                          SnapsToDevicePixels="True">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Vertical"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type viewModels:UkeIreViewModel}">
-                        <DockPanel LastChildFill="False">
-                            <TextBlock DockPanel.Dock="Left" Text="{Binding Count}" Margin="0,0,10,0" VerticalAlignment="Center" Width="20"/>
-                            <controls:TileImage DockPanel.Dock="Left" Margin="0,0,10,0" Tile="{Binding Discard}" VerticalAlignment="Center"/>
-                            <ItemsControl DockPanel.Dock="Left" ItemsSource="{Binding Tiles}" Margin="0,5,0,5">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Horizontal"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <controls:TileImage Tile="{Binding}"/>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </DockPanel>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <controls:BusyContent DockPanel.Dock="Top" Margin="0,5,0,5" IsLoading="{Binding IsLoadingUkeIre}">
+                <ItemsControl ItemsSource="{Binding UkeIre}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type viewModels:UkeIreViewModel}">
+                            <DockPanel LastChildFill="False">
+                                <TextBlock DockPanel.Dock="Left" Text="{Binding Count}" Margin="0,0,10,0" VerticalAlignment="Center" Width="20"/>
+                                <controls:TileImage DockPanel.Dock="Left" Margin="0,0,10,0" Tile="{Binding Discard}" VerticalAlignment="Center"/>
+                                <ItemsControl DockPanel.Dock="Left" ItemsSource="{Binding Tiles}" Margin="0,5,0,5">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <controls:TileImage Tile="{Binding}"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </DockPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </controls:BusyContent>
 
         </DockPanel>
 

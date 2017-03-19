@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -89,6 +91,7 @@ namespace Spines.Hana.Clay.ViewModels
     private string _shorthand;
     private Hand _currentHand;
     private bool _invalidFormat;
+    private CancellationTokenSource _tokenSource;
 
     private void OnExport(object obj)
     {
@@ -182,10 +185,79 @@ namespace Spines.Hana.Clay.ViewModels
       {
         return;
       }
-      var ukeIre = _currentHand.GetUkeIre().OrderByDescending(u => u.Outs.Values.DefaultIfEmpty(0).Sum());
-      foreach (var ukeIreInfo in ukeIre)
+      UpdateUkeIreAsync();
+    }
+
+    private readonly SemaphoreSlim _loadingSemaphore = new SemaphoreSlim(1, 1);
+    private int _loadingCount;
+    public bool IsLoadingUkeIre => _loadingCount > 0;
+
+    private async void UpdateUkeIreAsync()
+    {
+      Hand hand;
+      CancellationTokenSource source;
+      try
       {
-        UkeIre.Add(new UkeIreViewModel(ukeIreInfo));
+        await _loadingSemaphore.WaitAsync();
+        
+        _loadingCount += 1;
+        OnPropertyChanged(nameof(IsLoadingUkeIre));
+
+        _tokenSource?.Cancel();
+
+        hand = _currentHand.Clone();
+
+        source = new CancellationTokenSource();
+        _tokenSource = source;
+      }
+      finally
+      {
+        _loadingSemaphore.Release();
+      }
+
+      try
+      {
+        var collection = new List<UkeIreViewModel>();
+        await Task.Run(() =>
+        {
+          var ukeIre = hand.GetUkeIre().OrderByDescending(u => u.Outs.Values.DefaultIfEmpty(0).Sum());
+          collection.AddRange(ukeIre.Select(ukeIreInfo => new UkeIreViewModel(ukeIreInfo)));
+        }, source.Token);
+
+        foreach (var ukeIreViewModel in collection)
+        {
+          UkeIre.Add(ukeIreViewModel);
+        }
+      }
+      catch (TaskCanceledException)
+      {
+      }
+      finally
+      {
+        try
+        {
+          await _loadingSemaphore.WaitAsync();
+
+          source.Dispose();
+          if (_tokenSource == source)
+            _tokenSource = null;
+        }
+        finally
+        {
+          _loadingSemaphore.Release();
+        }
+      }
+
+      try
+      {
+        await _loadingSemaphore.WaitAsync();
+
+        _loadingCount -= 1;
+        OnPropertyChanged(nameof(IsLoadingUkeIre));
+      }
+      finally
+      {
+        _loadingSemaphore.Release();
       }
     }
 

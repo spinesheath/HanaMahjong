@@ -422,6 +422,39 @@ namespace Spines.Mahjong.Analysis.Classification
       }
     }
 
+    /// <summary>
+    /// Creates a clone of the current hand.
+    /// </summary>
+    /// <returns>A new instance of hand initialized to the same state as the current hand.</returns>
+    public Hand Clone()
+    {
+      var hand = new Hand();
+      for (var i = 0; i < _suits.Length; ++i)
+      {
+        Array.Copy(_suits[i], hand._suits[i], _suits[i].Length);
+      }
+      for (var i = 0; i < _melds.Length; ++i)
+      {
+        Array.Copy(_melds[i], hand._melds[i], _melds[i].Length);
+      }
+      Array.Copy(_visibleByType, hand._visibleByType, _visibleByType.Length);
+      Array.Copy(_inHandByType, hand._inHandByType, _inHandByType.Length);
+      Array.Copy(_meldCounts, hand._meldCounts, _meldCounts.Length);
+      Array.Copy(_mJihai, hand._mJihai, _mJihai.Length);
+      Array.Copy(_arrangementValues, hand._arrangementValues, _arrangementValues.Length);
+      hand._tilesInHand = _tilesInHand;
+      hand._meldCount = _meldCount;
+      hand._pond.AddRange(_pond);
+      for (var i = 0; i < _suitClassifiers.Length; ++i)
+      {
+        hand._suitClassifiers[i] = _suitClassifiers[i].Clone();
+      }
+      hand._kokushi = _kokushi.Clone();
+      hand._chiitoi = _chiitoi.Clone();
+      hand._honorClassifier = _honorClassifier.Clone();
+      return hand;
+    }
+
     private static readonly List<Suit> IdToSuit = new List<Suit> {Suit.Manzu, Suit.Pinzu, Suit.Souzu, Suit.Jihai};
     private readonly int[] _cJihai = new int[7]; // concealed tiles
     private readonly byte[] _visibleByType = new byte[34]; // visible tile count per type

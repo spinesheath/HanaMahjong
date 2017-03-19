@@ -13,6 +13,11 @@ namespace Spines.Mahjong.Analysis.Classification
       return new KokushiClassifier(14, 0);
     }
 
+    public KokushiClassifier Clone()
+    {
+      return new KokushiClassifier(Shanten, _pairs);
+    }
+
     /// <summary>
     /// Shanten + 1 because in Hand calculations are done with that value instead of real shanten.
     /// </summary>

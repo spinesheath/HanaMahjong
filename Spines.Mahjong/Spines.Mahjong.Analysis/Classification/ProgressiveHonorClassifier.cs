@@ -17,16 +17,21 @@ namespace Spines.Mahjong.Analysis.Classification
       return new ProgressiveHonorClassifier { _current = _current };
     }
 
-    public int Draw(int previousTiles, int previousMelded)
+    public ProgressiveHonorClassifier Clone()
     {
-      var actionId = previousTiles + previousMelded + (previousMelded & 1);
+      return new ProgressiveHonorClassifier {_current = _current};
+    }
+
+    public int Draw(int previousTiles, int melded)
+    {
+      var actionId = previousTiles + melded + (melded & 1);
       _current = Transitions[_current + actionId + 1];
       return Transitions[_current];
     }
 
-    public int Discard(int previousTiles, int previousMelded)
+    public int Discard(int tilesAfterDiscard, int melded)
     {
-      var actionId = 6 + previousTiles + previousMelded + (previousMelded & 1);
+      var actionId = 6 + tilesAfterDiscard + melded + (melded & 1);
       _current = Transitions[_current + actionId];
       return Transitions[_current];
     }

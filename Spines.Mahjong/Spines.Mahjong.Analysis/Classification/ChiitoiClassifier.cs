@@ -10,6 +10,11 @@ namespace Spines.Mahjong.Analysis.Classification
       return new ChiitoiClassifier(14, 0);
     }
 
+    public ChiitoiClassifier Clone()
+    {
+      return new ChiitoiClassifier(Shanten, _usedSlots);
+    }
+
     /// <summary>
     /// Shanten + 1 because in Hand calculations are done with that value instead of real shanten.
     /// </summary>

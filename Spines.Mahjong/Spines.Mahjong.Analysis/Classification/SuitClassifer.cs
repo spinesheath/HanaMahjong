@@ -8,6 +8,11 @@ namespace Spines.Mahjong.Analysis.Classification
   /// </summary>
   internal class SuitClassifer
   {
+    public SuitClassifer Clone()
+    {
+      return new SuitClassifer {_entry = _entry, _meldCount = _meldCount, _secondPhase = _secondPhase};
+    }
+
     public void SetMelds(int[] melds, int meldCount)
     {
       _meldCount = meldCount;
