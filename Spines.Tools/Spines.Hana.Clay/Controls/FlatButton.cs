@@ -46,12 +46,6 @@ namespace Spines.Hana.Clay.Controls
       Foreground = (SolidColorBrush) FindResource("AccentLight");
     }
 
-    private static void OnDataChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-      var b = (FlatButton) d;
-      b.UpdateContent();
-    }
-
     private void UpdateContent()
     {
       var b = new Binding {Source = this, Path = new PropertyPath(nameof(Foreground))};
@@ -65,6 +59,12 @@ namespace Spines.Hana.Clay.Controls
       };
       p.SetBinding(Shape.StrokeProperty, b);
       Content = p;
+    }
+
+    private static void OnDataChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+      var b = (FlatButton) d;
+      b.UpdateContent();
     }
   }
 }

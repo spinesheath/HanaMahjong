@@ -19,7 +19,7 @@
                     MouseDown="OnMouseDown">
                 <DockPanel LastChildFill="False">
                     <TextBlock DockPanel.Dock="Left" Text="Hana Clay" FontSize="16" VerticalAlignment="Center"/>
-                    <controls:FlatButton DockPanel.Dock="Right" Click="OnClose" Data="M 7,7 L 27,27 M 22,12 L 27,7 M 7,27 L 12,22" Width="36" Height="36" Margin="1"/>
+                    <controls:FlatButton DockPanel.Dock="Right" Click="OnClose" Data="M 3,3 L 23,23 M 18,8 L 23,3 M 3,23 L 8,18"/>
                 </DockPanel>
             </Border>
             <TextBlock DockPanel.Dock="Top" Text="Project:" Margin="0,10,0,0"/>

@@ -10,6 +10,7 @@
     <SolidColorBrush x:Key="AccentLight" Color="#AF1650" />
     <SolidColorBrush x:Key="AccentMedium" Color="#560B28" />
     <SolidColorBrush x:Key="AccentDark" Color="#120022" />
+    <SolidColorBrush x:Key="Error" Color="#FF0000"/>
 
     <Style TargetType="{x:Type controls:FlatButton}">
         <Setter Property="Template">
@@ -18,8 +19,13 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding Foreground}"
                             BorderThickness="1"
-                            Padding="{TemplateBinding Padding}">
-                        <ContentPresenter Content="{TemplateBinding Content}" />
+                            Padding="{TemplateBinding Padding}"
+                            Margin="1"
+                            Width="34"
+                            Height="34">
+                        <ContentPresenter Content="{TemplateBinding Content}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

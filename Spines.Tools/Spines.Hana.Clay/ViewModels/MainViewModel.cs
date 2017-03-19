@@ -19,7 +19,13 @@ namespace Spines.Hana.Clay.ViewModels
       Draw = new DelegateCommand(OnDraw);
       Discard = new DelegateCommand(OnDiscard);
       Randomize = new DelegateCommand(OnRandomize);
+      Export = new DelegateCommand(OnExport);
       OnRandomize(13);
+    }
+
+    private void OnExport(object obj)
+    {
+      
     }
 
     public ICommand Randomize { get; }
@@ -77,6 +83,8 @@ namespace Spines.Hana.Clay.ViewModels
         return _currentHand.Shanten;
       }
     }
+
+    public ICommand Export { get; }
 
     private string _shorthand;
     private Hand _currentHand;
