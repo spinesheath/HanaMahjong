@@ -778,5 +778,86 @@ namespace Spines.Mahjong.Analysis.Classification
       sb.Append(suit);
       return sb.ToString();
     }
+    
+    /// <summary>
+    /// Calculates the UkeIre of the hand along with a value representing improval rate.
+    /// </summary>
+    /// <returns>Information about the UkeIre of the hand.</returns>
+    public IEnumerable<UkeIreInfo> GetDeepUkeIre()
+    {
+      var currentShanten = CalculateShanten(_arrangementValues);
+      var hiddenTiles = 136 - _visibleByType.Select(b => (int)b).Sum();
+
+      if (_tilesInHand == 13)
+      {
+        yield return new UkeIreInfo(null, GetUkeIreFor13(), GetImproveChance(currentShanten - 2, 3, 1, hiddenTiles));
+        yield break;
+      }
+      if (_tilesInHand != 14)
+      {
+        throw new InvalidOperationException("Can only calculate UkeIre for discards with 14 tiles in hand.");
+      }
+
+      for (var j = 0; j < 34; ++j)
+      {
+        var discardSuit = j / 9;
+        var discardIndex = j % 9;
+
+        if (_suits[discardSuit][discardIndex] == 0)
+        {
+          continue;
+        }
+        InternalDiscard(discardSuit, discardIndex);
+
+        var discard = new Tile { Suit = IdToSuit[discardSuit], Index = discardIndex, Location = TileLocation.Discarded };
+        yield return new UkeIreInfo(discard, GetUkeIreFor13(), GetImproveChance(currentShanten - 2, 3, 1, hiddenTiles));
+
+        InternalDraw(discardSuit, discardIndex);
+      }
+    }
+
+    private double GetImproveChance(int targetShanten, int draws, double chanceToGetHere, int hiddenTiles)
+    {
+      var currentShanten = CalculateShanten(_arrangementValues);
+      if (currentShanten - draws > targetShanten) // Can't improve enough in the remaining draws.
+      {
+        return 0;
+      }
+
+      var chance = 0.0;
+      
+      for (var drawType = 0; drawType < 34; ++drawType)
+      {
+        if (_inHandByType[drawType] != 4)
+        {
+          var drawSuit = drawType / 9;
+          var drawIndex = drawType % 9;
+          InternalDraw(drawSuit, drawIndex);
+          var chanceToDrawThisTile = (double)(4 - _visibleByType[drawType]) / (hiddenTiles - 1);
+          _visibleByType[drawType] += 1;
+
+          if (CalculateShanten(_arrangementValues) == targetShanten)
+          {
+            chance += chanceToDrawThisTile * chanceToGetHere;
+          }
+          else
+          {
+            var discard = GetBestDiscard(currentShanten);
+            var discardSuit = discard / 9;
+            var discardIndex = discard % 9;
+            InternalDiscard(discardSuit, discardIndex);
+
+            chance += GetImproveChance(targetShanten, draws - 1, chanceToGetHere * chanceToDrawThisTile, hiddenTiles - 1);
+
+            InternalDraw(discardSuit, discardIndex);
+          }
+
+          _visibleByType[drawType] -= 1;
+          InternalDiscard(drawSuit, drawIndex);
+        }
+      }
+
+      return chance;
+    }
   }
 }
