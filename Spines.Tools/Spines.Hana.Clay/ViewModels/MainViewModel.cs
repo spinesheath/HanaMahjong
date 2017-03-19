@@ -129,7 +129,8 @@ namespace Spines.Hana.Clay.ViewModels
       var tile = (Tile) obj;
       _currentHand.Discard(tile);
 
-      UpdateIcons(new ShorthandParser(_currentHand.ToString()));
+      _shorthand = _currentHand.ToString();
+      UpdateIcons(new ShorthandParser(_shorthand));
       OnPropertyChanged(nameof(Shanten));
     }
 
@@ -157,8 +158,10 @@ namespace Spines.Hana.Clay.ViewModels
       var toDraw = map[rand.Next(map.Count)];
       _currentHand.Draw(toDraw);
 
-      UpdateIcons(new ShorthandParser(_currentHand.ToString()));
+      _shorthand = _currentHand.ToString();
+      UpdateIcons(new ShorthandParser(_shorthand));
       OnPropertyChanged(nameof(Shanten));
+      OnPropertyChanged(nameof(Shorthand));
     }
 
     private void UpdateIcons(ShorthandParser parser)
