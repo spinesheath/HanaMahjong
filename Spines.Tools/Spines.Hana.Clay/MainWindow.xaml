@@ -10,7 +10,7 @@
         MinWidth="800"
         Height="500" 
         Width="800"
-        Icon="Resources/machikae.ico"
+        Icon="Resources/hanaClay.ico"
         AllowsTransparency="True"
         WindowStyle="None"
         ResizeMode="CanResizeWithGrip">
