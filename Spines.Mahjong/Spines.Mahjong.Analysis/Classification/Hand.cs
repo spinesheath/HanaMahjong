@@ -93,6 +93,11 @@ namespace Spines.Mahjong.Analysis.Classification
     public bool CanDraw => _tilesInHand < 14;
 
     /// <summary>
+    /// Is it legal to discard a tile with the current hand?
+    /// </summary>
+    public bool CanDiscard => _tilesInHand == 14;
+
+    /// <summary>
     /// Returns the number of tiles that can still be drawn for each tile type.
     /// </summary>
     /// <returns>The number of tiles that can still be drawn for each tile type.</returns>
@@ -144,13 +149,32 @@ namespace Spines.Mahjong.Analysis.Classification
     }
 
     /// <summary>
+    /// Discards the given tile.
+    /// </summary>
+    /// <param name="tile">The tile to discard.</param>
+    public void Discard(Tile tile)
+    {
+      if (_tilesInHand != 14)
+      {
+        throw new InvalidOperationException("Can't discard from hand with less than 13 tiles.");
+      }
+      var suit = IdToSuit.IndexOf(tile.Suit);
+      if (_inHandByType[suit * 9 + tile.Index] == 0)
+      {
+        throw new InvalidOperationException("Can't discard a tile that is not in the hand.");
+      }
+
+      InternalDiscard(suit, tile.Index);
+    }
+
+    /// <summary>
     /// Discards a tile based on UkeIre.
     /// </summary>
     public void Discard()
     {
       if (_tilesInHand != 14)
       {
-        throw new InvalidOperationException("Can't discard from a 13 tile hand.");
+        throw new InvalidOperationException("Can't discard from hand with less than 13 tiles.");
       }
 
       var shanten = CalculateShanten(_arrangementValues);
@@ -380,8 +404,7 @@ namespace Spines.Mahjong.Analysis.Classification
       }
     }
 
-    private static readonly Suit[] IdToSuit = {Suit.Manzu, Suit.Pinzu, Suit.Souzu, Suit.Jihai};
-
+    private static readonly List<Suit> IdToSuit = new List<Suit> {Suit.Manzu, Suit.Pinzu, Suit.Souzu, Suit.Jihai};
     private readonly int[] _cJihai = new int[7]; // concealed tiles
     private readonly byte[] _visibleByType = new byte[34]; // visible tile count per type
     private readonly byte[] _inHandByType = new byte[34]; // visible tile count per type

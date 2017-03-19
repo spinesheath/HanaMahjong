@@ -103,7 +103,15 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <controls:TileImage Tile="{Binding Mode=OneTime}"/>
+                                    <Button Command="{Binding Path=DiscardCommand, RelativeSource={RelativeSource AncestorType={x:Type controls:HandDisplay}}}"
+                                            CommandParameter="{Binding Mode=OneTime}">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="{x:Type Button}">
+                                                <ContentPresenter Content="{TemplateBinding Content}"/>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                        <controls:TileImage Tile="{Binding Mode=OneTime}"/>
+                                    </Button>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

@@ -33,6 +33,7 @@
 
         <controls:HandDisplay Tiles="{Binding Tiles}" 
                               Melds="{Binding Melds}"
+                              DiscardCommand="{Binding Discard}"
                               DockPanel.Dock="Top" Margin="0,10,0,10"/>
 
         <TextBlock Text="{Binding Shanten, StringFormat={}{0} Shanten}" VerticalAlignment="Top" DockPanel.Dock="Top">

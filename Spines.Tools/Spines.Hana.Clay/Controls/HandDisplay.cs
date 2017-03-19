@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Spines.Mahjong.Analysis.Classification;
 
 namespace Spines.Hana.Clay.Controls
@@ -24,6 +25,15 @@ namespace Spines.Hana.Clay.Controls
       get { return (IEnumerable<Meld>) GetValue(MeldsProperty); }
       set { SetValue(MeldsProperty, value); }
     }
+
+    public ICommand DiscardCommand
+    {
+      get { return (ICommand) GetValue(DiscardCommandProperty); }
+      set { SetValue(DiscardCommandProperty, value); }
+    }
+
+    public static readonly DependencyProperty DiscardCommandProperty = DependencyProperty.Register(
+      "DiscardCommand", typeof(ICommand), typeof(HandDisplay), new PropertyMetadata(default(ICommand)));
 
     public static readonly DependencyProperty TilesProperty = DependencyProperty.Register(
       "Tiles", typeof(IEnumerable<Tile>), typeof(HandDisplay), new PropertyMetadata(default(IEnumerable<Tile>)));

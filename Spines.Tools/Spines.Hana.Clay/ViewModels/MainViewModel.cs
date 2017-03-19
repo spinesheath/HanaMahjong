@@ -17,32 +17,9 @@ namespace Spines.Hana.Clay.ViewModels
     public MainViewModel()
     {
       Draw = new DelegateCommand(OnDraw);
+      Discard = new DelegateCommand(OnDiscard);
       Randomize = new DelegateCommand(OnRandomize);
       OnRandomize(13);
-    }
-
-    private void OnDraw(object obj)
-    {
-      if (null == _currentHand)
-      {
-        return;
-      }
-      if (!_currentHand.CanDraw)
-      {
-        if (_currentHand.Shanten == -1)
-        {
-          return;
-        }
-        _currentHand.Discard();
-      }
-      var drawable = _currentHand.GetDrawableTileTypes();
-      var map = drawable.SelectMany((d, i) => Enumerable.Repeat(i, d)).ToList();
-      var rand = new Random((int)DateTime.Now.Ticks);
-      var toDraw = map[rand.Next(map.Count)];
-      _currentHand.Draw(toDraw);
-
-      UpdateIcons(new ShorthandParser(_currentHand.ToString()));
-      OnPropertyChanged(nameof(Shanten));
     }
 
     public ICommand Randomize { get; }
@@ -50,6 +27,12 @@ namespace Spines.Hana.Clay.ViewModels
     public ICommand Draw { get; }
 
     public ICollection<UkeIreViewModel> UkeIre { get; } = new ObservableCollection<UkeIreViewModel>();
+
+    public ICollection<Tile> Tiles { get; } = new ObservableCollection<Tile>();
+
+    public ICollection<Meld> Melds { get; } = new ObservableCollection<Meld>();
+
+    public ICommand Discard { get; }
 
     public string Shorthand
     {
@@ -79,10 +62,6 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
-    public ICollection<Tile> Tiles { get; } = new ObservableCollection<Tile>();
-
-    public ICollection<Meld> Melds { get; } = new ObservableCollection<Meld>();
-
     public bool InvalidFormat => _invalidFormat || _shorthand == null || !_currentHand.IsValid;
 
     public int Shanten
@@ -100,6 +79,44 @@ namespace Spines.Hana.Clay.ViewModels
     private string _shorthand;
     private Hand _currentHand;
     private bool _invalidFormat;
+
+    private void OnDiscard(object obj)
+    {
+      if (!_currentHand.CanDiscard)
+      {
+        return;
+      }
+
+      var tile = (Tile) obj;
+      _currentHand.Discard(tile);
+
+      UpdateIcons(new ShorthandParser(_currentHand.ToString()));
+      OnPropertyChanged(nameof(Shanten));
+    }
+
+    private void OnDraw(object obj)
+    {
+      if (null == _currentHand)
+      {
+        return;
+      }
+      if (!_currentHand.CanDraw)
+      {
+        if (_currentHand.Shanten == -1)
+        {
+          return;
+        }
+        _currentHand.Discard();
+      }
+      var drawable = _currentHand.GetDrawableTileTypes();
+      var map = drawable.SelectMany((d, i) => Enumerable.Repeat(i, d)).ToList();
+      var rand = new Random((int) DateTime.Now.Ticks);
+      var toDraw = map[rand.Next(map.Count)];
+      _currentHand.Draw(toDraw);
+
+      UpdateIcons(new ShorthandParser(_currentHand.ToString()));
+      OnPropertyChanged(nameof(Shanten));
+    }
 
     private void UpdateIcons(ShorthandParser parser)
     {
