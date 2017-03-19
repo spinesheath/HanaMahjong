@@ -62,36 +62,38 @@
             </TextBlock>
 
             <controls:BusyContent DockPanel.Dock="Top" Margin="0,5,0,5" IsLoading="{Binding IsLoadingUkeIre}">
-                <ItemsControl ItemsSource="{Binding UkeIre}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Vertical"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="{x:Type viewModels:UkeIreViewModel}">
-                            <DockPanel LastChildFill="False">
-                                <DockPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,10,0" Width="50">
-                                    <TextBlock DockPanel.Dock="Top" Text="{Binding Count}"/>
-                                    <TextBlock DockPanel.Dock="Top" Text="{Binding ImprovementRate}"/>
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding UkeIre}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Vertical"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type viewModels:UkeIreViewModel}">
+                                <DockPanel LastChildFill="False">
+                                    <DockPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,10,0" Width="50">
+                                        <TextBlock DockPanel.Dock="Top" Text="{Binding Count}"/>
+                                        <TextBlock DockPanel.Dock="Top" Text="{Binding ImprovementRate}"/>
+                                    </DockPanel>
+                                    <controls:TileImage DockPanel.Dock="Left" Margin="0,0,10,0" Tile="{Binding Discard}" VerticalAlignment="Center"/>
+                                    <ItemsControl DockPanel.Dock="Left" ItemsSource="{Binding Tiles}" Margin="0,5,0,5">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <controls:TileImage Tile="{Binding}"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
                                 </DockPanel>
-                                <controls:TileImage DockPanel.Dock="Left" Margin="0,0,10,0" Tile="{Binding Discard}" VerticalAlignment="Center"/>
-                                <ItemsControl DockPanel.Dock="Left" ItemsSource="{Binding Tiles}" Margin="0,5,0,5">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel Orientation="Horizontal"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <controls:TileImage Tile="{Binding}"/>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </DockPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
             </controls:BusyContent>
 
         </DockPanel>
