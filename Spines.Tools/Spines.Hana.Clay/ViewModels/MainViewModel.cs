@@ -16,11 +16,38 @@ namespace Spines.Hana.Clay.ViewModels
   {
     public MainViewModel()
     {
+      Draw = new DelegateCommand(OnDraw);
       Randomize = new DelegateCommand(OnRandomize);
       OnRandomize(13);
     }
 
+    private void OnDraw(object obj)
+    {
+      if (null == _currentHand)
+      {
+        return;
+      }
+      if (!_currentHand.CanDraw)
+      {
+        if (_currentHand.Shanten == -1)
+        {
+          return;
+        }
+        _currentHand.Discard();
+      }
+      var drawable = _currentHand.GetDrawableTileTypes();
+      var map = drawable.SelectMany((d, i) => Enumerable.Repeat(i, d)).ToList();
+      var rand = new Random((int)DateTime.Now.Ticks);
+      var toDraw = map[rand.Next(map.Count)];
+      _currentHand.Draw(toDraw);
+
+      UpdateIcons(new ShorthandParser(_currentHand.ToString()));
+      OnPropertyChanged(nameof(Shanten));
+    }
+
     public ICommand Randomize { get; }
+
+    public ICommand Draw { get; }
 
     public ICollection<UkeIreViewModel> UkeIre { get; } = new ObservableCollection<UkeIreViewModel>();
 

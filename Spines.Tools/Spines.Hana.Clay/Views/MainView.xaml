@@ -14,6 +14,7 @@
         <DockPanel DockPanel.Dock="Top" LastChildFill="False">
             <controls:FlatButton DockPanel.Dock="Left" Command="{Binding Randomize}" CommandParameter="13" Content="13" VerticalAlignment="Center" Padding="4" Margin="1"/>
             <controls:FlatButton DockPanel.Dock="Left" Command="{Binding Randomize}" CommandParameter="14" Content="14" VerticalAlignment="Center" Padding="4" Margin="1"/>
+            <controls:FlatButton DockPanel.Dock="Left" Command="{Binding Draw}" Content="+1" VerticalAlignment="Center" Padding="4" Margin="1"/>
             <TextBox Text="{Binding Shorthand, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Top" DockPanel.Dock="Left"
                      BorderBrush="{StaticResource PrimaryMedium}" BorderThickness="0,0,0,2"
                      Margin="8,2,8,2"

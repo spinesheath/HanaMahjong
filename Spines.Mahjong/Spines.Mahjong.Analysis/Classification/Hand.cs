@@ -88,6 +88,20 @@ namespace Spines.Mahjong.Analysis.Classification
     public int Shanten => CalculateShanten(_arrangementValues) - 1;
 
     /// <summary>
+    /// Is it legal to draw a tile with the current hand?
+    /// </summary>
+    public bool CanDraw => _tilesInHand < 14;
+
+    /// <summary>
+    /// Returns the number of tiles that can still be drawn for each tile type.
+    /// </summary>
+    /// <returns>The number of tiles that can still be drawn for each tile type.</returns>
+    public IEnumerable<int> GetDrawableTileTypes()
+    {
+      return _visibleByType.Select(t => 4 - t);
+    }
+
+    /// <summary>
     /// Calculates the UkeIre of the hand.
     /// </summary>
     /// <returns>Information about the UkeIre of the hand.</returns>
