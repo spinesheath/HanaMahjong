@@ -6,7 +6,12 @@
         mc:Ignorable="d"
         Title="About" Height="300" Width="300" x:ClassModifier="internal">
     <DockPanel>
-        <TextBlock DockPanel.Dock="Top" Text="MachiKae"/>
+        <TextBlock DockPanel.Dock="Top" Text="Hana Clay"/>
+        <TextBlock DockPanel.Dock="Top">
+            <Hyperlink Click="OnGoToHanaMahjong">
+                <TextBlock>https://github.com/spinesheath/HanaMahjong</TextBlock>
+            </Hyperlink>
+        </TextBlock>
         <TextBlock DockPanel.Dock="Top" Text="Tile images taken from:"/>
         <TextBlock DockPanel.Dock="Top">
             <Hyperlink Click="OnGoToTileImages">

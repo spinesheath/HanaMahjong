@@ -1,2 +1,3 @@
-TenView
-=======
+Hana Mahjong
+============
+Mahjong analysis tools

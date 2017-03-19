@@ -18,11 +18,21 @@ namespace Spines.Hana.Clay.Dialogs
 
     private void OnGoToTileImages(object sender, RoutedEventArgs e)
     {
+      OpenUrl("http://suzume.hakata21.com/5zats/haiga.html");
+    }
+
+    private void OnGoToHanaMahjong(object sender, RoutedEventArgs e)
+    {
+      OpenUrl("https://github.com/spinesheath/HanaMahjong");
+    }
+
+    private static void OpenUrl(string url)
+    {
       try
       {
-        Process.Start("http://suzume.hakata21.com/5zats/haiga.html");
+        Process.Start(url);
       }
-        // ReSharper disable once EmptyGeneralCatchClause
+      // ReSharper disable once EmptyGeneralCatchClause
       catch
       {
       }
