@@ -20,8 +20,8 @@ namespace Spines.Mahjong.Analysis.Classification
     {
       // Don't need to initialize _arrangementValues here because the value for an empty hand is 0.
       // Don't need to set the melds in the suit classifiers here because entry state for concealed suits for a hand without melds is 0.
-      _suits = new[] { new int[9], new int[9], new int[9], _cJihai };
-      _melds = new[] { new int[4], new int[4], new int[4] };
+      _suits = new[] {new int[9], new int[9], new int[9], _cJihai};
+      _melds = new[] {new int[4], new int[4], new int[4]};
     }
 
     /// <summary>
@@ -121,7 +121,7 @@ namespace Spines.Mahjong.Analysis.Classification
           var ukeIre = GetUkeIreFor13();
           if (ukeIre.Any())
           {
-            yield return new UkeIreInfo(new Tile { Suit = IdToSuit[discardSuit], Index = discardIndex, Location = TileLocation.Discarded }, ukeIre);
+            yield return new UkeIreInfo(new Tile {Suit = IdToSuit[discardSuit], Index = discardIndex, Location = TileLocation.Discarded}, ukeIre);
           }
         }
 
@@ -329,14 +329,51 @@ namespace Spines.Mahjong.Analysis.Classification
              GetMeldString(0, 'M') + GetMeldString(1, 'P') + GetMeldString(2, 'S') + GetHonorMeldString();
     }
 
-    private static readonly Suit[] IdToSuit = { Suit.Manzu, Suit.Pinzu, Suit.Souzu, Suit.Jihai };
+    /// <summary>
+    /// Calculates the UkeIre of the hand along with a value representing improval rate.
+    /// </summary>
+    /// <returns>Information about the UkeIre of the hand.</returns>
+    public IEnumerable<UkeIreInfo> GetDeepUkeIre()
+    {
+      var currentShanten = CalculateShanten(_arrangementValues);
+      var hiddenTiles = 136 - _visibleByType.Select(b => (int) b).Sum();
+
+      if (_tilesInHand == 13)
+      {
+        yield return new UkeIreInfo(null, GetUkeIreFor13(), GetImproveChance(currentShanten - 2, 3, 1, hiddenTiles));
+        yield break;
+      }
+      if (_tilesInHand != 14)
+      {
+        throw new InvalidOperationException("Can only calculate UkeIre for discards with 14 tiles in hand.");
+      }
+
+      for (var j = 0; j < 34; ++j)
+      {
+        var discardSuit = j / 9;
+        var discardIndex = j % 9;
+
+        if (_suits[discardSuit][discardIndex] == 0)
+        {
+          continue;
+        }
+        InternalDiscard(discardSuit, discardIndex);
+
+        var discard = new Tile {Suit = IdToSuit[discardSuit], Index = discardIndex, Location = TileLocation.Discarded};
+        yield return new UkeIreInfo(discard, GetUkeIreFor13(), GetImproveChance(currentShanten - 2, 3, 1, hiddenTiles));
+
+        InternalDraw(discardSuit, discardIndex);
+      }
+    }
+
+    private static readonly Suit[] IdToSuit = {Suit.Manzu, Suit.Pinzu, Suit.Souzu, Suit.Jihai};
 
     private readonly int[] _cJihai = new int[7]; // concealed tiles
     private readonly byte[] _visibleByType = new byte[34]; // visible tile count per type
     private readonly byte[] _inHandByType = new byte[34]; // visible tile count per type
     private readonly int[][] _suits; // all four
     private int _tilesInHand;
-    private readonly SuitClassifer[] _suitClassifiers = { new SuitClassifer(), new SuitClassifer(), new SuitClassifer() };
+    private readonly SuitClassifer[] _suitClassifiers = {new SuitClassifer(), new SuitClassifer(), new SuitClassifer()};
     private ProgressiveHonorClassifier _honorClassifier;
     private readonly int[][] _melds; // non-honors
     private readonly int[] _meldCounts = new int[3]; // used meldId slots for non-honors
@@ -356,7 +393,7 @@ namespace Spines.Mahjong.Analysis.Classification
 
       var ukeIre = new Dictionary<Tile, int>();
       var tileType = 0;
-      var localArrangements = new[] { _arrangementValues[0], _arrangementValues[1], _arrangementValues[2], _arrangementValues[3] };
+      var localArrangements = new[] {_arrangementValues[0], _arrangementValues[1], _arrangementValues[2], _arrangementValues[3]};
       for (var suit = 0; suit < 3; ++suit)
       {
         for (var index = 0; index < 9; ++index)
@@ -373,7 +410,7 @@ namespace Spines.Mahjong.Analysis.Classification
             localArrangements[suit] = _suitClassifiers[suit].GetValue(_suits[suit]);
             if (CalculateShanten(localArrangements) < currentShanten)
             {
-              ukeIre.Add(new Tile { Suit = IdToSuit[suit], Index = index }, 4 - _visibleByType[tileType]);
+              ukeIre.Add(new Tile {Suit = IdToSuit[suit], Index = index}, 4 - _visibleByType[tileType]);
             }
 
             _chiitoi.Discard(_suits[suit][index]);
@@ -397,7 +434,7 @@ namespace Spines.Mahjong.Analysis.Classification
           localArrangements[3] = _honorClassifier.Fork().Draw(_cJihai[index], _mJihai[index]);
           if (CalculateShanten(localArrangements) < currentShanten)
           {
-            ukeIre.Add(new Tile { Suit = Suit.Jihai, Index = index }, 4 - _visibleByType[tileType]);
+            ukeIre.Add(new Tile {Suit = Suit.Jihai, Index = index}, 4 - _visibleByType[tileType]);
           }
           _chiitoi.Discard(previousTileCount + 1);
           _kokushi.Discard(previousTileCount + 1);
@@ -652,7 +689,7 @@ namespace Spines.Mahjong.Analysis.Classification
       var count = 0;
       var tileType = 0;
       var localArrangements = new[]
-      {_arrangementValues[0], _arrangementValues[1], _arrangementValues[2], _arrangementValues[3]};
+        {_arrangementValues[0], _arrangementValues[1], _arrangementValues[2], _arrangementValues[3]};
       for (var suit = 0; suit < 3; ++suit)
       {
         for (var index = 0; index < 9; ++index)
@@ -728,12 +765,12 @@ namespace Spines.Mahjong.Analysis.Classification
         {
           for (var m = meldId; m < meldId + 3; ++m)
           {
-            sb.Append((char)('1' + m));
+            sb.Append((char) ('1' + m));
           }
         }
         else if (meldId < 16)
         {
-          sb.Append((char)('1' + meldId - 7), 3);
+          sb.Append((char) ('1' + meldId - 7), 3);
         }
         sb.Append(suit);
       }
@@ -747,7 +784,7 @@ namespace Spines.Mahjong.Analysis.Classification
       {
         if (_mJihai[i] > 0)
         {
-          sb.Append((char)('1' + i), 3);
+          sb.Append((char) ('1' + i), 3);
           sb.Append('Z');
         }
       }
@@ -768,7 +805,7 @@ namespace Spines.Mahjong.Analysis.Classification
       {
         for (var j = 0; j < tiles[i]; ++j)
         {
-          sb.Append((char)('1' + i));
+          sb.Append((char) ('1' + i));
         }
       }
       if (sb.Length == 0)
@@ -777,43 +814,6 @@ namespace Spines.Mahjong.Analysis.Classification
       }
       sb.Append(suit);
       return sb.ToString();
-    }
-    
-    /// <summary>
-    /// Calculates the UkeIre of the hand along with a value representing improval rate.
-    /// </summary>
-    /// <returns>Information about the UkeIre of the hand.</returns>
-    public IEnumerable<UkeIreInfo> GetDeepUkeIre()
-    {
-      var currentShanten = CalculateShanten(_arrangementValues);
-      var hiddenTiles = 136 - _visibleByType.Select(b => (int)b).Sum();
-
-      if (_tilesInHand == 13)
-      {
-        yield return new UkeIreInfo(null, GetUkeIreFor13(), GetImproveChance(currentShanten - 2, 3, 1, hiddenTiles));
-        yield break;
-      }
-      if (_tilesInHand != 14)
-      {
-        throw new InvalidOperationException("Can only calculate UkeIre for discards with 14 tiles in hand.");
-      }
-
-      for (var j = 0; j < 34; ++j)
-      {
-        var discardSuit = j / 9;
-        var discardIndex = j % 9;
-
-        if (_suits[discardSuit][discardIndex] == 0)
-        {
-          continue;
-        }
-        InternalDiscard(discardSuit, discardIndex);
-
-        var discard = new Tile { Suit = IdToSuit[discardSuit], Index = discardIndex, Location = TileLocation.Discarded };
-        yield return new UkeIreInfo(discard, GetUkeIreFor13(), GetImproveChance(currentShanten - 2, 3, 1, hiddenTiles));
-
-        InternalDraw(discardSuit, discardIndex);
-      }
     }
 
     private double GetImproveChance(int targetShanten, int draws, double chanceToGetHere, int hiddenTiles)
@@ -825,7 +825,7 @@ namespace Spines.Mahjong.Analysis.Classification
       }
 
       var chance = 0.0;
-      
+
       for (var drawType = 0; drawType < 34; ++drawType)
       {
         if (_inHandByType[drawType] != 4)
@@ -833,7 +833,7 @@ namespace Spines.Mahjong.Analysis.Classification
           var drawSuit = drawType / 9;
           var drawIndex = drawType % 9;
           InternalDraw(drawSuit, drawIndex);
-          var chanceToDrawThisTile = (double)(4 - _visibleByType[drawType]) / (hiddenTiles - 1);
+          var chanceToDrawThisTile = (double) (4 - _visibleByType[drawType]) / (hiddenTiles - 1);
           _visibleByType[drawType] += 1;
 
           if (CalculateShanten(_arrangementValues) == targetShanten)
