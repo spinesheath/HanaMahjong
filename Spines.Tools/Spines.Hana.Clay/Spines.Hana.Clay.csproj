@@ -59,7 +59,7 @@
     <AssemblyOriginatorKeyFile>CommonResources\Spines.HanaMahjong.StrongNameKeyFile.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Resources\machikae.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\hanaClay.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -156,7 +156,7 @@
     </CodeAnalysisDictionary>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\machikae.ico" />
+    <Resource Include="Resources\hanaClay.ico" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Spines.Mahjong\Spines.Mahjong.Analysis\Spines.Mahjong.Analysis.csproj">
