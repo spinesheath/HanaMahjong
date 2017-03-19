@@ -840,7 +840,7 @@ namespace Spines.Mahjong.Analysis.Classification
       {
         if (_mJihai[i] > 0)
         {
-          sb.Append((char) ('1' + i), 3);
+          sb.Append((char) ('1' + i), _mJihai[i]);
           sb.Append('Z');
         }
       }
