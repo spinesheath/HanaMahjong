@@ -9,74 +9,93 @@
              d:DesignHeight="350" 
              d:DesignWidth="525"
              d:DataContext="{d:DesignInstance viewModels:MainViewModel}">
-    
-    <DockPanel LastChildFill="False" Margin="10">
-        <DockPanel DockPanel.Dock="Top" LastChildFill="False">
-            <controls:FlatButton DockPanel.Dock="Left" Command="{Binding Randomize}" CommandParameter="13" Content="13" VerticalAlignment="Center" Padding="4" Margin="1"/>
-            <controls:FlatButton DockPanel.Dock="Left" Command="{Binding Randomize}" CommandParameter="14" Content="14" VerticalAlignment="Center" Padding="4" Margin="1"/>
-            <controls:FlatButton DockPanel.Dock="Left" Command="{Binding Draw}" Content="+1" VerticalAlignment="Center" Padding="4" Margin="1"/>
-            <TextBox Text="{Binding Shorthand, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Top" DockPanel.Dock="Left"
-                     BorderBrush="{StaticResource PrimaryMedium}" BorderThickness="0,0,0,2"
-                     Margin="8,2,8,2"
-                     Width="200">
-                <TextBox.Style>
-                    <Style TargetType="{x:Type TextBox}">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="200"/>
+        </Grid.ColumnDefinitions>
+        <DockPanel LastChildFill="False" Margin="10" Grid.Column="0">
+            <DockPanel DockPanel.Dock="Top" LastChildFill="False">
+                <controls:FlatButton DockPanel.Dock="Left" Command="{Binding Randomize}" CommandParameter="13" Content="13" VerticalAlignment="Center" Padding="4" Margin="1"/>
+                <controls:FlatButton DockPanel.Dock="Left" Command="{Binding Randomize}" CommandParameter="14" Content="14" VerticalAlignment="Center" Padding="4" Margin="1"/>
+                <controls:FlatButton DockPanel.Dock="Left" Command="{Binding Draw}" Content="+1" VerticalAlignment="Center" Padding="4" Margin="1"/>
+                <TextBox Text="{Binding Shorthand, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Top" DockPanel.Dock="Left"
+                         BorderBrush="{StaticResource PrimaryMedium}" BorderThickness="0,0,0,2"
+                         Margin="8,2,8,2"
+                         Width="200">
+                    <TextBox.Style>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding InvalidFormat}" Value="True">
+                                    <Setter Property="Foreground" Value="Red"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+            </DockPanel>
+
+            <controls:HandDisplay Tiles="{Binding Tiles}" 
+                                  Melds="{Binding Melds}"
+                                  DiscardCommand="{Binding Discard}"
+                                  DockPanel.Dock="Top" Margin="0,10,0,10"/>
+
+            <TextBlock Text="{Binding Shanten, StringFormat={}{0} Shanten}" VerticalAlignment="Top" DockPanel.Dock="Top">
+                <TextBlock.Style>
+                    <Style TargetType="{x:Type TextBlock}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding InvalidFormat}" Value="True">
-                                <Setter Property="Foreground" Value="Red"/>
+                                <Setter Property="Visibility" Value="Collapsed"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
-                </TextBox.Style>
-            </TextBox>
+                </TextBlock.Style>
+            </TextBlock>
+
+
+            <ItemsControl ItemsSource="{Binding UkeIre}" DockPanel.Dock="Top" Margin="0,5,0,5">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type viewModels:UkeIreViewModel}">
+                        <DockPanel LastChildFill="False">
+                            <TextBlock DockPanel.Dock="Left" Text="{Binding Count}" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <controls:TileImage DockPanel.Dock="Left" Margin="0,0,10,0" Tile="{Binding Discard}" VerticalAlignment="Center"/>
+                            <ItemsControl DockPanel.Dock="Left" ItemsSource="{Binding Tiles}" Margin="0,5,0,5">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <controls:TileImage Tile="{Binding}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </DockPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
         </DockPanel>
 
-        <controls:HandDisplay Tiles="{Binding Tiles}" 
-                              Melds="{Binding Melds}"
-                              DiscardCommand="{Binding Discard}"
-                              DockPanel.Dock="Top" Margin="0,10,0,10"/>
-
-        <TextBlock Text="{Binding Shanten, StringFormat={}{0} Shanten}" VerticalAlignment="Top" DockPanel.Dock="Top">
-            <TextBlock.Style>
-                <Style TargetType="{x:Type TextBlock}">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding InvalidFormat}" Value="True">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBlock.Style>
-        </TextBlock>
-
-
-        <ItemsControl ItemsSource="{Binding UkeIre}" DockPanel.Dock="Top" Margin="0,5,0,5">
+        <ItemsControl Grid.Column="1" ItemsSource="{Binding Pond}" Margin="10">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <StackPanel Orientation="Vertical"/>
+                    <WrapPanel Orientation="Horizontal"/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="{x:Type viewModels:UkeIreViewModel}">
-                    <DockPanel LastChildFill="False">
-                        <TextBlock DockPanel.Dock="Left" Text="{Binding Count}" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                        <controls:TileImage DockPanel.Dock="Left" Margin="0,0,10,0" Tile="{Binding Discard}" VerticalAlignment="Center"/>
-                        <ItemsControl DockPanel.Dock="Left" ItemsSource="{Binding Tiles}" Margin="0,5,0,5">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <controls:TileImage Tile="{Binding}"/>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </DockPanel>
+                <DataTemplate>
+                    <controls:TileImage Tile="{Binding}"/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-
-    </DockPanel>
+    </Grid>
 </UserControl>
 

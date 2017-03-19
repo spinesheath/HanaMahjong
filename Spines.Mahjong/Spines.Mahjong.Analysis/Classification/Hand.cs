@@ -165,6 +165,7 @@ namespace Spines.Mahjong.Analysis.Classification
       }
 
       InternalDiscard(suit, tile.Index);
+      _pond.Add(tile.GetTileType());
     }
 
     /// <summary>
@@ -189,6 +190,8 @@ namespace Spines.Mahjong.Analysis.Classification
       var index = bestDiscard % 9;
 
       InternalDiscard(suit, index);
+
+      _pond.Add(bestDiscard);
     }
 
     /// <summary>
@@ -404,6 +407,21 @@ namespace Spines.Mahjong.Analysis.Classification
       }
     }
 
+    /// <summary>
+    /// Returns the tiles in the pond.
+    /// </summary>
+    /// <returns>The tiles in the pond.</returns>
+    public IEnumerable<Tile> GetPond()
+    {
+      var tiles = _pond.Select(Tile.FromTileType);
+      foreach (var tile in tiles)
+      {
+        var t = tile;
+        t.Location = TileLocation.Discarded;
+        yield return t;
+      }
+    }
+
     private static readonly List<Suit> IdToSuit = new List<Suit> {Suit.Manzu, Suit.Pinzu, Suit.Souzu, Suit.Jihai};
     private readonly int[] _cJihai = new int[7]; // concealed tiles
     private readonly byte[] _visibleByType = new byte[34]; // visible tile count per type
@@ -419,6 +437,7 @@ namespace Spines.Mahjong.Analysis.Classification
     private KokushiClassifier _kokushi = KokushiClassifier.Create();
     private ChiitoiClassifier _chiitoi = ChiitoiClassifier.Create();
     private int _meldCount;
+    private readonly List<int> _pond = new List<int>(136);
 
     /// <summary>
     /// Calculates the UkeIre of the hand.

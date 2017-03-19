@@ -34,6 +34,8 @@ namespace Spines.Hana.Clay.ViewModels
 
     public ICommand Discard { get; }
 
+    public ICollection<Tile> Pond { get; } = new ObservableCollection<Tile>();
+
     public string Shorthand
     {
       get { return _shorthand; }
@@ -129,6 +131,12 @@ namespace Spines.Hana.Clay.ViewModels
       foreach (var meld in parser.Melds)
       {
         Melds.Add(meld);
+      }
+
+      Pond.Clear();
+      foreach (var tile in _currentHand.GetPond())
+      {
+        Pond.Add(tile);
       }
 
       UkeIre.Clear();

@@ -27,5 +27,15 @@ namespace Spines.Mahjong.Analysis.Classification
     /// The location of the tile.
     /// </summary>
     public TileLocation Location { get; internal set; }
+
+    internal int GetTileType()
+    {
+      return (int) Suit * 9 + Index;
+    }
+
+    internal static Tile FromTileType(int tileType)
+    {
+      return new Tile {Index = tileType % 9, Suit = (Suit) (tileType / 9)};
+    }
   }
 }

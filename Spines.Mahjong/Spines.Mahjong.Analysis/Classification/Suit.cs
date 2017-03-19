@@ -11,21 +11,21 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// Manzu.
     /// </summary>
-    Manzu,
+    Manzu = 0,
 
     /// <summary>
     /// Pinzu.
     /// </summary>
-    Pinzu,
+    Pinzu = 1,
 
     /// <summary>
     /// Souzu.
     /// </summary>
-    Souzu,
+    Souzu = 2,
 
     /// <summary>
     /// Honors.
     /// </summary>
-    Jihai
+    Jihai = 3
   }
 }
