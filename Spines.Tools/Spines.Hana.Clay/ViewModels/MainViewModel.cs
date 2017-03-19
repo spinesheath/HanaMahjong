@@ -223,7 +223,7 @@ namespace Spines.Hana.Clay.ViewModels
         var collection = new List<UkeIreViewModel>();
         await Task.Run(() =>
         {
-          var ukeIre = hand.GetUkeIre().OrderByDescending(u => u.Outs.Values.DefaultIfEmpty(0).Sum());
+          var ukeIre = hand.GetDeepUkeIre().OrderByDescending(u => u.ImprovementRate);
           collection.AddRange(ukeIre.Select(ukeIreInfo => new UkeIreViewModel(ukeIreInfo)));
         }, source.Token);
 

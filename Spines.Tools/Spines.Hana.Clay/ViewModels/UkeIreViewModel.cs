@@ -1,6 +1,7 @@
 ﻿// This file is licensed to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -18,7 +19,10 @@ namespace Spines.Hana.Clay.ViewModels
         Tiles.Add(tile);
       }
       Count = ukeIre.Outs.Values.DefaultIfEmpty(0).Sum();
+      ImprovementRate = Math.Round(ukeIre.ImprovementRate, 5);
     }
+
+    public double ImprovementRate { get; }
 
     public int Count { get; }
 

@@ -23,7 +23,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// Chance to improve the hand by 2 shanten in 2 draws.
     /// </summary>
-    public double Improve2In2Chance { get; }
+    public double ImprovementRate { get; }
 
     internal UkeIreInfo(Tile? discard, Dictionary<Tile, int> outs)
     {
@@ -31,10 +31,10 @@ namespace Spines.Mahjong.Analysis.Classification
       Outs = outs;
     }
 
-    internal UkeIreInfo(Tile? discard, Dictionary<Tile, int> outs, double improve2In2Chance)
+    internal UkeIreInfo(Tile? discard, Dictionary<Tile, int> outs, double improvementRate)
       : this(discard, outs)
     {
-      Improve2In2Chance = improve2In2Chance;
+      ImprovementRate = improvementRate;
     }
   }
 }
