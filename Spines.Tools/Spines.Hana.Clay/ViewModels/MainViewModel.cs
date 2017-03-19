@@ -112,6 +112,10 @@ namespace Spines.Hana.Clay.ViewModels
       }
       var drawable = _currentHand.GetDrawableTileTypes();
       var map = drawable.SelectMany((d, i) => Enumerable.Repeat(i, d)).ToList();
+      if (map.Count == 0)
+      {
+        return;
+      }
       var rand = new Random((int) DateTime.Now.Ticks);
       var toDraw = map[rand.Next(map.Count)];
       _currentHand.Draw(toDraw);
