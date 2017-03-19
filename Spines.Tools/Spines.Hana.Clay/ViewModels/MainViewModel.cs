@@ -6,8 +6,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Spines.Hana.Clay.Commands;
+using Spines.Hana.Clay.Controls;
 using Spines.Mahjong.Analysis.Classification;
 
 namespace Spines.Hana.Clay.ViewModels
@@ -23,22 +28,19 @@ namespace Spines.Hana.Clay.ViewModels
       OnRandomize(13);
     }
 
-    private void OnExport(object obj)
-    {
-      
-    }
-
     public ICommand Randomize { get; }
 
     public ICommand Draw { get; }
+
+    public ICommand Discard { get; }
+
+    public ICommand Export { get; }
 
     public ICollection<UkeIreViewModel> UkeIre { get; } = new ObservableCollection<UkeIreViewModel>();
 
     public ICollection<Tile> Tiles { get; } = new ObservableCollection<Tile>();
 
     public ICollection<Meld> Melds { get; } = new ObservableCollection<Meld>();
-
-    public ICommand Discard { get; }
 
     public ICollection<Tile> Pond { get; } = new ObservableCollection<Tile>();
 
@@ -84,11 +86,35 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
-    public ICommand Export { get; }
-
     private string _shorthand;
     private Hand _currentHand;
     private bool _invalidFormat;
+
+    private void OnExport(object obj)
+    {
+      try
+      {
+        var view = new HandDisplay {Melds = Melds, Tiles = Tiles};
+        var grid = new Grid();
+        grid.Children.Add(view);
+        view.ApplyTemplate();
+        view.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        view.Arrange(new Rect(view.DesiredSize));
+        var result = new RenderTargetBitmap((int) view.ActualWidth, (int) view.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+        var drawingvisual = new DrawingVisual();
+        using (var context = drawingvisual.RenderOpen())
+        {
+          context.DrawRectangle(new VisualBrush(view), null, new Rect(new Point(), view.DesiredSize));
+          context.Close();
+        }
+        result.Render(drawingvisual);
+        Clipboard.SetImage(result);
+      }
+      catch
+      {
+        // ignored
+      }
+    }
 
     private void OnDiscard(object obj)
     {
