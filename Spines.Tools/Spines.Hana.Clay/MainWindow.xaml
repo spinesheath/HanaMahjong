@@ -28,13 +28,6 @@
                     MouseDown="OnMouseDown"/>
             <ContentControl Grid.Row="1" x:Name="MainContent"/>
             <DockPanel Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" LastChildFill="False">
-                <DockPanel.Resources>
-                    <Style TargetType="{x:Type controls:FlatButton}">
-                        <Setter Property="Width" Value="36"/>
-                        <Setter Property="Height" Value="36"/>
-                        <Setter Property="Margin" Value="1"/>
-                    </Style>
-                </DockPanel.Resources>
                 <controls:FlatButton DockPanel.Dock="Right" Click="OnClose" Data="M 3,3 23,23 M 18,8 23,3 M 3,23 8,18"/>
                 <controls:FlatButton DockPanel.Dock="Right" Click="OnMaximize" Data="M 3,3 23,3 23,23 3,23 3,11"/>
                 <controls:FlatButton DockPanel.Dock="Right" Click="OnMinimize" Data="M 3,23 21,23"/>
