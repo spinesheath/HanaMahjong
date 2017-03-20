@@ -55,7 +55,11 @@ namespace Spines.Hana.Clay.Controls
         StrokeThickness = 5,
         StrokeStartLineCap = PenLineCap.Round,
         StrokeEndLineCap = PenLineCap.Round,
-        StrokeLineJoin = PenLineJoin.Round
+        StrokeLineJoin = PenLineJoin.Round,
+        Width = 26,
+        Height = 26,
+        HorizontalAlignment = HorizontalAlignment.Center,
+        VerticalAlignment = VerticalAlignment.Center
       };
       p.SetBinding(Shape.StrokeProperty, b);
       Content = p;
