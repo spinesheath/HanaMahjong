@@ -67,7 +67,7 @@ namespace Spines.Hana.Clay
       }
       if (null == _tableMainView)
       {
-        _tableMainView = new TableMainView {DataContext = new UkeIreMainViewModel()};
+        _tableMainView = new TableMainView {DataContext = new TableMainViewModel()};
       }
       MainContent.Content = _tableMainView;
     }

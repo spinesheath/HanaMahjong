@@ -8,6 +8,29 @@
              d:DesignHeight="300" 
              d:DesignWidth="300"
              d:DataContext="{d:DesignInstance Type={x:Type viewModels:TableMainViewModel}}">
-    <Grid />
+    <Grid Margin="5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="200"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="1">
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type TextBox}">
+                    <Setter Property="FontFamily" Value="Courier New"/>
+                </Style>
+            </StackPanel.Resources>
+            <Label Content="Player"/>
+            <ComboBox ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer}" DisplayMemberPath="Name"/>
+            <Label Content="Hand"/>
+            <TextBox Text="{Binding SelectedPlayer.HandShorthand}" TextWrapping="Wrap" AcceptsReturn="True" MinLines="5" MaxLines="5"/>
+            <Label Content="Pond"/>
+            <TextBox Text="{Binding SelectedPlayer.PondShorthand}" TextWrapping="Wrap" AcceptsReturn="True" MinLines="5" MaxLines="5"/>
+            <Label Content="Score"/>
+            <TextBox Text="{Binding SelectedPlayer.Score}"/>
+            <Label Content="Riichi stick"/>
+            <CheckBox IsChecked="{Binding SelectedPlayer.Riichi}"/>
+        </StackPanel>
+    </Grid>
 </UserControl>
 

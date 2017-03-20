@@ -92,6 +92,7 @@
       <DependentUpon>AboutDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="ViewModels\PlayerViewModel.cs" />
     <Compile Include="ViewModels\TableMainViewModel.cs" />
     <Compile Include="ViewModels\UkeIreMainViewModel.cs" />
     <Compile Include="ViewModels\UkeIreViewModel.cs" />
