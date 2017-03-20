@@ -1,20 +1,17 @@
 ﻿// This file is licensed to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
+using System.Runtime.Serialization;
 
 namespace Spines.Hana.Clay.ViewModels
 {
-  [Serializable]
+  [DataContract]
   internal class PlayerViewModel : ViewModelBase
   {
-    public PlayerViewModel(string name)
-    {
-      Name = name;
-    }
+    [DataMember]
+    public string Name { get; set; }
 
-    public string Name { get; }
-
+    [DataMember]
     public string HandShorthand
     {
       get { return _handShorthand; }
@@ -29,6 +26,7 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
+    [DataMember]
     public string PondShorthand
     {
       get { return _pondShorthand; }
@@ -43,6 +41,7 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
+    [DataMember]
     public string Score
     {
       get { return _score; }
@@ -57,6 +56,7 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
+    [DataMember]
     public bool Riichi
     {
       get { return _riichi; }
