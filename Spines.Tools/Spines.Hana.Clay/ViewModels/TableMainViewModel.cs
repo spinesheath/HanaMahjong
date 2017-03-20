@@ -86,6 +86,7 @@ namespace Spines.Hana.Clay.ViewModels
             return;
           }
           root.Save(dialog.FileName);
+          _file = dialog.FileName;
         }
       }
       catch
@@ -139,6 +140,7 @@ namespace Spines.Hana.Clay.ViewModels
           return;
         }
         var xel = XElement.Load(dialog.FileName);
+        // TODO XElement
       }
     }
 
@@ -148,7 +150,19 @@ namespace Spines.Hana.Clay.ViewModels
       {
         OnSaveAs(null);
       }
-      // TODO XElement
+      var root = Serialize();
+      if (null == root)
+      {
+        return;
+      }
+      try
+      {
+        root.Save(_file);
+      }
+      catch
+      {
+        MessageBox.Show("Failed to save data.");
+      }
     }
   }
 }
