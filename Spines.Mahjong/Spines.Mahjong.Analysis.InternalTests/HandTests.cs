@@ -12,7 +12,7 @@ using Spines.Mahjong.Analysis.Classification;
 namespace Spines.Mahjong.Analysis.InternalTests
 {
   [TestFixture]
-  public class ShantenCalculatorTests
+  public class HandTests
   {
     [TestCase("3366p11s11577z444S")]
     [TestCase("1m19p9s1234457z555Z")]
