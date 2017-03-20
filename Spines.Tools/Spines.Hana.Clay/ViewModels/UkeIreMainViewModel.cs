@@ -88,10 +88,14 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
+    public bool IsLoadingUkeIre => _loadingCount > 0;
+
     private string _shorthand;
     private Hand _currentHand;
     private bool _invalidFormat;
     private CancellationTokenSource _tokenSource;
+    private readonly SemaphoreSlim _loadingSemaphore = new SemaphoreSlim(1, 1);
+    private int _loadingCount;
 
     private void OnExport(object obj)
     {
@@ -191,10 +195,6 @@ namespace Spines.Hana.Clay.ViewModels
       UpdateUkeIreAsync();
     }
 
-    private readonly SemaphoreSlim _loadingSemaphore = new SemaphoreSlim(1, 1);
-    private int _loadingCount;
-    public bool IsLoadingUkeIre => _loadingCount > 0;
-
     private async void UpdateUkeIreAsync()
     {
       Hand hand;
@@ -202,7 +202,7 @@ namespace Spines.Hana.Clay.ViewModels
       try
       {
         await _loadingSemaphore.WaitAsync();
-        
+
         _loadingCount += 1;
         OnPropertyChanged(nameof(IsLoadingUkeIre));
 
