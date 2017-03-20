@@ -18,9 +18,11 @@ namespace Spines.Hana.Clay
     {
       InitializeComponent();
 
-      var mainView = new MainView {DataContext = new MainViewModel()};
-      MainContent.Content = mainView;
+      OnGoToUkeIre(null, null);
     }
+
+    private TableMainView _tableMainView;
+    private UkeIreMainView _ukeIreMainView;
 
     private void OnAbout(object sender, RoutedEventArgs e)
     {
@@ -55,6 +57,32 @@ namespace Spines.Hana.Clay
     private void OnMinimize(object sender, RoutedEventArgs e)
     {
       Application.Current.MainWindow.WindowState = WindowState.Minimized;
+    }
+
+    private void OnGoToTable(object sender, RoutedEventArgs e)
+    {
+      if (MainContent.Content is TableMainView)
+      {
+        return;
+      }
+      if (null == _tableMainView)
+      {
+        _tableMainView = new TableMainView {DataContext = new UkeIreMainViewModel()};
+      }
+      MainContent.Content = _tableMainView;
+    }
+
+    private void OnGoToUkeIre(object sender, RoutedEventArgs e)
+    {
+      if (MainContent.Content is UkeIreMainView)
+      {
+        return;
+      }
+      if (null == _ukeIreMainView)
+      {
+        _ukeIreMainView = new UkeIreMainView {DataContext = new UkeIreMainViewModel()};
+      }
+      MainContent.Content = _ukeIreMainView;
     }
   }
 }

@@ -92,11 +92,15 @@
       <DependentUpon>AboutDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\Annotations.cs" />
-    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\TableMainViewModel.cs" />
+    <Compile Include="ViewModels\UkeIreMainViewModel.cs" />
     <Compile Include="ViewModels\UkeIreViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
-    <Compile Include="Views\MainView.xaml.cs">
-      <DependentUpon>MainView.xaml</DependentUpon>
+    <Compile Include="Views\TableMainView.xaml.cs">
+      <DependentUpon>TableMainView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UkeIreMainView.xaml.cs">
+      <DependentUpon>UkeIreMainView.xaml</DependentUpon>
     </Compile>
     <Page Include="Dialogs\AboutDialog.xaml">
       <SubType>Designer</SubType>
@@ -118,7 +122,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\MainView.xaml">
+    <Page Include="Views\TableMainView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UkeIreMainView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

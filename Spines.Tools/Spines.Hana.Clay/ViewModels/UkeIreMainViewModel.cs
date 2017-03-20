@@ -19,9 +19,9 @@ using Spines.Mahjong.Analysis.Classification;
 
 namespace Spines.Hana.Clay.ViewModels
 {
-  internal class MainViewModel : ViewModelBase
+  internal class UkeIreMainViewModel : ViewModelBase
   {
-    public MainViewModel()
+    public UkeIreMainViewModel()
     {
       Draw = new DelegateCommand(OnDraw);
       Discard = new DelegateCommand(OnDiscard);

@@ -6,11 +6,11 @@ using System.Windows.Controls;
 namespace Spines.Hana.Clay.Views
 {
   /// <summary>
-  /// Interaction logic for MainView.xaml
+  /// Interaction logic for UkeIreMainView.xaml
   /// </summary>
-  public partial class MainView : UserControl
+  public partial class UkeIreMainView : UserControl
   {
-    public MainView()
+    public UkeIreMainView()
     {
       InitializeComponent();
     }

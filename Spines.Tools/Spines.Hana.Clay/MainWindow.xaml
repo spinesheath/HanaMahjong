@@ -27,19 +27,21 @@
                     BorderThickness="0"
                     MouseDown="OnMouseDown"/>
             <ContentControl Grid.Row="1" x:Name="MainContent"/>
-            <DockPanel Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" LastChildFill="False">
+            <DockPanel Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" LastChildFill="False">
                 <DockPanel.Resources>
                     <Style TargetType="{x:Type controls:FlatButton}">
                         <Setter Property="Width" Value="36"/>
                         <Setter Property="Height" Value="36"/>
                         <Setter Property="Margin" Value="1"/>
-                        <Setter Property="DockPanel.Dock" Value="Right"/>
                     </Style>
                 </DockPanel.Resources>
-                <controls:FlatButton Click="OnClose" Data="M 3,3 L 23,23 M 18,8 L 23,3 M 3,23 L 8,18"/>
-                <controls:FlatButton Click="OnMaximize" Data="M 3,3 L 23,3 L 23,23 L 3,23 L 3,11"/>
-                <controls:FlatButton Click="OnMinimize" Data="M 3,23 L 21,23"/>
-                <controls:FlatButton Click="OnAbout" Data="M 2,3 L 24,3 M 2,13 L 24,13 M 2,23 L 24,23"/>
+                <controls:FlatButton DockPanel.Dock="Right" Click="OnClose" Data="M 3,3 23,23 M 18,8 23,3 M 3,23 8,18"/>
+                <controls:FlatButton DockPanel.Dock="Right" Click="OnMaximize" Data="M 3,3 23,3 23,23 3,23 3,11"/>
+                <controls:FlatButton DockPanel.Dock="Right" Click="OnMinimize" Data="M 3,23 21,23"/>
+                <controls:FlatButton DockPanel.Dock="Right" Click="OnAbout" Data="M 2,3 24,3 M 2,13 24,13 M 2,23 24,23"/>
+
+                <controls:FlatButton DockPanel.Dock="Left" Click="OnGoToUkeIre" Data="M 2,23 23,23 M 10,10 15,10 15,15 10,15 10,10"/>
+                <controls:FlatButton DockPanel.Dock="Left" Click="OnGoToTable" Data="M 7,24 20,24 M 7,3 20,3 M 3,7 3,20 M 24,7 24,20 M 11,11 16,11 16,16 11,16 11,11"/>
             </DockPanel>
         </Grid>
     </Border>
