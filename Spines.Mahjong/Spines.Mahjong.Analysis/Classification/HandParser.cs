@@ -36,10 +36,14 @@ namespace Spines.Mahjong.Analysis.Classification
         throw new FormatException("Wrong number of tiles.");
       }
 
-      var bySuit = tiles.Concat(melds.SelectMany(m => m.Tiles)).GroupBy(t => t.Suit);
+      var bySuit = tiles.Concat(melds.SelectMany(m => m.Tiles)).GroupBy(t => t.Suit).ToList();
       if (bySuit.Any(g => g.Count(t => t.Aka) > 1))
       {
         throw new FormatException("Too many aka dora.");
+      }
+      if (bySuit.Any(g => g.GroupBy(t => t.Index).Any(gg => gg.Count() > 4)))
+      {
+        throw new FormatException("Too of the same tile type.");
       }
 
       if (tiles.Count == expected)

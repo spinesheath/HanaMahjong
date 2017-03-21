@@ -19,6 +19,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     [TestCase("123456789m5s146P")]
     [TestCase("123456789m5s1'46P")]
     [TestCase("123456789m5s0055P")]
+    [TestCase("111116789m5s5555P")]
     public void HandShouldThrowIfInvalid(string hand)
     {
       Assert.Throws<FormatException>(() => HandParser.Parse(hand));
