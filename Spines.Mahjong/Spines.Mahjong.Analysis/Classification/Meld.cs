@@ -14,7 +14,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// The tiles in the meld.
     /// </summary>
-    public IEnumerable<Tile> Tiles { get; }
+    public IEnumerable<Tile> Tiles { get; set; }
 
     internal Meld(Suit suit, int meldId)
     {

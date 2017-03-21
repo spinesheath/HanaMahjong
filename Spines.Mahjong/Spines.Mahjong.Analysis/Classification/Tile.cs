@@ -11,22 +11,22 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// The suit of the tile.
     /// </summary>
-    public Suit Suit { get; internal set; }
+    public Suit Suit { get; set; }
 
     /// <summary>
     /// The index of the tile in the suit.
     /// </summary>
-    public int Index { get; internal set; }
+    public int Index { get; set; }
 
     /// <summary>
     /// Is it a red tile?
     /// </summary>
-    public bool Aka { get; internal set; }
+    public bool Aka { get; set; }
 
     /// <summary>
     /// The location of the tile.
     /// </summary>
-    public TileLocation Location { get; internal set; }
+    public TileLocation Location { get; set; }
 
     internal int GetTileType()
     {
