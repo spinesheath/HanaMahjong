@@ -125,22 +125,47 @@ namespace Spines.Hana.Clay.ViewModels
     private void OnNew(object obj)
     {
       _file = null;
+      Players.Clear();
       InitPlayers();
     }
 
     private void OnOpen(object obj)
     {
-      using (var dialog = new CommonOpenFileDialog())
+      try
       {
-        dialog.EnsureFileExists = true;
-        dialog.DefaultExtension = ".xml";
-        var result = dialog.ShowDialog();
-        if (result != CommonFileDialogResult.Ok)
+        using (var dialog = new CommonOpenFileDialog())
         {
-          return;
+          dialog.EnsureFileExists = true;
+          dialog.DefaultExtension = ".xml";
+          var result = dialog.ShowDialog();
+          if (result != CommonFileDialogResult.Ok)
+          {
+            return;
+          }
+
+          var root = XElement.Load(dialog.FileName);
+          var serializer = new DataContractSerializer(typeof(PlayerViewModel));
+          var players = root.Nodes().Select(node => (PlayerViewModel)serializer.ReadObject(node.CreateReader())).ToList();
+          if (players.Count != 4)
+          {
+            MessageBox.Show("Invalid number of players.");
+            return;
+          }
+
+          Players.Clear();
+          foreach (var player in players)
+          {
+            Players.Add(player);
+          }
+          SelectedPlayer = Players.First();
+
+          _file = dialog.FileName;
         }
-        var xel = XElement.Load(dialog.FileName);
-        // TODO XElement
+      }
+      catch
+      {
+        MessageBox.Show("Error opening file.");
+        throw;
       }
     }
 
