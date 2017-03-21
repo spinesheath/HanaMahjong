@@ -53,6 +53,7 @@
     <Compile Include="Classification\ChiitoiClassifier.cs" />
     <Compile Include="Classification\DrawResult.cs" />
     <Compile Include="Classification\Hand.cs" />
+    <Compile Include="Classification\HandParser.cs" />
     <Compile Include="Classification\KokushiClassifier.cs" />
     <Compile Include="Classification\Meld.cs" />
     <Compile Include="Classification\Suit.cs" />

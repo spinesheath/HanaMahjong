@@ -5,12 +5,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Spines.Mahjong.Analysis.Classification;
 
-namespace Spines.Hana.Clay.Models
+namespace Spines.Mahjong.Analysis.Classification
 {
-  internal class HandParser
+  /// <summary>
+  /// Parses a shorthand string, respecting the order of the tiles.
+  /// If the hand has 14 tiles (melds counting for 3), the last concealed tile is treated as the draw.
+  /// </summary>
+  public class HandParser
   {
+    /// <summary>
+    /// Creates a new instance of HandParser and immediately parses the string.
+    /// </summary>
+    /// <param name="shorthand">The string to parse.</param>
     public HandParser(string shorthand)
     {
       var tiles = CreateTiles(shorthand).ToList();
@@ -33,12 +40,33 @@ namespace Spines.Hana.Clay.Models
         throw new FormatException("Too many aka dora.");
       }
 
-      Tiles = tiles;
+      if (tiles.Count == expected)
+      {
+        Tiles = tiles;
+        Draw = null;
+      }
+      else
+      {
+        Tiles = tiles.Take(expected).ToList();
+        Draw = tiles[expected];
+      }
+
       Melds = melds;
     }
 
+    /// <summary>
+    /// The current draw.
+    /// </summary>
+    public Tile? Draw { get; }
+
+    /// <summary>
+    /// The concealed tiles in the hand, excluding the draw.
+    /// </summary>
     public IEnumerable<Tile> Tiles { get; }
 
+    /// <summary>
+    /// The melds in the hand.
+    /// </summary>
     public IEnumerable<Meld> Melds { get; }
 
     private static readonly Dictionary<char, Suit> CharToSuit = new Dictionary<char, Suit>
