@@ -19,7 +19,6 @@
             <controls:HandDisplay Tiles="{Binding SelectedPlayer.Tiles}"
                                   Melds="{Binding SelectedPlayer.Melds}"
                                   Draw="{Binding SelectedPlayer.Draw}"/>
-            <TextBlock Text="{Binding SelectedPlayer.HandError}"/>
         </StackPanel>
 
 
@@ -39,12 +38,12 @@
             <ComboBox ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer}" DisplayMemberPath="Name"/>
             <Label Content="Hand"/>
             <TextBox Text="{Binding SelectedPlayer.HandShorthand, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" AcceptsReturn="True" MinLines="5" MaxLines="5"/>
+            <TextBlock Text="{Binding SelectedPlayer.HandError}"/>
             <Label Content="Pond"/>
             <TextBox Text="{Binding SelectedPlayer.PondShorthand, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" AcceptsReturn="True" MinLines="5" MaxLines="5"/>
+            <TextBlock Text="{Binding SelectedPlayer.PondError}"/>
             <Label Content="Score"/>
             <TextBox Text="{Binding SelectedPlayer.Score, UpdateSourceTrigger=PropertyChanged}"/>
-            <Label Content="Riichi stick"/>
-            <CheckBox IsChecked="{Binding SelectedPlayer.Riichi}"/>
         </StackPanel>
     </Grid>
 </UserControl>

@@ -43,7 +43,7 @@ namespace Spines.Mahjong.Analysis.Classification
       }
       if (bySuit.Any(g => g.GroupBy(t => t.Index).Any(gg => gg.Count() > 4)))
       {
-        throw new FormatException("Too of the same tile type.");
+        throw new FormatException("Too many of the same tile type.");
       }
 
       if (tiles.Count == expected)

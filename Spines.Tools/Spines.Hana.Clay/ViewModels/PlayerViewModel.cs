@@ -45,6 +45,20 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
+    public string PondError
+    {
+      get { return _pondError; }
+      set
+      {
+        if (_pondError == value)
+        {
+          return;
+        }
+        _pondError = value;
+        OnPropertyChanged();
+      }
+    }
+
     public string HandError
     {
       get { return _handError; }
@@ -89,24 +103,10 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
-    [DataMember]
-    public bool Riichi
-    {
-      get { return _riichi; }
-      set
-      {
-        if (_riichi == value)
-        {
-          return;
-        }
-        _riichi = value;
-        OnPropertyChanged();
-      }
-    }
+    private string _pondError;
 
     private Tile? _draw;
     private string _handError;
-    private bool _riichi;
     private string _handShorthand;
     private string _pondShorthand;
     private string _score;
