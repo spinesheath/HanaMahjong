@@ -26,11 +26,20 @@ namespace Spines.Hana.Clay.Controls
       set { SetValue(MeldsProperty, value); }
     }
 
+    public Tile? Draw
+    {
+      get { return (Tile?) GetValue(DrawProperty); }
+      set { SetValue(DrawProperty, value); }
+    }
+
     public ICommand DiscardCommand
     {
       get { return (ICommand) GetValue(DiscardCommandProperty); }
       set { SetValue(DiscardCommandProperty, value); }
     }
+
+    public static readonly DependencyProperty DrawProperty = DependencyProperty.Register(
+      "Draw", typeof(Tile?), typeof(HandDisplay), new PropertyMetadata(default(Tile?)));
 
     public static readonly DependencyProperty DiscardCommandProperty = DependencyProperty.Register(
       "DiscardCommand", typeof(ICommand), typeof(HandDisplay), new PropertyMetadata(default(ICommand)));

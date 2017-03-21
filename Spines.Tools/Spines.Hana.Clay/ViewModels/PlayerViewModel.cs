@@ -1,7 +1,10 @@
 ﻿// This file is licensed to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
+using Spines.Mahjong.Analysis.Classification;
 
 namespace Spines.Hana.Clay.ViewModels
 {
@@ -22,9 +25,67 @@ namespace Spines.Hana.Clay.ViewModels
           return;
         }
         _handShorthand = value;
+        UpdateHand();
         OnPropertyChanged();
       }
     }
+
+    public ICollection<Tile> Tiles { get; } = new ObservableCollection<Tile>();
+
+    public ICollection<Meld> Melds { get; } = new ObservableCollection<Meld>();
+
+    public Tile? Draw
+    {
+      get { return _draw; }
+      set
+      {
+        _draw = value;
+        OnPropertyChanged();
+      }
+    }
+
+    private Tile? _draw;
+
+    private void UpdateHand()
+    {
+      try
+      {
+        var hand = HandParser.Parse(HandShorthand);
+        Tiles.Clear();
+        foreach (var tile in hand.Tiles)
+        {
+          Tiles.Add(tile);
+        }
+        Melds.Clear();
+        foreach (var meld in hand.Melds)
+        {
+          Melds.Add(meld);
+        }
+        Draw = hand.Draw;
+
+        HandIsValid = true;
+      }
+      catch
+      {
+        HandIsValid = false;
+      }
+    }
+
+    public bool HandIsValid
+    {
+      get { return _handIsValid; }
+      set
+      {
+        if (_handIsValid == value)
+        {
+          return;
+        }
+        _handIsValid = value;
+        OnPropertyChanged();
+      }
+    }
+
+    private bool _handIsValid;
 
     [DataMember]
     public string PondShorthand

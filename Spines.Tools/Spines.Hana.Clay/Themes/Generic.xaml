@@ -127,6 +127,8 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+                        
+                        <controls:TileImage Tile="{TemplateBinding Draw}" Margin="5,0"/>
 
                         <ItemsControl ItemsSource="{TemplateBinding Melds}">
                             <ItemsControl.ItemsPanel>
