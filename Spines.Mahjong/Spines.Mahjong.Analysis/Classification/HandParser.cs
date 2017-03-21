@@ -12,13 +12,15 @@ namespace Spines.Mahjong.Analysis.Classification
   /// Parses a shorthand string, respecting the order of the tiles.
   /// If the hand has 14 tiles (melds counting for 3), the last concealed tile is treated as the draw.
   /// </summary>
-  public class HandParser
+  public static class HandParser
   {
     /// <summary>
-    /// Creates a new instance of HandParser and immediately parses the string.
+    /// Parses the string.
     /// </summary>
     /// <param name="shorthand">The string to parse.</param>
-    public HandParser(string shorthand)
+    /// <returns>The parsed hand.</returns>
+    /// <exception cref="FormatException">Thrown if the string does not specify a valid hand.</exception>
+    public static Hand Parse(string shorthand)
     {
       var tiles = CreateTiles(shorthand).ToList();
       var melds = CreateMelds(shorthand).ToList();
@@ -34,7 +36,7 @@ namespace Spines.Mahjong.Analysis.Classification
         throw new FormatException("Wrong number of tiles.");
       }
 
-      var bySuit = Tiles.Concat(Melds.SelectMany(m => m.Tiles)).GroupBy(t => t.Suit);
+      var bySuit = tiles.Concat(melds.SelectMany(m => m.Tiles)).GroupBy(t => t.Suit);
       if (bySuit.Any(g => g.Count(t => t.Aka) > 1))
       {
         throw new FormatException("Too many aka dora.");
@@ -42,32 +44,10 @@ namespace Spines.Mahjong.Analysis.Classification
 
       if (tiles.Count == expected)
       {
-        Tiles = tiles;
-        Draw = null;
+        return new Hand(tiles, melds, null);
       }
-      else
-      {
-        Tiles = tiles.Take(expected).ToList();
-        Draw = tiles[expected];
-      }
-
-      Melds = melds;
+      return new Hand(tiles.Take(expected), melds, tiles[expected]);
     }
-
-    /// <summary>
-    /// The current draw.
-    /// </summary>
-    public Tile? Draw { get; }
-
-    /// <summary>
-    /// The concealed tiles in the hand, excluding the draw.
-    /// </summary>
-    public IEnumerable<Tile> Tiles { get; }
-
-    /// <summary>
-    /// The melds in the hand.
-    /// </summary>
-    public IEnumerable<Meld> Melds { get; }
 
     private static readonly Dictionary<char, Suit> CharToSuit = new Dictionary<char, Suit>
     {
@@ -114,6 +94,10 @@ namespace Spines.Mahjong.Analysis.Classification
           {
             tiles.Add(CreateTile(block[i], suit, TileLocation.Melded));
           }
+        }
+        if (tiles.Count(t => t.Aka) > 1)
+        {
+          throw new FormatException("Too many aka dora.");
         }
         var min = tiles.Min(t => t.Index);
         if (tiles.Select(t => t.Index).OrderBy(x => x).SequenceEqual(Enumerable.Range(min, 3)))
