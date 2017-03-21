@@ -14,10 +14,14 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="200"/>
         </Grid.ColumnDefinitions>
-        
-        <controls:HandDisplay Tiles="{Binding SelectedPlayer.Tiles}"
-                              Melds="{Binding SelectedPlayer.Melds}"
-                              Draw="{Binding SelectedPlayer.Draw}"/>
+
+        <StackPanel Grid.Column="0">
+            <controls:HandDisplay Tiles="{Binding SelectedPlayer.Tiles}"
+                                  Melds="{Binding SelectedPlayer.Melds}"
+                                  Draw="{Binding SelectedPlayer.Draw}"/>
+            <TextBlock Text="{Binding SelectedPlayer.HandError}"/>
+        </StackPanel>
+
 
         <StackPanel Grid.Column="1">
             <StackPanel.Resources>
@@ -34,11 +38,11 @@
             <Label Content="Player"/>
             <ComboBox ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer}" DisplayMemberPath="Name"/>
             <Label Content="Hand"/>
-            <TextBox Text="{Binding SelectedPlayer.HandShorthand}" TextWrapping="Wrap" AcceptsReturn="True" MinLines="5" MaxLines="5"/>
+            <TextBox Text="{Binding SelectedPlayer.HandShorthand, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" AcceptsReturn="True" MinLines="5" MaxLines="5"/>
             <Label Content="Pond"/>
-            <TextBox Text="{Binding SelectedPlayer.PondShorthand}" TextWrapping="Wrap" AcceptsReturn="True" MinLines="5" MaxLines="5"/>
+            <TextBox Text="{Binding SelectedPlayer.PondShorthand, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" AcceptsReturn="True" MinLines="5" MaxLines="5"/>
             <Label Content="Score"/>
-            <TextBox Text="{Binding SelectedPlayer.Score}"/>
+            <TextBox Text="{Binding SelectedPlayer.Score, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Riichi stick"/>
             <CheckBox IsChecked="{Binding SelectedPlayer.Riichi}"/>
         </StackPanel>

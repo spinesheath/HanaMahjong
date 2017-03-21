@@ -1,6 +1,7 @@
 ﻿// This file is licensed to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
@@ -13,6 +14,10 @@ namespace Spines.Hana.Clay.ViewModels
   {
     [DataMember]
     public string Name { get; set; }
+
+    public ICollection<Tile> Tiles { get; } = new ObservableCollection<Tile>();
+
+    public ICollection<Meld> Melds { get; } = new ObservableCollection<Meld>();
 
     [DataMember]
     public string HandShorthand
@@ -30,10 +35,6 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
-    public ICollection<Tile> Tiles { get; } = new ObservableCollection<Tile>();
-
-    public ICollection<Meld> Melds { get; } = new ObservableCollection<Meld>();
-
     public Tile? Draw
     {
       get { return _draw; }
@@ -44,48 +45,19 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
-    private Tile? _draw;
-
-    private void UpdateHand()
+    public string HandError
     {
-      try
-      {
-        var hand = HandParser.Parse(HandShorthand);
-        Tiles.Clear();
-        foreach (var tile in hand.Tiles)
-        {
-          Tiles.Add(tile);
-        }
-        Melds.Clear();
-        foreach (var meld in hand.Melds)
-        {
-          Melds.Add(meld);
-        }
-        Draw = hand.Draw;
-
-        HandIsValid = true;
-      }
-      catch
-      {
-        HandIsValid = false;
-      }
-    }
-
-    public bool HandIsValid
-    {
-      get { return _handIsValid; }
+      get { return _handError; }
       set
       {
-        if (_handIsValid == value)
+        if (_handError == value)
         {
           return;
         }
-        _handIsValid = value;
+        _handError = value;
         OnPropertyChanged();
       }
     }
-
-    private bool _handIsValid;
 
     [DataMember]
     public string PondShorthand
@@ -132,9 +104,36 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
+    private Tile? _draw;
+    private string _handError;
     private bool _riichi;
     private string _handShorthand;
     private string _pondShorthand;
     private string _score;
+
+    private void UpdateHand()
+    {
+      try
+      {
+        var hand = HandParser.Parse(HandShorthand);
+        Tiles.Clear();
+        foreach (var tile in hand.Tiles)
+        {
+          Tiles.Add(tile);
+        }
+        Melds.Clear();
+        foreach (var meld in hand.Melds)
+        {
+          Melds.Add(meld);
+        }
+        Draw = hand.Draw;
+
+        HandError = null;
+      }
+      catch (FormatException e)
+      {
+        HandError = e.Message;
+      }
+    }
   }
 }
