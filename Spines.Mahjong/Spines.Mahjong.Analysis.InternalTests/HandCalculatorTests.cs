@@ -12,14 +12,14 @@ using Spines.Mahjong.Analysis.Classification;
 namespace Spines.Mahjong.Analysis.InternalTests
 {
   [TestFixture]
-  public class HandTests
+  public class HandCalculatorTests
   {
     [TestCase("3366p11s11577z444S")]
     [TestCase("1m19p9s1234457z555Z")]
     public void DiscardShouldNotThrow(string hand)
     {
       var parser = new ShorthandParser(hand);
-      var c = new Hand(parser);
+      var c = new HandCalculator(parser);
       Assert.DoesNotThrow(() => c.Discard());
     }
 
@@ -42,7 +42,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
     public void ShantenShouldBeCorrect(string hand, int expected)
     {
       var parser = new ShorthandParser(hand);
-      var c = new Hand(parser);
+      var c = new HandCalculator(parser);
 
       var actual = c.Shanten;
 
@@ -56,7 +56,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
       Thread.CurrentThread.Priority = ThreadPriority.Highest;
 
       var parser = new ShorthandParser("123456789m12344p");
-      Console.WriteLine(new Hand(parser).Shanten);
+      Console.WriteLine(new HandCalculator(parser).Shanten);
 
       for (var f = 0; f < 1; ++f)
       {
@@ -74,7 +74,7 @@ namespace Spines.Mahjong.Analysis.InternalTests
         {
           var drawn = new bool[136];
 
-          var hand = new Hand();
+          var hand = new HandCalculator();
           for (var i = 0; i < 13; ++i)
           {
             var tileId = GetRandomTile(rand, drawn);

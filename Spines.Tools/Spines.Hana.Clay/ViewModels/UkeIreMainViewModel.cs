@@ -59,7 +59,7 @@ namespace Spines.Hana.Clay.ViewModels
         try
         {
           var parser = new ShorthandParser(value);
-          _currentHand = new Hand(parser);
+          _currentHand = new HandCalculator(parser);
           _invalidFormat = false;
           UpdateIcons(parser);
         }
@@ -91,7 +91,7 @@ namespace Spines.Hana.Clay.ViewModels
     public bool IsLoadingUkeIre => _loadingCount > 0;
 
     private string _shorthand;
-    private Hand _currentHand;
+    private HandCalculator _currentHand;
     private bool _invalidFormat;
     private CancellationTokenSource _tokenSource;
     private readonly SemaphoreSlim _loadingSemaphore = new SemaphoreSlim(1, 1);
@@ -197,7 +197,7 @@ namespace Spines.Hana.Clay.ViewModels
 
     private async void UpdateUkeIreAsync()
     {
-      Hand hand;
+      HandCalculator hand;
       CancellationTokenSource source;
       try
       {
@@ -271,7 +271,7 @@ namespace Spines.Hana.Clay.ViewModels
       var rand = new Random((int) DateTime.Now.Ticks);
       var drawn = new bool[136];
 
-      _currentHand = new Hand();
+      _currentHand = new HandCalculator();
       for (var i = 0; i < count; ++i)
       {
         var tileId = GetRandomTile(rand, drawn);

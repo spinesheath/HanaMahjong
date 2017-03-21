@@ -11,12 +11,12 @@ namespace Spines.Mahjong.Analysis.Classification
   /// <summary>
   /// Maintains tile counts and calculates the Shanten of a hand.
   /// </summary>
-  public class Hand
+  public class HandCalculator
   {
     /// <summary>
     /// Creates a new instance of Hand.
     /// </summary>
-    public Hand()
+    public HandCalculator()
     {
       // Don't need to initialize _arrangementValues here because the value for an empty hand is 0.
       // Don't need to set the melds in the suit classifiers here because entry state for concealed suits for a hand without melds is 0.
@@ -28,7 +28,7 @@ namespace Spines.Mahjong.Analysis.Classification
     /// Creates a hand initialized with the tiles specified in shorthand form.
     /// </summary>
     /// <param name="initial">The shorthand form of the initial hand.</param>
-    public Hand(ShorthandParser initial)
+    public HandCalculator(ShorthandParser initial)
       : this()
     {
       InitializeMelds(initial.ManzuMeldIds, 0);
@@ -447,9 +447,9 @@ namespace Spines.Mahjong.Analysis.Classification
     /// Creates a clone of the current hand.
     /// </summary>
     /// <returns>A new instance of hand initialized to the same state as the current hand.</returns>
-    public Hand Clone()
+    public HandCalculator Clone()
     {
-      var hand = new Hand();
+      var hand = new HandCalculator();
       for (var i = 0; i < _suits.Length; ++i)
       {
         Array.Copy(_suits[i], hand._suits[i], _suits[i].Length);

@@ -67,7 +67,7 @@
     <Compile Include="ChiitoiClassifierTests.cs" />
     <Compile Include="HandParserTests.cs" />
     <Compile Include="KokushiClassifierTests.cs" />
-    <Compile Include="HandTests.cs" />
+    <Compile Include="HandCalculatorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
