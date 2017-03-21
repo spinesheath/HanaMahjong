@@ -19,6 +19,19 @@
             <controls:HandDisplay Tiles="{Binding SelectedPlayer.Tiles}"
                                   Melds="{Binding SelectedPlayer.Melds}"
                                   Draw="{Binding SelectedPlayer.Draw}"/>
+
+            <ItemsControl ItemsSource="{Binding SelectedPlayer.Pond}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Width="200"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <controls:TileImage Tile="{Binding Mode=OneTime}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </StackPanel>
 
 

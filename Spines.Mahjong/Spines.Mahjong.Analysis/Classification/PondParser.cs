@@ -41,7 +41,7 @@ namespace Spines.Mahjong.Analysis.Classification
       return tiles;
     }
 
-    private static readonly Regex TileRegex = new Regex("[0-9][mpsMPS]R?C?|[1-7][zZ]R?C?");
+    private static readonly Regex TileRegex = new Regex("([0-9][mpsMPS]R?C?|[1-7][zZ]R?C?)");
 
     private static readonly Dictionary<char, Suit> CharToSuit = new Dictionary<char, Suit>
     {

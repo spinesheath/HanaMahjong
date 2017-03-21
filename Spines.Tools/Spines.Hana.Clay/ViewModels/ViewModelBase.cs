@@ -3,12 +3,10 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 using Spines.Hana.Clay.Properties;
 
 namespace Spines.Hana.Clay.ViewModels
 {
-  [DataContract]
   internal class ViewModelBase : INotifyPropertyChanged
   {
     public event PropertyChangedEventHandler PropertyChanged;

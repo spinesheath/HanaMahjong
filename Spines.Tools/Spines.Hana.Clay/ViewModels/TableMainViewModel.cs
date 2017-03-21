@@ -12,6 +12,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Spines.Hana.Clay.Commands;
+using Spines.Hana.Clay.Models;
 
 namespace Spines.Hana.Clay.ViewModels
 {
@@ -57,10 +58,10 @@ namespace Spines.Hana.Clay.ViewModels
 
     private void InitPlayers()
     {
-      Players.Add(new PlayerViewModel {Name = "A"});
-      Players.Add(new PlayerViewModel {Name = "B"});
-      Players.Add(new PlayerViewModel {Name = "C"});
-      Players.Add(new PlayerViewModel {Name = "D"});
+      Players.Add(new PlayerViewModel("A"));
+      Players.Add(new PlayerViewModel("B"));
+      Players.Add(new PlayerViewModel("C"));
+      Players.Add(new PlayerViewModel("D"));
       SelectedPlayer = Players.First();
     }
 
@@ -99,13 +100,13 @@ namespace Spines.Hana.Clay.ViewModels
     {
       try
       {
-        var serializer = new DataContractSerializer(typeof(PlayerViewModel));
+        var serializer = new DataContractSerializer(typeof(PlayerModel));
         var root = new XElement("Table");
         foreach (var player in Players)
         {
           using (var stream = new MemoryStream())
           {
-            serializer.WriteObject(stream, player);
+            serializer.WriteObject(stream, player.GetModel());
             stream.Position = 0;
             using (var reader = XmlReader.Create(stream))
             {
@@ -144,8 +145,8 @@ namespace Spines.Hana.Clay.ViewModels
           }
 
           var root = XElement.Load(dialog.FileName);
-          var serializer = new DataContractSerializer(typeof(PlayerViewModel));
-          var players = root.Nodes().Select(node => (PlayerViewModel)serializer.ReadObject(node.CreateReader())).ToList();
+          var serializer = new DataContractSerializer(typeof(PlayerModel));
+          var players = root.Nodes().Select(node => (PlayerModel)serializer.ReadObject(node.CreateReader())).ToList();
           if (players.Count != 4)
           {
             MessageBox.Show("Invalid number of players.");
@@ -155,7 +156,7 @@ namespace Spines.Hana.Clay.ViewModels
           Players.Clear();
           foreach (var player in players)
           {
-            Players.Add(player);
+            Players.Add(new PlayerViewModel(player));
           }
           SelectedPlayer = Players.First();
 
@@ -165,7 +166,6 @@ namespace Spines.Hana.Clay.ViewModels
       catch
       {
         MessageBox.Show("Error opening file.");
-        throw;
       }
     }
 

@@ -4,22 +4,34 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Runtime.Serialization;
+using Spines.Hana.Clay.Models;
 using Spines.Mahjong.Analysis.Classification;
 
 namespace Spines.Hana.Clay.ViewModels
 {
-  [DataContract]
   internal class PlayerViewModel : ViewModelBase
   {
-    [DataMember]
-    public string Name { get; set; }
+    public PlayerViewModel(string name)
+    {
+      Name = name;
+    }
+
+    public PlayerViewModel(PlayerModel model)
+      : this(model.Name)
+    {
+      HandShorthand = model.HandShorthand;
+      PondShorthand = model.PondShorthand;
+      Score = model.Score;
+    }
+
+    public string Name { get; }
 
     public ICollection<Tile> Tiles { get; } = new ObservableCollection<Tile>();
 
+    public ICollection<Tile> Pond { get; } = new ObservableCollection<Tile>();
+
     public ICollection<Meld> Melds { get; } = new ObservableCollection<Meld>();
 
-    [DataMember]
     public string HandShorthand
     {
       get { return _handShorthand; }
@@ -73,7 +85,6 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
-    [DataMember]
     public string PondShorthand
     {
       get { return _pondShorthand; }
@@ -84,11 +95,11 @@ namespace Spines.Hana.Clay.ViewModels
           return;
         }
         _pondShorthand = value;
+        UpdatePond();
         OnPropertyChanged();
       }
     }
 
-    [DataMember]
     public string Score
     {
       get { return _score; }
@@ -103,13 +114,36 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
-    private string _pondError;
+    public PlayerModel GetModel()
+    {
+      return new PlayerModel {Name = Name, HandShorthand = HandShorthand, PondShorthand = PondShorthand, Score = Score};
+    }
 
+    private string _pondError;
     private Tile? _draw;
     private string _handError;
     private string _handShorthand;
     private string _pondShorthand;
     private string _score;
+
+    private void UpdatePond()
+    {
+      try
+      {
+        var pond = PondParser.Parse(PondShorthand);
+        Pond.Clear();
+        foreach (var tile in pond)
+        {
+          Pond.Add(tile);
+        }
+
+        PondError = null;
+      }
+      catch (FormatException e)
+      {
+        PondError = e.Message;
+      }
+    }
 
     private void UpdateHand()
     {
