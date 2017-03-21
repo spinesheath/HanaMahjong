@@ -19,7 +19,7 @@ namespace Spines.Mahjong.Analysis.Classification
     Concealed,
 
     /// <summary>
-    /// In the pond.
+    /// In the pond discarded.
     /// </summary>
     Discarded,
 
@@ -41,6 +41,11 @@ namespace Spines.Mahjong.Analysis.Classification
     /// <summary>
     /// Face down on the table for an ankan.
     /// </summary>
-    FaceDown
+    FaceDown,
+
+    /// <summary>
+    /// In the pond as the tile to indicate a riichi.
+    /// </summary>
+    Riichi
   }
 }

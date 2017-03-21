@@ -57,6 +57,7 @@
     <Compile Include="Classification\HandParser.cs" />
     <Compile Include="Classification\KokushiClassifier.cs" />
     <Compile Include="Classification\Meld.cs" />
+    <Compile Include="Classification\PondParser.cs" />
     <Compile Include="Classification\Suit.cs" />
     <Compile Include="Classification\SuitClassifer.cs" />
     <Compile Include="Classification\ProgressiveHonorClassifier.cs" />

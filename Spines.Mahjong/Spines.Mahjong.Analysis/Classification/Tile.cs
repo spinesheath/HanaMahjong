@@ -28,6 +28,16 @@ namespace Spines.Mahjong.Analysis.Classification
     /// </summary>
     public TileLocation Location { get; set; }
 
+    /// <summary>
+    /// Is the tile only virtual? I.e. a discarded tile in the pond that was called.
+    /// </summary>
+    public bool IsGhost { get; set; }
+
+    /// <summary>
+    /// Was the tile discarded when drawn?
+    /// </summary>
+    public bool IsTsumokiri { get; set; }
+
     internal int GetTileType()
     {
       return (int) Suit * 9 + Index;

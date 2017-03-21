@@ -72,7 +72,7 @@ namespace Spines.Mahjong.Analysis.Classification
     {
       var matches = MeldRegex.Matches(shorthand).OfType<Match>();
       var groups = matches.SelectMany(m => m.Groups.OfType<Group>().Skip(1));
-      var blocks = groups.Select(g => g.Value).ToList();
+      var blocks = groups.Select(g => g.Value);
       foreach (var block in blocks)
       {
         var suit = CharToSuit[block.Last()];
