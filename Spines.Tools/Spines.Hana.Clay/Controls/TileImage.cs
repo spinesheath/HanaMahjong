@@ -62,17 +62,18 @@ namespace Spines.Hana.Clay.Controls
       {
         return null;
       }
-      var tile = Tile.Value;
-      var c = SuitCharacters[tile.Suit];
-      var i = tile.Index + 1;
-      var path = GetPath(c, i, tile.Location);
+
+      var path = GetPath(Tile.Value);
       var image = new BitmapImage(new Uri(path, UriKind.Absolute));
       image.Freeze();
       return image;
     }
 
-    private static string GetPath(char c, int tileNumber, TileLocation location)
+    private static string GetPath(Tile tile)
     {
+      var c = SuitCharacters[tile.Suit];
+      var tileNumber = tile.Aka ? "e" : (tile.Index + 1).ToString();
+      var location = tile.Location;
       switch (location)
       {
         case TileLocation.Concealed:
