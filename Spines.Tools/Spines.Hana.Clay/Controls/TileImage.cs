@@ -82,6 +82,7 @@ namespace Spines.Hana.Clay.Controls
           return Path.Combine(PerspectivePath, $"1{c}{tileNumber}.png");
         case TileLocation.Added:
         case TileLocation.Called:
+        case TileLocation.Riichi:
           return Path.Combine(PerspectivePath, $"2{c}{tileNumber}.png");
         case TileLocation.FaceDown:
           return Path.Combine(PerspectivePath, "1j9.png");

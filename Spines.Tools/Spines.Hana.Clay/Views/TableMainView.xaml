@@ -16,10 +16,14 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Column="0">
-            <ItemsControl ItemsSource="{Binding Tiles}">
+            <ItemsControl ItemsSource="{Binding Tiles}"
+                          BorderThickness="5"
+                          BorderBrush="Brown"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <Canvas IsItemsHost="True" Background="Azure" Width="440" Height="440"/>
+                        <Canvas IsItemsHost="True" Background="ForestGreen" Width="440" Height="440"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemContainerStyle>
