@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using System.Xml;
@@ -26,6 +27,7 @@ namespace Spines.Hana.Clay.ViewModels
       Open = new DelegateCommand(OnOpen);
       New = new DelegateCommand(OnNew);
       SaveAs = new DelegateCommand(OnSaveAs);
+      ExportLatex = new DelegateCommand(OnExportLatex);
 
       InitPlayers();
     }
@@ -39,6 +41,8 @@ namespace Spines.Hana.Clay.ViewModels
     public ICommand SaveAs { get; }
 
     public ICommand New { get; }
+
+    public ICommand ExportLatex { get; }
 
     public ICollection<TileViewModel> Tiles { get; } = new ObservableCollection<TileViewModel>();
 
@@ -84,6 +88,50 @@ namespace Spines.Hana.Clay.ViewModels
     private void OnDataChanged(object sender, PropertyChangedEventArgs e)
     {
       UpdateTable();
+    }
+
+    private void OnExportLatex(object obj)
+    {
+      try
+      {
+        var text = CreateLatex();
+
+        using (var dialog = new CommonOpenFileDialog())
+        {
+          dialog.IsFolderPicker = true;
+          dialog.EnsurePathExists = true;
+          var result = dialog.ShowDialog();
+          if (result != CommonFileDialogResult.Ok)
+          {
+            return;
+          }
+          var fileName = Path.Combine(dialog.FileName, "image.tex");
+          File.WriteAllText(fileName, text);
+        }
+      }
+      catch
+      {
+        MessageBox.Show("Failed to export.");
+      }
+    }
+
+    private string CreateLatex()
+    {
+      var sb = new StringBuilder();
+      sb.AppendLine(@"\documentclass[12pt]{article}");
+      sb.AppendLine(@"\usepackage{graphicx}");
+      sb.AppendLine(@"\input{paizu_def} % Define tile image commands");
+      sb.AppendLine(@"\begin{document}");
+      sb.AppendLine(@"\begin{center}");
+      sb.AppendLine(@"\begin{picture}(" + TableLayout.TableWidth + "," + TableLayout.TableHeight + ")");
+      foreach (var tile in Tiles)
+      {
+        sb.AppendLine(@"\put(" + tile.X + "," + (TableLayout.TableHeight - tile.Y) + "){\\" + "asob" + "}");
+      }
+      sb.AppendLine(@"\end{picture}");
+      sb.AppendLine(@"\end{center}");
+      sb.AppendLine(@"\end{document}");
+      return sb.ToString();
     }
 
     private void UpdateTable()
