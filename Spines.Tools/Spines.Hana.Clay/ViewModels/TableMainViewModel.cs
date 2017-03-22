@@ -120,19 +120,58 @@ namespace Spines.Hana.Clay.ViewModels
       var sb = new StringBuilder();
       sb.AppendLine(@"\documentclass[12pt]{article}");
       sb.AppendLine(@"\usepackage{graphicx}");
-      sb.AppendLine(@"\input{paizu_def} % Define tile image commands");
+      sb.AppendLine(@"\graphicspath{{t_real/}}");
       sb.AppendLine(@"\begin{document}");
       sb.AppendLine(@"\begin{center}");
       sb.AppendLine(@"\begin{picture}(" + TableLayout.TableWidth + "," + TableLayout.TableHeight + ")");
       foreach (var tile in Tiles)
       {
-        sb.AppendLine(@"\put(" + tile.X + "," + (TableLayout.TableHeight - tile.Y) + "){\\" + "asob" + "}");
+        var fileName = GetFileName(tile);
+        var graphic = @"\includegraphics{" + fileName + "}";
+        var y = TableLayout.TableHeight - tile.Y;
+        if (tile.Tile.Location == TileLocation.Riichi)
+        {
+          y += 2 * TableLayout.RiichiDistance;
+        }
+        sb.AppendLine(@"\put(" + tile.X + "," + y + "){" + graphic + "}");
       }
       sb.AppendLine(@"\end{picture}");
       sb.AppendLine(@"\end{center}");
       sb.AppendLine(@"\end{document}");
       return sb.ToString();
     }
+
+    private static string GetFileName(TileViewModel tileViewModel)
+    {
+      var tile = tileViewModel.Tile;
+      var location = tile.Location;
+      var suitCharacter = SuitCharacters[tile.Suit];
+      var tileNumber = tile.Aka ? "e" : (tile.Index + 1).ToString();
+      switch (location)
+      {
+        case TileLocation.Concealed:
+          return $"0{suitCharacter}{tileNumber}.png";
+        case TileLocation.Discarded:
+        case TileLocation.Melded:
+          return $"1{suitCharacter}{tileNumber}.png";
+        case TileLocation.Added:
+        case TileLocation.Called:
+        case TileLocation.Riichi:
+          return $"2{suitCharacter}{tileNumber}.png";
+        case TileLocation.FaceDown:
+          return "1j9.png";
+        default:
+          return "1j9.png";
+      }
+    }
+
+    private static readonly Dictionary<Suit, char> SuitCharacters = new Dictionary<Suit, char>
+    {
+      {Suit.Manzu, 'm'},
+      {Suit.Pinzu, 'p'},
+      {Suit.Souzu, 's'},
+      {Suit.Jihai, 'j'}
+    };
 
     private void UpdateTable()
     {
