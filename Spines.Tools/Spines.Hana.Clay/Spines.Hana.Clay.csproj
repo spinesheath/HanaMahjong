@@ -99,9 +99,12 @@
       <DependentUpon>AboutDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\PlayerModel.cs" />
+    <Compile Include="Models\TableLayout.cs" />
     <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="ViewModels\PersistenceViewModel.cs" />
     <Compile Include="ViewModels\PlayerViewModel.cs" />
     <Compile Include="ViewModels\TableMainViewModel.cs" />
+    <Compile Include="ViewModels\TileViewModel.cs" />
     <Compile Include="ViewModels\UkeIreMainViewModel.cs" />
     <Compile Include="ViewModels\UkeIreViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />

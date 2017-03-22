@@ -16,19 +16,21 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Column="0">
-            <controls:HandDisplay Tiles="{Binding SelectedPlayer.Tiles}"
-                                  Melds="{Binding SelectedPlayer.Melds}"
-                                  Draw="{Binding SelectedPlayer.Draw}"/>
-
-            <ItemsControl ItemsSource="{Binding SelectedPlayer.Pond}">
+            <ItemsControl ItemsSource="{Binding Tiles}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel Width="200"/>
+                        <Canvas IsItemsHost="True" Background="Azure" Width="440" Height="440"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Left" Value="{Binding Path=(viewModels:TileViewModel.X)}" />
+                        <Setter Property="Canvas.Top" Value="{Binding Path=(viewModels:TileViewModel.Y)}" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <controls:TileImage Tile="{Binding Mode=OneTime}"/>
+                    <DataTemplate DataType="{x:Type viewModels:TileViewModel}">
+                        <controls:TileImage Tile="{Binding Tile}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
