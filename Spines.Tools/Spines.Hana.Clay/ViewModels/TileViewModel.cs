@@ -67,6 +67,25 @@ namespace Spines.Hana.Clay.ViewModels
             return Path.Combine(FlatPath, $"{c}{tileNumber}.png");
         }
       }
+      if (playerPosition == 2)
+      {
+        switch (location)
+        {
+          case TileLocation.Concealed:
+            return Path.Combine(PerspectivePath, "0j9.png");
+          case TileLocation.Discarded:
+          case TileLocation.Melded:
+            return Path.Combine(PerspectivePath, $"3{c}{tileNumber}.png");
+          case TileLocation.Added:
+          case TileLocation.Called:
+          case TileLocation.Riichi:
+            return Path.Combine(PerspectivePath, $"2{c}{tileNumber}.png");
+          case TileLocation.FaceDown:
+            return Path.Combine(PerspectivePath, "1j9.png");
+          default:
+            return Path.Combine(FlatPath, $"{c}{tileNumber}.png");
+        }
+      }
       return Path.Combine(FlatPath, $"{c}{tileNumber}.png");
     }
 
