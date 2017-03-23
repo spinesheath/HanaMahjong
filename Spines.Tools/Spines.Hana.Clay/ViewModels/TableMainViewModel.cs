@@ -209,8 +209,10 @@ namespace Spines.Hana.Clay.ViewModels
       {
         if (tile.Location == TileLocation.Riichi)
         {
-          Tiles.Add(new TileViewModel(tile, x, y + TableLayout.RiichiDistance, 2));
           x -= TableLayout.TileHeight;
+          x += TableLayout.TileWidth;
+          Tiles.Add(new TileViewModel(tile, x, y + TableLayout.RiichiDistance, 2));
+          x -= TableLayout.TileWidth;
         }
         else
         {
@@ -251,8 +253,10 @@ namespace Spines.Hana.Clay.ViewModels
       {
         if (tile.Location == TileLocation.Riichi)
         {
-          Tiles.Add(new TileViewModel(tile, x, y + TableLayout.RiichiDistance, 1));
           y -= TableLayout.TileHeight;
+          y += TableLayout.TileWidth;
+          Tiles.Add(new TileViewModel(tile, x + TableLayout.RiichiDistance, y, 1));
+          y -= TableLayout.TileWidth;
         }
         else
         {
