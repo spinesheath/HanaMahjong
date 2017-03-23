@@ -179,10 +179,53 @@ namespace Spines.Hana.Clay.ViewModels
       AddPlayer1Tiles();
       AddPlayer2Tiles();
       AddPlayer3Tiles();
+      AddPlayer4Tiles();
       var tiles = Tiles.OrderBy(t => t.Y).ToList();
       foreach (var tile in tiles)
       {
         Tiles.Add(tile);
+      }
+    }
+
+    private void AddPlayer4Tiles()
+    {
+      var p = Players[3];
+      var x = TableLayout.TableWidth / 2 - 3 * TableLayout.TileWidth - 3 * TableLayout.TileHeight - TableLayout.VerticalTileThickness - TableLayout.HorizontalPondToHand;
+      var y = TableLayout.TableHeight / 2 - 7 * TableLayout.TileWidth;
+      foreach (var tile in p.Tiles)
+      {
+        Tiles.Add(new TileViewModel(tile, x, y, 3));
+        y += TableLayout.TileWidth;
+      }
+      if (p.Draw.HasValue)
+      {
+        y += TableLayout.DrawDistance;
+        Tiles.Add(new TileViewModel(p.Draw.Value, x, y, 3));
+      }
+      x = TableLayout.TableWidth / 2 - 3 * TableLayout.TileWidth - TableLayout.TileHeight;
+      y = TableLayout.TableHeight / 2 - 3 * TableLayout.TileWidth;
+      var pondColumn = 0;
+      var pondRow = 0;
+      foreach (var tile in p.Pond)
+      {
+        if (tile.Location == TileLocation.Riichi)
+        {
+          Tiles.Add(new TileViewModel(tile, x + TableLayout.RiichiDistance, y, 3));
+          y += TableLayout.TileHeight;
+        }
+        else
+        {
+          Tiles.Add(new TileViewModel(tile, x, y, 3));
+          y += TableLayout.TileWidth;
+        }
+        pondColumn += 1;
+        if (pondColumn == 6 && pondRow != 2)
+        {
+          pondRow += 1;
+          pondColumn = 0;
+          y = TableLayout.TableHeight / 2 - 3 * TableLayout.TileWidth;
+          x -= TableLayout.TileHeight;
+        }
       }
     }
 
@@ -419,6 +462,7 @@ namespace Spines.Hana.Clay.ViewModels
       if (null == _file || !File.Exists(_file))
       {
         OnSaveAs(null);
+        return;
       }
       var root = Serialize();
       if (null == root)

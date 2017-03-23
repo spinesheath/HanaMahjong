@@ -79,7 +79,26 @@ namespace Spines.Hana.Clay.ViewModels
           case TileLocation.Added:
           case TileLocation.Called:
           case TileLocation.Riichi:
-            return Path.Combine(PerspectivePath, $"2{c}{tileNumber}.png");
+            return Path.Combine(PerspectivePath, $"4{c}{tileNumber}.png");
+          case TileLocation.FaceDown:
+            return Path.Combine(PerspectivePath, "1j9.png");
+          default:
+            return Path.Combine(FlatPath, $"{c}{tileNumber}.png");
+        }
+      }
+      if (playerPosition == 3)
+      {
+        switch (location)
+        {
+          case TileLocation.Concealed:
+            return Path.Combine(PerspectivePath, "vertl.png");
+          case TileLocation.Discarded:
+          case TileLocation.Melded:
+            return Path.Combine(PerspectivePath, $"4{c}{tileNumber}.png");
+          case TileLocation.Added:
+          case TileLocation.Called:
+          case TileLocation.Riichi:
+            return Path.Combine(PerspectivePath, $"1{c}{tileNumber}.png");
           case TileLocation.FaceDown:
             return Path.Combine(PerspectivePath, "1j9.png");
           default:
