@@ -176,18 +176,71 @@ namespace Spines.Hana.Clay.ViewModels
     private void UpdateTable()
     {
       Tiles.Clear();
+      AddPlayer1Tiles();
+      AddPlayer2Tiles();
+      var tiles = Tiles.OrderBy(t => t.Y).ToList();
+      foreach (var tile in tiles)
+      {
+        Tiles.Add(tile);
+      }
+    }
+
+    private void AddPlayer2Tiles()
+    {
+      var p2 = Players[1];
+      var x = TableLayout.TableWidth / 2 + 3 * TableLayout.TileWidth + 3 * TableLayout.TileHeight + TableLayout.HorizontalPondToHand;
+      var y = TableLayout.TableHeight / 2 + 6 * TableLayout.TileWidth;
+      foreach (var tile in p2.Tiles)
+      {
+        Tiles.Add(new TileViewModel(tile, x, y, 1));
+        y -= TableLayout.TileWidth;
+      }
+      if (p2.Draw.HasValue)
+      {
+        y -= TableLayout.DrawDistance;
+        Tiles.Add(new TileViewModel(p2.Draw.Value, x, y, 1));
+      }
+      x = TableLayout.TableWidth / 2 + 3 * TableLayout.TileWidth;
+      y = TableLayout.TableHeight / 2 + 2 * TableLayout.TileWidth;
+      var pondColumn = 0;
+      var pondRow = 0;
+      foreach (var tile in p2.Pond)
+      {
+        if (tile.Location == TileLocation.Riichi)
+        {
+          Tiles.Add(new TileViewModel(tile, x, y + TableLayout.RiichiDistance, 1));
+          y -= TableLayout.TileHeight;
+        }
+        else
+        {
+          Tiles.Add(new TileViewModel(tile, x, y, 1));
+          y -= TableLayout.TileWidth;
+        }
+        pondColumn += 1;
+        if (pondColumn == 6 && pondRow != 2)
+        {
+          pondRow += 1;
+          pondColumn = 0;
+          y = TableLayout.TableHeight / 2 + 2 * TableLayout.TileWidth;
+          x += TableLayout.TileHeight;
+        }
+      }
+    }
+
+    private void AddPlayer1Tiles()
+    {
       var p1 = Players[0];
       var x = TableLayout.HandOffsetLeft;
-      var y = TableLayout.TableHeight - (TableLayout.HandOffsetBottom + TableLayout.TileHeight + TableLayout.TileThickness);
+      var y = TableLayout.TableHeight - (TableLayout.HandOffsetBottom + TableLayout.TileHeight + TableLayout.HorizontalTileThickness);
       foreach (var tile in p1.Tiles)
       {
-        Tiles.Add(new TileViewModel(tile, x, y));
+        Tiles.Add(new TileViewModel(tile, x, y, 0));
         x += TableLayout.TileWidth;
       }
       if (p1.Draw.HasValue)
       {
         x += TableLayout.DrawDistance;
-        Tiles.Add(new TileViewModel(p1.Draw.Value, x, y));
+        Tiles.Add(new TileViewModel(p1.Draw.Value, x, y, 0));
       }
       x = TableLayout.TableWidth / 2 - 3 * TableLayout.TileWidth;
       y = TableLayout.TableHeight / 2 + 3 * TableLayout.TileWidth;
@@ -197,12 +250,12 @@ namespace Spines.Hana.Clay.ViewModels
       {
         if (tile.Location == TileLocation.Riichi)
         {
-          Tiles.Add(new TileViewModel(tile, x, y + TableLayout.RiichiDistance));
+          Tiles.Add(new TileViewModel(tile, x, y + TableLayout.RiichiDistance, 0));
           x += TableLayout.TileHeight;
         }
         else
         {
-          Tiles.Add(new TileViewModel(tile, x, y));
+          Tiles.Add(new TileViewModel(tile, x, y, 0));
           x += TableLayout.TileWidth;
         }
         pondColumn += 1;

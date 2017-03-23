@@ -34,7 +34,7 @@
                 </ItemsControl.ItemContainerStyle>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type viewModels:TileViewModel}">
-                        <controls:TileImage Tile="{Binding Tile}"/>
+                        <Image Source="{Binding Source}" Stretch="None" SnapsToDevicePixels="True"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
