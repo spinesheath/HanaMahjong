@@ -7,8 +7,6 @@ namespace Spines.Hana.Clay.Models
   {
     public const int TableWidth = 440;
     public const int TableHeight = 440;
-    public const int HandOffsetLeft = 56;
-    public const int HandOffsetBottom = 4;
     public const int TileWidth = 24;
     public const int DrawDistance = 6;
     public const int TileHeight = 32;

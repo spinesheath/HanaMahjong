@@ -230,8 +230,8 @@ namespace Spines.Hana.Clay.ViewModels
     private void AddPlayer1Tiles()
     {
       var p1 = Players[0];
-      var x = TableLayout.HandOffsetLeft;
-      var y = TableLayout.TableHeight - (TableLayout.HandOffsetBottom + TableLayout.TileHeight + TableLayout.HorizontalTileThickness);
+      var x = TableLayout.TableWidth / 2 - 7 * TableLayout.TileWidth;
+      var y = TableLayout.TableHeight / 2 + 3 * TableLayout.TileWidth + 3 * TableLayout.TileHeight + TableLayout.HorizontalTileThickness + TableLayout.VerticalPondToHand;
       foreach (var tile in p1.Tiles)
       {
         Tiles.Add(new TileViewModel(tile, x, y, 0));
