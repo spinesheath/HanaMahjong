@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:Spines.Hana.Clay.ViewModels"
              xmlns:controls="clr-namespace:Spines.Hana.Clay.Controls"
+             xmlns:models="clr-namespace:Spines.Hana.Clay.Models"
              mc:Ignorable="d" 
              d:DesignHeight="300" 
              d:DesignWidth="300"
@@ -23,7 +24,7 @@
                           VerticalAlignment="Center">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <Canvas IsItemsHost="True" Background="ForestGreen" Width="440" Height="440"/>
+                        <Canvas IsItemsHost="True" Background="ForestGreen" Width="{x:Static models:TableLayout.TableWidth}" Height="{x:Static models:TableLayout.TableHeight}"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemContainerStyle>
