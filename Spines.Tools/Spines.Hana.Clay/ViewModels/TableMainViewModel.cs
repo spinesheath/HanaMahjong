@@ -192,7 +192,7 @@ namespace Spines.Hana.Clay.ViewModels
       var p = Players[3];
       var kanShift = GetKanShift(p);
       var x = TableLayout.HalfTableWidth - 3 * TableLayout.TileWidth - 3 * TableLayout.TileHeight - TableLayout.VerticalTileThickness - TableLayout.HorizontalPondToHand;
-      var y = TableLayout.HalfTableHeight - 7 * TableLayout.TileWidth;
+      var y = TableLayout.HalfTableHeight - 7 * TableLayout.TileWidth + kanShift;
       foreach (var tile in p.Tiles)
       {
         Tiles.Add(new TileViewModel(tile, x, y, 3));
@@ -429,7 +429,7 @@ namespace Spines.Hana.Clay.ViewModels
     private static int GetKanShift(PlayerViewModel player)
     {
       var wideKanCount = player.Melds.Count(m => m.Tiles.Count() == 4 && m.Tiles.All(t => t.Location != TileLocation.Added));
-      return wideKanCount < 4 ? 0 : TableLayout.TileHeight;
+      return wideKanCount < 4 ? 0 : TableLayout.TileWidth;
     }
 
     private void OnSaveAs(object obj)
