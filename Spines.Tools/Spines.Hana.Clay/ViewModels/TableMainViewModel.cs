@@ -211,7 +211,7 @@ namespace Spines.Hana.Clay.ViewModels
       {
         if (tile.Location == TileLocation.Riichi)
         {
-          Tiles.Add(new TileViewModel(tile, x + TableLayout.RiichiDistance, y, 3));
+          Tiles.Add(new TileViewModel(tile, x + TableLayout.TileWidth - TableLayout.TileHeight + TableLayout.RiichiDistance, y, 3));
           y += TableLayout.TileHeight;
         }
         else
@@ -277,7 +277,7 @@ namespace Spines.Hana.Clay.ViewModels
         {
           x -= TableLayout.TileHeight;
           x += TableLayout.TileWidth;
-          Tiles.Add(new TileViewModel(tile, x, y + TableLayout.RiichiDistance, 2));
+          Tiles.Add(new TileViewModel(tile, x, y + TableLayout.TileWidth - TableLayout.TileHeight + TableLayout.RiichiDistance, 2));
           x -= TableLayout.TileWidth;
         }
         else
@@ -361,12 +361,6 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
-    private static int GetKanShift(PlayerViewModel player)
-    {
-      var wideKanCount = player.Melds.Count(m => m.Tiles.Count() == 4 && m.Tiles.All(t => t.Location != TileLocation.Added));
-      return wideKanCount < 4 ? 0 : TableLayout.TileHeight;
-    }
-
     private void AddPlayer1Tiles()
     {
       var p = Players[0];
@@ -430,6 +424,12 @@ namespace Spines.Hana.Clay.ViewModels
           y += TableLayout.TileHeight;
         }
       }
+    }
+
+    private static int GetKanShift(PlayerViewModel player)
+    {
+      var wideKanCount = player.Melds.Count(m => m.Tiles.Count() == 4 && m.Tiles.All(t => t.Location != TileLocation.Added));
+      return wideKanCount < 4 ? 0 : TableLayout.TileHeight;
     }
 
     private void OnSaveAs(object obj)
