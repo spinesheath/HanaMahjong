@@ -28,74 +28,30 @@ namespace Spines.Hana.Clay.ViewModels
     {
       var c = SuitCharacters[tile.Suit];
       var tileNumber = tile.Aka ? "e" : (tile.Index + 1).ToString();
-      var location = tile.Location;
-      if (playerPosition == 0)
+      switch (tile.Location)
       {
-        switch (location)
-        {
-          case TileLocation.Concealed:
-            return Path.Combine(PerspectivePath, $"0{c}{tileNumber}.png");
-          case TileLocation.Discarded:
-          case TileLocation.Melded:
-            return Path.Combine(PerspectivePath, $"{1 + playerPosition}{c}{tileNumber}.png");
-          case TileLocation.Added:
-          case TileLocation.Called:
-          case TileLocation.Riichi:
-            return Path.Combine(PerspectivePath, $"{1 + (playerPosition + 1) % 4}{c}{tileNumber}.png");
-          case TileLocation.FaceDown:
-            return Path.Combine(PerspectivePath, $"{1 + playerPosition}j9.png");
-        }
-      }
-      else if (playerPosition == 1)
-      {
-        switch (location)
-        {
-          case TileLocation.Concealed:
-            return Path.Combine(PerspectivePath, "vertr.png");
-          case TileLocation.Discarded:
-          case TileLocation.Melded:
-            return Path.Combine(PerspectivePath, $"{1 + playerPosition}{c}{tileNumber}.png");
-          case TileLocation.Added:
-          case TileLocation.Called:
-          case TileLocation.Riichi:
-            return Path.Combine(PerspectivePath, $"{1 + (playerPosition + 1) % 4}{c}{tileNumber}.png");
-          case TileLocation.FaceDown:
-            return Path.Combine(PerspectivePath, $"{1 + playerPosition}j9.png");
-        }
-      }
-      else if (playerPosition == 2)
-      {
-        switch (location)
-        {
-          case TileLocation.Concealed:
-            return Path.Combine(PerspectivePath, "0j9.png");
-          case TileLocation.Discarded:
-          case TileLocation.Melded:
-            return Path.Combine(PerspectivePath, $"{1 + playerPosition}{c}{tileNumber}.png");
-          case TileLocation.Added:
-          case TileLocation.Called:
-          case TileLocation.Riichi:
-            return Path.Combine(PerspectivePath, $"{1 + (playerPosition + 1) % 4}{c}{tileNumber}.png");
-          case TileLocation.FaceDown:
-            return Path.Combine(PerspectivePath, $"{1 + playerPosition}j9.png");
-        }
-      }
-      else if (playerPosition == 3)
-      {
-        switch (location)
-        {
-          case TileLocation.Concealed:
-            return Path.Combine(PerspectivePath, "vertl.png");
-          case TileLocation.Discarded:
-          case TileLocation.Melded:
-            return Path.Combine(PerspectivePath, $"{1 + playerPosition}{c}{tileNumber}.png");
-          case TileLocation.Added:
-          case TileLocation.Called:
-          case TileLocation.Riichi:
-            return Path.Combine(PerspectivePath, $"{1 + (playerPosition + 1) % 4}{c}{tileNumber}.png");
-          case TileLocation.FaceDown:
-            return Path.Combine(PerspectivePath, $"{1 + playerPosition}j9.png");
-        }
+        case TileLocation.Concealed:
+          switch (playerPosition)
+          {
+            case 0:
+              return Path.Combine(PerspectivePath, $"0{c}{tileNumber}.png");
+            case 1:
+              return Path.Combine(PerspectivePath, "vertr.png");
+            case 2:
+              return Path.Combine(PerspectivePath, "0j9.png");
+            case 3:
+              return Path.Combine(PerspectivePath, "vertl.png");
+          }
+          break;
+        case TileLocation.Discarded:
+        case TileLocation.Melded:
+          return Path.Combine(PerspectivePath, $"{1 + playerPosition}{c}{tileNumber}.png");
+        case TileLocation.Added:
+        case TileLocation.Called:
+        case TileLocation.Riichi:
+          return Path.Combine(PerspectivePath, $"{1 + (playerPosition + 1) % 4}{c}{tileNumber}.png");
+        case TileLocation.FaceDown:
+          return Path.Combine(PerspectivePath, $"{1 + playerPosition}j9.png");
       }
       return Path.Combine(FlatPath, $"{c}{tileNumber}.png");
     }
