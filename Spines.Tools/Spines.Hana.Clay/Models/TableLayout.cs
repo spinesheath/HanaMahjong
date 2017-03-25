@@ -16,9 +16,9 @@ namespace Spines.Hana.Clay.Models
     public const int HorizontalTileThickness = 4;
     public const int VerticalTileThickness = 17;
     public const int VerticalTileHeight = 23;
-    public const int RiichiDistance = 4;
-    public const int HorizontalPondToHand = 82;
-    public const int VerticalPondToHand = 64;
-    public const int MeldDistance = 4;
+    public const int RiichiDistance = 8;
+    public const int HorizontalPondToHand = 90;
+    public const int VerticalPondToHand = 90;
+    public const int MeldDistance = 0;
   }
 }

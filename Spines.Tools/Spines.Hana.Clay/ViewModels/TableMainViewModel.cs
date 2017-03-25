@@ -190,6 +190,7 @@ namespace Spines.Hana.Clay.ViewModels
     private void AddPlayer4Tiles()
     {
       var p = Players[3];
+      var kanShift = GetKanShift(p);
       var x = TableLayout.HalfTableWidth - 3 * TableLayout.TileWidth - 3 * TableLayout.TileHeight - TableLayout.VerticalTileThickness - TableLayout.HorizontalPondToHand;
       var y = TableLayout.HalfTableHeight - 7 * TableLayout.TileWidth;
       foreach (var tile in p.Tiles)
@@ -232,7 +233,8 @@ namespace Spines.Hana.Clay.ViewModels
     private void AddPlayer3Tiles()
     {
       var p = Players[2];
-      var x = TableLayout.HalfTableWidth + 6 * TableLayout.TileWidth;
+      var kanShift = GetKanShift(p);
+      var x = TableLayout.HalfTableWidth + 6 * TableLayout.TileWidth + kanShift;
       var y = TableLayout.HalfTableHeight - 3 * TableLayout.TileWidth - 4 * TableLayout.TileHeight - TableLayout.VerticalPondToHand - TableLayout.HorizontalTileThickness;
       foreach (var tile in p.Tiles)
       {
@@ -244,6 +246,27 @@ namespace Spines.Hana.Clay.ViewModels
         x -= TableLayout.DrawDistance;
         Tiles.Add(new TileViewModel(p.Draw.Value, x, y, 2));
       }
+
+      x = TableLayout.HalfTableWidth - (3 * TableLayout.TileWidth + 3 * TableLayout.TileHeight + TableLayout.HorizontalPondToHand + TableLayout.TileHeight);
+      foreach (var meld in p.Melds.Reverse())
+      {
+        foreach (var tile in meld.Tiles.Reverse())
+        {
+          if (tile.Location == TileLocation.Added)
+          {
+            x += TableLayout.TileHeight;
+            Tiles.Add(new TileViewModel(tile, x, y - TableLayout.TileHeight - TableLayout.TileWidth - TableLayout.TileWidth, 2));
+            x -= TableLayout.TileHeight;
+          }
+          else
+          {
+            Tiles.Add(new TileViewModel(tile, x, y, 2));
+            x += tile.Location == TileLocation.Called ? TableLayout.TileHeight : TableLayout.TileWidth;
+          }
+        }
+        x += TableLayout.MeldDistance;
+      }
+
       x = TableLayout.HalfTableWidth + 2 * TableLayout.TileWidth;
       y = TableLayout.HalfTableHeight - 3 * TableLayout.TileWidth - TableLayout.TileHeight;
       var pondColumn = 0;
@@ -276,8 +299,9 @@ namespace Spines.Hana.Clay.ViewModels
     private void AddPlayer2Tiles()
     {
       var p = Players[1];
+      var kanShift = GetKanShift(p);
       var x = TableLayout.HalfTableWidth + 3 * TableLayout.TileWidth + 3 * TableLayout.TileHeight + TableLayout.HorizontalPondToHand;
-      var y = TableLayout.HalfTableHeight + 6 * TableLayout.TileWidth;
+      var y = TableLayout.HalfTableHeight + 6 * TableLayout.TileWidth + kanShift;
       foreach (var tile in p.Tiles)
       {
         Tiles.Add(new TileViewModel(tile, x, y, 1));
@@ -288,8 +312,8 @@ namespace Spines.Hana.Clay.ViewModels
         y -= TableLayout.DrawDistance;
         Tiles.Add(new TileViewModel(p.Draw.Value, x, y, 1));
       }
-
-      y = TableLayout.HalfTableHeight - 10 * TableLayout.TileWidth;
+      
+      y = TableLayout.HalfTableHeight - (3 * TableLayout.TileWidth + 3 * TableLayout.TileHeight + TableLayout.TileHeight + TableLayout.HorizontalTileThickness + TableLayout.VerticalPondToHand);
       foreach (var meld in p.Melds.Reverse())
       {
         foreach (var tile in meld.Tiles.Reverse())
@@ -337,11 +361,17 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
+    private static int GetKanShift(PlayerViewModel player)
+    {
+      var wideKanCount = player.Melds.Count(m => m.Tiles.Count() == 4 && m.Tiles.All(t => t.Location != TileLocation.Added));
+      return wideKanCount < 4 ? 0 : TableLayout.TileHeight;
+    }
+
     private void AddPlayer1Tiles()
     {
       var p = Players[0];
-      var ankanShift = p.Melds.Count(m => m.Tiles.Count() == 4 && m.Tiles.All(t => t.Location != TileLocation.Added)) * TableLayout.TileWidth / 2;
-      var x = TableLayout.HalfTableWidth - 7 * TableLayout.TileWidth - ankanShift;
+      var kanShift = GetKanShift(p);
+      var x = TableLayout.HalfTableWidth - 7 * TableLayout.TileWidth - kanShift;
       var y = TableLayout.HalfTableHeight + 3 * TableLayout.TileWidth + 3 * TableLayout.TileHeight + TableLayout.HorizontalTileThickness + TableLayout.VerticalPondToHand;
       foreach (var tile in p.Tiles)
       {
@@ -354,7 +384,7 @@ namespace Spines.Hana.Clay.ViewModels
         Tiles.Add(new TileViewModel(p.Draw.Value, x, y, 0));
       }
 
-      x = TableLayout.HalfTableWidth + 10 * TableLayout.TileWidth;
+      x = TableLayout.HalfTableWidth + 3 * TableLayout.TileWidth + 3 * TableLayout.TileHeight + TableLayout.HorizontalPondToHand + TableLayout.TileHeight;
       foreach (var meld in p.Melds.Reverse())
       {
         foreach (var tile in meld.Tiles.Reverse())
