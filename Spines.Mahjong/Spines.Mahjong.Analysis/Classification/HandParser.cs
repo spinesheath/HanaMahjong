@@ -106,6 +106,10 @@ namespace Spines.Mahjong.Analysis.Classification
         var min = tiles.Min(t => t.Index);
         if (tiles.Select(t => t.Index).OrderBy(x => x).SequenceEqual(Enumerable.Range(min, 3)))
         {
+          if (suit == Suit.Jihai)
+          {
+            throw new FormatException("Shuntsu for honors not legal.");
+          }
           if (tiles[0].Location == TileLocation.Called && tiles.Skip(1).All(t => t.Location == TileLocation.Melded) && tiles[1].Index < tiles[2].Index)
           {
             yield return new Meld {Tiles = tiles};
