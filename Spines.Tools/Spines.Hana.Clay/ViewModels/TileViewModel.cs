@@ -43,7 +43,7 @@ namespace Spines.Hana.Clay.ViewModels
           case TileLocation.Riichi:
             return Path.Combine(PerspectivePath, $"{1 + (playerPosition + 1) % 4}{c}{tileNumber}.png");
           case TileLocation.FaceDown:
-            return Path.Combine(PerspectivePath, "1j9.png");
+            return Path.Combine(PerspectivePath, $"{1 + playerPosition}j9.png");
         }
       }
       else if (playerPosition == 1)
@@ -60,7 +60,7 @@ namespace Spines.Hana.Clay.ViewModels
           case TileLocation.Riichi:
             return Path.Combine(PerspectivePath, $"{1 + (playerPosition + 1) % 4}{c}{tileNumber}.png");
           case TileLocation.FaceDown:
-            return Path.Combine(PerspectivePath, "1j9.png");
+            return Path.Combine(PerspectivePath, $"{1 + playerPosition}j9.png");
         }
       }
       else if (playerPosition == 2)
@@ -77,7 +77,7 @@ namespace Spines.Hana.Clay.ViewModels
           case TileLocation.Riichi:
             return Path.Combine(PerspectivePath, $"{1 + (playerPosition + 1) % 4}{c}{tileNumber}.png");
           case TileLocation.FaceDown:
-            return Path.Combine(PerspectivePath, "1j9.png");
+            return Path.Combine(PerspectivePath, $"{1 + playerPosition}j9.png");
         }
       }
       else if (playerPosition == 3)
@@ -94,7 +94,7 @@ namespace Spines.Hana.Clay.ViewModels
           case TileLocation.Riichi:
             return Path.Combine(PerspectivePath, $"{1 + (playerPosition + 1) % 4}{c}{tileNumber}.png");
           case TileLocation.FaceDown:
-            return Path.Combine(PerspectivePath, "1j9.png");
+            return Path.Combine(PerspectivePath, $"{1 + playerPosition}j9.png");
         }
       }
       return Path.Combine(FlatPath, $"{c}{tileNumber}.png");

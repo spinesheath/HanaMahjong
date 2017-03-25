@@ -288,6 +288,26 @@ namespace Spines.Hana.Clay.ViewModels
         y -= TableLayout.DrawDistance;
         Tiles.Add(new TileViewModel(p.Draw.Value, x, y, 1));
       }
+
+      y = TableLayout.HalfTableHeight - 10 * TableLayout.TileWidth;
+      foreach (var meld in p.Melds.Reverse())
+      {
+        foreach (var tile in meld.Tiles.Reverse())
+        {
+          if (tile.Location == TileLocation.Added)
+          {
+            Tiles.Add(new TileViewModel(tile, x + TableLayout.TileHeight - TableLayout.TileWidth - TableLayout.TileWidth, y, 1));
+          }
+          else
+          {
+            var h = tile.Location == TileLocation.Called ? TableLayout.TileHeight - TableLayout.TileWidth : 0;
+            Tiles.Add(new TileViewModel(tile, x + h, y, 1));
+            y += tile.Location == TileLocation.Called ? TableLayout.TileHeight : TableLayout.TileWidth;
+          }
+        }
+        y += TableLayout.MeldDistance;
+      }
+
       x = TableLayout.HalfTableWidth + 3 * TableLayout.TileWidth;
       y = TableLayout.HalfTableHeight + 2 * TableLayout.TileWidth;
       var pondColumn = 0;
