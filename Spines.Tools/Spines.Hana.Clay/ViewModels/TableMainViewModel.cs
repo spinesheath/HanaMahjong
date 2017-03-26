@@ -16,6 +16,7 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using Spines.Hana.Clay.Commands;
 using Spines.Hana.Clay.Models;
 using Spines.Mahjong.Analysis.Classification;
+using Spines.Utility;
 
 namespace Spines.Hana.Clay.ViewModels
 {
@@ -60,6 +61,20 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
+    public string InvalidText
+    {
+      get { return _invalidText; }
+      set
+      {
+        if (_invalidText == value)
+        {
+          return;
+        }
+        _invalidText = value;
+        OnPropertyChanged();
+      }
+    }
+
     private string _file;
 
     private PlayerViewModel _selectedPlayer;
@@ -71,6 +86,8 @@ namespace Spines.Hana.Clay.ViewModels
       {Suit.Souzu, 's'},
       {Suit.Jihai, 'j'}
     };
+
+    private string _invalidText;
 
     private void InitPlayers()
     {
@@ -95,7 +112,27 @@ namespace Spines.Hana.Clay.ViewModels
 
     private void OnDataChanged(object sender, PropertyChangedEventArgs e)
     {
+      Validate();
       UpdateTable();
+    }
+
+    private void Validate()
+    {
+      InvalidText = null;
+      var tiles = Players.SelectMany(GetAllTiles);
+      var bySuit = tiles.GroupBy(t => t.Suit).ToList();
+      if (bySuit.Any(g => g.GroupBy(t => t.Index).Any(gg => gg.Count() > 4)))
+      {
+        InvalidText = "Too many of the same tile overall.";
+      }
+      else if (bySuit.Any(g => g.Count(t => t.Aka) > 1))
+      {
+        InvalidText = "Too many aka dora.";
+      }
+      else if (Players.SelectMany(p => p.Melds.Where(m => m.Tiles.Count() == 4)).Count() > 4)
+      {
+        InvalidText = "Too many kans.";
+      }
     }
 
     private void OnExportLatex(object obj)
@@ -158,7 +195,7 @@ namespace Spines.Hana.Clay.ViewModels
         Tiles.Add(tile);
       }
     }
-    
+
     private void OnSaveAs(object obj)
     {
       var root = Serialize();
@@ -277,6 +314,14 @@ namespace Spines.Hana.Clay.ViewModels
       {
         MessageBox.Show("Failed to save data.");
       }
+    }
+
+    private static IEnumerable<Tile> GetAllTiles(PlayerViewModel p)
+    {
+      var pond = p.Pond.Where(t => !t.IsGhost);
+      var melded = p.Melds.SelectMany(m => m.Tiles);
+      var draw = p.Draw.HasValue ? p.Draw.Value.Yield() : Enumerable.Empty<Tile>();
+      return p.Tiles.Concat(pond).Concat(melded).Concat(draw);
     }
 
     private static string GetFileName(TileViewModel tileViewModel)

@@ -29,9 +29,14 @@ namespace Spines.Mahjong.Analysis.Classification
         tiles.Add(CreateTile(block));
       }
 
-      if (tiles.GroupBy(t => t.Suit).Any(g => g.GroupBy(t => t.Index).Any(gg => gg.Count() > 4)))
+      var bySuit = tiles.GroupBy(t => t.Suit).ToList();
+      if (bySuit.Any(g => g.GroupBy(t => t.Index).Any(gg => gg.Count() > 4)))
       {
         throw new FormatException("Too many of the same tile type.");
+      }
+      if (bySuit.Any(g => g.Count(t => t.Aka) > 1))
+      {
+        throw new FormatException("Too many aka dora.");
       }
       if (tiles.Count(t => t.Location == TileLocation.Riichi) > 2)
       {

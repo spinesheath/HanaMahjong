@@ -185,6 +185,10 @@
       <Project>{9203dc32-f5b6-47f7-9c66-cb98937534a5}</Project>
       <Name>Spines.Mahjong.Analysis</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Spines.Utility\Spines.Utility\Spines.Utility.csproj">
+      <Project>{1ffe50e9-3d4b-418f-b4cd-3fa10ff4848f}</Project>
+      <Name>Spines.Utility</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Tiles\Flat\2j1.png">
