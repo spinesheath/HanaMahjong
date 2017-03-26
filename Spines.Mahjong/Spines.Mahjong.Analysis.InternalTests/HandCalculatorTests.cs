@@ -14,6 +14,39 @@ namespace Spines.Mahjong.Analysis.InternalTests
   [TestFixture]
   public class HandCalculatorTests
   {
+    [TestCase("123m1234789p3388s")]
+    public void DeepShantenShouldBeFast(string hand)
+    {
+      Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
+      Thread.CurrentThread.Priority = ThreadPriority.Highest;
+
+      var parser = new ShorthandParser(hand);
+      Console.WriteLine(new HandCalculator(parser).Shanten);
+
+      for (var f = 0; f < 1; ++f)
+      {
+        var sw = new Stopwatch();
+
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+
+        sw.Restart();
+
+        for (var iterations = 0; iterations < 100000; iterations++)
+        {
+          var hc = new HandCalculator(parser);
+          var u = hc.GetDeepUkeIre(1, 1);
+          Assert.IsNotNull(u);
+        }
+
+        sw.Stop();
+        Console.WriteLine(sw.ElapsedTicks);
+
+        Assert.That(sw.ElapsedTicks, Is.GreaterThan(0));
+      }
+    }
+
     [TestCase("3366p11s11577z444S")]
     [TestCase("1m19p9s1234457z555Z")]
     public void DiscardShouldNotThrow(string hand)
