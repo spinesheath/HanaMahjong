@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Spines.Mahjong.Analysis.Classification;
@@ -20,8 +21,49 @@ namespace Spines.Hana.Clay.ViewModels
 
       var path = GetPath(tile, playerPosition);
       var image = new BitmapImage(new Uri(path, UriKind.Absolute));
-      image.Freeze();
-      Source = image;
+      if (tile.IsTsumokiri)
+      {
+        var overlayPath = GetOverlayPath(tile, playerPosition);
+        var overlay = new BitmapImage(new Uri(overlayPath, UriKind.Absolute));
+        var overlaid = AddOverlay(image, overlay);
+        Source = overlaid;
+      }
+      else
+      {
+        image.Freeze();
+        Source = image;
+      }
+    }
+
+    private static string GetOverlayPath(Tile tile, int playerPosition)
+    {
+      switch (tile.Location)
+      {
+        case TileLocation.Discarded:
+          return Path.Combine(PerspectivePath, $"{1 + playerPosition % 2}o.png");
+        case TileLocation.Riichi:
+        case TileLocation.Added:
+        case TileLocation.Called:
+          return Path.Combine(PerspectivePath, $"{1 + (1 + playerPosition) % 2}o.png");
+        default:
+          throw new InvalidOperationException("Not a valid location for a tsumokiri tile.");
+      }
+    }
+
+    private static ImageSource AddOverlay(ImageSource image, ImageSource overlay)
+    {
+      var width = (int)image.Width;
+      var height = (int)image.Height;
+      var drawingVisual = new DrawingVisual();
+      using (var context = drawingVisual.RenderOpen())
+      {
+        context.DrawImage(image, new Rect(0, 0, width, height));
+        context.DrawImage(overlay, new Rect(0, 0, width, height));
+      }
+      var mergedImage = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
+      mergedImage.Render(drawingVisual);
+      mergedImage.Freeze();
+      return mergedImage;
     }
 
     private static string GetPath(Tile tile, int playerPosition)

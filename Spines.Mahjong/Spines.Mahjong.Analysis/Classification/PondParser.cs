@@ -61,7 +61,7 @@ namespace Spines.Mahjong.Analysis.Classification
       var riichi = block.Length > 2 && block[2] == 'R';
       var ghost = block.Length > 2 && block.Last() != 'R';
       var calledBy = ghost ? block.Last() - 'A' : 0;
-      var tsumokiri = char.IsLower(block[1]);
+      var tsumokiri = char.IsUpper(block[1]);
       var location = riichi ? TileLocation.Riichi : TileLocation.Discarded;
       var numericValue = (int) char.GetNumericValue(block[0]);
       var aka = numericValue == 0;
