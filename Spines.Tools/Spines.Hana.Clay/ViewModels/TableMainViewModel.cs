@@ -217,29 +217,7 @@ namespace Spines.Hana.Clay.ViewModels
 
       y = TableLayout.HalfTableWidth - 3 * TableLayout.TileWidth - TableLayout.TileHeight;
       x = TableLayout.HalfTableHeight - 3 * TableLayout.TileWidth;
-      var pondColumn = 0;
-      var pondRow = 0;
-      foreach (var tile in p.Pond)
-      {
-        if (tile.Location == TileLocation.Riichi)
-        {
-          Tiles.Add(CreateTileWithXySwitch(tile, x, y + TableLayout.TileWidth - TableLayout.TileHeight + TableLayout.RiichiDistance, playerId));
-          x += TableLayout.TileHeight;
-        }
-        else
-        {
-          Tiles.Add(CreateTileWithXySwitch(tile, x, y, playerId));
-          x += TableLayout.TileWidth;
-        }
-        pondColumn += 1;
-        if (pondColumn == 6 && pondRow != 2)
-        {
-          pondRow += 1;
-          pondColumn = 0;
-          x = TableLayout.HalfTableHeight - 3 * TableLayout.TileWidth;
-          y -= TableLayout.TileHeight;
-        }
-      }
+      AddPond(p, x, y, playerId);
     }
 
     private void AddPlayer3Tiles()
@@ -273,31 +251,7 @@ namespace Spines.Hana.Clay.ViewModels
 
       x = TableLayout.HalfTableWidth + 2 * TableLayout.TileWidth;
       y = TableLayout.HalfTableHeight - 3 * TableLayout.TileWidth - TableLayout.TileHeight;
-      var pondColumn = 0;
-      var pondRow = 0;
-      foreach (var tile in p.Pond)
-      {
-        if (tile.Location == TileLocation.Riichi)
-        {
-          x -= TableLayout.TileHeight;
-          x += TableLayout.TileWidth;
-          Tiles.Add(CreateTileWithXySwitch(tile, x, y + TableLayout.TileWidth - TableLayout.TileHeight + TableLayout.RiichiDistance, playerId));
-          x -= TableLayout.TileWidth;
-        }
-        else
-        {
-          Tiles.Add(CreateTileWithXySwitch(tile, x, y, playerId));
-          x -= TableLayout.TileWidth;
-        }
-        pondColumn += 1;
-        if (pondColumn == 6 && pondRow != 2)
-        {
-          pondRow += 1;
-          pondColumn = 0;
-          x = TableLayout.HalfTableWidth + 2 * TableLayout.TileWidth;
-          y -= TableLayout.TileHeight;
-        }
-      }
+      AddPond(p, x, y, playerId);
     }
 
     private void AddPlayer2Tiles()
@@ -330,31 +284,7 @@ namespace Spines.Hana.Clay.ViewModels
 
       y = TableLayout.HalfTableWidth + 3 * TableLayout.TileWidth;
       x = TableLayout.HalfTableHeight + 2 * TableLayout.TileWidth;
-      var pondColumn = 0;
-      var pondRow = 0;
-      foreach (var tile in p.Pond)
-      {
-        if (tile.Location == TileLocation.Riichi)
-        {
-          x -= TableLayout.TileHeight;
-          x += TableLayout.TileWidth;
-          Tiles.Add(CreateTileWithXySwitch(tile, x, y + TableLayout.RiichiDistance, playerId));
-          x -= TableLayout.TileWidth;
-        }
-        else
-        {
-          Tiles.Add(CreateTileWithXySwitch(tile, x, y, playerId));
-          x -= TableLayout.TileWidth;
-        }
-        pondColumn += 1;
-        if (pondColumn == 6 && pondRow != 2)
-        {
-          pondRow += 1;
-          pondColumn = 0;
-          x = TableLayout.HalfTableHeight + 2 * TableLayout.TileWidth;
-          y += TableLayout.TileHeight;
-        }
-      }
+      AddPond(p, x, y, playerId);
     }
 
     private void AddPlayer1Tiles()
@@ -389,27 +319,38 @@ namespace Spines.Hana.Clay.ViewModels
 
       x = TableLayout.HalfTableWidth - 3 * TableLayout.TileWidth;
       y = TableLayout.HalfTableHeight + 3 * TableLayout.TileWidth;
+      AddPond(p, x, y, playerId);
+    }
+
+    private void AddPond(PlayerViewModel p, int x, int y, int playerId)
+    {
+      var factorX = playerId == 0 || playerId == 3 ? 1 : -1;
+      var factorY = playerId < 2 ? 1 : -1;
+      var riichiX = playerId == 0 || playerId == 3 ? 0 : TableLayout.TileHeight - TableLayout.TileWidth;
+      var riichiY = playerId < 2 ? TableLayout.RiichiDistance : TableLayout.TileWidth - TableLayout.TileHeight + TableLayout.RiichiDistance;
+
+      var startX = x;
       var pondColumn = 0;
       var pondRow = 0;
       foreach (var tile in p.Pond)
       {
         if (tile.Location == TileLocation.Riichi)
         {
-          Tiles.Add(CreateTileWithXySwitch(tile, x, y + TableLayout.RiichiDistance, playerId));
-          x += TableLayout.TileHeight;
+          Tiles.Add(CreateTileWithXySwitch(tile, x - riichiX, y + riichiY, playerId));
+          x += TableLayout.TileHeight * factorX;
         }
         else
         {
           Tiles.Add(CreateTileWithXySwitch(tile, x, y, playerId));
-          x += TableLayout.TileWidth;
+          x += TableLayout.TileWidth * factorX;
         }
         pondColumn += 1;
         if (pondColumn == 6 && pondRow != 2)
         {
           pondRow += 1;
           pondColumn = 0;
-          x = TableLayout.HalfTableWidth - 3 * TableLayout.TileWidth;
-          y += TableLayout.TileHeight;
+          x = startX;
+          y += TableLayout.TileHeight * factorY;
         }
       }
     }
