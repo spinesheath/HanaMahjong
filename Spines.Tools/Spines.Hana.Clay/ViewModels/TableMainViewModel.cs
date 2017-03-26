@@ -194,16 +194,7 @@ namespace Spines.Hana.Clay.ViewModels
       var kanShift = GetKanShift(p);
       var y = TableLayout.HalfTableWidth - 3 * TableLayout.TileWidth - 3 * TableLayout.TileHeight - TableLayout.VerticalTileThickness - TableLayout.HorizontalPondToHand;
       var x = TableLayout.HalfTableHeight - 7 * TableLayout.TileWidth - TableLayout.VerticalTileThickness - kanShift;
-      foreach (var tile in p.Tiles)
-      {
-        Tiles.Add(CreateTileWithXySwitch(tile, x, y, playerId));
-        x += TableLayout.TileWidth;
-      }
-      if (p.Draw.HasValue)
-      {
-        x += TableLayout.DrawDistance;
-        Tiles.Add(CreateTileWithXySwitch(p.Draw.Value, x, y, playerId));
-      }
+      AddConcealedTiles(p, x, y, playerId);
 
       y = TableLayout.HalfTableWidth - 3 * TableLayout.TileWidth - 4 * TableLayout.TileHeight - TableLayout.HorizontalPondToHand;
       x = TableLayout.HalfTableHeight + (3 * TableLayout.TileWidth + 3 * TableLayout.TileHeight + TableLayout.TileHeight + TableLayout.HorizontalTileThickness + TableLayout.VerticalPondToHand);
@@ -258,16 +249,7 @@ namespace Spines.Hana.Clay.ViewModels
       var kanShift = GetKanShift(p);
       var x = TableLayout.HalfTableWidth + 6 * TableLayout.TileWidth + kanShift;
       var y = TableLayout.HalfTableHeight - 3 * TableLayout.TileWidth - 4 * TableLayout.TileHeight - TableLayout.VerticalPondToHand - TableLayout.HorizontalTileThickness;
-      foreach (var tile in p.Tiles)
-      {
-        Tiles.Add(CreateTileWithXySwitch(tile, x, y, playerId));
-        x -= TableLayout.TileWidth;
-      }
-      if (p.Draw.HasValue)
-      {
-        x -= TableLayout.DrawDistance;
-        Tiles.Add(CreateTileWithXySwitch(p.Draw.Value, x, y, playerId));
-      }
+      AddConcealedTiles(p, x, y, playerId);
 
       x = TableLayout.HalfTableWidth - (3 * TableLayout.TileWidth + 3 * TableLayout.TileHeight + TableLayout.HorizontalPondToHand + TableLayout.TileHeight);
       foreach (var meld in p.Melds.Reverse())
@@ -325,17 +307,8 @@ namespace Spines.Hana.Clay.ViewModels
       var kanShift = GetKanShift(p);
       var y = TableLayout.HalfTableWidth + 3 * TableLayout.TileWidth + 3 * TableLayout.TileHeight + TableLayout.HorizontalPondToHand;
       var x = TableLayout.HalfTableHeight + 6 * TableLayout.TileWidth + kanShift;
-      foreach (var tile in p.Tiles)
-      {
-        Tiles.Add(CreateTileWithXySwitch(tile, x, y, playerId));
-        x -= TableLayout.TileWidth;
-      }
-      if (p.Draw.HasValue)
-      {
-        x -= TableLayout.DrawDistance;
-        Tiles.Add(CreateTileWithXySwitch(p.Draw.Value, x, y, playerId));
-      }
-      
+      AddConcealedTiles(p, x, y, playerId);
+
       x = TableLayout.HalfTableHeight - (3 * TableLayout.TileWidth + 3 * TableLayout.TileHeight + TableLayout.TileHeight + TableLayout.HorizontalTileThickness + TableLayout.VerticalPondToHand);
       foreach (var meld in p.Melds.Reverse())
       {
@@ -391,16 +364,7 @@ namespace Spines.Hana.Clay.ViewModels
       var kanShift = GetKanShift(p);
       var x = TableLayout.HalfTableWidth - 7 * TableLayout.TileWidth - kanShift;
       var y = TableLayout.HalfTableHeight + 3 * TableLayout.TileWidth + 3 * TableLayout.TileHeight + TableLayout.HorizontalTileThickness + TableLayout.VerticalPondToHand;
-      foreach (var tile in p.Tiles)
-      {
-        Tiles.Add(CreateTileWithXySwitch(tile, x, y, playerId));
-        x += TableLayout.TileWidth;
-      }
-      if (p.Draw.HasValue)
-      {
-        x += TableLayout.DrawDistance;
-        Tiles.Add(CreateTileWithXySwitch(p.Draw.Value, x, y, playerId));
-      }
+      AddConcealedTiles(p, x, y, playerId);
 
       x = TableLayout.HalfTableWidth + 3 * TableLayout.TileWidth + 3 * TableLayout.TileHeight + TableLayout.HorizontalPondToHand + TableLayout.TileHeight;
       foreach (var meld in p.Melds.Reverse())
@@ -447,6 +411,21 @@ namespace Spines.Hana.Clay.ViewModels
           x = TableLayout.HalfTableWidth - 3 * TableLayout.TileWidth;
           y += TableLayout.TileHeight;
         }
+      }
+    }
+
+    private void AddConcealedTiles(PlayerViewModel p, int x, int y, int playerId)
+    {
+      var factor = playerId == 0 || playerId == 3 ? 1 : -1;
+      foreach (var tile in p.Tiles)
+      {
+        Tiles.Add(CreateTileWithXySwitch(tile, x, y, playerId));
+        x += TableLayout.TileWidth * factor;
+      }
+      if (p.Draw.HasValue)
+      {
+        x += TableLayout.DrawDistance * factor;
+        Tiles.Add(CreateTileWithXySwitch(p.Draw.Value, x, y, playerId));
       }
     }
 
