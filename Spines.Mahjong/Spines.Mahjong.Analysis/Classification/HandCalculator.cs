@@ -946,11 +946,12 @@ namespace Spines.Mahjong.Analysis.Classification
           var chanceToDrawThisTile = (double) (4 - _visibleByType[drawType]) / (hiddenTiles - 1);
           _visibleByType[drawType] += 1;
 
-          if (CalculateShanten(_arrangementValues) == targetShanten)
+          var shantenAfterDraw = CalculateShanten(_arrangementValues);
+          if (shantenAfterDraw == targetShanten)
           {
             chance += chanceToDrawThisTile * chanceToGetHere;
           }
-          else
+          else if (draws > 1)
           {
             var discard = GetBestDiscard(currentShanten);
             var discardSuit = discard / 9;

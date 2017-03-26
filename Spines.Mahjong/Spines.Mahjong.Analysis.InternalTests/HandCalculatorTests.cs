@@ -33,10 +33,10 @@ namespace Spines.Mahjong.Analysis.InternalTests
 
         sw.Restart();
 
-        for (var iterations = 0; iterations < 100000; iterations++)
+        for (var iterations = 0; iterations < 10000; iterations++)
         {
           var hc = new HandCalculator(parser);
-          var u = hc.GetDeepUkeIre(1, 1);
+          var u = hc.GetDeepUkeIre(1, 1).ToList();
           Assert.IsNotNull(u);
         }
 
