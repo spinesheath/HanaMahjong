@@ -64,6 +64,14 @@ namespace Spines.Hana.Clay.ViewModels
 
     private PlayerViewModel _selectedPlayer;
 
+    private static readonly Dictionary<Suit, char> SuitCharacters = new Dictionary<Suit, char>
+    {
+      {Suit.Manzu, 'm'},
+      {Suit.Pinzu, 'p'},
+      {Suit.Souzu, 's'},
+      {Suit.Jihai, 'j'}
+    };
+
     private void InitPlayers()
     {
       InitPlayers("ABCD".Select(c => new PlayerViewModel(c.ToString())));
@@ -141,38 +149,6 @@ namespace Spines.Hana.Clay.ViewModels
       return sb.ToString();
     }
 
-    private static string GetFileName(TileViewModel tileViewModel)
-    {
-      var tile = tileViewModel.Tile;
-      var location = tile.Location;
-      var suitCharacter = SuitCharacters[tile.Suit];
-      var tileNumber = tile.Aka ? "e" : (tile.Index + 1).ToString();
-      switch (location)
-      {
-        case TileLocation.Concealed:
-          return $"0{suitCharacter}{tileNumber}.png";
-        case TileLocation.Discarded:
-        case TileLocation.Melded:
-          return $"1{suitCharacter}{tileNumber}.png";
-        case TileLocation.Added:
-        case TileLocation.Called:
-        case TileLocation.Riichi:
-          return $"2{suitCharacter}{tileNumber}.png";
-        case TileLocation.FaceDown:
-          return "1j9.png";
-        default:
-          return "1j9.png";
-      }
-    }
-
-    private static readonly Dictionary<Suit, char> SuitCharacters = new Dictionary<Suit, char>
-    {
-      {Suit.Manzu, 'm'},
-      {Suit.Pinzu, 'p'},
-      {Suit.Souzu, 's'},
-      {Suit.Jihai, 'j'}
-    };
-
     private void UpdateTable()
     {
       Tiles.Clear();
@@ -197,7 +173,7 @@ namespace Spines.Hana.Clay.ViewModels
       AddConcealedTiles(p, x, y, playerId);
 
       y = TableLayout.HalfTableWidth - 3 * TableLayout.TileWidth - 4 * TableLayout.TileHeight - TableLayout.HorizontalPondToHand;
-      x = TableLayout.HalfTableHeight + (3 * TableLayout.TileWidth + 3 * TableLayout.TileHeight + TableLayout.TileHeight + TableLayout.HorizontalTileThickness + TableLayout.VerticalPondToHand);
+      x = TableLayout.HalfTableHeight + 3 * TableLayout.TileWidth + 3 * TableLayout.TileHeight + TableLayout.TileHeight + TableLayout.HorizontalTileThickness + TableLayout.VerticalPondToHand;
       foreach (var meld in p.Melds.Reverse())
       {
         foreach (var tile in meld.Tiles.Reverse())
@@ -370,17 +346,6 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
-    private static TileViewModel CreateTileWithXySwitch(Tile tile, int x, int y, int playerId)
-    {
-      return playerId % 2 == 0 ? new TileViewModel(tile, x, y, playerId) : new TileViewModel(tile, y, x, playerId);
-    }
-
-    private static int GetKanShift(PlayerViewModel player)
-    {
-      var wideKanCount = player.Melds.Count(m => m.Tiles.Count() == 4 && m.Tiles.All(t => t.Location != TileLocation.Added));
-      return wideKanCount < 4 ? 0 : TableLayout.TileWidth;
-    }
-
     private void OnSaveAs(object obj)
     {
       var root = Serialize();
@@ -499,6 +464,41 @@ namespace Spines.Hana.Clay.ViewModels
       {
         MessageBox.Show("Failed to save data.");
       }
+    }
+
+    private static string GetFileName(TileViewModel tileViewModel)
+    {
+      var tile = tileViewModel.Tile;
+      var location = tile.Location;
+      var suitCharacter = SuitCharacters[tile.Suit];
+      var tileNumber = tile.Aka ? "e" : (tile.Index + 1).ToString();
+      switch (location)
+      {
+        case TileLocation.Concealed:
+          return $"0{suitCharacter}{tileNumber}.png";
+        case TileLocation.Discarded:
+        case TileLocation.Melded:
+          return $"1{suitCharacter}{tileNumber}.png";
+        case TileLocation.Added:
+        case TileLocation.Called:
+        case TileLocation.Riichi:
+          return $"2{suitCharacter}{tileNumber}.png";
+        case TileLocation.FaceDown:
+          return "1j9.png";
+        default:
+          return "1j9.png";
+      }
+    }
+
+    private static TileViewModel CreateTileWithXySwitch(Tile tile, int x, int y, int playerId)
+    {
+      return playerId % 2 == 0 ? new TileViewModel(tile, x, y, playerId) : new TileViewModel(tile, y, x, playerId);
+    }
+
+    private static int GetKanShift(PlayerViewModel player)
+    {
+      var wideKanCount = player.Melds.Count(m => m.Tiles.Count() == 4 && m.Tiles.All(t => t.Location != TileLocation.Added));
+      return wideKanCount < 4 ? 0 : TableLayout.TileWidth;
     }
   }
 }
