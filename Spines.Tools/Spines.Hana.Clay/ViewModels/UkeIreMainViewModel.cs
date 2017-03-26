@@ -136,6 +136,7 @@ namespace Spines.Hana.Clay.ViewModels
       _shorthand = _currentHand.ToString();
       UpdateIcons(new ShorthandParser(_shorthand));
       OnPropertyChanged(nameof(Shanten));
+      OnPropertyChanged(nameof(Shorthand));
     }
 
     private void OnDraw(object obj)
