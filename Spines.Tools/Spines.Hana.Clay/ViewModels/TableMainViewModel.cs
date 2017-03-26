@@ -79,14 +79,6 @@ namespace Spines.Hana.Clay.ViewModels
 
     private PlayerViewModel _selectedPlayer;
 
-    private static readonly Dictionary<Suit, char> SuitCharacters = new Dictionary<Suit, char>
-    {
-      {Suit.Manzu, 'm'},
-      {Suit.Pinzu, 'p'},
-      {Suit.Souzu, 's'},
-      {Suit.Jihai, 'j'}
-    };
-
     private string _invalidText;
 
     private void InitPlayers()
@@ -168,19 +160,25 @@ namespace Spines.Hana.Clay.ViewModels
       sb.AppendLine(@"\graphicspath{{t_real/}}");
       sb.AppendLine(@"\begin{document}");
       sb.AppendLine(@"\begin{center}");
-      sb.AppendLine(@"\begin{picture}(" + TableLayout.HalfTableWidth + "," + TableLayout.HalfTableHeight + ")");
+      sb.AppendLine(@"\scalebox{.7}{");
+      sb.AppendLine(@"\begin{picture}(" + TableLayout.TableWidth + "," + TableLayout.TableHeight + ")");
       foreach (var tile in Tiles)
       {
-        var fileName = GetFileName(tile);
+        var y = TableLayout.TableHeight - tile.Y;
+
+        var fileName = tile.ImageFileName;
         var graphic = @"\includegraphics{" + fileName + "}";
-        var y = TableLayout.HalfTableHeight - tile.Y;
-        if (tile.Tile.Location == TileLocation.Riichi)
-        {
-          y += 2 * TableLayout.RiichiDistance;
-        }
         sb.AppendLine(@"\put(" + tile.X + "," + y + "){" + graphic + "}");
+
+        if (tile.OverlayFileName != null)
+        {
+          var overlayFileName = tile.ImageFileName;
+          var overlayGraphic = @"\includegraphics{" + overlayFileName + "}";
+          sb.AppendLine(@"\put(" + tile.X + "," + y + "){" + overlayGraphic + "}");
+        }
       }
       sb.AppendLine(@"\end{picture}");
+      sb.AppendLine(@"}");
       sb.AppendLine(@"\end{center}");
       sb.AppendLine(@"\end{document}");
       return sb.ToString();
@@ -322,30 +320,6 @@ namespace Spines.Hana.Clay.ViewModels
       var melded = p.Melds.SelectMany(m => m.Tiles);
       var draw = p.Draw.HasValue ? p.Draw.Value.Yield() : Enumerable.Empty<Tile>();
       return p.Tiles.Concat(pond).Concat(melded).Concat(draw);
-    }
-
-    private static string GetFileName(TileViewModel tileViewModel)
-    {
-      var tile = tileViewModel.Tile;
-      var location = tile.Location;
-      var suitCharacter = SuitCharacters[tile.Suit];
-      var tileNumber = tile.Aka ? "e" : (tile.Index + 1).ToString();
-      switch (location)
-      {
-        case TileLocation.Concealed:
-          return $"0{suitCharacter}{tileNumber}.png";
-        case TileLocation.Discarded:
-        case TileLocation.Melded:
-          return $"1{suitCharacter}{tileNumber}.png";
-        case TileLocation.Added:
-        case TileLocation.Called:
-        case TileLocation.Riichi:
-          return $"2{suitCharacter}{tileNumber}.png";
-        case TileLocation.FaceDown:
-          return "1j9.png";
-        default:
-          return "1j9.png";
-      }
     }
   }
 }
