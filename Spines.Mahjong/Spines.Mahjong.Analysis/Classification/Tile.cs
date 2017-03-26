@@ -34,6 +34,11 @@ namespace Spines.Mahjong.Analysis.Classification
     public bool IsGhost { get; set; }
 
     /// <summary>
+    /// The PlayerId of the player who called the tile. Only for ghost tiles.
+    /// </summary>
+    public int CalledBy { get; set; }
+
+    /// <summary>
     /// Was the tile discarded when drawn?
     /// </summary>
     public bool IsTsumokiri { get; set; }

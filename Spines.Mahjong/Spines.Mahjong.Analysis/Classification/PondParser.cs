@@ -41,7 +41,7 @@ namespace Spines.Mahjong.Analysis.Classification
       return tiles;
     }
 
-    private static readonly Regex TileRegex = new Regex("([0-9][mpsMPS]R?C?|[1-7][zZ]R?C?)");
+    private static readonly Regex TileRegex = new Regex("([0-9][mpsMPS]R?[ABCD]?|[1-7][zZ]R?[ABCD]?)");
 
     private static readonly Dictionary<char, Suit> CharToSuit = new Dictionary<char, Suit>
     {
@@ -59,13 +59,14 @@ namespace Spines.Mahjong.Analysis.Classification
     {
       var suit = CharToSuit[block[1]];
       var riichi = block.Length > 2 && block[2] == 'R';
-      var ghost = block.Length > 2 && block.Last() == 'C';
+      var ghost = block.Length > 2 && block.Last() != 'R';
+      var calledBy = ghost ? block.Last() - 'A' : 0;
       var tsumokiri = char.IsLower(block[1]);
       var location = riichi ? TileLocation.Riichi : TileLocation.Discarded;
       var numericValue = (int) char.GetNumericValue(block[0]);
       var aka = numericValue == 0;
       var index = aka ? 4 : numericValue - 1;
-      return new Tile {Aka = aka, Index = index, Location = location, Suit = suit, IsGhost = ghost, IsTsumokiri = tsumokiri};
+      return new Tile {Aka = aka, Index = index, Location = location, Suit = suit, IsGhost = ghost, CalledBy = calledBy, IsTsumokiri = tsumokiri};
     }
   }
 }

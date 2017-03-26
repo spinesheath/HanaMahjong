@@ -44,11 +44,23 @@ namespace Spines.Hana.Clay.ViewModels
           }
           break;
         case TileLocation.Discarded:
+          if (tile.IsGhost)
+          {
+            var d = 1 + playerPosition % 2;
+            return Path.Combine(PerspectivePath, $"{d}c{tile.CalledBy}.png");
+          }
+          return Path.Combine(PerspectivePath, $"{1 + playerPosition}{c}{tileNumber}.png");
         case TileLocation.Melded:
           return Path.Combine(PerspectivePath, $"{1 + playerPosition}{c}{tileNumber}.png");
+        case TileLocation.Riichi:
+          if (tile.IsGhost)
+          {
+            var d = 1 + (1 + playerPosition) % 2;
+            return Path.Combine(PerspectivePath, $"{d}c{tile.CalledBy}.png");
+          }
+          return Path.Combine(PerspectivePath, $"{1 + (playerPosition + 1) % 4}{c}{tileNumber}.png");
         case TileLocation.Added:
         case TileLocation.Called:
-        case TileLocation.Riichi:
           return Path.Combine(PerspectivePath, $"{1 + (playerPosition + 1) % 4}{c}{tileNumber}.png");
         case TileLocation.FaceDown:
           return Path.Combine(PerspectivePath, $"{1 + playerPosition}j9.png");
