@@ -90,12 +90,44 @@ namespace Spines.Hana.Clay.ViewModels
 
     public bool IsLoadingUkeIre => _loadingCount > 0;
 
+    public int ImproveAmount
+    {
+      get { return _improveAmount; }
+      set
+      {
+        if (_improveAmount == value)
+        {
+          return;
+        }
+        _improveAmount = value;
+        OnPropertyChanged();
+        UpdateUkeIreAsync();
+      }
+    }
+
+    public int DrawCount
+    {
+      get { return _drawCount; }
+      set
+      {
+        if (_drawCount == value)
+        {
+          return;
+        }
+        _drawCount = value;
+        OnPropertyChanged();
+        UpdateUkeIreAsync();
+      }
+    }
+
     private string _shorthand;
     private HandCalculator _currentHand;
     private bool _invalidFormat;
     private CancellationTokenSource _tokenSource;
     private readonly SemaphoreSlim _loadingSemaphore = new SemaphoreSlim(1, 1);
     private int _loadingCount;
+    private int _improveAmount = 1;
+    private int _drawCount = 1;
 
     private void OnExport(object obj)
     {
@@ -224,7 +256,7 @@ namespace Spines.Hana.Clay.ViewModels
         var collection = new List<UkeIreViewModel>();
         await Task.Run(() =>
         {
-          var ukeIre = hand.GetDeepUkeIre(1, 1).OrderByDescending(u => u.ImprovementRate);
+          var ukeIre = hand.GetDeepUkeIre(DrawCount, ImproveAmount).OrderByDescending(u => u.ImprovementRate);
           collection.AddRange(ukeIre.Select(ukeIreInfo => new UkeIreViewModel(ukeIreInfo)));
         }, source.Token);
 

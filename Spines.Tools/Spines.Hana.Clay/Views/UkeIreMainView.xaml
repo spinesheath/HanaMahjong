@@ -23,6 +23,8 @@
                         <Setter Property="DockPanel.Dock" Value="Left"/>
                     </Style>
                 </DockPanel.Resources>
+                <controls:IntegerRange Min="1" Max="5" Value="{Binding ImproveAmount}"/>
+                <controls:IntegerRange Min="{Binding ImproveAmount}" Max="5" Value="{Binding DrawCount}"/>
                 <controls:FlatButton Content="13" Command="{Binding Randomize}" CommandParameter="13"/>
                 <controls:FlatButton Content="14" Command="{Binding Randomize}" CommandParameter="14"/>
                 <controls:FlatButton Content="+1" Command="{Binding Draw}"/>

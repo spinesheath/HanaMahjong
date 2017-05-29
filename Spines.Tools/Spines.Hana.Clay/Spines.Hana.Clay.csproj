@@ -94,6 +94,7 @@
     <Compile Include="Controls\BusyIcon.cs" />
     <Compile Include="Controls\FlatButton.cs" />
     <Compile Include="Controls\HandDisplay.cs" />
+    <Compile Include="Controls\IntegerRange.cs" />
     <Compile Include="Controls\TileImage.cs" />
     <Compile Include="Dialogs\AboutDialog.xaml.cs">
       <DependentUpon>AboutDialog.xaml</DependentUpon>
