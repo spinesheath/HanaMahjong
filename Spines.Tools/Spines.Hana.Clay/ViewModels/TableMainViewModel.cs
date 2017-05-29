@@ -233,14 +233,21 @@ namespace Spines.Hana.Clay.ViewModels
         var root = new XElement("Table");
         foreach (var player in Players)
         {
-          using (var stream = new MemoryStream())
+          Stream stream = null;
+          try
           {
+            stream = new MemoryStream();
             serializer.WriteObject(stream, player.GetModel());
             stream.Position = 0;
             using (var reader = XmlReader.Create(stream))
             {
+              stream = null;
               root.Add(XElement.Load(reader));
             }
+          }
+          finally
+          {
+            stream?.Dispose();
           }
         }
         return root;

@@ -1,6 +1,8 @@
-﻿// This file is licensed to you under the MIT license.
+﻿using System.Resources;
+// This file is licensed to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -57,3 +59,6 @@ using System.Windows;
 
 [assembly: AssemblyVersion("0.0.1.0")]
 [assembly: AssemblyFileVersion("0.0.1.0")]
+[assembly: CLSCompliant(true)]
+[assembly: NeutralResourcesLanguage("en")]
+

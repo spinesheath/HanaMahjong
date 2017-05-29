@@ -12,7 +12,7 @@ using System.CodeDom.Compiler;
 // ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable InconsistentNaming
 
-namespace Spines.Hana.Clay.Properties
+namespace Spines.Utility.Properties
 {
   /// <summary>
   /// Indicates that the value of the marked element could be <c>null</c> sometimes,

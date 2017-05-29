@@ -6,7 +6,7 @@ using System.Windows.Controls;
 
 namespace Spines.Hana.Clay.Controls
 {
-  public class BusyIcon : Control
+  internal class BusyIcon : Control
   {
     static BusyIcon()
     {

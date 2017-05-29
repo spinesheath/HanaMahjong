@@ -8,7 +8,7 @@ namespace Spines.Hana.Clay.Views
   /// <summary>
   /// Interaction logic for TableMainView.xaml
   /// </summary>
-  public partial class TableMainView : UserControl
+  internal partial class TableMainView : UserControl
   {
     public TableMainView()
     {

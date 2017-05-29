@@ -4,6 +4,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Spines.Hana.Clay.Properties;
+using Spines.Utility.Properties;
 
 namespace Spines.Hana.Clay.ViewModels
 {

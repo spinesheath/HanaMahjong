@@ -144,7 +144,6 @@ namespace Spines.Hana.Clay.ViewModels
         using (var context = drawingvisual.RenderOpen())
         {
           context.DrawRectangle(new VisualBrush(view), null, new Rect(new Point(), view.DesiredSize));
-          context.Close();
         }
         result.Render(drawingvisual);
         Clipboard.SetImage(result);
@@ -260,6 +259,7 @@ namespace Spines.Hana.Clay.ViewModels
           collection.AddRange(ukeIre.Select(ukeIreInfo => new UkeIreViewModel(ukeIreInfo)));
         }, source.Token);
 
+        UkeIre.Clear();
         foreach (var ukeIreViewModel in collection)
         {
           UkeIre.Add(ukeIreViewModel);

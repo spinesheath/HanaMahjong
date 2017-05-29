@@ -12,7 +12,8 @@ namespace Spines.Hana.Clay
   /// <summary>
   /// Interaction logic for MainWindow.xaml
   /// </summary>
-  public partial class MainWindow : Window
+  [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+  internal partial class MainWindow : Window
   {
     public MainWindow()
     {

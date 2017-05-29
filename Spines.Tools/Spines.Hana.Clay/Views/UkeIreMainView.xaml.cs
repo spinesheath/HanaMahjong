@@ -8,7 +8,7 @@ namespace Spines.Hana.Clay.Views
   /// <summary>
   /// Interaction logic for UkeIreMainView.xaml
   /// </summary>
-  public partial class UkeIreMainView : UserControl
+  internal partial class UkeIreMainView : UserControl
   {
     public UkeIreMainView()
     {
