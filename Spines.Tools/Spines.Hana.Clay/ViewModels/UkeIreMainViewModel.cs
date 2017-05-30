@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 using Spines.Hana.Clay.Commands;
 using Spines.Hana.Clay.Controls;
 using Spines.Mahjong.Analysis.Classification;
+using Spines.Utility;
 
 namespace Spines.Hana.Clay.ViewModels
 {
@@ -23,12 +24,17 @@ namespace Spines.Hana.Clay.ViewModels
   {
     public UkeIreMainViewModel()
     {
+      Calculation = new AsyncCommand<UkeIreResult>(Calculate);
+
       Draw = new DelegateCommand(OnDraw);
       Discard = new DelegateCommand(OnDiscard);
       Randomize = new DelegateCommand(OnRandomize);
       Export = new DelegateCommand(OnExport);
+
       OnRandomize(13);
     }
+
+    public IAsyncCommand<UkeIreResult> Calculation { get; }
 
     public ICommand Randomize { get; }
 
@@ -88,8 +94,6 @@ namespace Spines.Hana.Clay.ViewModels
       }
     }
 
-    public bool IsLoadingUkeIre => _loadingCount > 0;
-
     public int ImproveAmount
     {
       get { return _improveAmount; }
@@ -101,7 +105,7 @@ namespace Spines.Hana.Clay.ViewModels
         }
         _improveAmount = value;
         OnPropertyChanged();
-        UpdateUkeIreAsync();
+        Calculation.ExecuteAsync(null);
       }
     }
 
@@ -116,18 +120,31 @@ namespace Spines.Hana.Clay.ViewModels
         }
         _drawCount = value;
         OnPropertyChanged();
-        UpdateUkeIreAsync();
+        Calculation.ExecuteAsync(null);
       }
     }
 
     private string _shorthand;
     private HandCalculator _currentHand;
     private bool _invalidFormat;
-    private CancellationTokenSource _tokenSource;
-    private readonly SemaphoreSlim _loadingSemaphore = new SemaphoreSlim(1, 1);
-    private int _loadingCount;
     private int _improveAmount = 1;
     private int _drawCount = 1;
+
+    private async Task<UkeIreResult> Calculate(object parameter, CancellationToken cancellationToken)
+    {
+      var hand = _currentHand.Clone();
+      if (!hand.IsValid)
+      {
+        return new UkeIreResult(Enumerable.Empty<UkeIreViewModel>());
+      }
+      var collection = new List<UkeIreViewModel>();
+      await Task.Run(() =>
+      {
+        var ukeIre = hand.GetDeepUkeIre(DrawCount, ImproveAmount).OrderByDescending(u => u.ImprovementRate);
+        collection.AddRange(ukeIre.Select(ukeIreInfo => new UkeIreViewModel(ukeIreInfo)));
+      }, cancellationToken);
+      return new UkeIreResult(collection);
+    }
 
     private void OnExport(object obj)
     {
@@ -219,82 +236,7 @@ namespace Spines.Hana.Clay.ViewModels
         Pond.Add(tile);
       }
 
-      UkeIre.Clear();
-      if (!_currentHand.IsValid)
-      {
-        return;
-      }
-      UpdateUkeIreAsync();
-    }
-
-    private async void UpdateUkeIreAsync()
-    {
-      HandCalculator hand;
-      CancellationTokenSource source;
-      try
-      {
-        await _loadingSemaphore.WaitAsync();
-
-        _loadingCount += 1;
-        OnPropertyChanged(nameof(IsLoadingUkeIre));
-
-        _tokenSource?.Cancel();
-
-        hand = _currentHand.Clone();
-
-        source = new CancellationTokenSource();
-        _tokenSource = source;
-      }
-      finally
-      {
-        _loadingSemaphore.Release();
-      }
-
-      try
-      {
-        var collection = new List<UkeIreViewModel>();
-        await Task.Run(() =>
-        {
-          var ukeIre = hand.GetDeepUkeIre(DrawCount, ImproveAmount).OrderByDescending(u => u.ImprovementRate);
-          collection.AddRange(ukeIre.Select(ukeIreInfo => new UkeIreViewModel(ukeIreInfo)));
-        }, source.Token);
-
-        UkeIre.Clear();
-        foreach (var ukeIreViewModel in collection)
-        {
-          UkeIre.Add(ukeIreViewModel);
-        }
-      }
-      catch (TaskCanceledException)
-      {
-      }
-      finally
-      {
-        try
-        {
-          await _loadingSemaphore.WaitAsync();
-
-          source.Dispose();
-          if (_tokenSource == source)
-            _tokenSource = null;
-        }
-        finally
-        {
-          _loadingSemaphore.Release();
-        }
-      }
-
-      try
-      {
-        await _loadingSemaphore.WaitAsync();
-
-        _loadingCount -= 1;
-        OnPropertyChanged(nameof(IsLoadingUkeIre));
-      }
-      finally
-      {
-        _loadingSemaphore.Release();
-      }
+      Calculation.ExecuteAsync(null);
     }
 
     private void OnRandomize(object obj)

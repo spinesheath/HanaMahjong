@@ -6,11 +6,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:Spines.Hana.Clay.ViewModels"
              xmlns:controls="clr-namespace:Spines.Hana.Clay.Controls"
+             xmlns:converters="clr-namespace:Spines.Hana.Clay.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="350" 
              d:DesignWidth="525"
              d:DataContext="{d:DesignInstance viewModels:UkeIreMainViewModel}">
 
+    <UserControl.Resources>
+        <converters:InvertConverter x:Key="Invert"/>
+    </UserControl.Resources>
+    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="600"/>
@@ -64,9 +69,9 @@
                 </TextBlock.Style>
             </TextBlock>
 
-            <controls:BusyContent DockPanel.Dock="Top" Margin="0,5,0,5" IsLoading="{Binding IsLoadingUkeIre}">
+            <controls:BusyContent DockPanel.Dock="Top" Margin="0,5,0,5" IsLoading="{Binding Calculation.Execution.IsCompleted, Converter={StaticResource Invert}}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding UkeIre}">
+                    <ItemsControl ItemsSource="{Binding Calculation.Execution.Result.UkeIre}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Orientation="Vertical"/>

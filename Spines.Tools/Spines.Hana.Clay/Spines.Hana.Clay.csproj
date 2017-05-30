@@ -96,6 +96,7 @@
     <Compile Include="Controls\HandDisplay.cs" />
     <Compile Include="Controls\IntegerRange.cs" />
     <Compile Include="Controls\TileImage.cs" />
+    <Compile Include="Converters\InvertConverter.cs" />
     <Compile Include="Dialogs\AboutDialog.xaml.cs">
       <DependentUpon>AboutDialog.xaml</DependentUpon>
     </Compile>
@@ -106,6 +107,7 @@
     <Compile Include="ViewModels\TableMainViewModel.cs" />
     <Compile Include="ViewModels\TileViewModel.cs" />
     <Compile Include="ViewModels\UkeIreMainViewModel.cs" />
+    <Compile Include="ViewModels\UkeIreResult.cs" />
     <Compile Include="ViewModels\UkeIreViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Views\TableMainView.xaml.cs">

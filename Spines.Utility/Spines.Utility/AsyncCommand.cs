@@ -27,6 +27,16 @@ namespace Spines.Utility
       _cancelCommand = new CancelAsyncCommand();
     }
 
+    /// <summary>
+    /// Creates a new instance of AsyncCommand.
+    /// </summary>
+    /// <param name="execute">The operation to execute.</param>
+    public AsyncCommand(Func<object, CancellationToken, Task<TResult>> execute)
+    {
+      _execute = execute;
+      _cancelCommand = new CancelAsyncCommand();
+    }
+
     /// <inheritdoc />
     public ICommand CancelCommand => _cancelCommand;
 
@@ -56,7 +66,7 @@ namespace Spines.Utility
     /// <inheritdoc />
     public bool CanExecute(object parameter)
     {
-      return _canExecute(parameter);
+      return _canExecute?.Invoke(parameter) ?? true;
     }
 
     /// <inheritdoc />
