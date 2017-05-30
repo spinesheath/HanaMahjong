@@ -3,8 +3,7 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Spines.Hana.Clay.Properties;
-using Spines.Utility.Properties;
+using JetBrains.Annotations;
 
 namespace Spines.Hana.Clay.ViewModels
 {

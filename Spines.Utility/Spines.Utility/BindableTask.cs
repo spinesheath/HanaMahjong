@@ -16,18 +16,20 @@ namespace Spines.Utility
     /// Creates a new instance of BindableTask and awaits the completion of the task.
     /// </summary>
     /// <param name="task">The asynchronous operation.</param>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "ignored")]
     public BindableTask(Task<TResult> task)
     {
       Validate.NotNull(task, nameof(task));
       _task = task;
       if (!task.IsCompleted)
       {
-        // Starts the task, but doesn't care about the result.
-        // ReSharper disable once UnusedVariable
-        var ignored = WatchTaskAsync(task);
+        Completion = WatchTaskAsync(task);
       }
     }
+
+    /// <summary>
+    /// Exposes the asynchronous operation.
+    /// </summary>
+    public Task Completion { get; }
 
     /// <summary>
     /// The result. default(TResult) if the task has not completed successfully yet or was aborted.

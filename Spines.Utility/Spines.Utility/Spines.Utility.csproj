@@ -49,8 +49,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Annotations.cs" />
+    <Compile Include="AsyncCommand.cs" />
     <Compile Include="BindableTask.cs" />
-    <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="IAsyncCommand.cs" />
     <Compile Include="ReadonlyListExtensions.cs" />
     <Compile Include="BitField.cs" />
     <Compile Include="CompactArray.cs" />
