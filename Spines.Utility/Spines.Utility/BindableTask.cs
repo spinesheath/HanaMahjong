@@ -16,8 +16,10 @@ namespace Spines.Utility
     /// Creates a new instance of BindableTask and awaits the completion of the task.
     /// </summary>
     /// <param name="task">The asynchronous operation.</param>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "ignored")]
     public BindableTask(Task<TResult> task)
     {
+      Validate.NotNull(task, nameof(task));
       _task = task;
       if (!task.IsCompleted)
       {
