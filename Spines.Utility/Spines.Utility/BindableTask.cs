@@ -20,10 +20,7 @@ namespace Spines.Utility
     {
       Validate.NotNull(task, nameof(task));
       _task = task;
-      if (!task.IsCompleted)
-      {
-        Completion = WatchTaskAsync(task);
-      }
+      Completion = WatchTaskAsync(task);
     }
 
     /// <summary>
