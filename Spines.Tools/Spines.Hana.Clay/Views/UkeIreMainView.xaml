@@ -24,18 +24,18 @@
         </Grid.ColumnDefinitions>
         <DockPanel LastChildFill="False" Margin="10" Grid.Column="0">
             <DockPanel DockPanel.Dock="Top" LastChildFill="False">
-                <DockPanel.Resources>
-                    <Style TargetType="{x:Type controls:FlatButton}">
-                        <Setter Property="DockPanel.Dock" Value="Left"/>
-                    </Style>
-                </DockPanel.Resources>
-                <controls:IntegerRange Min="1" Max="5" Value="{Binding ImproveAmount}"/>
-                <controls:IntegerRange Min="{Binding ImproveAmount}" Max="5" Value="{Binding DrawCount}"/>
+                <DockPanel>
+                    <Label Content="Improve" DockPanel.Dock="Top" Padding="0"/>
+                    <controls:IntegerRange Min="1" Max="5" Value="{Binding ImproveAmount}" Margin="1"/>
+                </DockPanel>
+                <DockPanel>
+                    <Label Content="Draws" DockPanel.Dock="Top" Padding="0"/>
+                    <controls:IntegerRange Min="{Binding ImproveAmount}" Max="5" Value="{Binding DrawCount}" Margin="1"/>
+                </DockPanel>
                 <controls:FlatButton Content="13" Command="{Binding Randomize}" CommandParameter="13"/>
                 <controls:FlatButton Content="14" Command="{Binding Randomize}" CommandParameter="14"/>
                 <controls:FlatButton Content="+1" Command="{Binding Draw}"/>
-                <TextBox DockPanel.Dock="Left" 
-                         Text="{Binding Shorthand, UpdateSourceTrigger=PropertyChanged}" 
+                <TextBox Text="{Binding Shorthand, UpdateSourceTrigger=PropertyChanged}" 
                          BorderBrush="{StaticResource PrimaryMedium}" 
                          BorderThickness="0,0,0,2"
                          Margin="8,2,8,2"
