@@ -144,7 +144,7 @@ namespace Spines.Hana.Clay.ViewModels
     private IEnumerable<UkeIreViewModel> GetUkeIreViewModels(HandCalculator hand)
     {
       var ukeIre = hand.GetDeepUkeIre(DrawCount, ImproveAmount).OrderByDescending(u => u.ImprovementRate);
-      return ukeIre.Select(ukeIreInfo => new UkeIreViewModel(ukeIreInfo));
+      return ukeIre.Select(ukeIreInfo => new UkeIreViewModel(ukeIreInfo)).ToList();
     }
 
     private void OnExport(object obj)
