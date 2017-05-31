@@ -7,6 +7,11 @@ using System.Windows.Data;
 
 namespace Spines.Hana.Clay.Converters
 {
+  /// <summary>
+  /// Negates a boolean value.
+  /// </summary>
+  /// <remarks>Used in XAML.</remarks>
+  [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
   internal class InvertConverter : IValueConverter
   {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
