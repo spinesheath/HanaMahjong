@@ -137,13 +137,14 @@ namespace Spines.Hana.Clay.ViewModels
       {
         return new UkeIreResult(Enumerable.Empty<UkeIreViewModel>());
       }
-      var collection = new List<UkeIreViewModel>();
-      await Task.Run(() =>
-      {
-        var ukeIre = hand.GetDeepUkeIre(DrawCount, ImproveAmount).OrderByDescending(u => u.ImprovementRate);
-        collection.AddRange(ukeIre.Select(ukeIreInfo => new UkeIreViewModel(ukeIreInfo)));
-      }, cancellationToken);
-      return new UkeIreResult(collection);
+      var ukeIreViewModels = await Task.Run(() => GetUkeIreViewModels(hand), cancellationToken);
+      return new UkeIreResult(ukeIreViewModels);
+    }
+
+    private IEnumerable<UkeIreViewModel> GetUkeIreViewModels(HandCalculator hand)
+    {
+      var ukeIre = hand.GetDeepUkeIre(DrawCount, ImproveAmount).OrderByDescending(u => u.ImprovementRate);
+      return ukeIre.Select(ukeIreInfo => new UkeIreViewModel(ukeIreInfo));
     }
 
     private void OnExport(object obj)
