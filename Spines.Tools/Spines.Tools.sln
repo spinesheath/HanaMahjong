@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Tools.AnalyzerBuilde
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Hana.Clay", "Spines.Hana.Clay\Spines.Hana.Clay.csproj", "{4BB172B0-3B9B-4872-AB05-4A28D964F4C8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Hana.Blame", "Spines.Hana.Blame\Spines.Hana.Blame.csproj", "{50C34CA5-F3D7-41E3-9FAB-5173A59A90A0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{4BB172B0-3B9B-4872-AB05-4A28D964F4C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4BB172B0-3B9B-4872-AB05-4A28D964F4C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4BB172B0-3B9B-4872-AB05-4A28D964F4C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50C34CA5-F3D7-41E3-9FAB-5173A59A90A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50C34CA5-F3D7-41E3-9FAB-5173A59A90A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50C34CA5-F3D7-41E3-9FAB-5173A59A90A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50C34CA5-F3D7-41E3-9FAB-5173A59A90A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
