@@ -11,7 +11,7 @@
   <PropertyGroup>
     <UserSecretsId>aspnet-Spines.Hana.Blame-0d8863c7-69e9-41c1-8fb6-b4f3ba2e9bcf</UserSecretsId>
     <SignAssembly>True</SignAssembly>
-    <AssemblyOriginatorKeyFile>Spines.HanaMahjong.StrongNameKeyFile.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>CommonResources\Spines.HanaMahjong.StrongNameKeyFile.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
