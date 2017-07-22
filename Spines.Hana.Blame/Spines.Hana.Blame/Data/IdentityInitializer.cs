@@ -1,0 +1,53 @@
+﻿using System;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Spines.Hana.Blame.Models;
+
+namespace Spines.Hana.Blame.Data
+{
+    public class IdentityInitializer
+    {
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly InitializeIdentityOptions _options;
+
+        public IdentityInitializer(IOptions<InitializeIdentityOptions> optionsAccessor, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        {
+            _options = optionsAccessor.Value;
+            _userManager = userManager;
+            _roleManager = roleManager;
+        }
+
+        public async Task Seed()
+        {
+            var user = await _userManager.FindByNameAsync(_options.RootAdminName);
+            if (user == null)
+            {
+                if (!await _roleManager.RoleExistsAsync("Admin"))
+                {
+                    var role = new IdentityRole("Admin");
+                    role.Claims.Add(new IdentityRoleClaim<string> { ClaimType = "IsAdmin", ClaimValue = "True" });
+                    await _roleManager.CreateAsync(role);
+                }
+
+                user = new ApplicationUser
+                {
+                    UserName = _options.RootAdminName,
+                    Email = _options.RootAdminEmail
+                };
+
+                var userResult = await _userManager.CreateAsync(user, _options.RootAdminPassword);
+                var roleResult = await _userManager.AddToRoleAsync(user, "Admin");
+                var claimResult = await _userManager.AddClaimAsync(user, new Claim("SuperUser", "True"));
+
+                if (!userResult.Succeeded || !roleResult.Succeeded || !claimResult.Succeeded)
+                {
+                    throw new InvalidOperationException("Failed to build user and roles");
+                }
+            }
+        }
+    }
+}
