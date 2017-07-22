@@ -1,9 +1,0 @@
-﻿<Application x:Class="Spines.Hana.Blame.App"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Spines.Hana.Blame"
-             StartupUri="MainWindow.xaml" x:ClassModifier="internal">
-    <Application.Resources>
-         
-    </Application.Resources>
-</Application>
