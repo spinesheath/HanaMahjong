@@ -3,10 +3,10 @@
 
 namespace Spines.Hana.Blame.Data
 {
-    public class InitializeIdentityOptions
-    {
-        public string RootAdminName { get; set; }
-        public string RootAdminEmail { get; set; }
-        public string RootAdminPassword { get; set; }
-    }
+  public class InitializeIdentityOptions
+  {
+    public string RootAdminName { get; set; }
+    public string RootAdminEmail { get; set; }
+    public string RootAdminPassword { get; set; }
+  }
 }

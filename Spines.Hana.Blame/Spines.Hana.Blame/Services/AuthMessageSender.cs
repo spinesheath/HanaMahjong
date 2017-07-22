@@ -8,33 +8,33 @@ using SendGrid.Helpers.Mail;
 
 namespace Spines.Hana.Blame.Services
 {
-    public class AuthMessageSender : IEmailSender
+  public class AuthMessageSender : IEmailSender
+  {
+    public AuthMessageSender(IOptions<AuthMessageSenderOptions> optionsAccessor)
     {
-        public AuthMessageSender(IOptions<AuthMessageSenderOptions> optionsAccessor)
-        {
-            _options = optionsAccessor.Value;
-        }
-
-        public Task SendEmailAsync(string email, string subject, string message)
-        {
-            // Plug in your email service here to send an email.
-            return Execute(_options.SendGridKey, subject, message, email);
-        }
-
-        public Task Execute(string apiKey, string subject, string message, string email)
-        {
-            var client = new SendGridClient(apiKey);
-            var msg = new SendGridMessage
-            {
-                From = new EmailAddress(_options.EmailFrom, _options.EmailSenderName),
-                Subject = subject,
-                PlainTextContent = message,
-                HtmlContent = message
-            };
-            msg.AddTo(new EmailAddress(email));
-            return client.SendEmailAsync(msg);
-        }
-
-        private readonly AuthMessageSenderOptions _options;
+      _options = optionsAccessor.Value;
     }
+
+    public Task SendEmailAsync(string email, string subject, string message)
+    {
+      // Plug in your email service here to send an email.
+      return Execute(_options.SendGridKey, subject, message, email);
+    }
+
+    public Task Execute(string apiKey, string subject, string message, string email)
+    {
+      var client = new SendGridClient(apiKey);
+      var msg = new SendGridMessage
+      {
+        From = new EmailAddress(_options.EmailFrom, _options.EmailSenderName),
+        Subject = subject,
+        PlainTextContent = message,
+        HtmlContent = message
+      };
+      msg.AddTo(new EmailAddress(email));
+      return client.SendEmailAsync(msg);
+    }
+
+    private readonly AuthMessageSenderOptions _options;
+  }
 }
