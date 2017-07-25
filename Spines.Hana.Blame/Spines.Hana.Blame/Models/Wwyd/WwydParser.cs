@@ -76,8 +76,8 @@ namespace Spines.Hana.Blame.Models.Wwyd
         {
           return new WwydHand();
         }
-        // at with a red 5, only 3 other 5 at most.
-        if (counts[4] + counts[5] > 4 || counts[14] + counts[15] > 4 || counts[24] + counts[25] > 4)
+        // with a red 5, only 3 other 5 at most.
+        if ((counts[4] > 0 || counts[14] > 0 || counts[24] > 0) && (counts[5] > 3 || counts[15] > 3 || counts[25] > 3))
         {
           return new WwydHand();
         }
