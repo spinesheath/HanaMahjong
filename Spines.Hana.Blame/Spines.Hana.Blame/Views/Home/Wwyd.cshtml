@@ -1,10 +1,11 @@
 
 @{
-    ViewData["Title"] = "Wwyd";
+    ViewData["Title"] = "WWYD";
 }
 
-<h2>Wwyd</h2>
-<h3>@ViewData["Hand"]</h3>
+<h2>WWYD</h2>
+
+<input type="text" onchange="changeUrl(this.value)" value="@(ViewData["Hand"])" />
 
 <div id="container"></div>
 
