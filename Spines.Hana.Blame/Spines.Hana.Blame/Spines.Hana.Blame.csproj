@@ -43,6 +43,9 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="wwwroot\resources\bumpmaps\" />
+    <Folder Include="wwwroot\resources\geometries\" />
+    <Folder Include="wwwroot\resources\textures\" />
     <Folder Include="wwwroot\textures\bump\" />
     <Folder Include="wwwroot\textures\face\" />
     <Folder Include="wwwroot\textures\other\" />

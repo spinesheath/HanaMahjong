@@ -4,7 +4,7 @@
 
 function renderWwyd() {
     var displayHeight = 100;
-    var displayWidth = 400;
+    var displayWidth = 600;
     var tileTypes = [
         "1p",
         "2p",
@@ -30,13 +30,7 @@ function renderWwyd() {
     var camera = createCamera(displayWidth, displayHeight);
     var scene = new THREE.Scene();
     createLights(scene);
-    createTiles(scene, tileTypes);
-    
-    function update() {
-        renderer.render(scene, camera);
-        requestAnimationFrame(update);
-    }
-    requestAnimationFrame(update);
+    createTiles(scene, renderer, camera, tileTypes);
 }
 
 function createLights(scene) {
@@ -49,66 +43,81 @@ function createLights(scene) {
     scene.add(pointLight);
 }
 
-function createTiles(scene, tileTypes) {
-    //  27mm : 20mm : 16mm
-    var geometry = new THREE.BoxGeometry(48, 64, 38);
+function createTiles(scene, renderer, camera, tileTypes) {
 
-    var faceUvs = makeUv(24 / 32, 1);
-    geometry.faceVertexUvs[0][8] = [faceUvs[0], faceUvs[1], faceUvs[3]];
-    geometry.faceVertexUvs[0][9] = [faceUvs[1], faceUvs[2], faceUvs[3]];
-    geometry.faceVertexUvs[0][10] = [faceUvs[0], faceUvs[1], faceUvs[3]];
-    geometry.faceVertexUvs[0][11] = [faceUvs[1], faceUvs[2], faceUvs[3]];
+    var textureLoader = new THREE.TextureLoader();
+    var material = new THREE.MeshPhongMaterial({
+        map: textureLoader.load(resourceUrl("textures", "tile.png")),
+        bumpMap: textureLoader.load(resourceUrl("bumpmaps", "tile.png")),
+        bumpScale: 0.2
+    });
 
-    var rightUvs = makeUv(19 / 32, 1);
-    geometry.faceVertexUvs[0][0] = [rightUvs[0], rightUvs[1], rightUvs[3]];
-    geometry.faceVertexUvs[0][1] = [rightUvs[1], rightUvs[2], rightUvs[3]];
-    geometry.faceVertexUvs[0][2] = [rightUvs[2], rightUvs[3], rightUvs[1]];
-    geometry.faceVertexUvs[0][3] = [rightUvs[3], rightUvs[0], rightUvs[1]];
+    var jsonloader = new THREE.JSONLoader();
+    jsonloader.load(resourceUrl("geometries", "tile.json"),
+        function (geometry) {
 
-    var topUvs = makeUv(24 / 32, 19 / 32);
-    geometry.faceVertexUvs[0][4] = [topUvs[0], topUvs[1], topUvs[3]];
-    geometry.faceVertexUvs[0][5] = [topUvs[1], topUvs[2], topUvs[3]];
-    geometry.faceVertexUvs[0][6] = [topUvs[2], topUvs[3], topUvs[1]];
-    geometry.faceVertexUvs[0][7] = [topUvs[3], topUvs[0], topUvs[1]];
+            var meshes = [];
+            for (var i = 0; i < tileTypes.length && i < 14; i++) {
 
-    var loader = new THREE.TextureLoader();
-    var back = new THREE.MeshPhongMaterial({ map: loader.load(textureUrl("other", "back.png")) });
-    var side = new THREE.MeshPhongMaterial({ map: loader.load(textureUrl("other", "side.png")) });
-    var top = new THREE.MeshPhongMaterial({ map: loader.load(textureUrl("other", "top.png")) });
+                var tileWidth = 0.97;
+                var mesh = new THREE.Mesh(geometry, material);
+                if (i === 13) {
+                    mesh.translateX(i * tileWidth - 7 * tileWidth + 0.2 * tileWidth);
+                }
+                else {
+                    mesh.translateX(i * tileWidth - 7 * tileWidth);
+                }
+                mesh.rotation.x = Math.PI * 1.5;
+                mesh.rotation.z = Math.PI * 1;
+                scene.add(mesh);
+                meshes.push(mesh);
+            }
 
-    for (i = 0; i < tileTypes.length && i < 14; i++) {
-        var face = loadFace(loader, tileTypes[i]);
-
-        // right, left, top, bottom, front, back
-        var materials = [side, side, top, top, face, back];
-        var mesh = new THREE.Mesh(geometry, materials);
-        scene.add(mesh);
-        if (i === 13) {
-            mesh.translateX(i * 48 - 7 * 48 + 10);
+            function update() {
+                renderer.render(scene, camera);
+                meshes.forEach(function(m) {
+                    m.rotation.x += 0.02;
+                });
+                requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
         }
-        else {
-            mesh.translateX(i * 48 - 7 * 48);
+    );
+}
+
+function printDebug(scene) {
+    scene.traverse(function (obj) {
+        var s = "|___";
+        var obj2 = obj;
+        while (obj2 !== scene) {
+            s = "\t" + s;
+            obj2 = obj2.parent;
         }
-    }
+        console.log(s + obj.name + " <" + obj.type + ">");
+    });
 }
 
 function textureUrl(folder, filename) {
     return "/textures/" + folder + "/" + filename;
 }
 
+function resourceUrl(folder, filename) {
+    return "/resources/" + folder + "/" + filename;
+}
+
 function createCamera(width, height) {
-    var HEIGHT = 400;
-    var VIEW_ANGLE = 45;
-    var NEAR = 0.1;
-    var FAR = 10000;
-    var tanFOV = Math.tan(((Math.PI / 180) * VIEW_ANGLE / 2));
-    var fov = (360 / Math.PI) * Math.atan(tanFOV * (height / HEIGHT));
+    var tempHeight = 400;
+    var viewAngle = 45;
+    var near = 0.1;
+    var far = 10000;
+    var tanFov = Math.tan(((Math.PI / 180) * viewAngle / 2));
+    var fov = (360 / Math.PI) * Math.atan(tanFov * (height / tempHeight));
     var cameraAspect = width / height;
 
-    var camera = new THREE.PerspectiveCamera(fov, cameraAspect, NEAR, FAR);
+    var camera = new THREE.PerspectiveCamera(fov, cameraAspect, near, far);
     camera.position.x = 0;
     camera.position.y = 0;
-    camera.position.z = 1000;
+    camera.position.z = 15;
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     return camera;
 }
