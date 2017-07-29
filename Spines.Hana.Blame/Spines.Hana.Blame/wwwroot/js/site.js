@@ -58,9 +58,28 @@ function createTiles(scene, renderer, camera, tileTypes) {
 
             var meshes = [];
             for (var i = 0; i < tileTypes.length && i < 14; i++) {
+                var tileType = tileTypes[i];
+                var x = tileType[0]; // number
+                var y = "mpsz".indexOf(tileType[1]); // suit
+                var left = (100 + x * 32) / 512;
+                var right = (100 + 24 + x * 32) / 512;
+                var top = (512 - 32 - 64 * y) / 512;
+                var bottom = (512 - 32 - 32 - 64 * y) / 512;
+                var a = new THREE.Vector2(right, bottom);
+                var b = new THREE.Vector2(left, top);
+                var c = new THREE.Vector2(left, bottom);
+                var d = new THREE.Vector2(right, top);
+
+                var geometryClone = geometry.clone();
+                geometryClone.faceVertexUvs[0][3][0] = a;
+                geometryClone.faceVertexUvs[0][3][1] = b;
+                geometryClone.faceVertexUvs[0][3][2] = c;
+                geometryClone.faceVertexUvs[0][153][0] = a;
+                geometryClone.faceVertexUvs[0][153][1] = d;
+                geometryClone.faceVertexUvs[0][153][2] = b;
 
                 var tileWidth = 0.97;
-                var mesh = new THREE.Mesh(geometry, material);
+                var mesh = new THREE.Mesh(geometryClone, material);
                 if (i === 13) {
                     mesh.translateX(i * tileWidth - 7 * tileWidth + 0.2 * tileWidth);
                 }
@@ -97,10 +116,6 @@ function printDebug(scene) {
     });
 }
 
-function textureUrl(folder, filename) {
-    return "/textures/" + folder + "/" + filename;
-}
-
 function resourceUrl(folder, filename) {
     return "/resources/" + folder + "/" + filename;
 }
@@ -121,22 +136,3 @@ function createCamera(width, height) {
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     return camera;
 }
-
-function loadFace(loader, tileType) {
-    var face = new THREE.MeshPhongMaterial({
-        map: loader.load(textureUrl("face", tileType + ".png")),
-        bumpMap: loader.load(textureUrl("bump", tileType + ".png"))
-    });
-    return face;
-}
-
-function makeUv(width, height) {
-    return [
-        new THREE.Vector2(0, height),
-        new THREE.Vector2(0, 0),
-        new THREE.Vector2(width, 0),
-        new THREE.Vector2(width, height)
-    ];
-}
-
-
