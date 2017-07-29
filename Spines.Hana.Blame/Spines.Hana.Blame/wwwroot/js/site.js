@@ -1,97 +1,16 @@
-﻿// returns an array of arrays [number, suit] ints
-function parseWwyd(hand) {
-    try {
-        var suits = "mpsz";
-        var numbers = "0123456789";
-        if (hand == undefined || hand.length > 50) {
-            return [];
-        }
-        // var counts = new int[suits.Length * numbers.Length];
-        var counts = new Array(suits.length * numbers.length);
-        counts.fill(0);
-        var reverse = hand.split("").reverse();
-        var offset = -1;
-
-        for (var i = 0; i < reverse.length; i++) {
-            var c = reverse[i];
-            var suit = suits.indexOf(c);
-            if (suit >= 0) {
-                offset = 10 * suit;
-                continue;
-            }
-            if (offset < 0) {
-                return [];
-            }
-            var number = numbers.indexOf(c);
-            if (number >= 0) {
-                counts[offset + number] += 1;
-                continue;
-            }
-            return [];
-        }
-
-        // no red 5 of 8 or 9 for honors.
-        if (counts[34] + counts[38] + counts[39] > 0) {
-            return [];
-        }
-        // at most 4 of each tile.
-        if (counts.some(c => c > 4)) {
-            return [];
-        }
-        // at most 1 red 5 each suit.
-        if (counts[4] > 1 || counts[14] > 1 || counts[24] > 1) {
-            return [];
-        }
-        // with a red 5, only 3 other 5 at most.
-        if ((counts[4] > 0 || counts[14] > 0 || counts[24] > 0) && (counts[5] > 3 || counts[15] > 3 || counts[25] > 3)) {
-            return [];
-        }
-        var sum = counts.reduce((a, b) => a + b, 0);
-        if (sum < 13 || sum > 14) {
-            return [];
-        }
-
-        var result = [];
-        for (var j = 0; j < counts.length; j++) {
-            for (var k = 0; k < counts[j]; k++) {
-                var n = j % 10;
-                var s = (j - n) / 10;
-                result.push([n, s]);
-            }
-        }
-        return result;
-    }
-    catch (e) {
-        return [];
-    }
-}
+﻿var scene;
 
 function changeUrl(val) {
 
     var h = parseWwyd(val);
+    createTiles(h);
 
-    document.location = "//" + location.host + location.pathname + "?h=" + val;
+    //document.location = "//" + location.host + location.pathname + "?h=" + val;
 }
 
 function initWwyd() {
     var displayHeight = 100;
     var displayWidth = 600;
-    var tileTypes = [
-        "1p",
-        "2p",
-        "3p",
-        "2m",
-        "3m",
-        "4m",
-        "0s",
-        "5s",
-        "5s",
-        "1z",
-        "2z",
-        "4z",
-        "7z",
-        "6z"
-    ];
 
     var container = document.querySelector("#container");
     var renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -99,7 +18,7 @@ function initWwyd() {
     container.append(renderer.domElement);
 
     var camera = createCamera(displayWidth, displayHeight);
-    var scene = new THREE.Scene();
+    scene = new THREE.Scene();
 
     THREE.DefaultLoadingManager.onLoad = function () {
         renderer.render(scene, camera);
@@ -111,7 +30,7 @@ function initWwyd() {
     //};
 
     createLights(scene);
-    createTiles(scene, renderer, camera, tileTypes);
+    renderer.render(scene, camera);
 }
 
 function createLights(scene) {
@@ -124,7 +43,16 @@ function createLights(scene) {
     scene.add(pointLight);
 }
 
-function createTiles(scene, renderer, camera, tileTypes) {
+function createTiles(tileTypes) {
+
+    for (var k = scene.children.length - 1; k >= 0; k--) {
+        var child = scene.children[k];
+        if (child.type === "Mesh") {
+            scene.remove(child);
+            child.geometry.dispose();
+            child.material.dispose();
+        }
+    }
 
     var textureLoader = new THREE.TextureLoader();
     var material = new THREE.MeshPhongMaterial({
@@ -141,7 +69,7 @@ function createTiles(scene, renderer, camera, tileTypes) {
             for (var i = 0; i < tileTypes.length && i < 14; i++) {
                 var tileType = tileTypes[i];
                 var x = tileType[0]; // number
-                var y = "mpsz".indexOf(tileType[1]); // suit
+                var y = tileType[1]; // suit
                 var left = (100 + x * 32) / 512;
                 var right = (100 + 24 + x * 32) / 512;
                 var top = (512 - 32 - 64 * y) / 512;
@@ -207,4 +135,72 @@ function createCamera(width, height) {
     camera.position.z = 15;
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     return camera;
+}
+
+// returns an array of arrays [number, suit] ints
+function parseWwyd(hand) {
+    try {
+        var suits = "mpsz";
+        var numbers = "0123456789";
+        if (hand == undefined || hand.length > 50) {
+            return [];
+        }
+        // var counts = new int[suits.Length * numbers.Length];
+        var counts = new Array(suits.length * numbers.length);
+        counts.fill(0);
+        var reverse = hand.split("").reverse();
+        var offset = -1;
+
+        for (var i = 0; i < reverse.length; i++) {
+            var c = reverse[i];
+            var suit = suits.indexOf(c);
+            if (suit >= 0) {
+                offset = 10 * suit;
+                continue;
+            }
+            if (offset < 0) {
+                return [];
+            }
+            var number = numbers.indexOf(c);
+            if (number >= 0) {
+                counts[offset + number] += 1;
+                continue;
+            }
+            return [];
+        }
+
+        // no red 5 of 8 or 9 for honors.
+        if (counts[34] + counts[38] + counts[39] > 0) {
+            return [];
+        }
+        // at most 4 of each tile.
+        if (counts.some(c => c > 4)) {
+            return [];
+        }
+        // at most 1 red 5 each suit.
+        if (counts[4] > 1 || counts[14] > 1 || counts[24] > 1) {
+            return [];
+        }
+        // with a red 5, only 3 other 5 at most.
+        if ((counts[4] > 0 || counts[14] > 0 || counts[24] > 0) && (counts[5] > 3 || counts[15] > 3 || counts[25] > 3)) {
+            return [];
+        }
+        var sum = counts.reduce((a, b) => a + b, 0);
+        if (sum < 13 || sum > 14) {
+            return [];
+        }
+
+        var result = [];
+        for (var j = 0; j < counts.length; j++) {
+            for (var k = 0; k < counts[j]; k++) {
+                var n = j % 10;
+                var s = (j - n) / 10;
+                result.push([n, s]);
+            }
+        }
+        return result;
+    }
+    catch (e) {
+        return [];
+    }
 }
