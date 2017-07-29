@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Mahjong.Analysis", "..\Spines.Mahjong\Spines.Mahjong.Analysis\Spines.Mahjong.Analysis.csproj", "{9203DC32-F5B6-47F7-9C66-CB98937534A5}"
 EndProject
@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Tools.AnalyzerBuilde
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Hana.Clay", "Spines.Hana.Clay\Spines.Hana.Clay.csproj", "{4BB172B0-3B9B-4872-AB05-4A28D964F4C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spines.Hana.Blame", "Spines.Hana.Blame\Spines.Hana.Blame.csproj", "{50C34CA5-F3D7-41E3-9FAB-5173A59A90A0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeometryConverter", "GeometryConverter\GeometryConverter.csproj", "{3A98B661-3BA7-4AE2-B005-A33EA4644FF5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,10 +53,10 @@ Global
 		{4BB172B0-3B9B-4872-AB05-4A28D964F4C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4BB172B0-3B9B-4872-AB05-4A28D964F4C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4BB172B0-3B9B-4872-AB05-4A28D964F4C8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{50C34CA5-F3D7-41E3-9FAB-5173A59A90A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{50C34CA5-F3D7-41E3-9FAB-5173A59A90A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{50C34CA5-F3D7-41E3-9FAB-5173A59A90A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{50C34CA5-F3D7-41E3-9FAB-5173A59A90A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A98B661-3BA7-4AE2-B005-A33EA4644FF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A98B661-3BA7-4AE2-B005-A33EA4644FF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A98B661-3BA7-4AE2-B005-A33EA4644FF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A98B661-3BA7-4AE2-B005-A33EA4644FF5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
