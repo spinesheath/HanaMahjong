@@ -29,6 +29,16 @@ function renderWwyd() {
 
     var camera = createCamera(displayWidth, displayHeight);
     var scene = new THREE.Scene();
+
+    THREE.DefaultLoadingManager.onLoad = function () {
+        renderer.render(scene, camera);
+    };
+
+    //THREE.DefaultLoadingManager.onProgress = function (item, loaded, total) {
+    //    if (loaded === total)
+    //        renderer.render(scene, camera);
+    //};
+
     createLights(scene);
     createTiles(scene, renderer, camera, tileTypes);
 }
@@ -91,15 +101,6 @@ function createTiles(scene, renderer, camera, tileTypes) {
                 scene.add(mesh);
                 meshes.push(mesh);
             }
-
-            function update() {
-                renderer.render(scene, camera);
-                meshes.forEach(function(m) {
-                    m.rotation.x += 0.02;
-                });
-                requestAnimationFrame(update);
-            }
-            requestAnimationFrame(update);
         }
     );
 }
