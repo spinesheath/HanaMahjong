@@ -46,9 +46,6 @@
     <Folder Include="wwwroot\resources\bumpmaps\" />
     <Folder Include="wwwroot\resources\geometries\" />
     <Folder Include="wwwroot\resources\textures\" />
-    <Folder Include="wwwroot\textures\bump\" />
-    <Folder Include="wwwroot\textures\face\" />
-    <Folder Include="wwwroot\textures\other\" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="wwwroot/textures\face\0m.png">
