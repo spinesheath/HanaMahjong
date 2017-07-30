@@ -19,10 +19,9 @@ function initWwyd() {
         }
     };
 
-    var displayHeight = 100;
-    var displayWidth = 600;
-
     var canvas = document.querySelector("#wwydCanvas");
+    var displayWidth = canvas.clientWidth;
+    var displayHeight = canvas.clientHeight;
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
     renderer.setSize(displayWidth, displayHeight);
 
