@@ -5,12 +5,8 @@ var material;
 var geometry;
 
 function changeUrl(val) {
-
-    var h = parseWwyd(val);
-    createTiles(h);
-
-    var state = document.getElementById("handInput").value;
-    window.history.pushState(state, "", "//" + location.host + location.pathname + "?h=" + val);
+    createTiles(parseWwyd(val));
+    window.history.pushState(val, "", "//" + location.host + location.pathname + "?h=" + val);
 }
 
 function initWwyd() {
@@ -42,7 +38,7 @@ function initWwyd() {
     //};
 
     createLights(scene);
-    render();
+    createTiles(parseWwyd(document.getElementById("handInput").value));
 }
 
 function createTiles(tileTypes) {
