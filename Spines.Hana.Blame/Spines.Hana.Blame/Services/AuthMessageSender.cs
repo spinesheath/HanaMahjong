@@ -1,6 +1,7 @@
 ﻿// This file is licensed to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using SendGrid;
@@ -8,7 +9,7 @@ using SendGrid.Helpers.Mail;
 
 namespace Spines.Hana.Blame.Services
 {
-  public class AuthMessageSender : IEmailSender
+  public class AuthMessageSender : IEmailSender, ISmsSender
   {
     public AuthMessageSender(IOptions<AuthMessageSenderOptions> optionsAccessor)
     {
@@ -21,7 +22,7 @@ namespace Spines.Hana.Blame.Services
       return Execute(_options.SendGridKey, subject, message, email);
     }
 
-    public Task Execute(string apiKey, string subject, string message, string email)
+    private Task Execute(string apiKey, string subject, string message, string email)
     {
       var client = new SendGridClient(apiKey);
       var msg = new SendGridMessage
@@ -33,6 +34,11 @@ namespace Spines.Hana.Blame.Services
       };
       msg.AddTo(new EmailAddress(email));
       return client.SendEmailAsync(msg);
+    }
+
+    public Task SendSmsAsync(string number, string message)
+    {
+      throw new NotImplementedException();
     }
 
     private readonly AuthMessageSenderOptions _options;
