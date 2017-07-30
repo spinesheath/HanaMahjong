@@ -22,10 +22,9 @@ function initWwyd() {
     var displayHeight = 100;
     var displayWidth = 600;
 
-    var container = document.querySelector("#container");
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    var canvas = document.querySelector("#wwydCanvas");
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
     renderer.setSize(displayWidth, displayHeight);
-    container.append(renderer.domElement);
 
     camera = createCamera(displayWidth, displayHeight);
     scene = new THREE.Scene();
