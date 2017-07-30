@@ -12,6 +12,8 @@
     <UserSecretsId>aspnet-Spines.Hana.Blame-0d8863c7-69e9-41c1-8fb6-b4f3ba2e9bcf</UserSecretsId>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>CommonResources\Spines.HanaMahjong.StrongNameKeyFile.pfx</AssemblyOriginatorKeyFile>
+    <ApplicationInsightsResourceId>/subscriptions/623439af-6ce2-468f-a027-176c475ee09c/resourcegroups/SpinesHanaBlameResourceGroup/providers/microsoft.insights/components/SpinesHanaBlameApplicationInsights</ApplicationInsightsResourceId>
+    <ApplicationInsightsAnnotationResourceId>/subscriptions/623439af-6ce2-468f-a027-176c475ee09c/resourcegroups/SpinesHanaBlameResourceGroup/providers/microsoft.insights/components/SpinesHanaBlameApplicationInsights</ApplicationInsightsAnnotationResourceId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -165,6 +167,9 @@
     <Content Update="wwwroot/textures\face\9s.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services" />
   </ItemGroup>
 
 </Project>
