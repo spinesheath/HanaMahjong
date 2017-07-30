@@ -44,7 +44,7 @@ namespace Spines.Hana.Blame
 
       // Add framework services.
       services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+          options.UseSqlServer(Configuration.GetConnectionString("SpinesHanaBlameDefaultConnectionString")));
 
       services.AddIdentity<ApplicationUser, IdentityRole>(config => { config.SignIn.RequireConfirmedEmail = true; })
         .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -70,6 +70,11 @@ namespace Spines.Hana.Blame
       //var options = new RewriteOptions()
       //  .AddRedirectToHttps();
       //app.UseRewriter(options);
+
+      using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+      {
+        scope.ServiceProvider.GetService<ApplicationDbContext>().Database.Migrate();
+      }
 
       if (env.IsDevelopment())
       {

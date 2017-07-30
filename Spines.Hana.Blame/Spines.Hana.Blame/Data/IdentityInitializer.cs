@@ -22,7 +22,7 @@ namespace Spines.Hana.Blame.Data
 
     public async Task Seed()
     {
-      var user = await _userManager.FindByNameAsync(_options.RootAdminName);
+      var user = await _userManager.FindByEmailAsync(_options.RootAdminEmail);
       if (user == null)
       {
         if (!await _roleManager.RoleExistsAsync("Admin"))
@@ -34,15 +34,17 @@ namespace Spines.Hana.Blame.Data
 
         user = new ApplicationUser
         {
-          UserName = _options.RootAdminName,
+          UserName = _options.RootAdminEmail,
           Email = _options.RootAdminEmail
         };
 
         var userResult = await _userManager.CreateAsync(user, _options.RootAdminPassword);
         var roleResult = await _userManager.AddToRoleAsync(user, "Admin");
         var claimResult = await _userManager.AddClaimAsync(user, new Claim("SuperUser", "True"));
+        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        var confirmResult = await _userManager.ConfirmEmailAsync(user, code);
 
-        if (!userResult.Succeeded || !roleResult.Succeeded || !claimResult.Succeeded)
+        if (!userResult.Succeeded || !roleResult.Succeeded || !claimResult.Succeeded || !confirmResult.Succeeded)
         {
           throw new InvalidOperationException("Failed to build user and roles");
         }
