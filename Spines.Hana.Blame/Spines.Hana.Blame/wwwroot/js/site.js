@@ -32,11 +32,6 @@ function initWwyd() {
 
     THREE.DefaultLoadingManager.onLoad = render;
 
-    //THREE.DefaultLoadingManager.onProgress = function (item, loaded, total) {
-    //    if (loaded === total)
-    //        renderer.render(scene, camera);
-    //};
-
     createLights(scene);
     createTiles(parseWwyd(document.getElementById("handInput").value));
 }
@@ -199,7 +194,7 @@ function parseWwyd(hand) {
             return [];
         }
         // at most 4 of each tile.
-        if (counts.some(c => c > 4)) {
+        if (counts.some(b => b > 4)) {
             return [];
         }
         // at most 1 red 5 each suit.
