@@ -15,7 +15,6 @@ namespace Spines.Hana.Blame
         .UseContentRoot(Directory.GetCurrentDirectory())
         .UseIISIntegration()
         .UseStartup<Startup>()
-        .UseApplicationInsights()
         .Build();
 
       host.Run();

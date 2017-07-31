@@ -50,6 +50,7 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Connected Services\" />
     <Folder Include="Properties\PublishProfiles\" />
     <Folder Include="wwwroot\resources\bumpmaps\" />
     <Folder Include="wwwroot\resources\geometries\" />
