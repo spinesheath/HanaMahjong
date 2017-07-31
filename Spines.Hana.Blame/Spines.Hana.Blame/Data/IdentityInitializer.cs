@@ -22,35 +22,50 @@ namespace Spines.Hana.Blame.Data
 
     public async Task Seed()
     {
-      var user = await _userManager.FindByEmailAsync(_options.RootAdminEmail);
-      if (user == null)
+      if (!await _roleManager.RoleExistsAsync(RoleNameAdmin))
       {
-        if (!await _roleManager.RoleExistsAsync("Admin"))
-        {
-          var role = new IdentityRole("Admin");
-          role.Claims.Add(new IdentityRoleClaim<string> {ClaimType = "IsAdmin", ClaimValue = "True"});
-          await _roleManager.CreateAsync(role);
-        }
+        var role = new IdentityRole(RoleNameAdmin);
+        role.Claims.Add(new IdentityRoleClaim<string> {ClaimType = "IsAdmin", ClaimValue = "True"});
+        await _roleManager.CreateAsync(role);
+      }
 
-        user = new ApplicationUser
+      if (_options.RecreateAdminAccount)
+      {
+        var existingAdmins = await _userManager.GetUsersInRoleAsync(RoleNameAdmin);
+        foreach (var existingAdmin in existingAdmins)
         {
-          UserName = _options.RootAdminEmail,
-          Email = _options.RootAdminEmail
-        };
-
-        var userResult = await _userManager.CreateAsync(user, _options.RootAdminPassword);
-        var roleResult = await _userManager.AddToRoleAsync(user, "Admin");
-        var claimResult = await _userManager.AddClaimAsync(user, new Claim("SuperUser", "True"));
-        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-        var confirmResult = await _userManager.ConfirmEmailAsync(user, code);
-
-        if (!userResult.Succeeded || !roleResult.Succeeded || !claimResult.Succeeded || !confirmResult.Succeeded)
-        {
-          throw new InvalidOperationException("Failed to build user and roles");
+          await _userManager.DeleteAsync(existingAdmin);
         }
       }
+
+      var existingUser = await _userManager.FindByEmailAsync(_options.RootAdminEmail);
+      if (existingUser != null)
+      {
+        if (!_options.RecreateAdminAccount)
+          return;
+        await _userManager.DeleteAsync(existingUser);
+      }
+
+      var user = new ApplicationUser
+      {
+        UserName = _options.RootAdminEmail,
+        Email = _options.RootAdminEmail
+      };
+
+      var userResult = await _userManager.CreateAsync(user, _options.RootAdminPassword);
+      var roleResult = await _userManager.AddToRoleAsync(user, RoleNameAdmin);
+      var claimResult = await _userManager.AddClaimAsync(user, new Claim("SuperUser", "True"));
+      var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+      var confirmResult = await _userManager.ConfirmEmailAsync(user, code);
+
+      if (userResult.Succeeded && roleResult.Succeeded && claimResult.Succeeded && confirmResult.Succeeded)
+      {
+        return;
+      }
+      throw new InvalidOperationException("Failed to build user and roles");
     }
 
+    private const string RoleNameAdmin = "Admin";
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly InitializeIdentityOptions _options;
