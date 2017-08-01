@@ -1,16 +1,34 @@
-﻿@{
-    ViewData["Title"] = "WWYD";
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@using Spines.Hana.Blame.Models.ThreadViewModels
+@{
+    ViewData["title"] = "WWYD";
 }
 
-<input id="handInput" type="text" onchange="changeUrl(this.value)" value="@(ViewData["Hand"])" />
+<input id="handInput" type="text" onchange="changeUrl(this.value)" value="@(ViewData["hand"])" />
 
 <div>
     <canvas id="wwydCanvas" width="600" height="100"></canvas>
+</div>
+
+<div>
+    @Html.Partial("Thread", (ThreadViewModel)this.ViewData["thread"])
 </div>
 
 @section Scripts
 {
     <script>
         $(initWwyd);
+
+        @*$("handInput").click(function() {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("blub", "wtf")',
+                data: mdlno,
+                success: function(data) {
+                    $("#thread").html(data);
+                }
+            });
+            return false;
+        });*@
     </script>
 }

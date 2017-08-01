@@ -1,0 +1,12 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Spines.Hana.Blame.Models.ThreadViewModels
+@model ThreadViewModel
+
+<div class="thread-border">
+    @{
+        foreach (var section in Model.Comments)
+        {
+            @Html.Partial("Comment", section)
+        }
+    }
+</div>

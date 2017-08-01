@@ -42,3 +42,14 @@ textarea {
     top: 50%;
     transform: translateY(-50%);
 }
+
+.thread-border {
+    background-color: #483d8b;
+    overflow: auto;
+    padding: 10px;
+}
+
+.comment-border {
+    background-color: gainsboro;
+    overflow: auto;
+}
