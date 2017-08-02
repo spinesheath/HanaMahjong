@@ -4,9 +4,10 @@
 
 <div class="thread-border">
     @{
-        foreach (var section in Model.Comments)
-        {
-            @Html.Partial("Comment", section)
-        }
+      foreach (var section in Model.Comments)
+      {
+        @Html.Partial("Comment", section)
+      }
     }
 </div>
+

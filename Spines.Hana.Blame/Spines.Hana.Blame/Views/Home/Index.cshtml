@@ -1,21 +1,23 @@
-﻿@using Microsoft.AspNetCore.Mvc.Rendering
-@using Spines.Hana.Blame.Models.ThreadViewModels
-@{
-    ViewData["title"] = "WWYD";
+﻿@{
+    ViewData["Title"] = "WWYD";
 }
 
-<input id="handInput" type="text" onchange="changeUrl(this.value)" value="@(ViewData["hand"])" />
+<input id="handInput" type="text" onchange="changeUrl(this.value)" value="@(ViewData["Hand"])" />
 
 <div>
     <canvas id="wwydCanvas" width="600" height="100"></canvas>
 </div>
 
-<div>
-    @Html.Partial("Thread", (ThreadViewModel)this.ViewData["thread"])
-</div>
+<div class="row" id="threadDiv"></div>
 
 @section Scripts
 {
+    <script>
+        $.get("home/GetThread", function(data) {
+            $("#threadDiv").html(data);
+        });
+    </script>
+
     <script>
         $(initWwyd);
 
