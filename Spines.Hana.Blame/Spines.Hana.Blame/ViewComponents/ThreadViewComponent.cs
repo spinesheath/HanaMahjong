@@ -26,7 +26,7 @@ namespace Spines.Hana.Blame.ViewComponents
 
     private async Task<ThreadViewModel> LoadThread()
     {
-      await Task.Delay(10000);
+      await Task.Delay(10);
       var r = new Random(DateTime.Now.Millisecond);
       var count = r.Next(5, 10);
       var values = Enumerable.Range(0, count).Select(x => r.Next());

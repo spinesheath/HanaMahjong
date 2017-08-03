@@ -13,24 +13,6 @@
 @section Scripts
 {
     <script>
-        $.get("home/GetThread", function(data) {
-            $("#threadDiv").html(data);
-        });
-    </script>
-
-    <script>
         $(initWwyd);
-
-        @*$("handInput").click(function() {
-            $.ajax({
-                type: 'POST',
-                url: '@Url.Action("blub", "wtf")',
-                data: mdlno,
-                success: function(data) {
-                    $("#thread").html(data);
-                }
-            });
-            return false;
-        });*@
     </script>
 }

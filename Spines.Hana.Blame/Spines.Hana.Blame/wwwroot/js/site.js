@@ -7,6 +7,29 @@ var geometry;
 function changeUrl(val) {
     createTiles(parseWwyd(val));
     window.history.pushState(val, "", "//" + location.host + location.pathname + "?h=" + val);
+    loadThread(val);
+}
+
+function loadThread(val) {
+    if (isValidHand(val)) {
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetThread",
+            data: val,
+            success: function (data) {
+                $("#threadDiv").html(data);
+            }
+        });
+    }
+}
+
+function initTilesAndThread() {
+    var params = new URLSearchParams(window.location.search);
+    var hand = params.get("h");
+    var input = document.getElementById("handInput");
+    input.value = hand;
+    createTiles(parseWwyd(hand));
+    loadThread(hand);
 }
 
 function initWwyd() {
@@ -16,6 +39,7 @@ function initWwyd() {
             var handInput = document.getElementById("handInput");
             handInput.value = e.state;
             createTiles(parseWwyd(handInput.value));
+            loadThread(e.state);
         }
     };
 
@@ -31,7 +55,8 @@ function initWwyd() {
     THREE.DefaultLoadingManager.onLoad = render;
 
     createLights(scene);
-    createTiles(parseWwyd(document.getElementById("handInput").value));
+
+    initTilesAndThread();
 }
 
 function createTiles(tileTypes) {
@@ -86,18 +111,6 @@ function arrangeTiles(tileTypes) {
         mesh.rotation.z = Math.PI * 1;
         scene.add(mesh);
     }
-}
-
-function printDebug() {
-    scene.traverse(function (obj) {
-        var s = "|___";
-        var obj2 = obj;
-        while (obj2 !== scene) {
-            s = "\t" + s;
-            obj2 = obj2.parent;
-        }
-        console.log(s + obj.name + " <" + obj.type + ">");
-    });
 }
 
 function resourceUrl(folder, filename) {
@@ -155,12 +168,16 @@ function createLights(scene) {
     scene.add(pointLight);
 }
 
+function isValidHand(hand) {
+    return parseWwyd(hand).length !== 0;
+}
+
 // returns an array of arrays [number, suit] ints
 function parseWwyd(hand) {
     try {
         var suits = "mpsz";
         var numbers = "0123456789";
-        if (hand == undefined || hand.length > 50) {
+        if (hand == undefined || hand.length < 14 || hand.length > 50) {
             return [];
         }
         // var counts = new int[suits.Length * numbers.Length];
