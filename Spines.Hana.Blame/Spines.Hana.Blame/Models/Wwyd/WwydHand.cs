@@ -82,7 +82,7 @@ namespace Spines.Hana.Blame.Models.Wwyd
           return new WwydHand();
         }
         var sum = counts.Sum();
-        if (sum < 13 || sum > 14)
+        if (sum != 14)
         {
           return new WwydHand();
         }

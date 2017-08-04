@@ -15,7 +15,7 @@ function loadThread(val) {
         var xhr = $.ajax({
             type: "GET",
             url: "/Home/GetThread",
-            data: val,
+            data: { hand: val },
             success: function (data, textStatus, xhr2) {
                 var hand = getHand();
                 if (xhr2.hand === hand) {
@@ -232,7 +232,7 @@ function parseWwyd(hand) {
             return [];
         }
         var sum = counts.reduce((a, b) => a + b, 0);
-        if (sum < 13 || sum > 14) {
+        if (sum !== 14) {
             return [];
         }
 

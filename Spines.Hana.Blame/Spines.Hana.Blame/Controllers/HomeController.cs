@@ -2,6 +2,7 @@
 // See the LICENSE file in the project root for more information.
 
 using Microsoft.AspNetCore.Mvc;
+using Spines.Hana.Blame.Models.Wwyd;
 
 namespace Spines.Hana.Blame.Controllers
 {
@@ -24,9 +25,9 @@ namespace Spines.Hana.Blame.Controllers
       return View();
     }
 
-    public IActionResult GetThread()
+    public IActionResult GetThread(string hand)
     {
-      return ViewComponent("Thread");
+      return ViewComponent("Thread", hand);
     }
   }
 }
