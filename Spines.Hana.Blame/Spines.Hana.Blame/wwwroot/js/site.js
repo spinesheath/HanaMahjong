@@ -12,34 +12,45 @@ function changeUrl(val) {
 
 function loadThread(val) {
     if (isValidHand(val)) {
-        $.ajax({
+        var xhr = $.ajax({
             type: "GET",
             url: "/Home/GetThread",
             data: val,
-            success: function (data) {
-                $("#threadDiv").html(data);
+            success: function (data, textStatus, xhr2) {
+                var hand = getHand();
+                if (xhr2.hand === hand) {
+                    $("#threadDiv").html(data);
+                }
             }
         });
+        xhr.hand = val;
     }
 }
 
 function initTilesAndThread() {
     var params = new URLSearchParams(window.location.search);
     var hand = params.get("h");
-    var input = document.getElementById("handInput");
-    input.value = hand;
+    setHand(hand);
     createTiles(parseWwyd(hand));
     loadThread(hand);
+}
+
+function setHand(hand) {
+    document.getElementById("handInput").value = hand;
+}
+
+function getHand() {
+    return document.getElementById("handInput").value;
 }
 
 function initWwyd() {
 
     window.onpopstate = function (e) {
-        if (e.state) {
-            var handInput = document.getElementById("handInput");
-            handInput.value = e.state;
-            createTiles(parseWwyd(handInput.value));
-            loadThread(e.state);
+        var hand = e.state;
+        if (hand) {
+            setHand(hand);
+            createTiles(parseWwyd(hand));
+            loadThread(hand);
         }
     };
 

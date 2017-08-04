@@ -19,9 +19,10 @@ namespace Spines.Hana.Blame.ViewComponents
       _context = context;
     }
 
-    public async Task<IViewComponentResult> InvokeAsync(int howMany = 3)
+    public async Task<IViewComponentResult> InvokeAsync()
     {
-      return View(await LoadThread());
+      var threadViewModel = await LoadThread();
+      return View(threadViewModel);
     }
 
     private async Task<ThreadViewModel> LoadThread()
