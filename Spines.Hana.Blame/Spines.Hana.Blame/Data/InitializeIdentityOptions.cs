@@ -5,6 +5,7 @@ namespace Spines.Hana.Blame.Data
 {
   public class InitializeIdentityOptions
   {
+    public string RootAdminUserName { get; set; }
     public string RootAdminEmail { get; set; }
     public string RootAdminPassword { get; set; }
     public bool RecreateAdminAccount { get; set; }

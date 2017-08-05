@@ -8,10 +8,11 @@ namespace Spines.Hana.Blame.Models.AccountViewModels
   public class LoginViewModel
   {
     [Required]
-    [EmailAddress]
-    public string Email { get; set; }
+    [Display(Name = "User Name")]
+    public string UserName { get; set; }
 
     [Required]
+    [Display(Name = "Password")]
     [DataType(DataType.Password)]
     public string Password { get; set; }
 

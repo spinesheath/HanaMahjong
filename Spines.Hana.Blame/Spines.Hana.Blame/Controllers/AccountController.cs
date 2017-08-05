@@ -58,14 +58,14 @@ namespace Spines.Hana.Blame.Controllers
       ViewData["ReturnUrl"] = returnUrl;
       if (ModelState.IsValid)
       {
-        // Require the user to have a confirmed email before they can log on.
-        var user = await _userManager.FindByEmailAsync(model.Email);
+        var user = await _userManager.FindByNameAsync(model.UserName);
         if (user == null)
         {
           ModelState.AddModelError(string.Empty, "Invalid login attempt.");
           return View(model);
         }
 
+        // Require the user to have a confirmed email before they can log on.
         if (!await _userManager.IsEmailConfirmedAsync(user))
         {
           ModelState.AddModelError(string.Empty, "You must have a confirmed email to log in.");
@@ -117,7 +117,7 @@ namespace Spines.Hana.Blame.Controllers
       ViewData["ReturnUrl"] = returnUrl;
       if (ModelState.IsValid)
       {
-        var user = new ApplicationUser {UserName = model.Email, Email = model.Email};
+        var user = new ApplicationUser {UserName = model.UserName, Email = model.Email};
         var result = await _userManager.CreateAsync(user, model.Password);
         if (result.Succeeded)
         {
@@ -217,7 +217,7 @@ namespace Spines.Hana.Blame.Controllers
         {
           return View("ExternalLoginFailure");
         }
-        var user = new ApplicationUser {UserName = model.Email, Email = model.Email};
+        var user = new ApplicationUser {UserName = model.UserName, Email = model.Email};
         var result = await _userManager.CreateAsync(user);
         if (result.Succeeded)
         {

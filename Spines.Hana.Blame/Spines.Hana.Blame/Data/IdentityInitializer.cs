@@ -48,7 +48,7 @@ namespace Spines.Hana.Blame.Data
 
       var user = new ApplicationUser
       {
-        UserName = _options.RootAdminEmail,
+        UserName = _options.RootAdminUserName,
         Email = _options.RootAdminEmail
       };
 
