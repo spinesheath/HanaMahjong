@@ -22,8 +22,27 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot/lib\bower.json" />
+    <Content Remove="wwwroot/lib\gulpfile.js" />
+    <Content Remove="wwwroot/lib\jquery.unobtrusive-ajax.js" />
+    <Content Remove="wwwroot/lib\jquery.unobtrusive-ajax.min.js" />
+    <Content Remove="wwwroot/lib\LICENSE.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Properties\PublishProfiles\SpinesHanaBlame - Web Deploy.pubxml" />
     <None Remove="Properties\PublishProfiles\SpinesHanaBlame20170718091455 - Web Deploy.pubxml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="wwwroot\lib\jquery-ajax-unobtrusive\.bower.json" />
+    <Content Include="wwwroot\lib\jquery-ajax-unobtrusive\bower.json" />
+    <Content Include="wwwroot\lib\jquery-ajax-unobtrusive\gulpfile.js" />
+    <Content Include="wwwroot\lib\jquery-ajax-unobtrusive\jquery.unobtrusive-ajax.js" />
+    <Content Include="wwwroot\lib\jquery-ajax-unobtrusive\jquery.unobtrusive-ajax.min.js" />
+    <Content Include="wwwroot\lib\jquery-ajax-unobtrusive\LICENSE.txt" />
+    <Content Include="wwwroot\lib\js\site.js" />
+    <Content Include="wwwroot\lib\js\site.min.js" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.0.0" />
@@ -51,7 +70,6 @@
   <ItemGroup>
     <Folder Include="Connected Services\" />
     <Folder Include="Properties\PublishProfiles\" />
-    <Folder Include="Views\Shared\Components\Thread\" />
     <Folder Include="wwwroot\resources\bumpmaps\" />
     <Folder Include="wwwroot\resources\geometries\" />
     <Folder Include="wwwroot\resources\textures\" />

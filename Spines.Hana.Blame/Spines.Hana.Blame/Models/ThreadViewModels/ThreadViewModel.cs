@@ -8,11 +8,18 @@ namespace Spines.Hana.Blame.Models.ThreadViewModels
 {
   public class ThreadViewModel
   {
+    public ThreadViewModel()
+    {
+      Comments = new List<string>();
+    }
+
     public ThreadViewModel(IEnumerable<string> comments)
     {
       Comments = comments.ToList();
     }
 
     public List<string> Comments { get; }
+
+    public string Message { get; set; }
   }
 }

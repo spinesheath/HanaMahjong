@@ -1,13 +1,21 @@
 @using Microsoft.AspNetCore.Mvc.Rendering
-@using Spines.Hana.Blame.Models.ThreadViewModels
-@model ThreadViewModel
+@model Spines.Hana.Blame.Models.ThreadViewModels.ThreadViewModel
 
 <div class="thread-border">
-    @{
-      foreach (var section in Model.Comments)
-      {
-        @Html.Partial("Comment", section)
-      }
+    @if (ViewContext.HttpContext.User != null && ViewContext.HttpContext.User.Identity.IsAuthenticated)
+    {
+        <div>
+            <form id="commentForm"
+                  method="POST" asp-action="PostComment" asp-controller="Thread"
+                  data-ajax="true" data-ajax-method="POST" data-ajax-mode="replace" data-ajax-update="#commentsDiv">
+                <input type="submit"/>
+            </form> 
+            <textarea asp-for="Message" form ="commentForm" cols="40" wrap="soft"></textarea>
+        </div>
     }
+    
+    <div id="commentsDiv">
+        @Html.Partial("Comments", Model.Comments)
+    </div>
 </div>
 
