@@ -1,8 +1,8 @@
-﻿@model System.Collections.Generic.List<string>
+﻿@model System.Collections.Generic.List<Spines.Hana.Blame.Models.ThreadViewModels.CommentViewModel>
 
-@foreach (var message in Model)
+@foreach (var comment in Model)
 {
     <div class="comment-border">
-        <p>@message</p>
+        <p>@comment.Message</p>
     </div>
 }

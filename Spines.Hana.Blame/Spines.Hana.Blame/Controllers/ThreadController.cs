@@ -56,8 +56,8 @@ namespace Spines.Hana.Blame.Controllers
       await _context.Comments.AddAsync(comment);
       await _context.SaveChangesAsync();
 
-      var comments = await _context.WwydThreads.Where(t => t.Hand == model.Hand).SelectMany(t => t.Comments).Select(c => c.Message).ToListAsync();
-      return PartialView("Comments", comments);
+      var comments = await _context.WwydThreads.Where(t => t.Hand == model.Hand).SelectMany(t => t.Comments).ToListAsync();
+      return PartialView("Comments", comments.Select(c => new CommentViewModel{Message = c.Message, Time = c.Time, UserName = c.User.UserName}).ToList());
     }
 
     private async Task<WwydThread> GetThread(string normalizedHand)

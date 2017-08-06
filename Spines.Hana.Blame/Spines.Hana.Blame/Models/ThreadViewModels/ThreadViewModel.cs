@@ -9,11 +9,11 @@ namespace Spines.Hana.Blame.Models.ThreadViewModels
   {
     public ThreadViewModel()
     {
-      Comments = new List<string>();
+      Comments = new List<CommentViewModel>();
       Message = string.Empty;
     }
 
-    public List<string> Comments { get; }
+    public List<CommentViewModel> Comments { get; }
 
     public string Message { get; set; }
 

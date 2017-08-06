@@ -34,8 +34,9 @@ namespace Spines.Hana.Blame.ViewComponents
     private async Task<ThreadViewModel> LoadThread(string hand)
     {
       var comments = await _context.WwydThreads.Where(t => t.Hand == hand).SelectMany(t => t.Comments).ToListAsync();
+      var commentViewModels = comments.Select(c => new CommentViewModel { Message = c.Message, Time = c.Time, UserName = c.User.UserName });
       var threadViewModel = new ThreadViewModel();
-      threadViewModel.Comments.AddRange(comments.Select(c => c.Message));
+      threadViewModel.Comments.AddRange(commentViewModels);
       threadViewModel.Hand = hand;
       return threadViewModel;
     }
