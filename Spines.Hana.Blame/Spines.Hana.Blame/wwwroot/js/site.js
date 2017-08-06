@@ -237,7 +237,17 @@ function parseWwyd(hand) {
         }
 
         var result = [];
-        for (var j = 0; j < counts.length; j++) {
+        for (var m = 0; m < counts.length; m++) {
+
+            var j = m;
+            if (m < 30) {
+                if (m % 10 < 4) {
+                    j = m + 1;
+                } else if (m % 10 === 4) {
+                    j = m - 4;
+                }
+            }
+
             for (var k = 0; k < counts[j]; k++) {
                 var n = j % 10;
                 var s = (j - n) / 10;
