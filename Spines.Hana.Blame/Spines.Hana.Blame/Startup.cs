@@ -58,6 +58,7 @@ namespace Spines.Hana.Blame
 
       services.Configure<AuthMessageSenderOptions>(Configuration);
       services.Configure<InitializeIdentityOptions>(Configuration);
+      services.Configure<CopyrightOptions>(Configuration);
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

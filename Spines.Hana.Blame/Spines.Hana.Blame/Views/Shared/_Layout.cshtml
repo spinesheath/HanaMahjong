@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@using System
+@{
+    ViewData["CopyrightYear"] = DateTime.Today.Year;
+}
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8"/>
@@ -45,7 +50,7 @@
     @RenderBody()
     <hr/>
     <footer>
-        <p>&copy; 2017 - Spines.Hana.Blame</p>
+        <p>Copyright &copy; @ViewData["CopyrightYear"] - @ViewData["CopyrightHolder"]</p>
     </footer>
 </div>
 

@@ -2,13 +2,21 @@
 // See the LICENSE file in the project root for more information.
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Spines.Hana.Blame.Models;
 
 namespace Spines.Hana.Blame.Controllers
 {
   public class HomeController : Controller
   {
+    public HomeController(IOptions<CopyrightOptions> optionsAccessor)
+    {
+      _options = optionsAccessor.Value;
+    }
+
     public IActionResult Index()
     {
+      ViewData["CopyrightHolder"] = _options.CopyrightHolder;
       return View();
     }
 
@@ -28,5 +36,7 @@ namespace Spines.Hana.Blame.Controllers
     {
       return ViewComponent("Thread", hand);
     }
+
+    private readonly CopyrightOptions _options;
   }
 }
