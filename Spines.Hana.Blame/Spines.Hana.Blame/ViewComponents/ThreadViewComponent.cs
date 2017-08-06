@@ -26,7 +26,7 @@ namespace Spines.Hana.Blame.ViewComponents
         var threadViewModel = await LoadThread(hand);
         return View(threadViewModel);
       }
-      return View(new ThreadViewModel(Enumerable.Empty<string>()));
+      return View(new ThreadViewModel());
     }
 
     private readonly ApplicationDbContext _context;
@@ -34,7 +34,10 @@ namespace Spines.Hana.Blame.ViewComponents
     private async Task<ThreadViewModel> LoadThread(string hand)
     {
       var comments = await _context.WwydThreads.Where(t => t.Hand == hand).SelectMany(t => t.Comments).ToListAsync();
-      return new ThreadViewModel(comments.Select(c => c.Message));
+      var threadViewModel = new ThreadViewModel();
+      threadViewModel.Comments.AddRange(comments.Select(c => c.Message));
+      threadViewModel.Hand = hand;
+      return threadViewModel;
     }
   }
 }
