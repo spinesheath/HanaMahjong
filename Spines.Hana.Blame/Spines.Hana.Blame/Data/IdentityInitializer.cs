@@ -22,16 +22,16 @@ namespace Spines.Hana.Blame.Data
 
     public async Task Seed()
     {
-      if (!await _roleManager.RoleExistsAsync(RoleNameAdmin))
+      if (!await _roleManager.RoleExistsAsync(RoleNames.Admin))
       {
-        var role = new IdentityRole(RoleNameAdmin);
+        var role = new IdentityRole(RoleNames.Admin);
         role.Claims.Add(new IdentityRoleClaim<string> {ClaimType = "IsAdmin", ClaimValue = "True"});
         await _roleManager.CreateAsync(role);
       }
 
       if (_options.RecreateAdminAccount)
       {
-        var existingAdmins = await _userManager.GetUsersInRoleAsync(RoleNameAdmin);
+        var existingAdmins = await _userManager.GetUsersInRoleAsync(RoleNames.Admin);
         foreach (var existingAdmin in existingAdmins)
         {
           await _userManager.DeleteAsync(existingAdmin);
@@ -53,7 +53,7 @@ namespace Spines.Hana.Blame.Data
       };
 
       var userResult = await _userManager.CreateAsync(user, _options.RootAdminPassword);
-      var roleResult = await _userManager.AddToRoleAsync(user, RoleNameAdmin);
+      var roleResult = await _userManager.AddToRoleAsync(user, RoleNames.Admin);
       var claimResult = await _userManager.AddClaimAsync(user, new Claim("SuperUser", "True"));
       var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
       var confirmResult = await _userManager.ConfirmEmailAsync(user, code);
@@ -64,8 +64,7 @@ namespace Spines.Hana.Blame.Data
       }
       throw new InvalidOperationException("Failed to build user and roles");
     }
-
-    private const string RoleNameAdmin = "Admin";
+    
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly InitializeIdentityOptions _options;
