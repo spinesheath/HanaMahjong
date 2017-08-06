@@ -23,7 +23,7 @@ namespace Spines.Hana.Blame.ViewComponents
       var parsed = WwydHand.Parse(hand);
       if (parsed.IsValid)
       {
-        var threadViewModel = await LoadThread(hand);
+        var threadViewModel = await LoadThread(parsed.NormalizedRepresentation);
         return View(threadViewModel);
       }
       return View(new ThreadViewModel());
@@ -31,13 +31,13 @@ namespace Spines.Hana.Blame.ViewComponents
 
     private readonly ApplicationDbContext _context;
 
-    private async Task<ThreadViewModel> LoadThread(string hand)
+    private async Task<ThreadViewModel> LoadThread(string normalizedHand)
     {
-      var comments = await _context.WwydThreads.Where(t => t.Hand == hand).SelectMany(t => t.Comments).ToListAsync();
+      var comments = await _context.WwydThreads.Where(t => t.Hand == normalizedHand).SelectMany(t => t.Comments).ToListAsync();
       var commentViewModels = comments.Select(c => new CommentViewModel { Message = c.Message, Time = c.Time, UserName = c.User.UserName });
       var threadViewModel = new ThreadViewModel();
       threadViewModel.Comments.AddRange(commentViewModels);
-      threadViewModel.Hand = hand;
+      threadViewModel.Hand = normalizedHand;
       return threadViewModel;
     }
   }
