@@ -1,10 +1,8 @@
 ﻿// This file is licensed to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Spines.Hana.Blame.Data;
 using Spines.Hana.Blame.Models.ThreadViewModels;
 using Spines.Hana.Blame.Models.Wwyd;
@@ -33,8 +31,8 @@ namespace Spines.Hana.Blame.ViewComponents
 
     private async Task<ThreadViewModel> LoadThread(string normalizedHand)
     {
-      var comments = await _context.WwydThreads.Where(t => t.Hand == normalizedHand).SelectMany(t => t.Comments).ToListAsync();
-      var commentViewModels = comments.Select(c => new CommentViewModel { Message = c.Message, Time = c.Time, UserName = c.User.UserName });
+      var manager = new ThreadManager(_context);
+      var commentViewModels = await manager.GetCommentViewModelsAsync(normalizedHand);
       var threadViewModel = new ThreadViewModel();
       threadViewModel.Comments.AddRange(commentViewModels);
       threadViewModel.Hand = normalizedHand;
