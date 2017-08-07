@@ -5,7 +5,7 @@
     @if (ViewContext.HttpContext.User != null && ViewContext.HttpContext.User.Identity.IsAuthenticated)
     {
         <div>
-            <textarea asp-for="Message" form="commentForm" cols="40" wrap="soft"></textarea>
+            <textarea asp-for="Message" form="commentForm" cols="100" wrap="soft" class="post-comment-textarea"></textarea>
             <form id="commentForm"
                   method="POST" asp-action="PostComment" asp-controller="Thread"
                   data-ajax="true" data-ajax-method="POST" data-ajax-mode="replace" data-ajax-update="#commentsDiv">

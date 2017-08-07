@@ -53,6 +53,23 @@ textarea {
 }
 
 .comment-border {
-    background-color: gainsboro;
+    background-color: #ffffff;
     overflow: auto;
+    border-style: solid;
+    border-color: #808080;
+    border-width: 1px;
+    margin-top: 10px;
+}
+
+.comment-header {
+    background-color: #778899;
+    overflow: auto;
+    border-style: solid;
+    border-color: #808080;
+    border-width: 0 0 1px 0;
+}
+
+.post-comment-textarea {
+    min-width: 100%;
+    margin-bottom: 10px;
 }

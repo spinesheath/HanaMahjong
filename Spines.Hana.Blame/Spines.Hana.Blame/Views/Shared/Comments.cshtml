@@ -3,6 +3,9 @@
 @foreach (var comment in Model)
 {
     <div class="comment-border">
+        <div class="comment-header">
+            <label>@comment.UserName</label>
+        </div>
         <p>@comment.Message</p>
     </div>
 }
