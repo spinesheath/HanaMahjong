@@ -3,6 +3,12 @@
 function initReplay() {
     replayContext = new RenderContext("replayCanvas");
     replayCreateLights();
+
+    replayContext.createTiles(() => arrange());
+}
+
+function arrange() {
+    
 }
 
 function replayCreateLights() {

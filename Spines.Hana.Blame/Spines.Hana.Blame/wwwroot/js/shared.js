@@ -32,6 +32,27 @@ RenderContext.prototype.createTiles = function(arrange) {
     }
 }
 
+RenderContext.prototype.createTileMesh = function (number, suit) {
+    const left = (100 + number * 32) / 512;
+    const right = (100 + 24 + number * 32) / 512;
+    const top = (512 - 32 - 64 * suit) / 512;
+    const bottom = (512 - 32 - 32 - 64 * suit) / 512;
+    const a = new THREE.Vector2(right, bottom);
+    const b = new THREE.Vector2(left, top);
+    const c = new THREE.Vector2(left, bottom);
+    const d = new THREE.Vector2(right, top);
+
+    const geometryClone = wwydContext.geometry.clone();
+    geometryClone.faceVertexUvs[0][3][0] = a;
+    geometryClone.faceVertexUvs[0][3][1] = b;
+    geometryClone.faceVertexUvs[0][3][2] = c;
+    geometryClone.faceVertexUvs[0][153][0] = a;
+    geometryClone.faceVertexUvs[0][153][1] = d;
+    geometryClone.faceVertexUvs[0][153][2] = b;
+
+    return new THREE.Mesh(geometryClone, material);
+}
+
 function initThreeJS() {
     THREE.DefaultLoadingManager.onLoad = function () { renderContexts.forEach(r => r.render()); };
 }
