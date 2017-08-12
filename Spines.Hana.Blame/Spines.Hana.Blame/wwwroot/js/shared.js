@@ -1,4 +1,40 @@
 ﻿var material;
+var renderContexts = [];
+
+function RenderContext(canvasName) {
+    const canvas = document.querySelector(`#${canvasName}`);
+    const displayWidth = canvas.clientWidth;
+    const displayHeight = canvas.clientHeight;
+    this.camera = createCamera(displayWidth, displayHeight);
+    this.scene = new THREE.Scene();
+    this.renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+    this.renderer.setSize(displayWidth, displayHeight);
+    renderContexts.push(this);
+}
+
+RenderContext.prototype.render = function() {
+    this.renderer.render(this.scene, this.camera);
+};
+
+RenderContext.prototype.createTiles = function(arrange) {
+    removeMeshes(this.scene);
+    createMaterial();
+
+    if (this.geometry === undefined) {
+        getGeometryPromise().then(g => {
+            this.geometry = g;
+            arrange();
+            this.render();
+        });
+    } else {
+        arrange();
+        this.render();
+    }
+}
+
+function initThreeJS() {
+    THREE.DefaultLoadingManager.onLoad = function () { renderContexts.forEach(r => r.render()); };
+}
 
 function resourceUrl(folder, filename) {
     return `/resources/${folder}/${filename}`;
@@ -50,39 +86,4 @@ function createCamera(width, height) {
     camera.position.z = 15;
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     return camera;
-}
-
-var renderContexts = [];
-
-function RenderContext(canvasName) {
-    const canvas = document.querySelector("#" + canvasName);
-    const displayWidth = canvas.clientWidth;
-    const displayHeight = canvas.clientHeight;
-    this.camera = createCamera(displayWidth, displayHeight);
-    this.scene = new THREE.Scene();
-    this.renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-    this.renderer.setSize(displayWidth, displayHeight);
-    renderContexts.push(this);
-}
-RenderContext.prototype.render = function () { this.renderer.render(this.scene, this.camera); };
-RenderContext.prototype.clearMeshes = function () { removeMeshes(this.scene); };
-
-function createTiles(context, arrange) {
-    context.clearMeshes();
-    createMaterial();
-
-    if (context.geometry === undefined) {
-        getGeometryPromise().then(g => {
-            context.geometry = g;
-            arrange();
-            context.render();
-        });
-    } else {
-        arrange();
-        context.render();
-    }
-}
-
-function initThreeJS() {
-    THREE.DefaultLoadingManager.onLoad = function () { renderContexts.forEach(r => r.render()); };
 }

@@ -14,14 +14,6 @@ function initTilesAndThread() {
     createWwydTiles(hand);
 }
 
-function setHand(hand) {
-    document.getElementById("handInput").value = hand;
-}
-
-function getHand() {
-    return document.getElementById("handInput").value;
-}
-
 function onPopState(e) {
     const hand = e.state;
     if (hand) {
@@ -37,7 +29,7 @@ function changeUrl(val) {
 
 function createWwydTiles(hand) {
     loadThread(hand);
-    createTiles(wwydContext, () => arrangeTiles(parseWwyd(hand)));
+    wwydContext.createTiles(() => arrangeTiles(parseWwyd(hand)));
 }
 
 function loadThread(val) {
@@ -181,4 +173,12 @@ function parseWwyd(hand) {
     catch (e) {
         return [];
     }
+}
+
+function setHand(hand) {
+    document.getElementById("handInput").value = hand;
+}
+
+function getHand() {
+    return document.getElementById("handInput").value;
 }
