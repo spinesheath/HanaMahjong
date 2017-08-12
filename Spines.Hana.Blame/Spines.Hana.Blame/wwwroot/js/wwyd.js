@@ -27,15 +27,15 @@ function onPopState(e) {
     var hand = e.state;
     if (hand) {
         setHand(hand);
-        createTiles(parseWwyd(hand));
         loadThread(hand);
+        createTiles(parseWwyd(hand));
     }
 }
 
 function changeUrl(val) {
-    createTiles(parseWwyd(val));
     window.history.pushState(val, "", "//" + location.host + location.pathname + "?h=" + val);
     loadThread(val);
+    createTiles(parseWwyd(val));
 }
 
 function loadThread(val) {
@@ -60,17 +60,26 @@ function createTiles(tileTypes) {
     createMaterial();
 
     if (wwydContext.geometry === undefined) {
-        var jsonloader = new THREE.JSONLoader();
-        jsonloader.load(resourceUrl("geometries", "tile.json"),
-            function (g) {
-                wwydContext.geometry = g;
-                arrangeTiles(tileTypes);
-            }
-        );
+        getGeometryPromise().then(g => {
+            wwydContext.geometry = g;
+            arrangeTiles(tileTypes);
+            wwydContext.render();
+        });
     } else {
         arrangeTiles(tileTypes);
         wwydContext.render();
     }
+}
+
+function getGeometryPromise() {
+    return new Promise((resolve, reject) => {
+        var jsonloader = new THREE.JSONLoader();
+        jsonloader.load(resourceUrl("geometries", "tile.json"),
+            function(g) {
+                resolve(g);
+            }
+        );
+    });
 }
 
 function arrangeTiles(tileTypes) {

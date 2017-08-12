@@ -55,7 +55,3 @@ function RenderContext(canvasName) {
 }
 RenderContext.prototype.render = function () { this.renderer.render(this.scene, this.camera); };
 RenderContext.prototype.clearMeshes = function () { removeMeshes(this.scene); };
-
-function initThreeJS() {
-    THREE.DefaultLoadingManager.onLoad = function () { renderContexts.forEach(r => r.render()); };
-}
