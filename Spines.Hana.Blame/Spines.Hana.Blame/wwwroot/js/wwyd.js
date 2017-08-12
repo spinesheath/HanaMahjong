@@ -1,7 +1,36 @@
-﻿var scene;
-var renderer;
-var camera;
-var geometry;
+﻿var wwydContext;
+
+function initWwyd() {
+    window.onpopstate = onPopState;
+    wwydContext = new RenderContext("wwydCanvas");
+    createLights();
+    initTilesAndThread();
+}
+
+function initTilesAndThread() {
+    var params = new URLSearchParams(window.location.search);
+    var hand = params.get("h");
+    setHand(hand);
+    createTiles(parseWwyd(hand));
+    loadThread(hand);
+}
+
+function setHand(hand) {
+    document.getElementById("handInput").value = hand;
+}
+
+function getHand() {
+    return document.getElementById("handInput").value;
+}
+
+function onPopState(e) {
+    var hand = e.state;
+    if (hand) {
+        setHand(hand);
+        createTiles(parseWwyd(hand));
+        loadThread(hand);
+    }
+}
 
 function changeUrl(val) {
     createTiles(parseWwyd(val));
@@ -26,64 +55,21 @@ function loadThread(val) {
     }
 }
 
-function initTilesAndThread() {
-    var params = new URLSearchParams(window.location.search);
-    var hand = params.get("h");
-    setHand(hand);
-    createTiles(parseWwyd(hand));
-    loadThread(hand);
-}
-
-function setHand(hand) {
-    document.getElementById("handInput").value = hand;
-}
-
-function getHand() {
-    return document.getElementById("handInput").value;
-}
-
-function initWwyd() {
-
-    window.onpopstate = function (e) {
-        var hand = e.state;
-        if (hand) {
-            setHand(hand);
-            createTiles(parseWwyd(hand));
-            loadThread(hand);
-        }
-    };
-
-    var canvas = document.querySelector("#wwydCanvas");
-    var displayWidth = canvas.clientWidth;
-    var displayHeight = canvas.clientHeight;
-    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-    renderer.setSize(displayWidth, displayHeight);
-
-    camera = createCamera(displayWidth, displayHeight);
-    scene = new THREE.Scene();
-
-    THREE.DefaultLoadingManager.onLoad = render;
-
-    createLights(scene);
-
-    initTilesAndThread();
-}
-
 function createTiles(tileTypes) {
-    removeMeshes(scene);
+    wwydContext.clearMeshes();
     createMaterial();
 
-    if (geometry === undefined) {
+    if (wwydContext.geometry === undefined) {
         var jsonloader = new THREE.JSONLoader();
         jsonloader.load(resourceUrl("geometries", "tile.json"),
             function (g) {
-                geometry = g;
+                wwydContext.geometry = g;
                 arrangeTiles(tileTypes);
             }
         );
     } else {
         arrangeTiles(tileTypes);
-        render();
+        wwydContext.render();
     }
 }
 
@@ -101,7 +87,7 @@ function arrangeTiles(tileTypes) {
         var c = new THREE.Vector2(left, bottom);
         var d = new THREE.Vector2(right, top);
 
-        var geometryClone = geometry.clone();
+        var geometryClone = wwydContext.geometry.clone();
         geometryClone.faceVertexUvs[0][3][0] = a;
         geometryClone.faceVertexUvs[0][3][1] = b;
         geometryClone.faceVertexUvs[0][3][2] = c;
@@ -119,43 +105,18 @@ function arrangeTiles(tileTypes) {
         }
         mesh.rotation.x = Math.PI * 1.5;
         mesh.rotation.z = Math.PI * 1;
-        scene.add(mesh);
+        wwydContext.scene.add(mesh);
     }
 }
 
-function resourceUrl(folder, filename) {
-    return "/resources/" + folder + "/" + filename;
-}
-
-function render() {
-    renderer.render(scene, camera);
-}
-
-function createCamera(width, height) {
-    var tempHeight = 400;
-    var viewAngle = 45;
-    var near = 0.1;
-    var far = 10000;
-    var tanFov = Math.tan(((Math.PI / 180) * viewAngle / 2));
-    var fov = (360 / Math.PI) * Math.atan(tanFov * (height / tempHeight));
-    var cameraAspect = width / height;
-
-    var camera = new THREE.PerspectiveCamera(fov, cameraAspect, near, far);
-    camera.position.x = 0;
-    camera.position.y = 0;
-    camera.position.z = 15;
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
-    return camera;
-}
-
-function createLights(scene) {
+function createLights() {
     var light = new THREE.AmbientLight(0x999999);
-    scene.add(light);
+    wwydContext.scene.add(light);
     var pointLight = new THREE.PointLight(0x555555);
     pointLight.position.x = 100;
     pointLight.position.y = 100;
     pointLight.position.z = 700;
-    scene.add(pointLight);
+    wwydContext.scene.add(pointLight);
 }
 
 function isValidHand(hand) {
