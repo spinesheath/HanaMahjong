@@ -2,6 +2,11 @@
     ViewData["Title"] = "WWYD";
 }
 
+<div>
+    <canvas id="replayCanvas" width="600" height="600"></canvas>
+</div>
+
+
 <input id="handInput" type="text" onchange="changeUrl(this.value)" value="@(ViewData["Hand"])" />
 
 <div>
@@ -14,5 +19,6 @@
 {
     <script>
         $(initWwyd);
+        $(initReplay);
     </script>
 }

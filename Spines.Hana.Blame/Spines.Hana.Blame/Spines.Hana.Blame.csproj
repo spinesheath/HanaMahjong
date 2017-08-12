@@ -57,6 +57,11 @@
     <Folder Include="wwwroot\resources\textures\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="wwwroot\js\replay.js" />
+    <None Include="wwwroot\js\shared.js" />
+    <None Include="wwwroot\js\wwyd.js" />
+  </ItemGroup>
+  <ItemGroup>
     <WCFMetadata Include="Connected Services" />
   </ItemGroup>
 

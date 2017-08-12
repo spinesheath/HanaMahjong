@@ -4,6 +4,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Spines.Hana.Blame.Models;
+using Spines.Hana.Blame.Services.ReplayManager;
 
 namespace Spines.Hana.Blame.Controllers
 {
@@ -16,6 +17,9 @@ namespace Spines.Hana.Blame.Controllers
 
     public IActionResult Index()
     {
+      var replayManager = new ReplayManager();
+      var replay = replayManager.GetReplay("x");
+      ViewData["GameData"] = replay.Data;
       ViewData["CopyrightHolder"] = _options.CopyrightHolder;
       return View();
     }
