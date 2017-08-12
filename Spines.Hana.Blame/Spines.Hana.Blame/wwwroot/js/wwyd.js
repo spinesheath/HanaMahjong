@@ -8,8 +8,8 @@ function initWwyd() {
 }
 
 function initTilesAndThread() {
-    var params = new URLSearchParams(window.location.search);
-    var hand = params.get("h");
+    const params = new URLSearchParams(window.location.search);
+    const hand = params.get("h");
     setHand(hand);
     createTiles(parseWwyd(hand));
     loadThread(hand);
@@ -24,7 +24,7 @@ function getHand() {
 }
 
 function onPopState(e) {
-    var hand = e.state;
+    const hand = e.state;
     if (hand) {
         setHand(hand);
         loadThread(hand);
@@ -33,19 +33,19 @@ function onPopState(e) {
 }
 
 function changeUrl(val) {
-    window.history.pushState(val, "", "//" + location.host + location.pathname + "?h=" + val);
+    window.history.pushState(val, "", `//${location.host}${location.pathname}?h=${val}`);
     loadThread(val);
     createTiles(parseWwyd(val));
 }
 
 function loadThread(val) {
     if (isValidHand(val)) {
-        var xhr = $.ajax({
+        const xhr = $.ajax({
             type: "GET",
             url: "/Home/GetThread",
             data: { hand: val },
             success: function (data, textStatus, xhr2) {
-                var hand = getHand();
+                const hand = getHand();
                 if (xhr2.hand === hand) {
                     $("#threadDiv").html(data);
                 }
@@ -71,32 +71,21 @@ function createTiles(tileTypes) {
     }
 }
 
-function getGeometryPromise() {
-    return new Promise((resolve, reject) => {
-        var jsonloader = new THREE.JSONLoader();
-        jsonloader.load(resourceUrl("geometries", "tile.json"),
-            function(g) {
-                resolve(g);
-            }
-        );
-    });
-}
-
 function arrangeTiles(tileTypes) {
-    for (var i = 0; i < tileTypes.length && i < 14; i++) {
-        var tileType = tileTypes[i];
-        var x = tileType[0]; // number
-        var y = tileType[1]; // suit
-        var left = (100 + x * 32) / 512;
-        var right = (100 + 24 + x * 32) / 512;
-        var top = (512 - 32 - 64 * y) / 512;
-        var bottom = (512 - 32 - 32 - 64 * y) / 512;
-        var a = new THREE.Vector2(right, bottom);
-        var b = new THREE.Vector2(left, top);
-        var c = new THREE.Vector2(left, bottom);
-        var d = new THREE.Vector2(right, top);
+    for (let i = 0; i < tileTypes.length && i < 14; i++) {
+        const tileType = tileTypes[i];
+        const x = tileType[0]; // number
+        const y = tileType[1]; // suit
+        const left = (100 + x * 32) / 512;
+        const right = (100 + 24 + x * 32) / 512;
+        const top = (512 - 32 - 64 * y) / 512;
+        const bottom = (512 - 32 - 32 - 64 * y) / 512;
+        const a = new THREE.Vector2(right, bottom);
+        const b = new THREE.Vector2(left, top);
+        const c = new THREE.Vector2(left, bottom);
+        const d = new THREE.Vector2(right, top);
 
-        var geometryClone = wwydContext.geometry.clone();
+        const geometryClone = wwydContext.geometry.clone();
         geometryClone.faceVertexUvs[0][3][0] = a;
         geometryClone.faceVertexUvs[0][3][1] = b;
         geometryClone.faceVertexUvs[0][3][2] = c;
@@ -104,8 +93,8 @@ function arrangeTiles(tileTypes) {
         geometryClone.faceVertexUvs[0][153][1] = d;
         geometryClone.faceVertexUvs[0][153][2] = b;
 
-        var tileWidth = 0.97;
-        var mesh = new THREE.Mesh(geometryClone, material);
+        const tileWidth = 0.97;
+        const mesh = new THREE.Mesh(geometryClone, material);
         if (i === 13) {
             mesh.translateX(i * tileWidth - 7 * tileWidth + 0.2 * tileWidth);
         }
@@ -119,9 +108,9 @@ function arrangeTiles(tileTypes) {
 }
 
 function createLights() {
-    var light = new THREE.AmbientLight(0x999999);
+    const light = new THREE.AmbientLight(0x999999);
     wwydContext.scene.add(light);
-    var pointLight = new THREE.PointLight(0x555555);
+    const pointLight = new THREE.PointLight(0x555555);
     pointLight.position.x = 100;
     pointLight.position.y = 100;
     pointLight.position.z = 700;
