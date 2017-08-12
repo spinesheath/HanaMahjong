@@ -67,6 +67,22 @@ function RenderContext(canvasName) {
 RenderContext.prototype.render = function () { this.renderer.render(this.scene, this.camera); };
 RenderContext.prototype.clearMeshes = function () { removeMeshes(this.scene); };
 
+function createTiles(context, arrange) {
+    context.clearMeshes();
+    createMaterial();
+
+    if (context.geometry === undefined) {
+        getGeometryPromise().then(g => {
+            context.geometry = g;
+            arrange();
+            context.render();
+        });
+    } else {
+        arrange();
+        context.render();
+    }
+}
+
 function initThreeJS() {
     THREE.DefaultLoadingManager.onLoad = function () { renderContexts.forEach(r => r.render()); };
 }

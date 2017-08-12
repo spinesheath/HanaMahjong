@@ -11,8 +11,7 @@ function initTilesAndThread() {
     const params = new URLSearchParams(window.location.search);
     const hand = params.get("h");
     setHand(hand);
-    createTiles(parseWwyd(hand));
-    loadThread(hand);
+    createWwydTiles(hand);
 }
 
 function setHand(hand) {
@@ -27,15 +26,18 @@ function onPopState(e) {
     const hand = e.state;
     if (hand) {
         setHand(hand);
-        loadThread(hand);
-        createTiles(parseWwyd(hand));
+        createWwydTiles(hand);
     }
 }
 
 function changeUrl(val) {
     window.history.pushState(val, "", `//${location.host}${location.pathname}?h=${val}`);
-    loadThread(val);
-    createTiles(parseWwyd(val));
+    createWwydTiles(val);
+}
+
+function createWwydTiles(hand) {
+    loadThread(hand);
+    createTiles(wwydContext, () => arrangeTiles(parseWwyd(hand)));
 }
 
 function loadThread(val) {
@@ -55,31 +57,13 @@ function loadThread(val) {
     }
 }
 
-function createTiles(tileTypes) {
-    wwydContext.clearMeshes();
-    createMaterial();
-
-    if (wwydContext.geometry === undefined) {
-        getGeometryPromise().then(g => {
-            wwydContext.geometry = g;
-            arrangeTiles(tileTypes);
-            wwydContext.render();
-        });
-    } else {
-        arrangeTiles(tileTypes);
-        wwydContext.render();
-    }
-}
-
 function arrangeTiles(tileTypes) {
     for (let i = 0; i < tileTypes.length && i < 14; i++) {
-        const tileType = tileTypes[i];
-        const x = tileType[0]; // number
-        const y = tileType[1]; // suit
-        const left = (100 + x * 32) / 512;
-        const right = (100 + 24 + x * 32) / 512;
-        const top = (512 - 32 - 64 * y) / 512;
-        const bottom = (512 - 32 - 32 - 64 * y) / 512;
+        const [number, suit] = tileTypes[i];
+        const left = (100 + number * 32) / 512;
+        const right = (100 + 24 + number * 32) / 512;
+        const top = (512 - 32 - 64 * suit) / 512;
+        const bottom = (512 - 32 - 32 - 64 * suit) / 512;
         const a = new THREE.Vector2(right, bottom);
         const b = new THREE.Vector2(left, top);
         const c = new THREE.Vector2(left, bottom);
