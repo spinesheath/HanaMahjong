@@ -42,7 +42,7 @@ RenderContext.prototype.createTileMesh = function (number, suit) {
     const c = new THREE.Vector2(left, bottom);
     const d = new THREE.Vector2(right, top);
 
-    const geometryClone = wwydContext.geometry.clone();
+    const geometryClone = this.geometry.clone();
     geometryClone.faceVertexUvs[0][3][0] = a;
     geometryClone.faceVertexUvs[0][3][1] = b;
     geometryClone.faceVertexUvs[0][3][2] = c;
@@ -51,6 +51,13 @@ RenderContext.prototype.createTileMesh = function (number, suit) {
     geometryClone.faceVertexUvs[0][153][2] = b;
 
     return new THREE.Mesh(geometryClone, material);
+}
+
+RenderContext.prototype.setCameraPosition = function (x, y, z) {
+    this.camera.position.x = x;
+    this.camera.position.y = y;
+    this.camera.position.z = z;
+    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 }
 
 function initThreeJS() {
@@ -100,11 +107,5 @@ function createCamera(width, height) {
     const tanFov = Math.tan(((Math.PI / 180) * viewAngle / 2));
     const fov = (360 / Math.PI) * Math.atan(tanFov * (height / tempHeight));
     const cameraAspect = width / height;
-
-    const camera = new THREE.PerspectiveCamera(fov, cameraAspect, near, far);
-    camera.position.x = 0;
-    camera.position.y = 0;
-    camera.position.z = 15;
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
-    return camera;
+    return new THREE.PerspectiveCamera(fov, cameraAspect, near, far);
 }

@@ -3,6 +3,7 @@
 function initWwyd() {
     window.onpopstate = onPopState;
     wwydContext = new RenderContext("wwydCanvas");
+    wwydContext.setCameraPosition(0, 0, 15);
     createLights();
     initTilesAndThread();
 }
