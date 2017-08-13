@@ -8,10 +8,34 @@ function initReplay() {
     replayContext.createTiles(() => arrange());
 }
 
+const tileDepth = 0.78;
+const tileWidth = 0.97;
+const tileHeight = 1.3;
+
 function arrange() {
-    const tileDepth = 0.78;
-    const tileWidth = 0.97;
-    const tileHeight = 1.3;
+    createWall();
+    createPond();
+}
+
+function createPond() {
+    const a = -(3 * tileWidth);
+    var tileId = 0;
+    for (let i = 0; i < 4; i++) {
+        let x = a + 0.5 * tileWidth;
+        let y = a - 0.5 * tileHeight;
+        for (let j = 0; j < 3; j++) {
+            for (let k = 0; k < 6; k++) {
+                addTile(i, tileId, x, y, 0, true);
+                tileId += 1;
+                x += tileWidth;
+            }
+            y -= tileHeight;
+            x = a + 0.5 * tileWidth;
+        }
+    }
+}
+
+function createWall() {
     const gap = 0.2;
     const a = -(17 * tileWidth + tileHeight + gap) / 2;
     var tileId = 0;
@@ -20,21 +44,7 @@ function arrange() {
         const y = a + 0.5 * tileHeight;
         for (let j = 0; j < 17; j++) {
             for (let k = 0; k < 2; k++) {
-                const number = numberFromTileId(tileId);
-                const suit = suitFromTileId(tileId);
-                const mesh = replayContext.createTileMesh(number, suit);
-
-                mesh.rotateZ(Math.PI * 0.5 * i);
-                mesh.translateX(x);
-                mesh.translateY(y);
-                mesh.translateZ(k * tileDepth);
-                mesh.rotateX(Math.PI * 0.5);
-                mesh.rotateY(Math.PI);
-                if (tileId !== 21) {
-                    mesh.rotateZ(Math.PI);
-                }
-
-                replayContext.scene.add(mesh);
+                addTile(i, tileId, x, y, k * tileDepth, tileId === 21);
                 tileId += 1;
             }
             if (j === 7 && i === 0) {
@@ -46,6 +56,24 @@ function arrange() {
             x += tileWidth;
         }
     }
+}
+
+function addTile(playerId, tileId, x, y, z, open) {
+    const number = numberFromTileId(tileId);
+    const suit = suitFromTileId(tileId);
+    const mesh = replayContext.createTileMesh(number, suit);
+
+    mesh.rotateZ(Math.PI * 0.5 * playerId);
+    mesh.translateX(x);
+    mesh.translateY(y);
+    mesh.translateZ(z);
+    mesh.rotateX(Math.PI * 0.5);
+    mesh.rotateY(Math.PI);
+    if (!open) {
+        mesh.rotateZ(Math.PI);
+    }
+
+    replayContext.scene.add(mesh);
 }
 
 function suitFromTileId(tileId) {
