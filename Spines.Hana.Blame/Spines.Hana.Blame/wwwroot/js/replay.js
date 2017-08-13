@@ -2,13 +2,14 @@
 
 function initReplay() {
     replayContext = new RenderContext("replayCanvas");
-    replayContext.setCameraPosition(0, 0, 30);
+    replayContext.setCameraPosition(0, 0, 25);
     replayCreateLights();
 
     replayContext.createTiles(() => arrange());
 }
 
 function arrange() {
+    const tileDepth = 0.78;
     const tileWidth = 0.97;
     const tileHeight = 1.3;
     const gap = 0.2;
@@ -20,25 +21,28 @@ function arrange() {
         let x = a + 0.5 * tileWidth + tileHeight + gap;
         const y = a + 0.5 * tileHeight;
         for (let j = 0; j < 17; j++) {
-            const number = numberFromTileId(tileId);
-            const suit = suitFromTileId(tileId);
-            const mesh = replayContext.createTileMesh(number, suit);
+            for (let k = 0; k < 2; k++) {
+                const number = numberFromTileId(tileId);
+                const suit = suitFromTileId(tileId);
+                const mesh = replayContext.createTileMesh(number, suit);
 
-            mesh.rotateZ(Math.PI * 0.5 * i);
-            mesh.translateX(x);
-            mesh.translateY(y);
-            mesh.rotateX(Math.PI * 0.5);
-            mesh.rotateY(Math.PI);
+                mesh.rotateZ(Math.PI * 0.5 * i);
+                mesh.translateX(x);
+                mesh.translateY(y);
+                mesh.translateZ(k * tileDepth);
+                mesh.rotateX(Math.PI * 0.5);
+                mesh.rotateY(Math.PI);
 
-            replayContext.scene.add(mesh);
+                replayContext.scene.add(mesh);
+                tileId += 1;
+            }
             x += tileWidth;
-            tileId += 1;
         }
     }
 }
 
 function suitFromTileId(tileId) {
-    return Math.floor(tileId / 34);
+    return Math.floor(tileId / (9 * 4));
 }
 
 function numberFromTileId(tileId) {
