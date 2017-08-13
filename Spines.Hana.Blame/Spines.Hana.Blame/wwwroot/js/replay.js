@@ -2,7 +2,7 @@
 
 function initReplay() {
     replayContext = new RenderContext("replayCanvas");
-    replayContext.setCameraPosition(0, 0, 25);
+    replayContext.setCameraPosition(0, -20, 30);
     replayCreateLights();
 
     replayContext.createTiles(() => arrange());
@@ -11,10 +11,30 @@ function initReplay() {
 const tileDepth = 0.78;
 const tileWidth = 0.97;
 const tileHeight = 1.3;
+const gap = 0.2;
 
 function arrange() {
     createWall();
     createPond();
+    createHands();
+}
+
+function createHands() {
+    const a = -(14 * tileWidth + gap) / 2;
+    const b = -(11 * tileWidth);
+    var tileId = 0;
+    for (let i = 0; i < 4; i++) {
+        let x = a + 0.5 * tileWidth;
+        const y = b - 0.5 * tileHeight;
+        for (let k = 0; k < 14; k++) {
+            addTile(i, tileId, x, y, 0, i === 0 ? -0.40 : 3);
+            tileId += 1;
+            if (k === 12) {
+                x += gap;
+            }
+            x += tileWidth;
+        }
+    }
 }
 
 function createPond() {
@@ -25,7 +45,7 @@ function createPond() {
         let y = a - 0.5 * tileHeight;
         for (let j = 0; j < 3; j++) {
             for (let k = 0; k < 6; k++) {
-                addTile(i, tileId, x, y, 0, true);
+                addTile(i, tileId, x, y, 0, 0);
                 tileId += 1;
                 x += tileWidth;
             }
@@ -36,7 +56,6 @@ function createPond() {
 }
 
 function createWall() {
-    const gap = 0.2;
     const a = -(17 * tileWidth + tileHeight + gap) / 2;
     var tileId = 0;
     for (let i = 0; i < 4; i++) {
@@ -44,7 +63,7 @@ function createWall() {
         const y = a + 0.5 * tileHeight;
         for (let j = 0; j < 17; j++) {
             for (let k = 0; k < 2; k++) {
-                addTile(i, tileId, x, y, k * tileDepth, tileId === 21);
+                addTile(i, tileId, x, y, k * tileDepth, tileId === 21 ? 0 : 2);
                 tileId += 1;
             }
             if (j === 7 && i === 0) {
@@ -67,11 +86,9 @@ function addTile(playerId, tileId, x, y, z, open) {
     mesh.translateX(x);
     mesh.translateY(y);
     mesh.translateZ(z);
-    mesh.rotateX(Math.PI * 0.5);
+    //mesh.rotateX(Math.PI * 0.5);
     mesh.rotateY(Math.PI);
-    if (!open) {
-        mesh.rotateZ(Math.PI);
-    }
+    mesh.rotateX(Math.PI * 0.5 * (open - 1));
 
     replayContext.scene.add(mesh);
 }

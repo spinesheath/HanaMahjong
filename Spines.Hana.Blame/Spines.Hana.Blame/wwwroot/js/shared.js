@@ -101,7 +101,7 @@ function getGeometryPromise() {
 
 function createCamera(width, height) {
     const tempHeight = 400;
-    const viewAngle = 45;
+    const viewAngle = 30;
     const near = 0.1;
     const far = 10000;
     const tanFov = Math.tan(((Math.PI / 180) * viewAngle / 2));
