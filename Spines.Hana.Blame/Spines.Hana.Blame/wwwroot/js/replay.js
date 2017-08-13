@@ -16,8 +16,6 @@ function arrange() {
     const a = -(17 * tileWidth + tileHeight + gap) / 2;
     var tileId = 0;
     for (let i = 0; i < 4; i++) {
-        //let x = -8.5 * tileWidth + 0.5 * tileWidth;
-        //const y = -8.5 * tileWidth - 0.5 * tileHeight;
         let x = a + 0.5 * tileWidth + tileHeight + gap;
         const y = a + 0.5 * tileHeight;
         for (let j = 0; j < 17; j++) {
@@ -32,9 +30,18 @@ function arrange() {
                 mesh.translateZ(k * tileDepth);
                 mesh.rotateX(Math.PI * 0.5);
                 mesh.rotateY(Math.PI);
+                if (tileId !== 21) {
+                    mesh.rotateZ(Math.PI);
+                }
 
                 replayContext.scene.add(mesh);
                 tileId += 1;
+            }
+            if (j === 7 && i === 0) {
+                x += gap;
+            }
+            if (j === 14 && i === 0) {
+                x += gap;
             }
             x += tileWidth;
         }
