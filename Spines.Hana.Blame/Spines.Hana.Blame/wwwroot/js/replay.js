@@ -19,20 +19,47 @@ function arrange() {
     createHands();
 }
 
+function createMeld(playerId, x, tileIds) {
+    const b = -(11 * tileWidth);
+    const y = b - 0.5 * tileHeight;
+    for (let i = 0; i < tileIds.length; i++) {
+        const tileId = tileIds[i];
+        if (tileIds.length === 4 && i === 0) {
+            addTile(playerId, tileId, x, y, 0, 2, 0);
+            x -= tileWidth;
+        } else if (tileIds.length === 4 && i === 3) {
+            addTile(playerId, tileId, x, y, 0, 0, 1);
+            x -= tileHeight;
+        } else {
+            addTile(playerId, tileId, x, y, 0, 0, 0);
+            x -= tileWidth;
+        }
+    }
+    return x;
+}
+
 function createHands() {
     const a = -(14 * tileWidth + gap) / 2;
     const b = -(11 * tileWidth);
+    const y = b - 0.5 * tileHeight;
     var tileId = 0;
     for (let i = 0; i < 4; i++) {
-        let x = a + 0.5 * tileWidth;
-        const y = b - 0.5 * tileHeight;
-        for (let k = 0; k < 14; k++) {
-            addTile(i, tileId, x, y, 0, i === 0 ? -0.40 : 3);
+        let x = a + 0.5 * tileWidth - tileWidth;
+        let meldX = -a + 4 * tileWidth;
+        const tilesInHand = 14;
+        for (let k = 0; k < tilesInHand; k++) {
+            addTile(i, tileId, x, y, 0, i === 0 ? -0.40 : 3, 0);
             tileId += 1;
-            if (k === 12) {
+            if (k === tilesInHand - 2 && tilesInHand % 3 === 2) {
                 x += gap;
             }
             x += tileWidth;
+        }
+
+        const meldCount = Math.floor((14 - tilesInHand) / 3);
+        for (let j = 0; j < meldCount; ++j) {
+            const meldTileIds = [tileId++, tileId++, tileId++, tileId++];
+            meldX = createMeld(i, meldX, meldTileIds);
         }
     }
 }
@@ -45,7 +72,7 @@ function createPond() {
         let y = a - 0.5 * tileHeight;
         for (let j = 0; j < 3; j++) {
             for (let k = 0; k < 6; k++) {
-                addTile(i, tileId, x, y, 0, 0);
+                addTile(i, tileId, x, y, 0, 0, 0);
                 tileId += 1;
                 x += tileWidth;
             }
@@ -63,7 +90,7 @@ function createWall() {
         const y = a + 0.5 * tileHeight;
         for (let j = 0; j < 17; j++) {
             for (let k = 0; k < 2; k++) {
-                addTile(i, tileId, x, y, k * tileDepth, tileId === 21 ? 0 : 2);
+                addTile(i, tileId, x, y, k * tileDepth, tileId === 21 ? 0 : 2, 0);
                 tileId += 1;
             }
             if (j === 7 && i === 0) {
@@ -77,18 +104,24 @@ function createWall() {
     }
 }
 
-function addTile(playerId, tileId, x, y, z, open) {
+function addTile(playerId, tileId, x, y, z, open, flip) {
     const number = numberFromTileId(tileId);
     const suit = suitFromTileId(tileId);
     const mesh = replayContext.createTileMesh(number, suit);
+
+    if (flip % 2 === 1) {
+        const a = (tileHeight - tileWidth) / 2;
+        x -= a;
+        y -= a;
+    }
 
     mesh.rotateZ(Math.PI * 0.5 * playerId);
     mesh.translateX(x);
     mesh.translateY(y);
     mesh.translateZ(z);
-    //mesh.rotateX(Math.PI * 0.5);
     mesh.rotateY(Math.PI);
     mesh.rotateX(Math.PI * 0.5 * (open - 1));
+    mesh.rotateY(Math.PI * 0.5 * (flip));
 
     replayContext.scene.add(mesh);
 }
