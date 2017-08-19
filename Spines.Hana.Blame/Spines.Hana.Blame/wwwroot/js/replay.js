@@ -22,8 +22,9 @@ function arrange() {
     const oyaId = 0;
     const tilesDrawn = 13 * 4;
     const rinshanTilesDrawn = 0;
+    const doraIndicators = 1;
 
-    createWall(wall, dice, oyaId, tilesDrawn, rinshanTilesDrawn);
+    createWall(wall, dice, oyaId, tilesDrawn, rinshanTilesDrawn, doraIndicators);
     //createPond();
     createHands(wall, oyaId);
 }
@@ -65,7 +66,7 @@ function getDealtTileIds(wall, playerId, oyaId) {
     return tileIds;
 }
 
-function createWall(wall, dice, oyaId, tilesDrawn, rinshanTilesDrawn) {
+function createWall(wall, dice, oyaId, tilesDrawn, rinshanTilesDrawn, doraIndicators) {
     const layoutOffset = -(17 * tileWidth + tileHeight + gap) / 2;
     const y = layoutOffset + 0.5 * tileHeight;
     const xStart = layoutOffset + 0.5 * tileWidth + tileHeight + gap;
@@ -86,7 +87,8 @@ function createWall(wall, dice, oyaId, tilesDrawn, rinshanTilesDrawn) {
                 const rinshanId = shiftedId % 2 === 0 ? shiftedId + 1 : shiftedId - 1;
                 if (rinshanId >= rinshanTilesDrawn && shiftedId < 136 - tilesDrawn) {
                     const tileId = wall[shiftedId];
-                    addTile(i, tileId, x, y, k * tileDepth, shiftedId === 5 ? 0 : 2, 0);
+                    const isDoraIndicator = shiftedId > 4 && shiftedId % 2 === 1 && shiftedId < 4 + doraIndicators * 2;
+                    addTile(i, tileId, x, y, k * tileDepth, isDoraIndicator ? 0 : 2, 0);
                 }
                 wallId += 1;
                 if (shiftedId === 13) {
