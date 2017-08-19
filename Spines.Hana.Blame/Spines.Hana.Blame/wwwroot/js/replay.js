@@ -26,6 +26,8 @@ function arrange() {
 
 function createWall(wall, dice, oyaId) {
     const layoutOffset = -(17 * tileWidth + tileHeight + gap) / 2;
+    const y = layoutOffset + 0.5 * tileHeight;
+    const xStart = layoutOffset + 0.5 * tileWidth + tileHeight + gap;
 
     const diceSum = dice[0] + dice[1];
     const wallOffset = (20 - diceSum - oyaId) * 34 + diceSum * 2;
@@ -33,8 +35,7 @@ function createWall(wall, dice, oyaId) {
     var wallId = 0;
 
     for (let i = 0; i < 4; i++) {
-        let x = layoutOffset + 0.5 * tileWidth + tileHeight + gap;
-        const y = layoutOffset + 0.5 * tileHeight;
+        let x = xStart;
         for (let j = 0; j < 17; j++) {
             for (let k = 0; k < 2; k++) {
                 const shiftedId = (wallId + wallOffset) % 136;
