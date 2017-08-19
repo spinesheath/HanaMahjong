@@ -20,7 +20,7 @@ function arrange() {
     const dice = data.slice(136, 138);
 
     const oyaId = 0;
-    const tilesDrawn = 13 * 3;
+    const tilesDrawn = 13 * 4;
     const rinshanTilesDrawn = 0;
 
     createWall(wall, dice, oyaId, tilesDrawn, rinshanTilesDrawn);
@@ -83,8 +83,11 @@ function createWall(wall, dice, oyaId, tilesDrawn, rinshanTilesDrawn) {
                 if (shiftedId === 0) {
                     x += gap;
                 }
-                const tileId = wall[shiftedId];
-                addTile(i, tileId, x, y, k * tileDepth, shiftedId === 5 ? 0 : 2, 0);
+                const rinshanId = shiftedId % 2 === 0 ? shiftedId + 1 : shiftedId - 1;
+                if (rinshanId >= rinshanTilesDrawn && shiftedId < 136 - tilesDrawn) {
+                    const tileId = wall[shiftedId];
+                    addTile(i, tileId, x, y, k * tileDepth, shiftedId === 5 ? 0 : 2, 0);
+                }
                 wallId += 1;
                 if (shiftedId === 13) {
                     x += gap;
