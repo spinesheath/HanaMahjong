@@ -3,6 +3,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Spines.Hana.Blame.Models;
 using Spines.Hana.Blame.Services.ReplayManager;
 
@@ -19,7 +20,8 @@ namespace Spines.Hana.Blame.Controllers
     {
       var replayManager = new ReplayManager();
       var replay = replayManager.GetReplay("x");
-      ViewData["GameData"] = replay.Data;
+      var json = JsonConvert.SerializeObject(replay.Data);
+      ViewData["GameDataJson"] = json;
       ViewData["CopyrightHolder"] = _options.CopyrightHolder;
       return View();
     }

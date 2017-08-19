@@ -1,4 +1,8 @@
 ﻿var replayContext;
+const tileDepth = 0.78;
+const tileWidth = 0.97;
+const tileHeight = 1.28;
+const gap = 0.2;
 
 function initReplay() {
     replayContext = new RenderContext("replayCanvas");
@@ -8,15 +12,44 @@ function initReplay() {
     replayContext.createTiles(() => arrange());
 }
 
-const tileDepth = 0.78;
-const tileWidth = 0.97;
-const tileHeight = 1.3;
-const gap = 0.2;
-
 function arrange() {
-    createWall();
+    const input = document.querySelector("#gameDataJson");
+    const json = input.value;
+    const data = JSON.parse(json);
+    const wall = data.slice(0, 136);
+    const dice = data.slice(136, 138);
+
+    createWall(wall, dice, 0);
     createPond();
     createHands();
+}
+
+function createWall(wall, dice, oyaId) {
+    const a = -(17 * tileWidth + tileHeight + gap) / 2;
+
+    const yamaOffset = ((4 * 5 - 1 - (dice[0] + dice[1]) - oyaId) * 34 + (dice[0] + dice[1]) * 2 + 4) % 136;
+
+    var wallId = 0;
+
+    for (let i = 0; i < 4; i++) {
+        let x = a + 0.5 * tileWidth + tileHeight + gap;
+        const y = a + 0.5 * tileHeight;
+        for (let j = 0; j < 17; j++) {
+            for (let k = 0; k < 2; k++) {
+                const shiftedId = (146 + wallId - yamaOffset + 2 * 136) % 136;
+                if (shiftedId === 0) {
+                    x += gap;
+                }
+                const tileId = wall[shiftedId];
+                addTile(i, tileId, x, y, k * tileDepth, shiftedId === 5 ? 0 : 2, 0);
+                wallId += 1;
+                if (shiftedId === 13) {
+                    x += gap;
+                }
+            }
+            x += tileWidth;
+        }
+    }
 }
 
 function createMeld(playerId, x, tileIds) {
@@ -78,28 +111,6 @@ function createPond() {
             }
             y -= tileHeight;
             x = a + 0.5 * tileWidth;
-        }
-    }
-}
-
-function createWall() {
-    const a = -(17 * tileWidth + tileHeight + gap) / 2;
-    var tileId = 0;
-    for (let i = 0; i < 4; i++) {
-        let x = a + 0.5 * tileWidth + tileHeight + gap;
-        const y = a + 0.5 * tileHeight;
-        for (let j = 0; j < 17; j++) {
-            for (let k = 0; k < 2; k++) {
-                addTile(i, tileId, x, y, k * tileDepth, tileId === 21 ? 0 : 2, 0);
-                tileId += 1;
-            }
-            if (j === 7 && i === 0) {
-                x += gap;
-            }
-            if (j === 14 && i === 0) {
-                x += gap;
-            }
-            x += tileWidth;
         }
     }
 }
