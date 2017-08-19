@@ -19,12 +19,53 @@ function arrange() {
     const wall = data.slice(0, 136);
     const dice = data.slice(136, 138);
 
-    createWall(wall, dice, 0);
-    createPond();
-    createHands();
+    const oyaId = 0;
+    const tilesDrawn = 13 * 3;
+    const rinshanTilesDrawn = 0;
+
+    createWall(wall, dice, oyaId, tilesDrawn, rinshanTilesDrawn);
+    //createPond();
+    createHands(wall, oyaId);
 }
 
-function createWall(wall, dice, oyaId) {
+function createHands(wall, oyaId) {
+    const a = -(14 * tileWidth + gap) / 2;
+    const b = -(11 * tileWidth);
+    const y = b - 0.5 * tileHeight;
+    for (let i = 0; i < 4; i++) {
+        let x = a + 0.5 * tileWidth - tileWidth;
+        const handTiles = getDealtTileIds(wall, i, oyaId);
+        const tilesInHand = 13;
+        for (let k = 0; k < handTiles.length; k++) {
+            const tileId = handTiles[k];
+            addTile(i, tileId, x, y, 0, i === 0 ? -0.40 : 3, 0);
+            if (k === tilesInHand - 2 && tilesInHand % 3 === 2) {
+                x += gap;
+            }
+            x += tileWidth;
+        }
+
+        //let meldX = -a + 4 * tileWidth;
+        //const meldCount = Math.floor((14 - tilesInHand) / 3);
+        //for (let j = 0; j < meldCount; ++j) {
+        //    const meldTileIds = [wall[135 - wallId++], wall[135 - wallId++], wall[135 - wallId++], wall[135 - wallId++]];
+        //    meldX = createMeld(i, meldX, meldTileIds);
+        //}
+    }
+}
+
+function getDealtTileIds(wall, playerId, oyaId) {
+    var tileIds = [];
+    const offset = (playerId - oyaId) * 4;
+    for (let i = 0; i < 3; i++) {
+        tileIds = tileIds.concat(wall.slice(136 - (offset + i * 16 + 4), 136 - (offset + i * 16)));
+    }
+    tileIds.push(wall[135 - (offset + 3 * 4 * 4)]);
+    tileIds.sort((a, b) => a - b);
+    return tileIds;
+}
+
+function createWall(wall, dice, oyaId, tilesDrawn, rinshanTilesDrawn) {
     const layoutOffset = -(17 * tileWidth + tileHeight + gap) / 2;
     const y = layoutOffset + 0.5 * tileHeight;
     const xStart = layoutOffset + 0.5 * tileWidth + tileHeight + gap;
@@ -71,32 +112,6 @@ function createMeld(playerId, x, tileIds) {
         }
     }
     return x;
-}
-
-function createHands() {
-    const a = -(14 * tileWidth + gap) / 2;
-    const b = -(11 * tileWidth);
-    const y = b - 0.5 * tileHeight;
-    var tileId = 0;
-    for (let i = 0; i < 4; i++) {
-        let x = a + 0.5 * tileWidth - tileWidth;
-        let meldX = -a + 4 * tileWidth;
-        const tilesInHand = 2;
-        for (let k = 0; k < tilesInHand; k++) {
-            addTile(i, tileId, x, y, 0, i === 0 ? -0.40 : 3, 0);
-            tileId += 1;
-            if (k === tilesInHand - 2 && tilesInHand % 3 === 2) {
-                x += gap;
-            }
-            x += tileWidth;
-        }
-
-        const meldCount = Math.floor((14 - tilesInHand) / 3);
-        for (let j = 0; j < meldCount; ++j) {
-            const meldTileIds = [tileId++, tileId++, tileId++, tileId++];
-            meldX = createMeld(i, meldX, meldTileIds);
-        }
-    }
 }
 
 function createPond() {
