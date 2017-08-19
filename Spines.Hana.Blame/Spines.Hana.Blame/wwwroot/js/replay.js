@@ -28,7 +28,7 @@ function createWall(wall, dice, oyaId) {
     const layoutOffset = -(17 * tileWidth + tileHeight + gap) / 2;
 
     const diceSum = dice[0] + dice[1];
-    const wallOffset = 142 - (((19 - diceSum - oyaId) * 34 + diceSum * 2) % 136);
+    const wallOffset = ((20 - diceSum - oyaId) * 34 + diceSum * 2) % 136;
 
     var wallId = 0;
 
