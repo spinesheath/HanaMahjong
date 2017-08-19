@@ -2,7 +2,7 @@
 
 function initReplay() {
     replayContext = new RenderContext("replayCanvas");
-    replayContext.setCameraPosition(0, -20, 30);
+    replayContext.setCameraPosition(0, -21, 31);
     replayCreateLights();
 
     replayContext.createTiles(() => arrange());
@@ -46,7 +46,7 @@ function createHands() {
     for (let i = 0; i < 4; i++) {
         let x = a + 0.5 * tileWidth - tileWidth;
         let meldX = -a + 4 * tileWidth;
-        const tilesInHand = 14;
+        const tilesInHand = 2;
         for (let k = 0; k < tilesInHand; k++) {
             addTile(i, tileId, x, y, 0, i === 0 ? -0.40 : 3, 0);
             tileId += 1;
