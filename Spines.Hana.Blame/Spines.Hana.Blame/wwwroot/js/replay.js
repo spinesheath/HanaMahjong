@@ -25,18 +25,19 @@ function arrange() {
 }
 
 function createWall(wall, dice, oyaId) {
-    const a = -(17 * tileWidth + tileHeight + gap) / 2;
+    const layoutOffset = -(17 * tileWidth + tileHeight + gap) / 2;
 
-    const yamaOffset = ((4 * 5 - 1 - (dice[0] + dice[1]) - oyaId) * 34 + (dice[0] + dice[1]) * 2 + 4) % 136;
+    const diceSum = dice[0] + dice[1];
+    const wallOffset = 142 - (((19 - diceSum - oyaId) * 34 + diceSum * 2) % 136);
 
     var wallId = 0;
 
     for (let i = 0; i < 4; i++) {
-        let x = a + 0.5 * tileWidth + tileHeight + gap;
-        const y = a + 0.5 * tileHeight;
+        let x = layoutOffset + 0.5 * tileWidth + tileHeight + gap;
+        const y = layoutOffset + 0.5 * tileHeight;
         for (let j = 0; j < 17; j++) {
             for (let k = 0; k < 2; k++) {
-                const shiftedId = (146 + wallId - yamaOffset + 2 * 136) % 136;
+                const shiftedId = (wallId + wallOffset) % 136;
                 if (shiftedId === 0) {
                     x += gap;
                 }
