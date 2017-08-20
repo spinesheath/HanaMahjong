@@ -28,12 +28,13 @@ function arrange() {
 
     const games = parseReplay(data);
 
-    arrangeFrame(games[0].frames[1]);
+    arrangeFrame(games[0].frames[2]);
 }
 
 function arrangeFrame(frame) {
     createWall(frame);
     createHands(frame);
+    createPonds(frame);
 }
 
 function parseReplay(data) {
@@ -62,21 +63,59 @@ function parseReplay(data) {
         frame0.doraIndicators = doraIndicators;
         frame0.static = { wall: rawData[gameId].wall, dice: rawData[gameId].dice, akaDora: akaDora, playerCount: playerCount };
         setStartingHands(frame0);
+        frame0.ponds = [[], [], [], []];
         game.frames.push(frame0);
 
-        const previousFrame = frame0;
+        var previousFrame = frame0;
         const decisions = rawData[gameId].decisions;
         let activePlayer = oyaId;
         for (let decisionId = 0; decisionId < decisions.length; decisionId++) {
-            const drawFrame = Object.assign({}, previousFrame);
-            drawFrame.id += 1;
-            drawFrame.tilesDrawn += 1;
-            const drawnTileId = drawFrame.static.wall[135 - tilesDrawn];
-            drawFrame.hands = drawFrame.hands.slice(0);
-            const tileIds = drawFrame.hands[activePlayer].slice(0);
-            tileIds.push(drawnTileId);
-            drawFrame.hands[activePlayer] = tileIds;
-            game.frames.push(drawFrame);
+            {
+                const drawFrame = Object.assign({}, previousFrame);
+                drawFrame.id += 1;
+                drawFrame.tilesDrawn += 1;
+                const drawnTileId = drawFrame.static.wall[135 - tilesDrawn];
+                drawFrame.hands = drawFrame.hands.slice(0);
+                const tileIds = drawFrame.hands[activePlayer].slice(0);
+                tileIds.push(drawnTileId);
+                drawFrame.hands[activePlayer] = tileIds;
+                game.frames.push(drawFrame);
+                previousFrame = drawFrame;
+            }
+
+            const decision = decisions[decisionId];
+            // discard
+            if (decision < 136) {
+                const discardFrame = Object.assign({}, previousFrame);
+                discardFrame.id += 1;
+                discardFrame.hands = discardFrame.hands.slice(0);
+                const tileIds = discardFrame.hands[activePlayer].slice(0);
+                var index = tileIds.indexOf(decision);
+                tileIds.splice(index, 1);
+                tileIds.sort((a, b) => a - b);
+                discardFrame.hands[activePlayer] = tileIds;
+
+                discardFrame.ponds = discardFrame.ponds.slice(0);
+                const pond = discardFrame.ponds[activePlayer].slice(0);
+                pond.push(decision);
+                discardFrame.ponds[activePlayer] = pond;
+
+                game.frames.push(discardFrame);
+
+                previousFrame = discardFrame;
+            } else if (decision === agariId) {
+                
+            } else if (decision === ponId) {
+                
+            } else if (decision === chiiId) {
+
+            } else if (decision === calledKanId) {
+
+            } else if (decision === closedKanId) {
+
+            } else if (decision === addedKanId) {
+
+            }
             break;
         }
 
@@ -102,6 +141,21 @@ function createHands(frame) {
                 x += gap;
             }
             x += tileWidth;
+        }
+    }
+}
+
+function createPonds(frame) {
+    const a = -(3 * tileWidth);
+    const x = a + 0.5 * tileWidth;
+    const y = a - 0.5 * tileHeight;
+    for (let playerId = 0; playerId < frame.static.playerCount; playerId++) {
+        const pond = frame.ponds[playerId];
+        for (let i = 0; i < pond.length; i++) {
+            const row = Math.min(Math.floor(i / 6), 3);
+            const column = i - 6 * row;
+            const tileId = pond[i];
+            addTile(playerId, tileId, x + column * tileWidth, y - row * tileHeight, 0, 0, 0);
         }
     }
 }
@@ -209,24 +263,6 @@ function createMeld(playerId, x, tileIds) {
         }
     }
     return x;
-}
-
-function createPond() {
-    const a = -(3 * tileWidth);
-    var tileId = 0;
-    for (let i = 0; i < 4; i++) {
-        let x = a + 0.5 * tileWidth;
-        let y = a - 0.5 * tileHeight;
-        for (let j = 0; j < 3; j++) {
-            for (let k = 0; k < 6; k++) {
-                addTile(i, tileId, x, y, 0, 0, 0);
-                tileId += 1;
-                x += tileWidth;
-            }
-            y -= tileHeight;
-            x = a + 0.5 * tileWidth;
-        }
-    }
 }
 
 function addTile(playerId, tileId, x, y, z, open, flip) {
