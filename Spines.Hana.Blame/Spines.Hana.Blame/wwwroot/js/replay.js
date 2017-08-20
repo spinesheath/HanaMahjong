@@ -15,22 +15,34 @@ const chiiId = 204;
 
 const allHandsOpen = true;
 
+var replay;
+
+function showFrame(value) {
+    replayContext.createTiles(() => arrange(value));
+}
+
+function loadReplay() {
+    const input = document.querySelector("#gameDataJson");
+    const json = input.value;
+    const data = JSON.parse(json);
+    replay = parseReplay(data);
+}
+
 function initReplay() {
     replayContext = new RenderContext("replayCanvas");
     replayContext.setCameraPosition(0, -21, 31);
     replayCreateLights();
 
-    replayContext.createTiles(() => arrange());
+    const input = document.querySelector("#frameId");
+    const frame = input.value === undefined ? 0 : input.value;
+    replayContext.createTiles(() => arrange(frame));
 }
 
-function arrange() {
-    const input = document.querySelector("#gameDataJson");
-    const json = input.value;
-    const data = JSON.parse(json);
-
-    const games = parseReplay(data);
-
-    arrangeFrame(games[0].frames[3]);
+function arrange(frame) {
+    if (replay === undefined) {
+        loadReplay();
+    }
+    arrangeFrame(replay[0].frames[frame]);
 }
 
 function arrangeFrame(frame) {

@@ -3,7 +3,10 @@
 }
 
 <div>
-    <input id="gameDataJson" type="hidden" value="@(ViewData["GameDataJson"])"/>
+    <input id="frameId" type="number" onchange="showFrame(this.value)" />
+    <input id="gameDataJson" type="hidden" value="@(ViewData["GameDataJson"])" />
+</div>
+<div>
     <canvas id="replayCanvas" width="600" height="600"></canvas>
 </div>
 
