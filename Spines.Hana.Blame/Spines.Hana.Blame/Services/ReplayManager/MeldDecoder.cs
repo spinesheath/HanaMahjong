@@ -77,7 +77,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       {
         if (MeldType == MeldType.Shuntsu)
         {
-          ids[i] = _baseIndex + 4 * i + IntFromBits(_meldCode, 2, 1 + 2 * i);
+          ids[i] = _baseIndex + 4 * i + IntFromBits(_meldCode, 2, 3 + 2 * i);
         }
         else if (MeldType == MeldType.Koutsu)
         {

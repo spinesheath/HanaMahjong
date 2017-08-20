@@ -71,6 +71,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
             data.Add(InitId);
             data.AddRange(generator.GetWall(gameIndex));
             data.AddRange(generator.GetDice(gameIndex));
+            data.Add(Convert.ToInt32(e.Attribute("oya")?.Value));
             gameIndex += 1;
             break;
           case "AGARI":

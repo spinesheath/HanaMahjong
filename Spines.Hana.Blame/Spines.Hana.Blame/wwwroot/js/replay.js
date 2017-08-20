@@ -42,7 +42,7 @@ function arrange(frame) {
     if (replay === undefined) {
         loadReplay();
     }
-    if (frame < replay[0].frames.length) {
+    if (frame < replay[0].frames.length && frame >= 0) {
         arrangeFrame(replay[0].frames[frame]);
     }
 }
@@ -66,12 +66,10 @@ function parseReplay(data) {
         game.frames = [];
         const setupFrame = {};
         setupFrame.id = 0;
-        setupFrame.oya = 0;
         setupFrame.tilesDrawn = 13 * 4;
         setupFrame.rinshanTilesDrawn = 0;
         setupFrame.doraIndicators = defaultDoraIndicatorCount;
-        setupFrame.activePlayer = -1;
-        setupFrame.static = { wall: rawData[gameId].wall, dice: rawData[gameId].dice, akaDora: akaDora, playerCount: playerCount };
+        setupFrame.static = { wall: rawData[gameId].wall, dice: rawData[gameId].dice, akaDora: akaDora, playerCount: playerCount, oya: rawData[gameId].oya };
         setStartingHands(setupFrame);
         setupFrame.ponds = [[], [], [], []];
         game.frames.push(setupFrame);
@@ -83,7 +81,7 @@ function parseReplay(data) {
 
             // discard
             if (decision < 136) {
-                if (previousFrame.activePlayer === -1 || !previousFrame.hands[previousFrame.activePlayer].justCalled) {
+                if (previousFrame.activePlayer === undefined || !previousFrame.hands[previousFrame.activePlayer].justCalled) {
                     const frame = createDrawFrame(previousFrame);
                     game.frames.push(frame);
                     previousFrame = frame;
@@ -114,13 +112,20 @@ function parseReplay(data) {
                 decisionId += 4;
                 break;
             } else if (decision === agariId) {
+                var who = decisions[decisionId + 1];
+                var fromWho = decisions[decisionId + 2];
+                if (who === fromWho) {
+                    const frame = createDrawFrame(previousFrame);
+                    game.frames.push(frame);
+                    previousFrame = frame;
+                } else {
+                    
+                }
                 decisionId += 2;
-                break;
             }
         }
 
         games.push(game);
-        break;
     }
     return games;
 }
@@ -169,7 +174,11 @@ function createDrawFrame(previousFrame) {
     const frame = Object.assign({}, previousFrame);
     frame.id += 1;
     frame.tilesDrawn += 1;
-    frame.activePlayer = (frame.activePlayer + 1) % 4;
+    if (frame.activePlayer === undefined) {
+        frame.activePlayer = frame.static.oya;
+    } else {
+        frame.activePlayer = (frame.activePlayer + 1) % 4;
+    }
     const drawnTileId = frame.static.wall[136 - frame.tilesDrawn];
     frame.hands = frame.hands.slice(0);
     const hand = Object.assign({}, frame.hands[frame.activePlayer]);
@@ -234,7 +243,7 @@ function createPonds(frame) {
 }
 
 function createWall(frame) {
-    const oyaId = frame.oya;
+    const oyaId = frame.static.oya;
     const dice = frame.static.dice;
     const wall = frame.static.wall;
     const tilesDrawn = frame.tilesDrawn;
@@ -277,9 +286,21 @@ function createWall(frame) {
 function setStartingHands(frame) {
     frame.hands = [];
     for (let playerId = 0; playerId < frame.static.playerCount; playerId++) {
-        const tileIds = getDealtTileIds(frame.static.wall, playerId, frame.oya);
+        const tileIds = getDealtTileIds(frame.static.wall, playerId, frame.static.oya);
         frame.hands.push({ tiles: tileIds, melds: [], justCalled: false });
     }
+}
+
+function getDealtTileIds(wall, playerId, oyaId) {
+    var tileIds = [];
+    const playerOffset = (playerId - oyaId  + 4) % 4;
+    const offset = playerOffset * 4;
+    for (let i = 0; i < 3; i++) {
+        tileIds = tileIds.concat(wall.slice(136 - (offset + i * 16 + 4), 136 - (offset + i * 16)));
+    }
+    tileIds.push(wall[135 - (playerOffset + 3 * 4 * 4)]);
+    sort(tileIds);
+    return tileIds;
 }
 
 function splitRawData(data) {
@@ -297,26 +318,17 @@ function splitRawData(data) {
         i += tileCount;
         const dice = data.slice(i, i + diceCount);
         i += diceCount;
+        const oya = data[i];
+        i += 1;
         let c = 0;
         while (data[i + c] !== initId && i + c < data.length) {
             c += 1;
         }
         const decisions = data.slice(i, i + c);
-        rawData.push({ wall: wall, dice: dice, decisions: decisions });
+        rawData.push({ wall: wall, dice: dice, oya: oya, decisions: decisions });
         i += c;
     }
     return rawData;
-}
-
-function getDealtTileIds(wall, playerId, oyaId) {
-    var tileIds = [];
-    const offset = (playerId - oyaId) * 4;
-    for (let i = 0; i < 3; i++) {
-        tileIds = tileIds.concat(wall.slice(136 - (offset + i * 16 + 4), 136 - (offset + i * 16)));
-    }
-    tileIds.push(wall[135 - ((playerId - oyaId) + 3 * 4 * 4)]);
-    sort(tileIds);
-    return tileIds;
 }
 
 function createMeld(playerId, x, meld) {
