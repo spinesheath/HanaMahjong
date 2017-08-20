@@ -34,7 +34,7 @@ function initReplay() {
     replayCreateLights();
 
     const input = document.querySelector("#frameId");
-    const frame = input.value === undefined ? 0 : input.value;
+    const frame = input.value ? input.value : 0;
     replayContext.createTiles(() => arrange(frame));
 }
 
@@ -42,7 +42,9 @@ function arrange(frame) {
     if (replay === undefined) {
         loadReplay();
     }
-    arrangeFrame(replay[0].frames[frame]);
+    if (frame < replay[0].frames.length) {
+        arrangeFrame(replay[0].frames[frame]);
+    }
 }
 
 function arrangeFrame(frame) {
@@ -68,7 +70,7 @@ function parseReplay(data) {
         setupFrame.tilesDrawn = 13 * 4;
         setupFrame.rinshanTilesDrawn = 0;
         setupFrame.doraIndicators = defaultDoraIndicatorCount;
-        setupFrame.activePlayer = 0;
+        setupFrame.activePlayer = -1;
         setupFrame.static = { wall: rawData[gameId].wall, dice: rawData[gameId].dice, akaDora: akaDora, playerCount: playerCount };
         setStartingHands(setupFrame);
         setupFrame.ponds = [[], [], [], []];
@@ -81,9 +83,12 @@ function parseReplay(data) {
 
             // discard
             if (decision < 136) {
-                const frame = createDrawFrame(previousFrame);
-                game.frames.push(frame);
-                previousFrame = frame;
+                if (previousFrame.activePlayer === -1 || !previousFrame.hands[previousFrame.activePlayer].justCalled) {
+                    const frame = createDrawFrame(previousFrame);
+                    game.frames.push(frame);
+                    previousFrame = frame;
+                }
+                
                 const discardFrame = createDiscardFrame(previousFrame, decision);
                 game.frames.push(discardFrame);
                 previousFrame = discardFrame;
@@ -92,29 +97,30 @@ function parseReplay(data) {
                 game.frames.push(frame);
                 previousFrame = frame;
                 decisionId += 3;
-                break;
             } else if (decision === chiiId) {
                 const frame = createCallFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 4));
                 game.frames.push(frame);
                 previousFrame = frame;
                 decisionId += 3;
-                break;
             } else if (decision === calledKanId) {
                 const frame = createCallFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 5));
                 game.frames.push(frame);
                 previousFrame = frame;
                 decisionId += 4;
-                break;
             } else if (decision === closedKanId) {
                 decisionId += 4;
+                break;
             } else if (decision === addedKanId) {
                 decisionId += 4;
+                break;
             } else if (decision === agariId) {
                 decisionId += 2;
+                break;
             }
         }
 
         games.push(game);
+        break;
     }
     return games;
 }
@@ -163,6 +169,7 @@ function createDrawFrame(previousFrame) {
     const frame = Object.assign({}, previousFrame);
     frame.id += 1;
     frame.tilesDrawn += 1;
+    frame.activePlayer = (frame.activePlayer + 1) % 4;
     const drawnTileId = frame.static.wall[136 - frame.tilesDrawn];
     frame.hands = frame.hands.slice(0);
     const hand = Object.assign({}, frame.hands[frame.activePlayer]);

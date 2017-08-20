@@ -84,6 +84,7 @@ function removeMeshes(scene) {
         const child = scene.children[k];
         if (child.type === "Mesh") {
             scene.remove(child);
+            child.geometry.dispose();
         }
     }
 }
