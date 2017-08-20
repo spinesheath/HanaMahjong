@@ -119,6 +119,9 @@ function createCallFrame(previousFrame, meldedTiles) {
     hand.justCalled = true;
     frame.hands[frame.activePlayer] = hand;
 
+    hand.melds = hand.melds.slice(0);
+    hand.melds.push({tiles: meldedTiles});
+
     return frame;
 }
 
@@ -166,20 +169,27 @@ function createHands(frame) {
     const a = -(14 * tileWidth + gap) / 2;
     const b = -(11 * tileWidth);
     const y = b - 0.5 * tileHeight;
-    const startX = a + 0.5 * tileWidth - tileWidth;
+    const handStartX = a + 0.5 * tileWidth - tileWidth;
+    const meldStartX = -a + 4 * tileWidth;
     const flip = (allHandsOpen ? 0 : 3);
 
     for (let i = 0; i < frame.hands.length; i++) {
-        let x = startX;
-        const handTiles = frame.hands[i].tiles;
-        const tilesInHand = handTiles.length;
+        let x = handStartX;
+        const hand = frame.hands[i];
+        const tilesInHand = hand.tiles.length;
         for (let k = 0; k < tilesInHand; k++) {
-            const tileId = handTiles[k];
+            const tileId = hand.tiles[k];
             addTile(i, tileId, x, y, 0, i === 0 ? -0.40 : flip, 0);
             if (!frame.hands[i].justCalled && k === tilesInHand - 2 && tilesInHand % 3 === 2) {
                 x += gap;
             }
             x += tileWidth;
+        }
+
+        let meldX = meldStartX;
+        for (let meldId = 0; meldId < hand.melds.length; meldId++) {
+            const meld = hand.melds[meldId];
+            meldX = createMeld(i, meldX, meld);
         }
     }
 }
@@ -285,9 +295,10 @@ function getDealtTileIds(wall, playerId, oyaId) {
     return tileIds;
 }
 
-function createMeld(playerId, x, tileIds) {
+function createMeld(playerId, x, meld) {
     const b = -(11 * tileWidth);
     const y = b - 0.5 * tileHeight;
+    const tileIds = meld.tiles;
     for (let i = 0; i < tileIds.length; i++) {
         const tileId = tileIds[i];
         if (tileIds.length === 4 && i === 0) {
