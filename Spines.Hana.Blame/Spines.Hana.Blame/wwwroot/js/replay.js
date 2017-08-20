@@ -28,7 +28,7 @@ function arrange() {
 
     const games = parseReplay(data);
 
-    arrangeFrame(games[0].frames[0]);
+    arrangeFrame(games[0].frames[1]);
 }
 
 function arrangeFrame(frame) {
@@ -57,18 +57,27 @@ function parseReplay(data) {
         const frame0 = {};
         frame0.id = frameId;
         frame0.oya = oyaId;
-        frame0.playerCount = playerCount;
         frame0.tilesDrawn = tilesDrawn;
         frame0.rinshanTilesDrawn = rinshanTilesDrawn;
         frame0.doraIndicators = doraIndicators;
-        frame0.static = { wall: rawData[gameId].wall, dice: rawData[gameId].dice, akaDora: akaDora };
+        frame0.static = { wall: rawData[gameId].wall, dice: rawData[gameId].dice, akaDora: akaDora, playerCount: playerCount };
         setStartingHands(frame0);
         game.frames.push(frame0);
 
+        const previousFrame = frame0;
         const decisions = rawData[gameId].decisions;
+        let activePlayer = oyaId;
         for (let decisionId = 0; decisionId < decisions.length; decisionId++) {
-            const frame1 = {};
-            frame1.static = frame0.static;
+            const drawFrame = Object.assign({}, previousFrame);
+            drawFrame.id += 1;
+            drawFrame.tilesDrawn += 1;
+            const drawnTileId = drawFrame.static.wall[135 - tilesDrawn];
+            drawFrame.hands = drawFrame.hands.slice(0);
+            const tileIds = drawFrame.hands[activePlayer].slice(0);
+            tileIds.push(drawnTileId);
+            drawFrame.hands[activePlayer] = tileIds;
+            game.frames.push(drawFrame);
+            break;
         }
 
         games.push(game);
@@ -84,7 +93,7 @@ function createHands(frame) {
 
     for (let i = 0; i < frame.hands.length; i++) {
         let x = startX;
-        const handTiles = frame.hands[i].tiles;
+        const handTiles = frame.hands[i];
         const tilesInHand = handTiles.length;
         for (let k = 0; k < tilesInHand; k++) {
             const tileId = handTiles[k];
@@ -140,9 +149,9 @@ function createWall(frame) {
 
 function setStartingHands(frame) {
     frame.hands = [];
-    for (let playerId = 0; playerId < frame.playerCount; playerId++) {
+    for (let playerId = 0; playerId < frame.static.playerCount; playerId++) {
         const tileIds = getDealtTileIds(frame.static.wall, playerId, frame.oya);
-        frame.hands.push({ tiles: tileIds, player: playerId });
+        frame.hands.push(tileIds);
     }
 }
 
