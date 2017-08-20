@@ -37,57 +37,39 @@ function arrangeFrame(frame) {
 }
 
 function parseReplay(data) {
+    const playerCount = 4;
+    const defaultDoraIndicatorCount = 1;
+    const akaDora = true;
+
+    const rawData = splitRawData(data);
+
     const games = [];
-    var i = 0;
-    while (i < data.length && data[i] !== initId) {
-        i += 1;
-    }
-    while (i < data.length) {
-        i += 1;
+    for (let gameId = 0; gameId < rawData.length; gameId++) {
         const game = {};
         game.frames = [];
 
         const oyaId = 0;
         const frameId = 0;
-        const playerCount = 4;
-        const tileCount = 136;
-        const diceCount = 2;
         const tilesDrawn = 13 * 4;
         const rinshanTilesDrawn = 0;
-        const doraIndicators = 1;
+        const doraIndicators = defaultDoraIndicatorCount;
 
-        const frame = {};
+        const frame0 = {};
+        frame0.id = frameId;
+        frame0.oya = oyaId;
+        frame0.playerCount = playerCount;
+        frame0.tilesDrawn = tilesDrawn;
+        frame0.rinshanTilesDrawn = rinshanTilesDrawn;
+        frame0.doraIndicators = doraIndicators;
+        frame0.static = { wall: rawData[gameId].wall, dice: rawData[gameId].dice, akaDora: akaDora };
+        setStartingHands(frame0);
+        game.frames.push(frame0);
 
-        const static = {};
-        static.wall = data.slice(i, i + tileCount);
-        i += tileCount;
-        static.dice = data.slice(i, i + diceCount);
-        i += diceCount;
-        frame.static = static;
-
-        frame.hands = [];
-        for (let playerId = 0; playerId < playerCount; playerId++) {
-            const tileIds = getDealtTileIds(static.wall, playerId, oyaId);
-            const hand = {};
-            hand.tiles = tileIds;
-            hand.player = playerId;
-            frame.hands.push(hand);
+        const decisions = rawData[gameId].decisions;
+        for (let decisionId = 0; decisionId < decisions.length; decisionId++) {
+            const frame1 = {};
+            frame1.static = frame0.static;
         }
-
-        frame.id = frameId;
-        frame.oya = oyaId;
-        frame.tilesDrawn = tilesDrawn;
-        frame.rinshanTilesDrawn = rinshanTilesDrawn;
-        frame.doraIndicators = doraIndicators;
-
-        game.frames.push(frame);
-
-        let c = 0;
-        while (data[i + c] !== initId && i + c < data.length) {
-            c += 1;
-        }
-        game.decisions = data.slice(i, i + c);
-        i += c;
 
         games.push(game);
     }
@@ -154,6 +136,40 @@ function createWall(frame) {
             x += tileWidth;
         }
     }
+}
+
+function setStartingHands(frame) {
+    frame.hands = [];
+    for (let playerId = 0; playerId < frame.playerCount; playerId++) {
+        const tileIds = getDealtTileIds(frame.static.wall, playerId, frame.oya);
+        frame.hands.push({ tiles: tileIds, player: playerId });
+    }
+}
+
+function splitRawData(data) {
+    const tileCount = 136;
+    const diceCount = 2;
+
+    const rawData = [];
+    var i = 0;
+    while (i < data.length && data[i] !== initId) {
+        i += 1;
+    }
+    while (i < data.length) {
+        i += 1;
+        const wall = data.slice(i, i + tileCount);
+        i += tileCount;
+        const dice = data.slice(i, i + diceCount);
+        i += diceCount;
+        let c = 0;
+        while (data[i + c] !== initId && i + c < data.length) {
+            c += 1;
+        }
+        const decisions = data.slice(i, i + c);
+        rawData.push({ wall: wall, dice: dice, decisions: decisions });
+        i += c;
+    }
+    return rawData;
 }
 
 function getDealtTileIds(wall, playerId, oyaId) {
