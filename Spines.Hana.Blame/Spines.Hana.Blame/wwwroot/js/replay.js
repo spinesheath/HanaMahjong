@@ -108,7 +108,7 @@ function createCallFrame(previousFrame, meldedTiles) {
     const activePlayer = getCallingPlayerId(frame, meldedTiles);
     frame.ponds = frame.ponds.slice(0);
     const pond = frame.ponds[previousFrame.activePlayer].slice(0);
-    pond.pop();
+    const called = pond.pop();
     frame.ponds[previousFrame.activePlayer] = pond;
     frame.activePlayer = activePlayer;
     frame.id += 1;
@@ -120,7 +120,8 @@ function createCallFrame(previousFrame, meldedTiles) {
     frame.hands[frame.activePlayer] = hand;
 
     hand.melds = hand.melds.slice(0);
-    hand.melds.push({tiles: meldedTiles});
+    const relativeFrom = (previousFrame.activePlayer - activePlayer + 4) % 4;
+    hand.melds.push({tiles: meldedTiles, flipped: called, relativeFrom: relativeFrom});
 
     return frame;
 }
@@ -298,19 +299,33 @@ function getDealtTileIds(wall, playerId, oyaId) {
 function createMeld(playerId, x, meld) {
     const b = -(11 * tileWidth);
     const y = b - 0.5 * tileHeight;
-    const tileIds = meld.tiles;
+    const tileIds = meld.tiles.slice(0);
+    tileIds.sort((a, b) => b - a);
+    let isClosedKan = false;
+    if (meld.relativeFrom === 0) {
+        isClosedKan = tileIds.length === 4;
+    } else {
+        remove(tileIds, meld.flipped);
+        remove(tileIds, meld.added);
+        if (meld.relativeFrom === 1) {
+            tileIds.splice(0, 0, meld.flipped);
+        } else if (meld.relativeFrom === 2) {
+            tileIds.splice(1, 0, meld.flipped);
+        } else if (meld.relativeFrom === 3) {
+            tileIds.push(meld.flipped);
+        }
+    }
+    
     for (let i = 0; i < tileIds.length; i++) {
         const tileId = tileIds[i];
-        if (tileIds.length === 4 && i === 0) {
-            addTile(playerId, tileId, x, y, 0, 2, 0);
-            x -= tileWidth;
-        } else if (tileIds.length === 4 && i === 3) {
-            addTile(playerId, tileId, x, y, 0, 0, 1);
-            x -= tileHeight;
-        } else {
-            addTile(playerId, tileId, x, y, 0, 0, 0);
-            x -= tileWidth;
+        const face = isClosedKan && (i === 0 || i === 3) ? 2 : 0;
+        const isFlipped = tileId === meld.flipped;
+        const flip = isFlipped ? 1 : 0;
+        addTile(playerId, tileId, x, y, 0, face, flip);
+        if (isFlipped && meld.added !== undefined) {
+            addTile(playerId, tileId, x, y + tileWidth, 0, 2, 1);
         }
+        x -= isFlipped ? tileHeight : tileWidth;
     }
     return x;
 }
@@ -359,15 +374,14 @@ function replayCreateLights() {
 
 function remove(array, value) {
     const index = array.indexOf(value);
-    array.splice(index, 1);
+    if (index >= 0) {
+        array.splice(index, 1);
+    }
 }
 
 function removeMany(array, values) {
     for (let i = 0; i < values.length; i++) {
-        const index = array.indexOf(values[i]);
-        if (index >= 0) {
-            array.splice(index, 1);
-        }
+        remove(array, values[i]);
     }
 }
 
