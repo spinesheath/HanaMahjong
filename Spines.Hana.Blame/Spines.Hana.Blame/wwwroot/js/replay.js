@@ -113,9 +113,13 @@ function createCallFrame(previousFrame, meldedTiles) {
     frame.activePlayer = activePlayer;
     frame.id += 1;
     frame.hands = frame.hands.slice(0);
-    const tileIds = frame.hands[frame.activePlayer].slice(0);
+    const tileIds = frame.hands[frame.activePlayer].tiles.slice(0);
     removeMany(tileIds, meldedTiles);
-    frame.hands[frame.activePlayer] = tileIds;
+    const hand = Object.assign({}, frame.hands[frame.activePlayer]);
+    hand.tiles = tileIds;
+    hand.justCalled = true;
+    frame.hands[frame.activePlayer] = hand;
+
     return frame;
 }
 
@@ -123,10 +127,13 @@ function createDiscardFrame(previousFrame, tileId) {
     const frame = Object.assign({}, previousFrame);
     frame.id += 1;
     frame.hands = frame.hands.slice(0);
-    const tileIds = frame.hands[frame.activePlayer].slice(0);
+    const tileIds = frame.hands[frame.activePlayer].tiles.slice(0);
     remove(tileIds, tileId);
     sort(tileIds);
-    frame.hands[frame.activePlayer] = tileIds;
+    const hand = Object.assign({}, frame.hands[frame.activePlayer]);
+    hand.tiles = tileIds;
+    hand.justCalled = false;
+    frame.hands[frame.activePlayer] = hand;
     frame.ponds = frame.ponds.slice(0);
     const pond = frame.ponds[frame.activePlayer].slice(0);
     pond.push(tileId);
@@ -140,15 +147,18 @@ function createDrawFrame(previousFrame) {
     frame.tilesDrawn += 1;
     const drawnTileId = frame.static.wall[136 - frame.tilesDrawn];
     frame.hands = frame.hands.slice(0);
-    const tileIds = frame.hands[frame.activePlayer].slice(0);
+    const tileIds = frame.hands[frame.activePlayer].tiles.slice(0);
     tileIds.push(drawnTileId);
-    frame.hands[frame.activePlayer] = tileIds;
+    const hand = Object.assign({}, frame.hands[frame.activePlayer]);
+    hand.tiles = tileIds;
+    hand.justCalled = false;
+    frame.hands[frame.activePlayer] = hand;
     return frame;
 }
 
 function getCallingPlayerId(frame, meldedTiles) {
     for (let i = 0; i < frame.static.playerCount; i++) {
-        if (meldedTiles.some(x => frame.hands[i].indexOf(x) !== -1)) {
+        if (meldedTiles.some(x => frame.hands[i].tiles.indexOf(x) !== -1)) {
             return i;
         }
     }
@@ -164,12 +174,12 @@ function createHands(frame) {
 
     for (let i = 0; i < frame.hands.length; i++) {
         let x = startX;
-        const handTiles = frame.hands[i];
+        const handTiles = frame.hands[i].tiles;
         const tilesInHand = handTiles.length;
         for (let k = 0; k < tilesInHand; k++) {
             const tileId = handTiles[k];
             addTile(i, tileId, x, y, 0, i === 0 ? -0.40 : flip, 0);
-            if (k === tilesInHand - 2 && tilesInHand % 3 === 2) {
+            if (!frame.hands[i].justCalled && k === tilesInHand - 2 && tilesInHand % 3 === 2) {
                 x += gap;
             }
             x += tileWidth;
@@ -237,7 +247,7 @@ function setStartingHands(frame) {
     frame.hands = [];
     for (let playerId = 0; playerId < frame.static.playerCount; playerId++) {
         const tileIds = getDealtTileIds(frame.static.wall, playerId, frame.oya);
-        frame.hands.push(tileIds);
+        frame.hands.push({ tiles: tileIds, melds: [], justCalled: false });
     }
 }
 
