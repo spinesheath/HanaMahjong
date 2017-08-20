@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
@@ -64,13 +63,14 @@ namespace Spines.Hana.Blame.Services.ReplayManager
           case "SHUFFLE":
           case "UN":
           case "TAIKYOKU":
-          case "RYUUKYOKU":
           case "GO":
+          case "BYE":
+          case "DORA":
             break;
           case "INIT":
-            var wall = generator.GetWall(gameIndex).ToList();
-            data.AddRange(wall);
-            data.AddRange(generator.GetDice(gameIndex).ToList());
+            data.Add(InitId);
+            data.AddRange(generator.GetWall(gameIndex));
+            data.AddRange(generator.GetDice(gameIndex));
             gameIndex += 1;
             break;
           case "AGARI":
@@ -86,6 +86,10 @@ namespace Spines.Hana.Blame.Services.ReplayManager
             data.Add(MeldTypeIds[decoder.MeldType]);
             data.AddRange(decoder.Tiles);
             break;
+          case "REACH":
+            throw new NotImplementedException();
+          case "RYUUKYOKU":
+            throw new NotImplementedException();
         }
       }
       result.Data = data.ToArray();
@@ -97,6 +101,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     }
 
     private const int AgariId = 300;
+    private const int InitId = 400;
 
     private static readonly Regex DiscardRegex = new Regex(@"[DEFG](\d{1,3})");
 

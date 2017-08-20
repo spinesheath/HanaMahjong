@@ -16,8 +16,11 @@ function arrange() {
     const input = document.querySelector("#gameDataJson");
     const json = input.value;
     const data = JSON.parse(json);
-    const wall = data.slice(0, 136);
-    const dice = data.slice(136, 138);
+
+    var games = parseReplay(data);
+
+    const wall = data.slice(1, 137);
+    const dice = data.slice(137, 139);
 
     const oyaId = 0;
     const tilesDrawn = 13 * 4;
@@ -27,6 +30,40 @@ function arrange() {
     createWall(wall, dice, oyaId, tilesDrawn, rinshanTilesDrawn, doraIndicators);
     //createPond();
     createHands(wall, oyaId);
+}
+
+const initId = 400;
+const agariId = 300;
+const addedKanId = 200;
+const calledKanId = 201;
+const closedKanId = 202;
+const ponId = 202;
+const chiiId = 202;
+
+function parseReplay(data) {
+    const games = [];
+    var i = 0;
+    while (i < data.length && data[i] !== initId) {
+        i += 1;
+    }
+    while (i < data.length) {
+        i += 1;
+        const game = {};
+        game.wall = data.slice(i, i + 136);
+        i += 136;
+        game.dice = data.slice(i, i + 2);
+        i += 2;
+
+        let c = 0;
+        while (data[i + c] !== initId && i + c < data.length) {
+            c += 1;
+        }
+        game.decisions = data.slice(i, i + c);
+        i += c;
+
+        games.push(game);
+    }
+    return games;
 }
 
 function createHands(wall, oyaId) {
