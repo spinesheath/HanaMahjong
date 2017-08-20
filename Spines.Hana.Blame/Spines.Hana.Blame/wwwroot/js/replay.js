@@ -17,8 +17,8 @@ const allHandsOpen = true;
 
 var replay;
 
-function showFrame(value) {
-    replayContext.createTiles(() => arrange(value));
+function showFrame() {
+    replayContext.createTiles(() => arrange());
 }
 
 function loadReplay() {
@@ -32,18 +32,23 @@ function initReplay() {
     replayContext = new RenderContext("replayCanvas");
     replayContext.setCameraPosition(0, -21, 31);
     replayCreateLights();
-
-    const input = document.querySelector("#frameId");
-    const frame = input.value ? input.value : 0;
-    replayContext.createTiles(() => arrange(frame));
+    replayContext.createTiles(() => arrange());
 }
 
-function arrange(frame) {
+function arrange() {
     if (replay === undefined) {
         loadReplay();
     }
-    if (frame < replay[0].frames.length && frame >= 0) {
-        arrangeFrame(replay[0].frames[frame]);
+
+    const gameInput = document.querySelector("#gameId");
+    const game = gameInput.value ? gameInput.value : 0;
+    const frameInput = document.querySelector("#frameId");
+    const frame = frameInput.value ? frameInput.value : 0;
+
+    if (game < replay.length && game >= 0) {
+        if (frame < replay[game].frames.length && frame >= 0) {
+            arrangeFrame(replay[game].frames[frame]);
+        }
     }
 }
 
