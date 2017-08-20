@@ -65,40 +65,37 @@ function parseReplay(data) {
         let previousFrame = frame0;
         const decisions = rawData[gameId].decisions;
         for (let decisionId = 0; decisionId < decisions.length; decisionId++) {
-            const drawFrame = createDrawFrame(previousFrame);
-            game.frames.push(drawFrame);
-            previousFrame = drawFrame;
-
             const decision = decisions[decisionId];
+
             // discard
             if (decision < 136) {
+                const drawFrame = createDrawFrame(previousFrame);
+                game.frames.push(drawFrame);
+                previousFrame = drawFrame;
+            
                 const discardFrame = createDiscardFrame(previousFrame, decision);
                 game.frames.push(discardFrame);
                 previousFrame = discardFrame;
-                decisionId += 1;
-
-                var nextDecision = decisions[decisionId];
-                if (nextDecision === agariId) {
-                    decisionId += 3;
-                } else if (nextDecision === ponId) {
-                    const ponFrame = createPonFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 4));
-                    game.frames.push(ponFrame);
-                    previousFrame = ponFrame;
-                    decisionId += 4;
-                    break;
-                } else if (nextDecision === chiiId) {
-                    const chiiFrame = createChiiFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 4));
-                    game.frames.push(chiiFrame);
-                    previousFrame = chiiFrame;
-                    decisionId += 4;
-                    break;
-                } else if (nextDecision === calledKanId) {
-                    decisionId += 5;
-                } else if (nextDecision === closedKanId) {
-                    decisionId += 5;
-                } else if (nextDecision === addedKanId) {
-                    decisionId += 5;
-                }
+            } else if (decision === ponId) {
+                const ponFrame = createPonFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 4));
+                game.frames.push(ponFrame);
+                previousFrame = ponFrame;
+                decisionId += 3;
+                break;
+            } else if (decision === chiiId) {
+                const chiiFrame = createChiiFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 4));
+                game.frames.push(chiiFrame);
+                previousFrame = chiiFrame;
+                decisionId += 3;
+                break;
+            } else if (decision === calledKanId) {
+                decisionId += 4;
+            } else if (decision === closedKanId) {
+                decisionId += 4;
+            } else if (decision === addedKanId) {
+                decisionId += 4;
+            } else if (decision === agariId) {
+                decisionId += 2;
             }
         }
 
@@ -160,6 +157,7 @@ function createDiscardFrame(previousFrame, tileId) {
     frame.hands = frame.hands.slice(0);
     const tileIds = frame.hands[frame.activePlayer].slice(0);
     remove(tileIds, tileId);
+    sort(tileIds);
     frame.hands[frame.activePlayer] = tileIds;
     frame.ponds = frame.ponds.slice(0);
     const pond = frame.ponds[frame.activePlayer].slice(0);
