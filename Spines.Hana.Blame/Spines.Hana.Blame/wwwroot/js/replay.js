@@ -10,8 +10,10 @@ const agariId = 300;
 const addedKanId = 200;
 const calledKanId = 201;
 const closedKanId = 202;
-const ponId = 202;
-const chiiId = 202;
+const ponId = 203;
+const chiiId = 204;
+
+const allHandsOpen = true;
 
 function initReplay() {
     replayContext = new RenderContext("replayCanvas");
@@ -28,7 +30,7 @@ function arrange() {
 
     const games = parseReplay(data);
 
-    arrangeFrame(games[0].frames[2]);
+    arrangeFrame(games[0].frames[3]);
 }
 
 function arrangeFrame(frame) {
@@ -54,39 +56,50 @@ function parseReplay(data) {
         frame0.tilesDrawn = 13 * 4;
         frame0.rinshanTilesDrawn = 0;
         frame0.doraIndicators = defaultDoraIndicatorCount;
+        frame0.activePlayer = 0;
         frame0.static = { wall: rawData[gameId].wall, dice: rawData[gameId].dice, akaDora: akaDora, playerCount: playerCount };
         setStartingHands(frame0);
         frame0.ponds = [[], [], [], []];
         game.frames.push(frame0);
 
-        var previousFrame = frame0;
+        let previousFrame = frame0;
         const decisions = rawData[gameId].decisions;
-        let activePlayer = 0;
         for (let decisionId = 0; decisionId < decisions.length; decisionId++) {
-            const drawFrame = createDrawFrame(previousFrame, activePlayer);
+            const drawFrame = createDrawFrame(previousFrame);
             game.frames.push(drawFrame);
             previousFrame = drawFrame;
 
             const decision = decisions[decisionId];
             // discard
             if (decision < 136) {
-                const discardFrame = createDiscardFrame(previousFrame, activePlayer, decision);
+                const discardFrame = createDiscardFrame(previousFrame, decision);
                 game.frames.push(discardFrame);
                 previousFrame = discardFrame;
-            } else if (decision === agariId) {
-                
-            } else if (decision === ponId) {
-                
-            } else if (decision === chiiId) {
+                decisionId += 1;
 
-            } else if (decision === calledKanId) {
-
-            } else if (decision === closedKanId) {
-
-            } else if (decision === addedKanId) {
-
+                var nextDecision = decisions[decisionId];
+                if (nextDecision === agariId) {
+                    decisionId += 3;
+                } else if (nextDecision === ponId) {
+                    const ponFrame = createPonFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 4));
+                    game.frames.push(ponFrame);
+                    previousFrame = ponFrame;
+                    decisionId += 4;
+                    break;
+                } else if (nextDecision === chiiId) {
+                    const chiiFrame = createChiiFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 4));
+                    game.frames.push(chiiFrame);
+                    previousFrame = chiiFrame;
+                    decisionId += 4;
+                    break;
+                } else if (nextDecision === calledKanId) {
+                    decisionId += 5;
+                } else if (nextDecision === closedKanId) {
+                    decisionId += 5;
+                } else if (nextDecision === addedKanId) {
+                    decisionId += 5;
+                }
             }
-            break;
         }
 
         games.push(game);
@@ -94,32 +107,77 @@ function parseReplay(data) {
     return games;
 }
 
-function createDiscardFrame(previousFrame, activePlayer, tileId) {
-    const discardFrame = Object.assign({}, previousFrame);
-    discardFrame.id += 1;
-    discardFrame.hands = discardFrame.hands.slice(0);
-    const tileIds = discardFrame.hands[activePlayer].slice(0);
-    var index = tileIds.indexOf(tileId);
-    tileIds.splice(index, 1);
-    tileIds.sort((a, b) => a - b);
-    discardFrame.hands[activePlayer] = tileIds;
-    discardFrame.ponds = discardFrame.ponds.slice(0);
-    const pond = discardFrame.ponds[activePlayer].slice(0);
-    pond.push(tileId);
-    discardFrame.ponds[activePlayer] = pond;
-    return discardFrame;
+function getPonPlayerId(frame, ponTiles) {
+    for (let i = 0; i < frame.static.playerCount; i++) {
+        if (ponTiles.some(x => frame.hands[i].indexOf(x) !== -1)) {
+            return i;
+        }
+    }
+    throw "no player found for pon";
 }
 
-function createDrawFrame(previousFrame, activePlayer) {
-    const drawFrame = Object.assign({}, previousFrame);
-    drawFrame.id += 1;
-    drawFrame.tilesDrawn += 1;
-    const drawnTileId = drawFrame.static.wall[136 - drawFrame.tilesDrawn];
-    drawFrame.hands = drawFrame.hands.slice(0);
-    const tileIds = drawFrame.hands[activePlayer].slice(0);
+function createPonFrame(previousFrame, ponTiles) {
+    const frame = Object.assign({}, previousFrame);
+
+    const activePlayer = getPonPlayerId(frame, ponTiles);
+
+    frame.ponds = frame.ponds.slice(0);
+    const pond = frame.ponds[previousFrame.activePlayer].slice(0);
+    pond.pop();
+    frame.ponds[previousFrame.activePlayer] = pond;
+
+    frame.activePlayer = activePlayer;
+    frame.id += 1;
+    frame.hands = frame.hands.slice(0);
+    const tileIds = frame.hands[frame.activePlayer].slice(0);
+    removeMany(tileIds, ponTiles);
+    frame.hands[frame.activePlayer] = tileIds;
+
+    return frame;
+}
+
+function createChiiFrame(previousFrame, chiiTiles) {
+    const frame = Object.assign({}, previousFrame);
+
+    frame.ponds = frame.ponds.slice(0);
+    const pond = frame.ponds[previousFrame.activePlayer].slice(0);
+    pond.pop();
+    frame.ponds[previousFrame.activePlayer] = pond;
+
+    frame.activePlayer += 1;
+    frame.id += 1;
+    frame.hands = frame.hands.slice(0);
+    const tileIds = frame.hands[frame.activePlayer].slice(0);
+    removeMany(tileIds, chiiTiles);
+    frame.hands[frame.activePlayer] = tileIds;
+
+    return frame;
+}
+
+function createDiscardFrame(previousFrame, tileId) {
+    const frame = Object.assign({}, previousFrame);
+    frame.id += 1;
+    frame.hands = frame.hands.slice(0);
+    const tileIds = frame.hands[frame.activePlayer].slice(0);
+    remove(tileIds, tileId);
+    frame.hands[frame.activePlayer] = tileIds;
+    frame.ponds = frame.ponds.slice(0);
+    const pond = frame.ponds[frame.activePlayer].slice(0);
+    pond.push(tileId);
+    frame.ponds[frame.activePlayer] = pond;
+    return frame;
+}
+
+function createDrawFrame(previousFrame) {
+    const frame = Object.assign({}, previousFrame);
+    frame.id += 1;
+    frame.tilesDrawn += 1;
+    const drawnTileId = frame.static.wall[136 - frame.tilesDrawn];
+    frame.hands = frame.hands.slice(0);
+    const tileIds = frame.hands[frame.activePlayer].slice(0);
     tileIds.push(drawnTileId);
-    drawFrame.hands[activePlayer] = tileIds;
-    return drawFrame;
+    frame.hands[frame.activePlayer] = tileIds;
+    return frame;
 }
 
 function createHands(frame) {
@@ -127,6 +185,7 @@ function createHands(frame) {
     const b = -(11 * tileWidth);
     const y = b - 0.5 * tileHeight;
     const startX = a + 0.5 * tileWidth - tileWidth;
+    const flip = (allHandsOpen ? 0 : 3);
 
     for (let i = 0; i < frame.hands.length; i++) {
         let x = startX;
@@ -134,7 +193,7 @@ function createHands(frame) {
         const tilesInHand = handTiles.length;
         for (let k = 0; k < tilesInHand; k++) {
             const tileId = handTiles[k];
-            addTile(i, tileId, x, y, 0, i === 0 ? -0.40 : 3, 0);
+            addTile(i, tileId, x, y, 0, i === 0 ? -0.40 : flip, 0);
             if (k === tilesInHand - 2 && tilesInHand % 3 === 2) {
                 x += gap;
             }
@@ -239,8 +298,8 @@ function getDealtTileIds(wall, playerId, oyaId) {
     for (let i = 0; i < 3; i++) {
         tileIds = tileIds.concat(wall.slice(136 - (offset + i * 16 + 4), 136 - (offset + i * 16)));
     }
-    tileIds.push(wall[135 - (offset + 3 * 4 * 4)]);
-    tileIds.sort((a, b) => a - b);
+    tileIds.push(wall[135 - ((playerId - oyaId) + 3 * 4 * 4)]);
+    sort(tileIds);
     return tileIds;
 }
 
@@ -303,4 +362,22 @@ function replayCreateLights() {
     pointLight.position.y = 100;
     pointLight.position.z = 700;
     replayContext.scene.add(pointLight);
+}
+
+function remove(array, value) {
+    const index = array.indexOf(value);
+    array.splice(index, 1);
+}
+
+function removeMany(array, values) {
+    for (let i = 0; i < values.length; i++) {
+        const index = array.indexOf(values[i]);
+        if (index >= 0) {
+            array.splice(index, 1);
+        }
+    }
+}
+
+function sort(array) {
+    array.sort((a, b) => a - b);
 }
