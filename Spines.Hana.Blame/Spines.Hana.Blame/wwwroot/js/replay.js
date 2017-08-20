@@ -72,18 +72,17 @@ function parseReplay(data) {
                 const drawFrame = createDrawFrame(previousFrame);
                 game.frames.push(drawFrame);
                 previousFrame = drawFrame;
-            
                 const discardFrame = createDiscardFrame(previousFrame, decision);
                 game.frames.push(discardFrame);
                 previousFrame = discardFrame;
             } else if (decision === ponId) {
-                const ponFrame = createPonFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 4));
+                const ponFrame = createCallFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 4));
                 game.frames.push(ponFrame);
                 previousFrame = ponFrame;
                 decisionId += 3;
                 break;
             } else if (decision === chiiId) {
-                const chiiFrame = createChiiFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 4));
+                const chiiFrame = createCallFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 4));
                 game.frames.push(chiiFrame);
                 previousFrame = chiiFrame;
                 decisionId += 3;
@@ -104,50 +103,19 @@ function parseReplay(data) {
     return games;
 }
 
-function getPonPlayerId(frame, ponTiles) {
-    for (let i = 0; i < frame.static.playerCount; i++) {
-        if (ponTiles.some(x => frame.hands[i].indexOf(x) !== -1)) {
-            return i;
-        }
-    }
-    throw "no player found for pon";
-}
-
-function createPonFrame(previousFrame, ponTiles) {
+function createCallFrame(previousFrame, meldedTiles) {
     const frame = Object.assign({}, previousFrame);
-
-    const activePlayer = getPonPlayerId(frame, ponTiles);
-
+    const activePlayer = getCallingPlayerId(frame, meldedTiles);
     frame.ponds = frame.ponds.slice(0);
     const pond = frame.ponds[previousFrame.activePlayer].slice(0);
     pond.pop();
     frame.ponds[previousFrame.activePlayer] = pond;
-
     frame.activePlayer = activePlayer;
     frame.id += 1;
     frame.hands = frame.hands.slice(0);
     const tileIds = frame.hands[frame.activePlayer].slice(0);
-    removeMany(tileIds, ponTiles);
+    removeMany(tileIds, meldedTiles);
     frame.hands[frame.activePlayer] = tileIds;
-
-    return frame;
-}
-
-function createChiiFrame(previousFrame, chiiTiles) {
-    const frame = Object.assign({}, previousFrame);
-
-    frame.ponds = frame.ponds.slice(0);
-    const pond = frame.ponds[previousFrame.activePlayer].slice(0);
-    pond.pop();
-    frame.ponds[previousFrame.activePlayer] = pond;
-
-    frame.activePlayer += 1;
-    frame.id += 1;
-    frame.hands = frame.hands.slice(0);
-    const tileIds = frame.hands[frame.activePlayer].slice(0);
-    removeMany(tileIds, chiiTiles);
-    frame.hands[frame.activePlayer] = tileIds;
-
     return frame;
 }
 
@@ -176,6 +144,15 @@ function createDrawFrame(previousFrame) {
     tileIds.push(drawnTileId);
     frame.hands[frame.activePlayer] = tileIds;
     return frame;
+}
+
+function getCallingPlayerId(frame, meldedTiles) {
+    for (let i = 0; i < frame.static.playerCount; i++) {
+        if (meldedTiles.some(x => frame.hands[i].indexOf(x) !== -1)) {
+            return i;
+        }
+    }
+    throw "no player found for call";
 }
 
 function createHands(frame) {
