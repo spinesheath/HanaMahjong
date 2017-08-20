@@ -50,45 +50,49 @@ function parseReplay(data) {
     for (let gameId = 0; gameId < rawData.length; gameId++) {
         const game = {};
         game.frames = [];
-        const frame0 = {};
-        frame0.id = 0;
-        frame0.oya = 0;
-        frame0.tilesDrawn = 13 * 4;
-        frame0.rinshanTilesDrawn = 0;
-        frame0.doraIndicators = defaultDoraIndicatorCount;
-        frame0.activePlayer = 0;
-        frame0.static = { wall: rawData[gameId].wall, dice: rawData[gameId].dice, akaDora: akaDora, playerCount: playerCount };
-        setStartingHands(frame0);
-        frame0.ponds = [[], [], [], []];
-        game.frames.push(frame0);
+        const setupFrame = {};
+        setupFrame.id = 0;
+        setupFrame.oya = 0;
+        setupFrame.tilesDrawn = 13 * 4;
+        setupFrame.rinshanTilesDrawn = 0;
+        setupFrame.doraIndicators = defaultDoraIndicatorCount;
+        setupFrame.activePlayer = 0;
+        setupFrame.static = { wall: rawData[gameId].wall, dice: rawData[gameId].dice, akaDora: akaDora, playerCount: playerCount };
+        setStartingHands(setupFrame);
+        setupFrame.ponds = [[], [], [], []];
+        game.frames.push(setupFrame);
 
-        let previousFrame = frame0;
+        let previousFrame = setupFrame;
         const decisions = rawData[gameId].decisions;
         for (let decisionId = 0; decisionId < decisions.length; decisionId++) {
             const decision = decisions[decisionId];
 
             // discard
             if (decision < 136) {
-                const drawFrame = createDrawFrame(previousFrame);
-                game.frames.push(drawFrame);
-                previousFrame = drawFrame;
+                const frame = createDrawFrame(previousFrame);
+                game.frames.push(frame);
+                previousFrame = frame;
                 const discardFrame = createDiscardFrame(previousFrame, decision);
                 game.frames.push(discardFrame);
                 previousFrame = discardFrame;
             } else if (decision === ponId) {
-                const ponFrame = createCallFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 4));
-                game.frames.push(ponFrame);
-                previousFrame = ponFrame;
+                const frame = createCallFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 4));
+                game.frames.push(frame);
+                previousFrame = frame;
                 decisionId += 3;
                 break;
             } else if (decision === chiiId) {
-                const chiiFrame = createCallFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 4));
-                game.frames.push(chiiFrame);
-                previousFrame = chiiFrame;
+                const frame = createCallFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 4));
+                game.frames.push(frame);
+                previousFrame = frame;
                 decisionId += 3;
                 break;
             } else if (decision === calledKanId) {
+                const frame = createCallFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 5));
+                game.frames.push(frame);
+                previousFrame = frame;
                 decisionId += 4;
+                break;
             } else if (decision === closedKanId) {
                 decisionId += 4;
             } else if (decision === addedKanId) {
