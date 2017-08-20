@@ -113,10 +113,9 @@ function createCallFrame(previousFrame, meldedTiles) {
     frame.activePlayer = activePlayer;
     frame.id += 1;
     frame.hands = frame.hands.slice(0);
-    const tileIds = frame.hands[frame.activePlayer].tiles.slice(0);
-    removeMany(tileIds, meldedTiles);
     const hand = Object.assign({}, frame.hands[frame.activePlayer]);
-    hand.tiles = tileIds;
+    hand.tiles = hand.tiles.slice(0);
+    removeMany(hand.tiles, meldedTiles);
     hand.justCalled = true;
     frame.hands[frame.activePlayer] = hand;
 
@@ -127,11 +126,10 @@ function createDiscardFrame(previousFrame, tileId) {
     const frame = Object.assign({}, previousFrame);
     frame.id += 1;
     frame.hands = frame.hands.slice(0);
-    const tileIds = frame.hands[frame.activePlayer].tiles.slice(0);
-    remove(tileIds, tileId);
-    sort(tileIds);
     const hand = Object.assign({}, frame.hands[frame.activePlayer]);
-    hand.tiles = tileIds;
+    hand.tiles = hand.tiles.slice(0);
+    remove(hand.tiles, tileId);
+    sort(hand.tiles);
     hand.justCalled = false;
     frame.hands[frame.activePlayer] = hand;
     frame.ponds = frame.ponds.slice(0);
@@ -147,10 +145,9 @@ function createDrawFrame(previousFrame) {
     frame.tilesDrawn += 1;
     const drawnTileId = frame.static.wall[136 - frame.tilesDrawn];
     frame.hands = frame.hands.slice(0);
-    const tileIds = frame.hands[frame.activePlayer].tiles.slice(0);
-    tileIds.push(drawnTileId);
     const hand = Object.assign({}, frame.hands[frame.activePlayer]);
-    hand.tiles = tileIds;
+    hand.tiles = hand.tiles.slice(0);
+    hand.tiles.push(drawnTileId);
     hand.justCalled = false;
     frame.hands[frame.activePlayer] = hand;
     return frame;
