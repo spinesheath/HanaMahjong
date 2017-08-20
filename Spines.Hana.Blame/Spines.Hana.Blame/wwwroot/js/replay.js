@@ -48,19 +48,12 @@ function parseReplay(data) {
     for (let gameId = 0; gameId < rawData.length; gameId++) {
         const game = {};
         game.frames = [];
-
-        const oyaId = 0;
-        const frameId = 0;
-        const tilesDrawn = 13 * 4;
-        const rinshanTilesDrawn = 0;
-        const doraIndicators = defaultDoraIndicatorCount;
-
         const frame0 = {};
-        frame0.id = frameId;
-        frame0.oya = oyaId;
-        frame0.tilesDrawn = tilesDrawn;
-        frame0.rinshanTilesDrawn = rinshanTilesDrawn;
-        frame0.doraIndicators = doraIndicators;
+        frame0.id = 0;
+        frame0.oya = 0;
+        frame0.tilesDrawn = 13 * 4;
+        frame0.rinshanTilesDrawn = 0;
+        frame0.doraIndicators = defaultDoraIndicatorCount;
         frame0.static = { wall: rawData[gameId].wall, dice: rawData[gameId].dice, akaDora: akaDora, playerCount: playerCount };
         setStartingHands(frame0);
         frame0.ponds = [[], [], [], []];
@@ -68,40 +61,17 @@ function parseReplay(data) {
 
         var previousFrame = frame0;
         const decisions = rawData[gameId].decisions;
-        let activePlayer = oyaId;
+        let activePlayer = 0;
         for (let decisionId = 0; decisionId < decisions.length; decisionId++) {
-            {
-                const drawFrame = Object.assign({}, previousFrame);
-                drawFrame.id += 1;
-                drawFrame.tilesDrawn += 1;
-                const drawnTileId = drawFrame.static.wall[135 - tilesDrawn];
-                drawFrame.hands = drawFrame.hands.slice(0);
-                const tileIds = drawFrame.hands[activePlayer].slice(0);
-                tileIds.push(drawnTileId);
-                drawFrame.hands[activePlayer] = tileIds;
-                game.frames.push(drawFrame);
-                previousFrame = drawFrame;
-            }
+            const drawFrame = createDrawFrame(previousFrame, activePlayer);
+            game.frames.push(drawFrame);
+            previousFrame = drawFrame;
 
             const decision = decisions[decisionId];
             // discard
             if (decision < 136) {
-                const discardFrame = Object.assign({}, previousFrame);
-                discardFrame.id += 1;
-                discardFrame.hands = discardFrame.hands.slice(0);
-                const tileIds = discardFrame.hands[activePlayer].slice(0);
-                var index = tileIds.indexOf(decision);
-                tileIds.splice(index, 1);
-                tileIds.sort((a, b) => a - b);
-                discardFrame.hands[activePlayer] = tileIds;
-
-                discardFrame.ponds = discardFrame.ponds.slice(0);
-                const pond = discardFrame.ponds[activePlayer].slice(0);
-                pond.push(decision);
-                discardFrame.ponds[activePlayer] = pond;
-
+                const discardFrame = createDiscardFrame(previousFrame, activePlayer, decision);
                 game.frames.push(discardFrame);
-
                 previousFrame = discardFrame;
             } else if (decision === agariId) {
                 
@@ -122,6 +92,34 @@ function parseReplay(data) {
         games.push(game);
     }
     return games;
+}
+
+function createDiscardFrame(previousFrame, activePlayer, tileId) {
+    const discardFrame = Object.assign({}, previousFrame);
+    discardFrame.id += 1;
+    discardFrame.hands = discardFrame.hands.slice(0);
+    const tileIds = discardFrame.hands[activePlayer].slice(0);
+    var index = tileIds.indexOf(tileId);
+    tileIds.splice(index, 1);
+    tileIds.sort((a, b) => a - b);
+    discardFrame.hands[activePlayer] = tileIds;
+    discardFrame.ponds = discardFrame.ponds.slice(0);
+    const pond = discardFrame.ponds[activePlayer].slice(0);
+    pond.push(tileId);
+    discardFrame.ponds[activePlayer] = pond;
+    return discardFrame;
+}
+
+function createDrawFrame(previousFrame, activePlayer) {
+    const drawFrame = Object.assign({}, previousFrame);
+    drawFrame.id += 1;
+    drawFrame.tilesDrawn += 1;
+    const drawnTileId = drawFrame.static.wall[136 - drawFrame.tilesDrawn];
+    drawFrame.hands = drawFrame.hands.slice(0);
+    const tileIds = drawFrame.hands[activePlayer].slice(0);
+    tileIds.push(drawnTileId);
+    drawFrame.hands[activePlayer] = tileIds;
+    return drawFrame;
 }
 
 function createHands(frame) {
