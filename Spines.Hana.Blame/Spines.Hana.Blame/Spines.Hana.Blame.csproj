@@ -22,8 +22,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\resources\fonts\**" />
+    <Content Remove="wwwroot\resources\fonts\**" />
+    <EmbeddedResource Remove="wwwroot\resources\fonts\**" />
+    <None Remove="wwwroot\resources\fonts\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Properties\PublishProfiles\SpinesHanaBlame - Web Deploy.pubxml" />
     <None Remove="Properties\PublishProfiles\SpinesHanaBlame20170718091455 - Web Deploy.pubxml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="wwwroot\resources\fonts\helvetiker_bold.typeface.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -53,13 +64,13 @@
     <Folder Include="Connected Services\" />
     <Folder Include="Properties\PublishProfiles\" />
     <Folder Include="wwwroot\resources\bumpmaps\" />
-    <Folder Include="wwwroot\resources\geometries\" />
     <Folder Include="wwwroot\resources\textures\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="wwwroot\js\replay.js" />
     <None Include="wwwroot\js\shared.js" />
     <None Include="wwwroot\js\wwyd.js" />
+    <None Include="wwwroot\resources\fonts\LICENSE" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services" />

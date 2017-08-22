@@ -16,6 +16,15 @@ const chiiId = 204;
 
 const allHandsOpen = true;
 
+const announcements = {
+    reach: { text: "reach" },
+    pon: { text: "pon" },
+    chii: { text: "chii" },
+    kan: { text: "kan" },
+    ron: { text: "ron" },
+    tsumo: { text: "tsumo" }
+}
+
 var replay;
 
 function showFrame() {
@@ -57,6 +66,7 @@ function arrangeFrame(frame) {
     createWall(frame);
     createHands(frame);
     createPonds(frame);
+    createAnnouncements(frame);
 }
 
 function parseReplay(data) {
@@ -78,7 +88,7 @@ function parseReplay(data) {
         setupFrame.static = { wall: rawData[gameId].wall, dice: rawData[gameId].dice, akaDora: akaDora, playerCount: playerCount, oya: rawData[gameId].oya };
         setStartingHands(setupFrame);
         setupFrame.ponds = [[], [], [], []];
-        setupFrame.players = [{ reach: false }, { reach: false }, { reach: false }, { reach: false }];
+        setupFrame.players = [{}, {}, {}, {}];
         game.frames.push(setupFrame);
 
         let previousFrame = setupFrame;
@@ -98,19 +108,19 @@ function parseReplay(data) {
                 game.frames.push(discardFrame);
                 previousFrame = discardFrame;
             } else if (decision === ponId) {
-                const frame = createCallFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 4));
-                game.frames.push(frame);
-                previousFrame = frame;
+                const frames = createCallFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 4), announcements.pon);
+                game.frames.push(frames[0], frames[1]);
+                previousFrame = frames[1];
                 decisionId += 3;
             } else if (decision === chiiId) {
-                const frame = createCallFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 4));
-                game.frames.push(frame);
-                previousFrame = frame;
+                const frames = createCallFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 4), announcements.chii);
+                game.frames.push(frames[0], frames[1]);
+                previousFrame = frames[1];
                 decisionId += 3;
             } else if (decision === calledKanId) {
-                const frame = createCallFrame(previousFrame, decisions.slice(decisionId + 1, decisionId + 5));
-                game.frames.push(frame);
-                previousFrame = frame;
+                const frames = createCallFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 5), announcements.kan);
+                game.frames.push(frames[0], frames[1]);
+                previousFrame = frames[1];
                 decisionId += 4;
             } else if (decision === closedKanId) {
                 decisionId += 4;
@@ -143,19 +153,37 @@ function parseReplay(data) {
 
 function cloneFrame(frame) {
     const clone = Object.assign({}, frame);
+
+    if (clone.players.some(p => p.announcement)) {
+        clone.players = frame.players.slice(0);
+        for (let i = 0; i < clone.players.length; i++) {
+            if (clone.players[i].announcement) {
+                clone.players[i] = Object.assign({}, clone.players[i]);
+                clone.players[i].announcement = undefined;
+            }
+        }
+    }
     return clone;
 }
 
 function createReachFrame(previousFrame) {
     const frame = cloneFrame(previousFrame);
     frame.players = frame.players.slice(0);
-    frame.players[frame.activePlayer].reach = true;
+    frame.players[frame.activePlayer] = Object.assign({}, frame.players[frame.activePlayer]);
+    frame.players[frame.activePlayer].announcement = announcements.reach;
     return frame;
 }
 
-function createCallFrame(previousFrame, meldedTiles) {
-    const frame = cloneFrame(previousFrame);
-    const activePlayer = getCallingPlayerId(frame, meldedTiles);
+function createCallFrames(previousFrame, meldedTiles, announcement) {
+    const activePlayer = getCallingPlayerId(previousFrame, meldedTiles);
+
+    const announcementFrame = cloneFrame(previousFrame);
+    announcementFrame.players = announcementFrame.players.slice(0);
+    announcementFrame.players[activePlayer] = Object.assign({}, announcementFrame.players[announcementFrame.activePlayer]);
+    announcementFrame.players[activePlayer].announcement = announcement;
+
+    const frame = cloneFrame(announcementFrame);
+
     frame.ponds = frame.ponds.slice(0);
     const pond = frame.ponds[previousFrame.activePlayer].slice(0);
     const called = pond.pop();
@@ -175,7 +203,7 @@ function createCallFrame(previousFrame, meldedTiles) {
     const relativeFrom = (previousFrame.activePlayer - activePlayer + 4) % 4;
     hand.melds.push({tiles: meldedTiles, flipped: called.tileId, relativeFrom: relativeFrom});
 
-    return frame;
+    return [announcementFrame, frame];
 }
 
 function createDiscardFrame(previousFrame, tileId) {
@@ -268,6 +296,23 @@ function createPondRow(pondRow, row, playerId) {
     for (let column = 0; column < pondRow.length; column++) {
         const tileId = pondRow[column].tileId;
         addTile(playerId, tileId, x + column * tileWidth, y - row * tileHeight, 0, 0, 0);
+    }
+}
+
+function createAnnouncements(frame) {
+    for (let playerId = 0; playerId < frame.players.length; playerId++) {
+        if (frame.players[playerId].announcement) {
+            const text = frame.players[playerId].announcement.text;
+            const textGeo = new THREE.TextBufferGeometry(text, { font: font, size: 2, height: 0, curveSegments: 2 });
+            textGeo.computeBoundingBox();
+            const centerOffsetX = -0.5 * (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x);
+            const centerOffsetY = -0.5 * (textGeo.boundingBox.max.y - textGeo.boundingBox.min.y);
+            const material = new THREE.MeshBasicMaterial({ color: 0x777777 });
+            const textMesh = new THREE.Mesh(textGeo, material);
+            textMesh.position.x = centerOffsetX;
+            textMesh.position.y = centerOffsetY;
+            replayContext.scene.add(textMesh);
+        }
     }
 }
 

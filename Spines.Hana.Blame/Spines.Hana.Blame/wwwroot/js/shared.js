@@ -1,4 +1,5 @@
 ﻿var material;
+var font;
 var renderContexts = [];
 
 function RenderContext(canvasName) {
@@ -61,6 +62,14 @@ RenderContext.prototype.setCameraPosition = function (x, y, z) {
 }
 
 function initThreeJS() {
+    const fontLoader = new THREE.FontLoader();
+    const url = resourceUrl("fonts", "helvetiker_bold.typeface.json");
+    fontLoader.load(url,
+        function (f) {
+            font = f;
+        }
+    );
+
     THREE.DefaultLoadingManager.onLoad = function () { renderContexts.forEach(r => r.render()); };
 }
 
@@ -84,6 +93,9 @@ function removeMeshes(scene) {
         const child = scene.children[k];
         if (child.type === "Mesh") {
             scene.remove(child);
+            if (child.material !== material) {
+                child.material.dispose();
+            }
             child.geometry.dispose();
         }
     }
