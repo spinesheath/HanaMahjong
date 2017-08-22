@@ -88,7 +88,12 @@ namespace Spines.Hana.Blame.Services.ReplayManager
             data.AddRange(decoder.Tiles);
             break;
           case "REACH":
-            throw new NotImplementedException();
+            var step = e.Attribute("step")?.Value;
+            if (step == "1")
+            {
+              data.Add(ReachId);
+            }
+            break;
           case "RYUUKYOKU":
             throw new NotImplementedException();
         }
@@ -102,6 +107,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     }
 
     private const int AgariId = 300;
+    private const int ReachId = 301;
     private const int InitId = 400;
 
     private static readonly Regex DiscardRegex = new Regex(@"[DEFG](\d{1,3})");

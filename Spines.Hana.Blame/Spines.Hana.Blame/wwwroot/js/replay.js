@@ -7,6 +7,7 @@ const gap = 0.2;
 
 const initId = 400;
 const agariId = 300;
+const reachId = 301;
 const addedKanId = 200;
 const calledKanId = 201;
 const closedKanId = 202;
@@ -77,6 +78,7 @@ function parseReplay(data) {
         setupFrame.static = { wall: rawData[gameId].wall, dice: rawData[gameId].dice, akaDora: akaDora, playerCount: playerCount, oya: rawData[gameId].oya };
         setStartingHands(setupFrame);
         setupFrame.ponds = [[], [], [], []];
+        setupFrame.players = [{ reach: false }, { reach: false }, { reach: false }, { reach: false }];
         game.frames.push(setupFrame);
 
         let previousFrame = setupFrame;
@@ -127,6 +129,10 @@ function parseReplay(data) {
                     
                 }
                 decisionId += 2;
+            } else if (decision === reachId) {
+                const frame = createReachFrame(previousFrame);
+                game.frames.push(frame);
+                previousFrame = frame;
             }
         }
 
@@ -135,8 +141,20 @@ function parseReplay(data) {
     return games;
 }
 
+function cloneFrame(frame) {
+    const clone = Object.assign({}, frame);
+    return clone;
+}
+
+function createReachFrame(previousFrame) {
+    const frame = cloneFrame(previousFrame);
+    frame.players = frame.players.slice(0);
+    frame.players[frame.activePlayer].reach = true;
+    return frame;
+}
+
 function createCallFrame(previousFrame, meldedTiles) {
-    const frame = Object.assign({}, previousFrame);
+    const frame = cloneFrame(previousFrame);
     const activePlayer = getCallingPlayerId(frame, meldedTiles);
     frame.ponds = frame.ponds.slice(0);
     const pond = frame.ponds[previousFrame.activePlayer].slice(0);
@@ -144,22 +162,24 @@ function createCallFrame(previousFrame, meldedTiles) {
     frame.ponds[previousFrame.activePlayer] = pond;
     frame.activePlayer = activePlayer;
     frame.id += 1;
+
     frame.hands = frame.hands.slice(0);
     const hand = Object.assign({}, frame.hands[frame.activePlayer]);
     hand.tiles = hand.tiles.slice(0);
+
     removeMany(hand.tiles, meldedTiles);
     hand.justCalled = true;
     frame.hands[frame.activePlayer] = hand;
 
     hand.melds = hand.melds.slice(0);
     const relativeFrom = (previousFrame.activePlayer - activePlayer + 4) % 4;
-    hand.melds.push({tiles: meldedTiles, flipped: called, relativeFrom: relativeFrom});
+    hand.melds.push({tiles: meldedTiles, flipped: called.tileId, relativeFrom: relativeFrom});
 
     return frame;
 }
 
 function createDiscardFrame(previousFrame, tileId) {
-    const frame = Object.assign({}, previousFrame);
+    const frame = cloneFrame(previousFrame);
     frame.id += 1;
     frame.hands = frame.hands.slice(0);
     const hand = Object.assign({}, frame.hands[frame.activePlayer]);
@@ -170,13 +190,13 @@ function createDiscardFrame(previousFrame, tileId) {
     frame.hands[frame.activePlayer] = hand;
     frame.ponds = frame.ponds.slice(0);
     const pond = frame.ponds[frame.activePlayer].slice(0);
-    pond.push(tileId);
+    pond.push({ tileId: tileId });
     frame.ponds[frame.activePlayer] = pond;
     return frame;
 }
 
 function createDrawFrame(previousFrame) {
-    const frame = Object.assign({}, previousFrame);
+    const frame = cloneFrame(previousFrame);
     frame.id += 1;
     frame.tilesDrawn += 1;
     if (frame.activePlayer === undefined) {
@@ -233,17 +253,21 @@ function createHands(frame) {
 }
 
 function createPonds(frame) {
+    for (let playerId = 0; playerId < frame.static.playerCount; playerId++) {
+        const pond = frame.ponds[playerId];
+        createPondRow(pond.slice(0, 6), 0, playerId);
+        createPondRow(pond.slice(6, 12), 1, playerId);
+        createPondRow(pond.slice(12), 2, playerId);
+    }
+}
+
+function createPondRow(pondRow, row, playerId) {
     const a = -(3 * tileWidth);
     const x = a + 0.5 * tileWidth;
     const y = a - 0.5 * tileHeight;
-    for (let playerId = 0; playerId < frame.static.playerCount; playerId++) {
-        const pond = frame.ponds[playerId];
-        for (let i = 0; i < pond.length; i++) {
-            const row = Math.min(Math.floor(i / 6), 3);
-            const column = i - 6 * row;
-            const tileId = pond[i];
-            addTile(playerId, tileId, x + column * tileWidth, y - row * tileHeight, 0, 0, 0);
-        }
+    for (let column = 0; column < pondRow.length; column++) {
+        const tileId = pondRow[column].tileId;
+        addTile(playerId, tileId, x + column * tileWidth, y - row * tileHeight, 0, 0, 0);
     }
 }
 
