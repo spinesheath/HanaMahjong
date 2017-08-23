@@ -22,7 +22,8 @@ const announcements = {
     chii: { text: "chii" },
     kan: { text: "kan" },
     ron: { text: "ron" },
-    tsumo: { text: "tsumo" }
+    tsumo: { text: "tsumo" },
+    material: new THREE.MeshBasicMaterial({ color: 0x777777 })
 }
 
 var replay;
@@ -301,17 +302,21 @@ function createPondRow(pondRow, row, playerId) {
 
 function createAnnouncements(frame) {
     for (let playerId = 0; playerId < frame.players.length; playerId++) {
-        if (frame.players[playerId].announcement) {
-            const text = frame.players[playerId].announcement.text;
-            const textGeo = new THREE.TextBufferGeometry(text, { font: font, size: 2, height: 0, curveSegments: 2 });
-            textGeo.computeBoundingBox();
-            const centerOffsetX = -0.5 * (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x);
-            const centerOffsetY = -0.5 * (textGeo.boundingBox.max.y - textGeo.boundingBox.min.y);
-            const material = new THREE.MeshBasicMaterial({ color: 0x777777 });
-            const textMesh = new THREE.Mesh(textGeo, material);
-            textMesh.position.x = centerOffsetX;
-            textMesh.position.y = centerOffsetY;
-            replayContext.scene.add(textMesh);
+        const announcement = frame.players[playerId].announcement;
+        if (announcement) {
+            if (!announcement.mesh) {
+                const text = announcement.text;
+                const geometry = new THREE.TextBufferGeometry(text, { font: font, size: 2, height: 0, curveSegments: 2 });
+                geometry.computeBoundingBox();
+                const x = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+                const y = -0.5 * (geometry.boundingBox.max.y - geometry.boundingBox.min.y);
+                const mesh = new THREE.Mesh(geometry, announcements.material);
+                mesh.position.x = x;
+                mesh.position.y = y;
+                announcement.mesh = mesh;
+            }
+
+            replayContext.addMesh(announcement.mesh, false);
         }
     }
 }
@@ -458,7 +463,7 @@ function addTile(playerId, tileId, x, y, z, open, flip) {
     mesh.rotateX(Math.PI * 0.5 * (open - 1));
     mesh.rotateY(Math.PI * 0.5 * (flip));
 
-    replayContext.scene.add(mesh);
+    replayContext.addTile(mesh);
 }
 
 function suitFromTileId(tileId) {

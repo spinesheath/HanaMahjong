@@ -10,6 +10,8 @@ function RenderContext(canvasName) {
     this.scene = new THREE.Scene();
     this.renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
     this.renderer.setSize(displayWidth, displayHeight);
+    this.meshes = [];
+    this.tiles = [];
     renderContexts.push(this);
 }
 
@@ -18,7 +20,7 @@ RenderContext.prototype.render = function() {
 };
 
 RenderContext.prototype.createTiles = function(arrange) {
-    removeMeshes(this.scene);
+    this.clear();
     createMaterial();
 
     if (this.geometry === undefined) {
@@ -61,6 +63,33 @@ RenderContext.prototype.setCameraPosition = function (x, y, z) {
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 }
 
+RenderContext.prototype.addMesh = function(mesh, disposeOnClear) {
+    this.scene.add(mesh);
+    this.meshes.push({ mesh: mesh, disposeOnClear: disposeOnClear });
+}
+
+RenderContext.prototype.addTile = function(mesh) {
+    this.scene.add(mesh);
+    this.tiles.push(mesh);
+}
+
+RenderContext.prototype.clear = function () {
+    while (this.meshes.length > 0) {
+        const tuple = this.meshes.pop();
+        const mesh = tuple.mesh;
+        this.scene.remove(mesh);
+        if (tuple.disposeOnClear) {
+            mesh.material.dispose();
+            mesh.geometry.dispose();
+        }
+    }
+    while (this.tiles.length > 0) {
+        const mesh = this.tiles.pop();
+        this.scene.remove(mesh);
+        mesh.geometry.dispose();
+    }
+}
+
 function initThreeJS() {
     const fontLoader = new THREE.FontLoader();
     const url = resourceUrl("fonts", "helvetiker_bold.typeface.json");
@@ -88,21 +117,8 @@ function createMaterial() {
     }
 }
 
-function removeMeshes(scene) {
-    for (let k = scene.children.length - 1; k >= 0; k--) {
-        const child = scene.children[k];
-        if (child.type === "Mesh") {
-            scene.remove(child);
-            if (child.material !== material) {
-                child.material.dispose();
-            }
-            child.geometry.dispose();
-        }
-    }
-}
-
 function getGeometryPromise() {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
         var jsonloader = new THREE.JSONLoader();
         jsonloader.load(resourceUrl("geometries", "tile.json"),
             function (g) {
