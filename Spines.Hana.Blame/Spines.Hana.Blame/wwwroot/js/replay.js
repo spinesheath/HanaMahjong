@@ -122,11 +122,26 @@ function parseReplay(data) {
                 const frames = createCallFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 5), announcements.kan);
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
+
+                // RINSHAN, DORA INDICATOR
+
                 decisionId += 4;
             } else if (decision === closedKanId) {
+                const frames = createClosedKanFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 5), announcements.kan);
+                game.frames.push(frames[0], frames[1]);
+                previousFrame = frames[1];
+
+                // RINSHAN, DORA INDICATOR
+
                 decisionId += 4;
                 break;
             } else if (decision === addedKanId) {
+                const frames = createAddedKanFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 5), announcements.kan);
+                game.frames.push(frames[0], frames[1]);
+                previousFrame = frames[1];
+
+                // RINSHAN, DORA INDICATOR
+
                 decisionId += 4;
                 break;
             } else if (decision === agariId) {
@@ -152,27 +167,56 @@ function parseReplay(data) {
     return games;
 }
 
-function cloneFrame(frame) {
-    const clone = Object.assign({}, frame);
+function createAddedKanFrames(previousFrame, meldedTiles, announcement) {
+    const activePlayer = previousFrame.activePlayer;
 
-    if (clone.players.some(p => p.announcement)) {
-        clone.players = frame.players.slice(0);
-        for (let i = 0; i < clone.players.length; i++) {
-            if (clone.players[i].announcement) {
-                clone.players[i] = Object.assign({}, clone.players[i]);
-                clone.players[i].announcement = undefined;
-            }
-        }
-    }
-    return clone;
+    const announcementFrame = cloneFrame(previousFrame);
+    announcementFrame.players = announcementFrame.players.slice(0);
+    announcementFrame.players[activePlayer] = Object.assign({}, announcementFrame.players[announcementFrame.activePlayer]);
+    announcementFrame.players[activePlayer].announcement = announcement;
+
+    const frame = cloneFrame(announcementFrame);
+    frame.id += 1;
+
+    frame.hands = frame.hands.slice(0);
+    const hand = Object.assign({}, frame.hands[frame.activePlayer]);
+    hand.tiles = hand.tiles.slice(0);
+
+    removeMany(hand.tiles, meldedTiles);
+    hand.justCalled = true;
+    frame.hands[frame.activePlayer] = hand;
+
+    hand.melds = hand.melds.slice(0);
+    const pon = hand.melds.find(m => m.tiles.some(t => meldedTiles.indexOf(t) !== -1));
+    hand.melds.push({ tiles: meldedTiles, relativeFrom: pon.relativeFrom });
+    remove(hand.melds, pon);
+
+    return [announcementFrame, frame];
 }
 
-function createReachFrame(previousFrame) {
-    const frame = cloneFrame(previousFrame);
-    frame.players = frame.players.slice(0);
-    frame.players[frame.activePlayer] = Object.assign({}, frame.players[frame.activePlayer]);
-    frame.players[frame.activePlayer].announcement = announcements.reach;
-    return frame;
+function createClosedKanFrames(previousFrame, meldedTiles, announcement) {
+    const activePlayer = previousFrame.activePlayer;
+
+    const announcementFrame = cloneFrame(previousFrame);
+    announcementFrame.players = announcementFrame.players.slice(0);
+    announcementFrame.players[activePlayer] = Object.assign({}, announcementFrame.players[announcementFrame.activePlayer]);
+    announcementFrame.players[activePlayer].announcement = announcement;
+
+    const frame = cloneFrame(announcementFrame);
+    frame.id += 1;
+
+    frame.hands = frame.hands.slice(0);
+    const hand = Object.assign({}, frame.hands[frame.activePlayer]);
+    hand.tiles = hand.tiles.slice(0);
+
+    removeMany(hand.tiles, meldedTiles);
+    hand.justCalled = true;
+    frame.hands[frame.activePlayer] = hand;
+
+    hand.melds = hand.melds.slice(0);
+    hand.melds.push({ tiles: meldedTiles, relativeFrom: 0 });
+
+    return [announcementFrame, frame];
 }
 
 function createCallFrames(previousFrame, meldedTiles, announcement) {
@@ -184,13 +228,13 @@ function createCallFrames(previousFrame, meldedTiles, announcement) {
     announcementFrame.players[activePlayer].announcement = announcement;
 
     const frame = cloneFrame(announcementFrame);
+    frame.id += 1;
 
     frame.ponds = frame.ponds.slice(0);
     const pond = frame.ponds[previousFrame.activePlayer].slice(0);
     const called = pond.pop();
     frame.ponds[previousFrame.activePlayer] = pond;
     frame.activePlayer = activePlayer;
-    frame.id += 1;
 
     frame.hands = frame.hands.slice(0);
     const hand = Object.assign({}, frame.hands[frame.activePlayer]);
@@ -205,6 +249,14 @@ function createCallFrames(previousFrame, meldedTiles, announcement) {
     hand.melds.push({tiles: meldedTiles, flipped: called.tileId, relativeFrom: relativeFrom});
 
     return [announcementFrame, frame];
+}
+
+function createReachFrame(previousFrame) {
+    const frame = cloneFrame(previousFrame);
+    frame.players = frame.players.slice(0);
+    frame.players[frame.activePlayer] = Object.assign({}, frame.players[frame.activePlayer]);
+    frame.players[frame.activePlayer].announcement = announcements.reach;
+    return frame;
 }
 
 function createDiscardFrame(previousFrame, tileId) {
@@ -241,6 +293,21 @@ function createDrawFrame(previousFrame) {
     hand.justCalled = false;
     frame.hands[frame.activePlayer] = hand;
     return frame;
+}
+
+function cloneFrame(frame) {
+    const clone = Object.assign({}, frame);
+
+    if (clone.players.some(p => p.announcement)) {
+        clone.players = frame.players.slice(0);
+        for (let i = 0; i < clone.players.length; i++) {
+            if (clone.players[i].announcement) {
+                clone.players[i] = Object.assign({}, clone.players[i]);
+                clone.players[i].announcement = undefined;
+            }
+        }
+    }
+    return clone;
 }
 
 function getCallingPlayerId(frame, meldedTiles) {
