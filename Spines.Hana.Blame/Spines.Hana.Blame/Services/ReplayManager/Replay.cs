@@ -66,11 +66,18 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       result.Rules = RuleSet.Parse(flags);
       result.Room = GetRoom(flags);
 
+      var upcomingRinshan = false;
+
       foreach (var e in xElement.Elements())
       {
         var name = e.Name.LocalName;
         if (DrawRegex.IsMatch(name))
         {
+          if (upcomingRinshan)
+          {
+            upcomingRinshan = false;
+            data.Add(Ids.Rinshan);
+          }
           continue;
         }
         var match = DiscardRegex.Match(name);
@@ -96,6 +103,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
             data.AddRange(generator.GetDice(gameIndex));
             data.Add(ToInt(e.Attribute("oya")?.Value));
             gameIndex += 1;
+            upcomingRinshan = false;
             break;
           case "AGARI":
             data.Add(Ids.Agari);
@@ -104,6 +112,10 @@ namespace Spines.Hana.Blame.Services.ReplayManager
             break;
           case "N":
             var decoder = new MeldDecoder(e.Attribute("m")?.Value);
+            if (IsKan(decoder.MeldType))
+            {
+              upcomingRinshan = true;
+            }
             data.Add(MeldTypeIds[decoder.MeldType]);
             data.AddRange(decoder.Tiles);
             break;
@@ -123,6 +135,11 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       }
       result.Data = data.ToArray();
       return result;
+    }
+
+    private static bool IsKan(MeldType meldType)
+    {
+      return meldType == MeldType.AddedKan || meldType == MeldType.CalledKan || meldType == MeldType.ClosedKan;
     }
 
     private static int ToInt(string value)
@@ -146,6 +163,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       public const int Ryuukyoku = 302;
       public const int Reach = 303;
       public const int Dora = 304;
+      public const int Rinshan = 305;
       public const int Pon = 400;
       public const int Chii = 401;
       public const int ClosedKan = 402;

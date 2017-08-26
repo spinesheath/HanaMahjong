@@ -11,6 +11,7 @@ const _ids = {
     ryuukyoku: 302,
     reach: 303,
     dora: 304,
+    rinshan: 305,
     pon: 400,
     chii: 401,
     closedKan: 402,
@@ -126,9 +127,6 @@ function parseReplay(data) {
                 const frames = createCallFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 5), announcements.kan);
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
-
-                // RINSHAN
-
                 decisionId += 4;
             } else if (decision === _ids.closedKan) {
                 const frame = createDrawFrame(previousFrame);
@@ -138,9 +136,6 @@ function parseReplay(data) {
                 const frames = createClosedKanFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 5), announcements.kan);
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
-
-                // RINSHAN
-
                 decisionId += 4;
                 break;
             } else if (decision === _ids.addedKan) {
@@ -151,9 +146,6 @@ function parseReplay(data) {
                 const frames = createAddedKanFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 5), announcements.kan);
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
-
-                // RINSHAN
-
                 decisionId += 4;
                 break;
             } else if (decision === _ids.agari) {
@@ -173,9 +165,12 @@ function parseReplay(data) {
                 const frame = createReachFrame(previousFrame);
                 game.frames.push(frame);
                 previousFrame = frame;
-            }
-            else if (decision === _ids.dora) {
+            } else if (decision === _ids.dora) {
                 const frame = createDoraFrame(previousFrame);
+                game.frames.push(frame);
+                previousFrame = frame;
+            } else if (decision === _ids.rinshan) { 
+                const frame = createRinshanFrame(previousFrame);
                 game.frames.push(frame);
                 previousFrame = frame;
             }
@@ -184,6 +179,20 @@ function parseReplay(data) {
         games.push(game);
     }
     return games;
+}
+
+function createRinshanFrame(previousFrame) {
+    const frame = cloneFrame(previousFrame);
+    frame.rinshanTilesDrawn += 1;
+
+    const drawnTileId = frame.static.wall[frame.rinshanTilesDrawn];
+    frame.hands = frame.hands.slice(0);
+    const hand = Object.assign({}, frame.hands[frame.activePlayer]);
+    hand.tiles = hand.tiles.slice(0);
+    hand.tiles.push(drawnTileId);
+    hand.drewRinshan = false;
+    frame.hands[frame.activePlayer] = hand;
+    return frame;
 }
 
 function createDoraFrame(previousFrame) {
@@ -290,6 +299,7 @@ function createDiscardFrame(previousFrame, tileId) {
     remove(hand.tiles, tileId);
     sort(hand.tiles);
     hand.justCalled = false;
+    hand.drewRinshan = false;
     frame.hands[frame.activePlayer] = hand;
     frame.ponds = frame.ponds.slice(0);
     const pond = frame.ponds[frame.activePlayer].slice(0);
@@ -311,7 +321,6 @@ function createDrawFrame(previousFrame) {
     const hand = Object.assign({}, frame.hands[frame.activePlayer]);
     hand.tiles = hand.tiles.slice(0);
     hand.tiles.push(drawnTileId);
-    hand.justCalled = false;
     frame.hands[frame.activePlayer] = hand;
     return frame;
 }
@@ -454,7 +463,7 @@ function setStartingHands(frame) {
     frame.hands = [];
     for (let playerId = 0; playerId < frame.static.playerCount; playerId++) {
         const tileIds = getDealtTileIds(frame.static.wall, playerId, frame.static.oya);
-        frame.hands.push({ tiles: tileIds, melds: [], justCalled: false });
+        frame.hands.push({ tiles: tileIds, melds: [], justCalled: false, drewRinshan: false });
     }
 }
 
