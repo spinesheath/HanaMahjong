@@ -138,7 +138,6 @@ function parseReplay(data) {
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
                 decisionId += 4;
-                break;
             } else if (decision === _ids.addedKan) {
                 const frame = createDrawFrame(previousFrame);
                 game.frames.push(frame);
@@ -148,7 +147,6 @@ function parseReplay(data) {
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
                 decisionId += 4;
-                break;
             } else if (decision === _ids.agari) {
                 var who = decisions[decisionId + 1];
                 var fromWho = decisions[decisionId + 2];
