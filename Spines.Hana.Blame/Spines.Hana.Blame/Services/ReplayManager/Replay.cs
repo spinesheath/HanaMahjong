@@ -51,6 +51,10 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       foreach (var e in xElement.Elements())
       {
         var name = e.Name.LocalName;
+        if (DrawRegex.IsMatch(name))
+        {
+          continue;
+        }
         var match = DiscardRegex.Match(name);
         if (match.Success)
         {
@@ -65,7 +69,9 @@ namespace Spines.Hana.Blame.Services.ReplayManager
           case "TAIKYOKU":
           case "GO":
           case "BYE":
+            break;
           case "DORA":
+            data.Add(DoraId);
             break;
           case "INIT":
             data.Add(InitId);
@@ -95,6 +101,9 @@ namespace Spines.Hana.Blame.Services.ReplayManager
             }
             break;
           case "RYUUKYOKU":
+            data.Add(RyuukyokuId);
+            break;
+          default:
             throw new NotImplementedException();
         }
       }
@@ -107,10 +116,13 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     }
 
     private const int AgariId = 300;
-    private const int ReachId = 301;
+    private const int RyuukyokuId = 301;
+    private const int ReachId = 302;
+    private const int DoraId = 303;
     private const int InitId = 400;
 
     private static readonly Regex DiscardRegex = new Regex(@"[DEFG](\d{1,3})");
+    private static readonly Regex DrawRegex = new Regex(@"[TUVW](\d{1,3})");
 
     private static readonly Dictionary<MeldType, int> MeldTypeIds = new Dictionary<MeldType, int>
     {

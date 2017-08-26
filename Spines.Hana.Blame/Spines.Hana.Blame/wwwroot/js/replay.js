@@ -7,7 +7,9 @@ const gap = 0.2;
 
 const initId = 400;
 const agariId = 300;
-const reachId = 301;
+const ryuukykuId = 300;
+const reachId = 302;
+const doraId = 303;
 const addedKanId = 200;
 const calledKanId = 201;
 const closedKanId = 202;
@@ -123,24 +125,32 @@ function parseReplay(data) {
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
 
-                // RINSHAN, DORA INDICATOR
+                // RINSHAN
 
                 decisionId += 4;
             } else if (decision === closedKanId) {
+                const frame = createDrawFrame(previousFrame);
+                game.frames.push(frame);
+                previousFrame = frame;
+
                 const frames = createClosedKanFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 5), announcements.kan);
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
 
-                // RINSHAN, DORA INDICATOR
+                // RINSHAN
 
                 decisionId += 4;
                 break;
             } else if (decision === addedKanId) {
+                const frame = createDrawFrame(previousFrame);
+                game.frames.push(frame);
+                previousFrame = frame;
+
                 const frames = createAddedKanFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 5), announcements.kan);
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
 
-                // RINSHAN, DORA INDICATOR
+                // RINSHAN
 
                 decisionId += 4;
                 break;
@@ -155,8 +165,15 @@ function parseReplay(data) {
                     
                 }
                 decisionId += 2;
+            } else if (decision === ryuukykuId) {
+                
             } else if (decision === reachId) {
                 const frame = createReachFrame(previousFrame);
+                game.frames.push(frame);
+                previousFrame = frame;
+            }
+            else if (decision === doraId) {
+                const frame = createDoraFrame(previousFrame);
                 game.frames.push(frame);
                 previousFrame = frame;
             }
@@ -165,6 +182,12 @@ function parseReplay(data) {
         games.push(game);
     }
     return games;
+}
+
+function createDoraFrame(previousFrame) {
+    const frame = cloneFrame(previousFrame);
+    frame.doraIndicators += 1;
+    return frame;
 }
 
 function createAddedKanFrames(previousFrame, meldedTiles, announcement) {
@@ -176,7 +199,6 @@ function createAddedKanFrames(previousFrame, meldedTiles, announcement) {
     announcementFrame.players[activePlayer].announcement = announcement;
 
     const frame = cloneFrame(announcementFrame);
-    frame.id += 1;
 
     frame.hands = frame.hands.slice(0);
     const hand = Object.assign({}, frame.hands[frame.activePlayer]);
@@ -188,7 +210,8 @@ function createAddedKanFrames(previousFrame, meldedTiles, announcement) {
 
     hand.melds = hand.melds.slice(0);
     const pon = hand.melds.find(m => m.tiles.some(t => meldedTiles.indexOf(t) !== -1));
-    hand.melds.push({ tiles: meldedTiles, relativeFrom: pon.relativeFrom });
+    const added = meldedTiles.find(t => pon.tiles.indexOf(t) === -1);
+    hand.melds.push({ tiles: meldedTiles, flipped: pon.flipped, added: added, relativeFrom: pon.relativeFrom });
     remove(hand.melds, pon);
 
     return [announcementFrame, frame];
@@ -203,7 +226,6 @@ function createClosedKanFrames(previousFrame, meldedTiles, announcement) {
     announcementFrame.players[activePlayer].announcement = announcement;
 
     const frame = cloneFrame(announcementFrame);
-    frame.id += 1;
 
     frame.hands = frame.hands.slice(0);
     const hand = Object.assign({}, frame.hands[frame.activePlayer]);
@@ -228,7 +250,6 @@ function createCallFrames(previousFrame, meldedTiles, announcement) {
     announcementFrame.players[activePlayer].announcement = announcement;
 
     const frame = cloneFrame(announcementFrame);
-    frame.id += 1;
 
     frame.ponds = frame.ponds.slice(0);
     const pond = frame.ponds[previousFrame.activePlayer].slice(0);
@@ -261,7 +282,6 @@ function createReachFrame(previousFrame) {
 
 function createDiscardFrame(previousFrame, tileId) {
     const frame = cloneFrame(previousFrame);
-    frame.id += 1;
     frame.hands = frame.hands.slice(0);
     const hand = Object.assign({}, frame.hands[frame.activePlayer]);
     hand.tiles = hand.tiles.slice(0);
@@ -278,7 +298,6 @@ function createDiscardFrame(previousFrame, tileId) {
 
 function createDrawFrame(previousFrame) {
     const frame = cloneFrame(previousFrame);
-    frame.id += 1;
     frame.tilesDrawn += 1;
     if (frame.activePlayer === undefined) {
         frame.activePlayer = frame.static.oya;
@@ -297,7 +316,7 @@ function createDrawFrame(previousFrame) {
 
 function cloneFrame(frame) {
     const clone = Object.assign({}, frame);
-
+    clone.id += 1;
     if (clone.players.some(p => p.announcement)) {
         clone.players = frame.players.slice(0);
         for (let i = 0; i < clone.players.length; i++) {
@@ -496,7 +515,7 @@ function createMeld(playerId, x, meld) {
             tileIds.push(meld.flipped);
         }
     }
-    
+
     for (let i = 0; i < tileIds.length; i++) {
         const tileId = tileIds[i];
         const face = isClosedKan && (i === 0 || i === 3) ? 2 : 0;
@@ -504,7 +523,7 @@ function createMeld(playerId, x, meld) {
         const flip = isFlipped ? 1 : 0;
         addTile(playerId, tileId, x, y, 0, face, flip);
         if (isFlipped && meld.added !== undefined) {
-            addTile(playerId, tileId, x, y + tileWidth, 0, 2, 1);
+            addTile(playerId, tileId, x, y + tileWidth, 0, 0, 1);
         }
         x -= isFlipped ? tileHeight : tileWidth;
     }
