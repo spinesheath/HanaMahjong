@@ -96,7 +96,7 @@ function parseReplay(data) {
         setupFrame.static = { wall: rawData[gameId].wall, dice: rawData[gameId].dice, akaDora: akaDora, playerCount: playerCount, oya: rawData[gameId].oya };
         setStartingHands(setupFrame);
         setupFrame.ponds = [[], [], [], []];
-        setupFrame.players = [{}, {}, {}, {}];
+        setupFrame.players = [{ reach: false }, { reach: false }, { reach: false }, { reach: false }];
         game.frames.push(setupFrame);
 
         let previousFrame = setupFrame;
@@ -106,7 +106,7 @@ function parseReplay(data) {
 
             // discard
             if (decision < 136) {
-                if (previousFrame.activePlayer === undefined || !previousFrame.hands[previousFrame.activePlayer].justCalled) {
+                if (!activeHandHasDraw(previousFrame)) {
                     const frame = createDrawFrame(previousFrame);
                     game.frames.push(frame);
                     previousFrame = frame;
@@ -131,18 +131,22 @@ function parseReplay(data) {
                 previousFrame = frames[1];
                 decisionId += 4;
             } else if (decision === _ids.closedKan) {
-                const frame = createDrawFrame(previousFrame);
-                game.frames.push(frame);
-                previousFrame = frame;
+                if (!activeHandHasDraw(previousFrame)) {
+                    const frame = createDrawFrame(previousFrame);
+                    game.frames.push(frame);
+                    previousFrame = frame;
+                }
 
                 const frames = createClosedKanFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 5), announcements.kan);
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
                 decisionId += 4;
             } else if (decision === _ids.addedKan) {
-                const frame = createDrawFrame(previousFrame);
-                game.frames.push(frame);
-                previousFrame = frame;
+                if (!activeHandHasDraw(previousFrame)) {
+                    const frame = createDrawFrame(previousFrame);
+                    game.frames.push(frame);
+                    previousFrame = frame;
+                }
 
                 const frames = createAddedKanFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 5), announcements.kan);
                 game.frames.push(frames[0], frames[1]);
@@ -151,7 +155,7 @@ function parseReplay(data) {
             } else if (decision === _ids.agari) {
                 var who = decisions[decisionId + 1];
                 var fromWho = decisions[decisionId + 2];
-                if (who === fromWho) {
+                if (who === fromWho && !activeHandHasDraw(previousFrame)) {
                     const drawFrame = createDrawFrame(previousFrame);
                     game.frames.push(drawFrame);
                     previousFrame = drawFrame;
@@ -165,9 +169,15 @@ function parseReplay(data) {
                 game.frames.push(frame);
                 previousFrame = frame;
             } else if (decision === _ids.reach) {
-                const frame = createReachFrame(previousFrame);
-                game.frames.push(frame);
-                previousFrame = frame;
+                if (!activeHandHasDraw(previousFrame)) {
+                    const drawFrame = createDrawFrame(previousFrame);
+                    game.frames.push(drawFrame);
+                    previousFrame = drawFrame;
+                }
+
+                const reachFrame = createReachFrame(previousFrame);
+                game.frames.push(reachFrame);
+                previousFrame = reachFrame;
             } else if (decision === _ids.dora) {
                 const frame = createDoraFrame(previousFrame);
                 game.frames.push(frame);
@@ -182,6 +192,14 @@ function parseReplay(data) {
         games.push(game);
     }
     return games;
+}
+
+function activeHandHasDraw(frame) {
+    if (frame.activePlayer === undefined) {
+        return false;
+    }
+    const count = frame.hands[frame.activePlayer].tiles.length;
+    return count % 3 === 2;
 }
 
 function createRyuukyokuFrame(previousFrame) {
@@ -317,6 +335,7 @@ function createReachFrame(previousFrame) {
     frame.players = frame.players.slice(0);
     frame.players[frame.activePlayer] = Object.assign({}, frame.players[frame.activePlayer]);
     frame.players[frame.activePlayer].announcement = announcements.reach;
+    frame.players[frame.activePlayer].reach = true;
     return frame;
 }
 
@@ -332,7 +351,8 @@ function createDiscardFrame(previousFrame, tileId) {
     frame.hands[frame.activePlayer] = hand;
     frame.ponds = frame.ponds.slice(0);
     const pond = frame.ponds[frame.activePlayer].slice(0);
-    pond.push({ tileId: tileId });
+    const flipped = frame.players[frame.activePlayer].reach && !pond.some(p => p.flipped && !p.meld);
+    pond.push({ tileId: tileId, flipped: flipped });
     frame.ponds[frame.activePlayer] = pond;
     return frame;
 }
@@ -424,10 +444,11 @@ function createPondRow(pondRow, row, playerId) {
     for (let column = 0; column < pondRow.length; column++) {
         const pondTile = pondRow[column];
         const tileId = pondTile.tileId;
+        const flip = pondTile.flipped ? 1 : 0;
         if (pondTile.meld) {
-            addGhostTile(playerId, tileId, x + column * tileWidth, y - row * tileHeight, 0, 0, 0);
+            addGhostTile(playerId, tileId, x + column * tileWidth, y - row * tileHeight, 0, 0, flip);
         } else {
-            addTile(playerId, tileId, x + column * tileWidth, y - row * tileHeight, 0, 0, 0);
+            addTile(playerId, tileId, x + column * tileWidth, y - row * tileHeight, 0, 0, flip);
         }
     }
 }
