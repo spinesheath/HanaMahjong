@@ -295,33 +295,34 @@ function createClosedKanFrames(previousFrame, meldedTiles, announcement) {
 }
 
 function createCallFrames(previousFrame, meldedTiles, announcement) {
+    const playerCalledFrom = previousFrame.activePlayer;
     const activePlayer = getCallingPlayerId(previousFrame, meldedTiles);
 
     const announcementFrame = cloneFrame(previousFrame);
+    announcementFrame.activePlayer = activePlayer;
     announcementFrame.players = announcementFrame.players.slice(0);
-    announcementFrame.players[activePlayer] = Object.assign({}, announcementFrame.players[announcementFrame.activePlayer]);
+    announcementFrame.players[activePlayer] = Object.assign({}, announcementFrame.players[activePlayer]);
     announcementFrame.players[activePlayer].announcement = announcement;
 
     const frame = cloneFrame(announcementFrame);
 
     frame.ponds = frame.ponds.slice(0);
-    const pond = frame.ponds[previousFrame.activePlayer].slice(0);
+    const pond = frame.ponds[playerCalledFrom].slice(0);
     const called = pond.pop();
     const ghostTile = Object.assign({}, called);
     pond.push(ghostTile);
-    frame.ponds[previousFrame.activePlayer] = pond;
-    frame.activePlayer = activePlayer;
+    frame.ponds[playerCalledFrom] = pond;
 
     frame.hands = frame.hands.slice(0);
-    const hand = Object.assign({}, frame.hands[frame.activePlayer]);
+    const hand = Object.assign({}, frame.hands[activePlayer]);
     hand.tiles = hand.tiles.slice(0);
 
     removeMany(hand.tiles, meldedTiles);
     hand.justCalled = true;
-    frame.hands[frame.activePlayer] = hand;
+    frame.hands[activePlayer] = hand;
 
     hand.melds = hand.melds.slice(0);
-    const relativeFrom = (previousFrame.activePlayer - activePlayer + 4) % 4;
+    const relativeFrom = (playerCalledFrom - activePlayer + 4) % 4;
     const meld = { tiles: meldedTiles, flipped: called.tileId, relativeFrom: relativeFrom };
     hand.melds.push(meld);
 
