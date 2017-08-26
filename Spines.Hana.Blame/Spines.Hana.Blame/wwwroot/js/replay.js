@@ -28,6 +28,7 @@ const announcements = {
     kan: { text: "kan" },
     ron: { text: "ron" },
     tsumo: { text: "tsumo" },
+    ryuukyoku: { text: "ryuukyoku" },
     material: new THREE.MeshBasicMaterial({ color: 0x777777 })
 }
 
@@ -152,15 +153,18 @@ function parseReplay(data) {
                 var who = decisions[decisionId + 1];
                 var fromWho = decisions[decisionId + 2];
                 if (who === fromWho) {
-                    const frame = createDrawFrame(previousFrame);
-                    game.frames.push(frame);
-                    previousFrame = frame;
-                } else {
-                    
+                    const drawFrame = createDrawFrame(previousFrame);
+                    game.frames.push(drawFrame);
+                    previousFrame = drawFrame;
                 }
+                const agariFrame = createAgariFrame(previousFrame, who, fromWho);
+                game.frames.push(agariFrame);
+                previousFrame = agariFrame;
                 decisionId += 2;
             } else if (decision === _ids.ryuukyoku) {
-                
+                const frame = createRyuukyokuFrame(previousFrame);
+                game.frames.push(frame);
+                previousFrame = frame;
             } else if (decision === _ids.reach) {
                 const frame = createReachFrame(previousFrame);
                 game.frames.push(frame);
@@ -179,6 +183,27 @@ function parseReplay(data) {
         games.push(game);
     }
     return games;
+}
+
+function createRyuukyokuFrame(previousFrame) {
+    const frame = cloneFrame(previousFrame);
+    frame.announcement = announcements.ryuukyoku;
+    return frame;
+}
+
+function createAgariFrame(previousFrame, who, fromWho) {
+    const activePlayer = who;
+
+    const frame = cloneFrame(previousFrame);
+    frame.players = frame.players.slice(0);
+    frame.players[activePlayer] = Object.assign({}, frame.players[frame.activePlayer]);
+    if (who === fromWho) {
+        frame.players[activePlayer].announcement = announcements.tsumo;
+    } else {
+        frame.players[activePlayer].announcement = announcements.ron;
+    }
+
+    return frame;
 }
 
 function createRinshanFrame(previousFrame) {
@@ -337,6 +362,7 @@ function cloneFrame(frame) {
             }
         }
     }
+    frame.announcement = undefined;
     return clone;
 }
 
@@ -399,23 +425,30 @@ function createPondRow(pondRow, row, playerId) {
 
 function createAnnouncements(frame) {
     for (let playerId = 0; playerId < frame.players.length; playerId++) {
-        const announcement = frame.players[playerId].announcement;
-        if (announcement) {
-            if (!announcement.mesh) {
-                const text = announcement.text;
-                const geometry = new THREE.TextBufferGeometry(text, { font: font, size: 2, height: 0, curveSegments: 2 });
-                geometry.computeBoundingBox();
-                const x = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
-                const y = -0.5 * (geometry.boundingBox.max.y - geometry.boundingBox.min.y);
-                const mesh = new THREE.Mesh(geometry, announcements.material);
-                mesh.position.x = x;
-                mesh.position.y = y;
-                announcement.mesh = mesh;
-            }
-
-            replayContext.addMesh(announcement.mesh, false);
-        }
+        createAnnouncement(frame.players[playerId].announcement);
     }
+    createAnnouncement(frame.announcement);
+}
+
+function createAnnouncement(announcement) {
+    if (!announcement) {
+        return;
+    }
+    if (!announcement.mesh) {
+        const text = announcement.text;
+        const geometry = new THREE.TextBufferGeometry(text, { font: font, size: 2, height: 0, curveSegments: 2 });
+        geometry.computeBoundingBox();
+        const x = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+        const y = -0.5 * (geometry.boundingBox.max.y - geometry.boundingBox.min.y);
+        const z = 2;
+        const mesh = new THREE.Mesh(geometry, announcements.material);
+        mesh.position.x = x;
+        mesh.position.y = y;
+        mesh.position.z = z;
+        announcement.mesh = mesh;
+    }
+
+    replayContext.addMesh(announcement.mesh, false);
 }
 
 function createWall(frame) {
