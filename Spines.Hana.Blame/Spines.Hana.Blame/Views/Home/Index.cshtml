@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "WWYD";
+    ViewData["Title"] = "a random replay";
 }
 
 <div>
@@ -12,19 +12,19 @@
 </div>
 
 
-<input id="handInput" type="text" onchange="changeUrl(this.value)" value="@(ViewData["Hand"])" />
+@*<input id="handInput" type="text" onchange="changeUrl(this.value)" value="@(ViewData["Hand"])" />
 
 <div>
     <canvas id="wwydCanvas" width="600" height="100"></canvas>
 </div>
 
-<div class="row" id="threadDiv"></div>
+<div class="row" id="threadDiv"></div>*@
 
 @section Scripts
 {
     <script>
         $(initThreeJS);
-        $(initWwyd);
+        //$(initWwyd);
         $(initReplay);
     </script>
 }
