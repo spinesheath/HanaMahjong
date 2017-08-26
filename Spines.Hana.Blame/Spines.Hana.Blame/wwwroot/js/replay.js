@@ -20,6 +20,7 @@ const _ids = {
 }
 
 const allHandsOpen = true;
+const showGhostTiles = false;
 
 const announcements = {
     reach: { text: "reach" },
@@ -288,6 +289,8 @@ function createCallFrames(previousFrame, meldedTiles, announcement) {
     frame.ponds = frame.ponds.slice(0);
     const pond = frame.ponds[previousFrame.activePlayer].slice(0);
     const called = pond.pop();
+    const ghostTile = Object.assign({}, called);
+    pond.push(ghostTile);
     frame.ponds[previousFrame.activePlayer] = pond;
     frame.activePlayer = activePlayer;
 
@@ -301,7 +304,10 @@ function createCallFrames(previousFrame, meldedTiles, announcement) {
 
     hand.melds = hand.melds.slice(0);
     const relativeFrom = (previousFrame.activePlayer - activePlayer + 4) % 4;
-    hand.melds.push({tiles: meldedTiles, flipped: called.tileId, relativeFrom: relativeFrom});
+    const meld = { tiles: meldedTiles, flipped: called.tileId, relativeFrom: relativeFrom };
+    hand.melds.push(meld);
+
+    ghostTile.meld = meld;
 
     return [announcementFrame, frame];
 }
@@ -404,7 +410,7 @@ function createHands(frame) {
 
 function createPonds(frame) {
     for (let playerId = 0; playerId < frame.static.playerCount; playerId++) {
-        const pond = frame.ponds[playerId];
+        const pond = frame.ponds[playerId].filter(p => showGhostTiles || p.meld === undefined);
         createPondRow(pond.slice(0, 6), 0, playerId);
         createPondRow(pond.slice(6, 12), 1, playerId);
         createPondRow(pond.slice(12), 2, playerId);
@@ -416,8 +422,13 @@ function createPondRow(pondRow, row, playerId) {
     const x = a + 0.5 * tileWidth;
     const y = a - 0.5 * tileHeight;
     for (let column = 0; column < pondRow.length; column++) {
-        const tileId = pondRow[column].tileId;
-        addTile(playerId, tileId, x + column * tileWidth, y - row * tileHeight, 0, 0, 0);
+        const pondTile = pondRow[column];
+        const tileId = pondTile.tileId;
+        if (pondTile.meld) {
+            addGhostTile(playerId, tileId, x + column * tileWidth, y - row * tileHeight, 0, 0, 0);
+        } else {
+            addTile(playerId, tileId, x + column * tileWidth, y - row * tileHeight, 0, 0, 0);
+        }
     }
 }
 
@@ -576,7 +587,17 @@ function addTile(playerId, tileId, x, y, z, open, flip) {
     const number = numberFromTileId(tileId);
     const suit = suitFromTileId(tileId);
     const mesh = replayContext.createTileMesh(number, suit);
+    addTileMesh(mesh, playerId, x, y, z, open, flip);
+}
 
+function addGhostTile(playerId, tileId, x, y, z, open, flip) {
+    const number = numberFromTileId(tileId);
+    const suit = suitFromTileId(tileId);
+    const mesh = replayContext.createGhostTileMesh(number, suit);
+    addTileMesh(mesh, playerId, x, y, z, open, flip);
+}
+
+function addTileMesh(mesh, playerId, x, y, z, open, flip) {
     if (flip % 2 === 1) {
         const a = (tileHeight - tileWidth) / 2;
         x -= a;

@@ -1,4 +1,5 @@
 ﻿var material;
+var ghostMaterial;
 var font;
 var renderContexts = [];
 
@@ -36,6 +37,16 @@ RenderContext.prototype.createTiles = function(arrange) {
 }
 
 RenderContext.prototype.createTileMesh = function (number, suit) {
+    const geometry = this._createGeometry(number, suit);
+    return new THREE.Mesh(geometry, material);
+}
+
+RenderContext.prototype.createGhostTileMesh = function (number, suit) {
+    const geometry = this._createGeometry(number, suit);
+    return new THREE.Mesh(geometry, ghostMaterial);
+}
+
+RenderContext.prototype._createGeometry = function (number, suit) {
     const left = (100 + number * 32) / 512;
     const right = (100 + 24 + number * 32) / 512;
     const top = (512 - 32 - 64 * suit) / 512;
@@ -53,7 +64,7 @@ RenderContext.prototype.createTileMesh = function (number, suit) {
     geometryClone.faceVertexUvs[0][153][1] = d;
     geometryClone.faceVertexUvs[0][153][2] = b;
 
-    return new THREE.Mesh(geometryClone, material);
+    return geometryClone;
 }
 
 RenderContext.prototype.setCameraPosition = function (x, y, z) {
@@ -109,10 +120,18 @@ function resourceUrl(folder, filename) {
 function createMaterial() {
     if (material === undefined) {
         const textureLoader = new THREE.TextureLoader();
+        const texture = textureLoader.load(resourceUrl("textures", "tile.png"));
+        const bump = textureLoader.load(resourceUrl("bumpmaps", "tile.png"));
         material = new THREE.MeshPhongMaterial({
-            map: textureLoader.load(resourceUrl("textures", "tile.png")),
-            bumpMap: textureLoader.load(resourceUrl("bumpmaps", "tile.png")),
+            map: texture,
+            bumpMap: bump,
             bumpScale: 0.2
+        });
+        ghostMaterial = new THREE.MeshPhongMaterial({
+            map: texture,
+            bumpMap: bump,
+            bumpScale: 0.2,
+            color: new THREE.Color(0x888888)
         });
     }
 }
