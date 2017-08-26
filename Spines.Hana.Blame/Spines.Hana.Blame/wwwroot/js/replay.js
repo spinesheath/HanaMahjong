@@ -439,17 +439,19 @@ function createPonds(frame) {
 
 function createPondRow(pondRow, row, playerId) {
     const a = -(3 * tileWidth);
-    const x = a + 0.5 * tileWidth;
-    const y = a - 0.5 * tileHeight;
+    var x = a + 0.5 * tileWidth;
+    const y = a - 0.5 * tileHeight - row * tileHeight;
     for (let column = 0; column < pondRow.length; column++) {
         const pondTile = pondRow[column];
         const tileId = pondTile.tileId;
         const flip = pondTile.flipped ? 1 : 0;
+        x += flip ? tileHeight - tileWidth : 0;
         if (pondTile.meld) {
-            addGhostTile(playerId, tileId, x + column * tileWidth, y - row * tileHeight, 0, 0, flip);
+            addGhostTile(playerId, tileId, x, y, 0, 0, flip);
         } else {
-            addTile(playerId, tileId, x + column * tileWidth, y - row * tileHeight, 0, 0, flip);
+            addTile(playerId, tileId, x, y, 0, 0, flip);
         }
+        x += tileWidth;
     }
 }
 
