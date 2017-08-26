@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
@@ -15,7 +16,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     public RuleSet Rules { get; private set; }
 
     /// <summary>
-    /// Per hand: 136 tiles, 2 dice, then actions: discarded tiles or call id followed by 3-4 tiles or agari id followed by who and fromWho.
+    /// Per hand: 136 tiles, 2 dice, oya, then actions.
     /// </summary>
     public IReadOnlyList<int> Data { get; private set; }
 
@@ -31,6 +32,23 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       }
     }
 
+    private Replay()
+    {
+    }
+
+
+    private static readonly Regex DiscardRegex = new Regex(@"[DEFG](\d{1,3})");
+    private static readonly Regex DrawRegex = new Regex(@"[TUVW](\d{1,3})");
+
+    private static readonly Dictionary<MeldType, int> MeldTypeIds = new Dictionary<MeldType, int>
+    {
+      {MeldType.Koutsu, Ids.Pon},
+      {MeldType.Shuntsu, Ids.Chii},
+      {MeldType.ClosedKan, Ids.ClosedKan},
+      {MeldType.CalledKan, Ids.CalledKan},
+      {MeldType.AddedKan, Ids.AddedKan}
+    };
+
     private static Replay ParseInternal(string xml)
     {
       var result = new Replay();
@@ -44,7 +62,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
       var go = xElement.Element("GO");
       result.Lobby = go?.Attribute("lobby")?.Value;
-      var flags = (GameTypeFlag)int.Parse(go?.Attribute("type")?.Value);
+      var flags = (GameTypeFlag) int.Parse(go?.Attribute("type")?.Value);
       result.Rules = RuleSet.Parse(flags);
       result.Room = GetRoom(flags);
 
@@ -58,8 +76,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
         var match = DiscardRegex.Match(name);
         if (match.Success)
         {
-          var tile = Convert.ToInt32(match.Groups[1].Value);
-          data.Add(tile);
+          data.Add(ToInt(match.Groups[1].Value));
           continue;
         }
         switch (name)
@@ -71,25 +88,22 @@ namespace Spines.Hana.Blame.Services.ReplayManager
           case "BYE":
             break;
           case "DORA":
-            data.Add(DoraId);
+            data.Add(Ids.Dora);
             break;
           case "INIT":
-            data.Add(InitId);
+            data.Add(Ids.Init);
             data.AddRange(generator.GetWall(gameIndex));
             data.AddRange(generator.GetDice(gameIndex));
-            data.Add(Convert.ToInt32(e.Attribute("oya")?.Value));
+            data.Add(ToInt(e.Attribute("oya")?.Value));
             gameIndex += 1;
             break;
           case "AGARI":
-            var who = Convert.ToInt32(e.Attribute("who")?.Value);
-            var fromWho = Convert.ToInt32(e.Attribute("fromWho")?.Value);
-            data.Add(AgariId);
-            data.Add(who);
-            data.Add(fromWho);
+            data.Add(Ids.Agari);
+            data.Add(ToInt(e.Attribute("who")?.Value));
+            data.Add(ToInt(e.Attribute("fromWho")?.Value));
             break;
           case "N":
-            var m = e.Attribute("m")?.Value;
-            var decoder = new MeldDecoder(m);
+            var decoder = new MeldDecoder(e.Attribute("m")?.Value);
             data.Add(MeldTypeIds[decoder.MeldType]);
             data.AddRange(decoder.Tiles);
             break;
@@ -97,11 +111,11 @@ namespace Spines.Hana.Blame.Services.ReplayManager
             var step = e.Attribute("step")?.Value;
             if (step == "1")
             {
-              data.Add(ReachId);
+              data.Add(Ids.Reach);
             }
             break;
           case "RYUUKYOKU":
-            data.Add(RyuukyokuId);
+            data.Add(Ids.Ryuukyoku);
             break;
           default:
             throw new NotImplementedException();
@@ -111,27 +125,10 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       return result;
     }
 
-    private Replay()
+    private static int ToInt(string value)
     {
+      return Convert.ToInt32(value, CultureInfo.InvariantCulture);
     }
-
-    private const int AgariId = 300;
-    private const int RyuukyokuId = 301;
-    private const int ReachId = 302;
-    private const int DoraId = 303;
-    private const int InitId = 400;
-
-    private static readonly Regex DiscardRegex = new Regex(@"[DEFG](\d{1,3})");
-    private static readonly Regex DrawRegex = new Regex(@"[TUVW](\d{1,3})");
-
-    private static readonly Dictionary<MeldType, int> MeldTypeIds = new Dictionary<MeldType, int>
-    {
-      {MeldType.AddedKan, 200},
-      {MeldType.CalledKan, 201},
-      {MeldType.ClosedKan, 202},
-      {MeldType.Koutsu, 203},
-      {MeldType.Shuntsu, 204}
-    };
 
     private static Room GetRoom(GameTypeFlag flags)
     {
@@ -140,6 +137,20 @@ namespace Spines.Hana.Blame.Services.ReplayManager
         return flags.HasFlag(GameTypeFlag.Expert) ? Room.Phoenix : Room.LowerDan;
       }
       return flags.HasFlag(GameTypeFlag.Expert) ? Room.UpperDan : Room.General;
+    }
+
+    private struct Ids
+    {
+      public const int Init = 300;
+      public const int Agari = 301;
+      public const int Ryuukyoku = 302;
+      public const int Reach = 303;
+      public const int Dora = 304;
+      public const int Pon = 400;
+      public const int Chii = 401;
+      public const int ClosedKan = 402;
+      public const int CalledKan = 403;
+      public const int AddedKan = 404;
     }
   }
 }

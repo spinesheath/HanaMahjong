@@ -5,16 +5,18 @@ const tileWidth = 0.97;
 const tileHeight = 1.28;
 const gap = 0.2;
 
-const initId = 400;
-const agariId = 300;
-const ryuukykuId = 300;
-const reachId = 302;
-const doraId = 303;
-const addedKanId = 200;
-const calledKanId = 201;
-const closedKanId = 202;
-const ponId = 203;
-const chiiId = 204;
+const _ids = {
+    init: 300,
+    agari: 301,
+    ryuukyoku: 302,
+    reach: 303,
+    dora: 304,
+    pon: 400,
+    chii: 401,
+    closedKan: 402,
+    calledKan: 403,
+    addedKan: 404
+}
 
 const allHandsOpen = true;
 
@@ -110,17 +112,17 @@ function parseReplay(data) {
                 const discardFrame = createDiscardFrame(previousFrame, decision);
                 game.frames.push(discardFrame);
                 previousFrame = discardFrame;
-            } else if (decision === ponId) {
+            } else if (decision === _ids.pon) {
                 const frames = createCallFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 4), announcements.pon);
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
                 decisionId += 3;
-            } else if (decision === chiiId) {
+            } else if (decision === _ids.chii) {
                 const frames = createCallFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 4), announcements.chii);
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
                 decisionId += 3;
-            } else if (decision === calledKanId) {
+            } else if (decision === _ids.calledKan) {
                 const frames = createCallFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 5), announcements.kan);
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
@@ -128,7 +130,7 @@ function parseReplay(data) {
                 // RINSHAN
 
                 decisionId += 4;
-            } else if (decision === closedKanId) {
+            } else if (decision === _ids.closedKan) {
                 const frame = createDrawFrame(previousFrame);
                 game.frames.push(frame);
                 previousFrame = frame;
@@ -141,7 +143,7 @@ function parseReplay(data) {
 
                 decisionId += 4;
                 break;
-            } else if (decision === addedKanId) {
+            } else if (decision === _ids.addedKan) {
                 const frame = createDrawFrame(previousFrame);
                 game.frames.push(frame);
                 previousFrame = frame;
@@ -154,7 +156,7 @@ function parseReplay(data) {
 
                 decisionId += 4;
                 break;
-            } else if (decision === agariId) {
+            } else if (decision === _ids.agari) {
                 var who = decisions[decisionId + 1];
                 var fromWho = decisions[decisionId + 2];
                 if (who === fromWho) {
@@ -165,14 +167,14 @@ function parseReplay(data) {
                     
                 }
                 decisionId += 2;
-            } else if (decision === ryuukykuId) {
+            } else if (decision === _ids.ryuukyoku) {
                 
-            } else if (decision === reachId) {
+            } else if (decision === _ids.reach) {
                 const frame = createReachFrame(previousFrame);
                 game.frames.push(frame);
                 previousFrame = frame;
             }
-            else if (decision === doraId) {
+            else if (decision === _ids.dora) {
                 const frame = createDoraFrame(previousFrame);
                 game.frames.push(frame);
                 previousFrame = frame;
@@ -474,7 +476,7 @@ function splitRawData(data) {
 
     const rawData = [];
     var i = 0;
-    while (i < data.length && data[i] !== initId) {
+    while (i < data.length && data[i] !== _ids.init) {
         i += 1;
     }
     while (i < data.length) {
@@ -486,7 +488,7 @@ function splitRawData(data) {
         const oya = data[i];
         i += 1;
         let c = 0;
-        while (data[i + c] !== initId && i + c < data.length) {
+        while (data[i + c] !== _ids.init && i + c < data.length) {
             c += 1;
         }
         const decisions = data.slice(i, i + c);
