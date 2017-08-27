@@ -56,15 +56,36 @@ RenderContext.prototype._createGeometry = function (number, suit) {
     const c = new THREE.Vector2(left, bottom);
     const d = new THREE.Vector2(right, top);
 
-    const geometryClone = this.geometry.clone();
-    geometryClone.faceVertexUvs[0][3][0] = a;
-    geometryClone.faceVertexUvs[0][3][1] = b;
-    geometryClone.faceVertexUvs[0][3][2] = c;
-    geometryClone.faceVertexUvs[0][153][0] = a;
-    geometryClone.faceVertexUvs[0][153][1] = d;
-    geometryClone.faceVertexUvs[0][153][2] = b;
+    const g = new THREE.Geometry();
+    g.boundingBox = this.geometry.boundingBox;
+    g.boundingSphere = this.geometry.boundingSphere;
+    g.colors = this.geometry.colors;
+    g.colorsNeedUpdate = this.geometry.colorsNeedUpdate;
+    g.elementsNeedUpdate = this.geometry.elementsNeedUpdate;
+    //g.faceVertexUvs = this.geometry.faceVertexUvs;
+    g.faces = this.geometry.faces;
+    g.groupsNeedUpdate = this.geometry.groupsNeedUpdate;
+    g.lineDistances = this.geometry.lineDistances;
+    g.morphNormals = this.geometry.morphNormals;
+    g.morphTargets = this.geometry.morphTargets;
+    g.name = this.geometry.name;
+    g.normalsNeedUpdate = this.geometry.normalsNeedUpdate;
+    g.skinIndices = this.geometry.skinIndices;
+    g.skinWeights = this.geometry.skinWeights;
+    g.type = this.geometry.type;
+    //g.uuid = this.geometry.uuid;
+    g.uvsNeedUpdate = this.geometry.uvsNeedUpdate;
+    g.vertices = this.geometry.vertices;
+    g.verticesNeedUpdate = this.geometry.verticesNeedUpdate;
+    //g.id = this.geometry.id;
 
-    return geometryClone;
+    // TODO static cache of faceVertexUVs
+    g.faceVertexUvs = this.geometry.faceVertexUvs.slice(0);
+    g.faceVertexUvs[0] = this.geometry.faceVertexUvs[0].slice(0);
+    g.faceVertexUvs[0][3] = [a, b, c];
+    g.faceVertexUvs[0][153] = [a, d, b];
+
+    return g;
 }
 
 RenderContext.prototype.setCameraPosition = function (x, y, z) {
