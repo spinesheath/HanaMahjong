@@ -1,7 +1,10 @@
-﻿var material;
-var ghostMaterial;
-var font;
+﻿var font;
 var renderContexts = [];
+
+var _staticTileData = {
+    uvs: [new Array(10), new Array(10), new Array(10), new Array(10)],
+    geometries: [new Array(10), new Array(10), new Array(10), new Array(10)]
+};
 
 function RenderContext(canvasName) {
     const canvas = document.querySelector(`#${canvasName}`);
@@ -37,55 +40,13 @@ RenderContext.prototype.createTiles = function(arrange) {
 }
 
 RenderContext.prototype.createTileMesh = function (number, suit) {
-    const geometry = this._createGeometry(number, suit);
-    return new THREE.Mesh(geometry, material);
+    const geometry = this._getGeometry(number, suit);
+    return new THREE.Mesh(geometry, _staticTileData.material);
 }
 
 RenderContext.prototype.createGhostTileMesh = function (number, suit) {
-    const geometry = this._createGeometry(number, suit);
-    return new THREE.Mesh(geometry, ghostMaterial);
-}
-
-RenderContext.prototype._createGeometry = function (number, suit) {
-    const left = (100 + number * 32) / 512;
-    const right = (100 + 24 + number * 32) / 512;
-    const top = (512 - 32 - 64 * suit) / 512;
-    const bottom = (512 - 32 - 32 - 64 * suit) / 512;
-    const a = new THREE.Vector2(right, bottom);
-    const b = new THREE.Vector2(left, top);
-    const c = new THREE.Vector2(left, bottom);
-    const d = new THREE.Vector2(right, top);
-
-    const g = new THREE.Geometry();
-    g.boundingBox = this.geometry.boundingBox;
-    g.boundingSphere = this.geometry.boundingSphere;
-    g.colors = this.geometry.colors;
-    g.colorsNeedUpdate = this.geometry.colorsNeedUpdate;
-    g.elementsNeedUpdate = this.geometry.elementsNeedUpdate;
-    //g.faceVertexUvs = this.geometry.faceVertexUvs;
-    g.faces = this.geometry.faces;
-    g.groupsNeedUpdate = this.geometry.groupsNeedUpdate;
-    g.lineDistances = this.geometry.lineDistances;
-    g.morphNormals = this.geometry.morphNormals;
-    g.morphTargets = this.geometry.morphTargets;
-    g.name = this.geometry.name;
-    g.normalsNeedUpdate = this.geometry.normalsNeedUpdate;
-    g.skinIndices = this.geometry.skinIndices;
-    g.skinWeights = this.geometry.skinWeights;
-    g.type = this.geometry.type;
-    //g.uuid = this.geometry.uuid;
-    g.uvsNeedUpdate = this.geometry.uvsNeedUpdate;
-    g.vertices = this.geometry.vertices;
-    g.verticesNeedUpdate = this.geometry.verticesNeedUpdate;
-    //g.id = this.geometry.id;
-
-    // TODO static cache of faceVertexUVs
-    g.faceVertexUvs = this.geometry.faceVertexUvs.slice(0);
-    g.faceVertexUvs[0] = this.geometry.faceVertexUvs[0].slice(0);
-    g.faceVertexUvs[0][3] = [a, b, c];
-    g.faceVertexUvs[0][153] = [a, d, b];
-
-    return g;
+    const geometry = this._getGeometry(number, suit);
+    return new THREE.Mesh(geometry, _staticTileData.ghostMaterial);
 }
 
 RenderContext.prototype.setCameraPosition = function (x, y, z) {
@@ -139,16 +100,16 @@ function resourceUrl(folder, filename) {
 }
 
 function createMaterial() {
-    if (material === undefined) {
+    if (_staticTileData.material === undefined) {
         const textureLoader = new THREE.TextureLoader();
         const texture = textureLoader.load(resourceUrl("textures", "tile.png"));
         const bump = textureLoader.load(resourceUrl("bumpmaps", "tile.png"));
-        material = new THREE.MeshPhongMaterial({
+        _staticTileData.material = new THREE.MeshPhongMaterial({
             map: texture,
             bumpMap: bump,
             bumpScale: 0.2
         });
-        ghostMaterial = new THREE.MeshPhongMaterial({
+        _staticTileData.ghostMaterial = new THREE.MeshPhongMaterial({
             map: texture,
             bumpMap: bump,
             bumpScale: 0.2,
@@ -177,4 +138,57 @@ function createCamera(width, height) {
     const fov = (360 / Math.PI) * Math.atan(tanFov * (height / tempHeight));
     const cameraAspect = width / height;
     return new THREE.PerspectiveCamera(fov, cameraAspect, near, far);
+}
+
+RenderContext.prototype._getGeometry = function (number, suit) {
+    if (_staticTileData.geometries[suit][number] === undefined) {
+        const g = new THREE.Geometry();
+        g.boundingBox = this.geometry.boundingBox;
+        g.boundingSphere = this.geometry.boundingSphere;
+        g.colors = this.geometry.colors;
+        g.colorsNeedUpdate = this.geometry.colorsNeedUpdate;
+        g.elementsNeedUpdate = this.geometry.elementsNeedUpdate;
+        //g.faceVertexUvs = this.geometry.faceVertexUvs;
+        g.faces = this.geometry.faces;
+        g.groupsNeedUpdate = this.geometry.groupsNeedUpdate;
+        g.lineDistances = this.geometry.lineDistances;
+        g.morphNormals = this.geometry.morphNormals;
+        g.morphTargets = this.geometry.morphTargets;
+        g.name = this.geometry.name;
+        g.normalsNeedUpdate = this.geometry.normalsNeedUpdate;
+        g.skinIndices = this.geometry.skinIndices;
+        g.skinWeights = this.geometry.skinWeights;
+        g.type = this.geometry.type;
+        //g.uuid = this.geometry.uuid;
+        g.uvsNeedUpdate = this.geometry.uvsNeedUpdate;
+        g.vertices = this.geometry.vertices;
+        g.verticesNeedUpdate = this.geometry.verticesNeedUpdate;
+        //g.id = this.geometry.id;
+
+        g.faceVertexUvs = this._getUvs(suit, number);
+
+        _staticTileData.geometries[suit][number] = g;
+    }
+
+    return _staticTileData.geometries[suit][number];
+}
+
+RenderContext.prototype._getUvs = function (suit, number) {
+    if (_staticTileData.uvs[suit][number] === undefined) {
+        const left = (100 + number * 32) / 512;
+        const right = (100 + 24 + number * 32) / 512;
+        const top = (512 - 32 - 64 * suit) / 512;
+        const bottom = (512 - 32 - 32 - 64 * suit) / 512;
+        const a = new THREE.Vector2(right, bottom);
+        const b = new THREE.Vector2(left, top);
+        const c = new THREE.Vector2(left, bottom);
+        const d = new THREE.Vector2(right, top);
+
+        const uvs = this.geometry.faceVertexUvs.slice(0);
+        uvs[0] = uvs[0].slice(0);
+        uvs[0][3] = [a, b, c];
+        uvs[0][153] = [a, d, b];
+        _staticTileData.uvs[suit][number] = uvs;
+    }
+    return _staticTileData.uvs[suit][number];
 }
