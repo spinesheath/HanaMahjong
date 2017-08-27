@@ -79,7 +79,6 @@ RenderContext.prototype.clear = function () {
     while (this.tiles.length > 0) {
         const mesh = this.tiles.pop();
         this.scene.remove(mesh);
-        mesh.geometry.dispose();
     }
 }
 
