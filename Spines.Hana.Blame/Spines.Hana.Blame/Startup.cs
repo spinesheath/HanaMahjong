@@ -3,9 +3,7 @@
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Rewrite;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,8 +37,6 @@ namespace Spines.Hana.Blame
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
-      //services.Configure<MvcOptions>(options => { options.Filters.Add(new RequireHttpsAttribute()); });
-
       // Add framework services.
       services.AddDbContext<ApplicationDbContext>(options =>
           options.UseSqlServer(Configuration.GetConnectionString("SpinesHanaBlameDefaultConnectionString")));
@@ -67,10 +63,6 @@ namespace Spines.Hana.Blame
       loggerFactory.AddConsole(Configuration.GetSection("Logging"));
       loggerFactory.AddDebug();
 
-      //var options = new RewriteOptions()
-      //  .AddRedirectToHttps();
-      //app.UseRewriter(options);
-
       using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
       {
         scope.ServiceProvider.GetService<ApplicationDbContext>().Database.Migrate();
@@ -89,9 +81,7 @@ namespace Spines.Hana.Blame
 
       app.UseStaticFiles();
 
-      app.UseIdentity();
-
-      // Add external authentication middleware below. To configure them please see https://go.microsoft.com/fwlink/?LinkID=532715
+      app.UseAuthentication();
 
       app.UseMvc(routes =>
       {

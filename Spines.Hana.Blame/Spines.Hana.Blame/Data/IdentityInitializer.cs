@@ -2,10 +2,8 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Spines.Hana.Blame.Models;
 
@@ -25,7 +23,6 @@ namespace Spines.Hana.Blame.Data
       if (!await _roleManager.RoleExistsAsync(RoleNames.Admin))
       {
         var role = new IdentityRole(RoleNames.Admin);
-        role.Claims.Add(new IdentityRoleClaim<string> {ClaimType = "IsAdmin", ClaimValue = "True"});
         await _roleManager.CreateAsync(role);
       }
 
@@ -54,11 +51,10 @@ namespace Spines.Hana.Blame.Data
 
       var userResult = await _userManager.CreateAsync(user, _options.RootAdminPassword);
       var roleResult = await _userManager.AddToRoleAsync(user, RoleNames.Admin);
-      var claimResult = await _userManager.AddClaimAsync(user, new Claim("SuperUser", "True"));
       var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
       var confirmResult = await _userManager.ConfirmEmailAsync(user, code);
 
-      if (userResult.Succeeded && roleResult.Succeeded && claimResult.Succeeded && confirmResult.Succeeded)
+      if (userResult.Succeeded && roleResult.Succeeded && confirmResult.Succeeded)
       {
         return;
       }
