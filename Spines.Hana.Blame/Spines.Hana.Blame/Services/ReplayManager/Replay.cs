@@ -4,21 +4,26 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace Spines.Hana.Blame.Services.ReplayManager
 {
+  [DataContract]
   internal class Replay
   {
+    [DataMember(Name = "room")]
     public Room Room { get; private set; }
+
+    [DataMember(Name = "lobby")]
     public string Lobby { get; private set; }
+
+    [DataMember(Name = "rules")]
     public RuleSet Rules { get; private set; }
 
-    /// <summary>
-    /// Per hand: 136 tiles, 2 dice, oya, then actions.
-    /// </summary>
-    public IReadOnlyList<int> Data { get; private set; }
+    [DataMember(Name = "games")]
+    public IReadOnlyList<Game> Games { get; private set; }
 
     public static Replay Parse(string xml)
     {
@@ -36,7 +41,6 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     {
     }
 
-
     private static readonly Regex DiscardRegex = new Regex(@"[DEFG](\d{1,3})");
     private static readonly Regex DrawRegex = new Regex(@"[TUVW](\d{1,3})");
 
@@ -53,7 +57,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     {
       var result = new Replay();
       var xElement = XElement.Parse(xml);
-      var data = new List<int>();
+      var games = new List<Game>();
       var gameIndex = 0;
 
       var shuffle = xElement.Element("SHUFFLE");
@@ -67,6 +71,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       result.Room = GetRoom(flags);
 
       var upcomingRinshan = false;
+      var game = new Game();
 
       foreach (var e in xElement.Elements())
       {
@@ -76,14 +81,14 @@ namespace Spines.Hana.Blame.Services.ReplayManager
           if (upcomingRinshan)
           {
             upcomingRinshan = false;
-            data.Add(Ids.Rinshan);
+            game.Actions.Add(Ids.Rinshan);
           }
           continue;
         }
         var match = DiscardRegex.Match(name);
         if (match.Success)
         {
-          data.Add(ToInt(match.Groups[1].Value));
+          game.Actions.Add(ToInt(match.Groups[1].Value));
           continue;
         }
         switch (name)
@@ -95,20 +100,21 @@ namespace Spines.Hana.Blame.Services.ReplayManager
           case "BYE":
             break;
           case "DORA":
-            data.Add(Ids.Dora);
+            game.Actions.Add(Ids.Dora);
             break;
           case "INIT":
-            data.Add(Ids.Init);
-            data.AddRange(generator.GetWall(gameIndex));
-            data.AddRange(generator.GetDice(gameIndex));
-            data.Add(ToInt(e.Attribute("oya")?.Value));
+            game = new Game();
+            games.Add(game);
+            game.Wall.AddRange(generator.GetWall(gameIndex));
+            game.Dice.AddRange(generator.GetDice(gameIndex));
+            game.Oya = ToInt(e.Attribute("oya")?.Value);
             gameIndex += 1;
             upcomingRinshan = false;
             break;
           case "AGARI":
-            data.Add(Ids.Agari);
-            data.Add(ToInt(e.Attribute("who")?.Value));
-            data.Add(ToInt(e.Attribute("fromWho")?.Value));
+            game.Actions.Add(Ids.Agari);
+            game.Actions.Add(ToInt(e.Attribute("who")?.Value));
+            game.Actions.Add(ToInt(e.Attribute("fromWho")?.Value));
             break;
           case "N":
             var decoder = new MeldDecoder(e.Attribute("m")?.Value);
@@ -116,24 +122,24 @@ namespace Spines.Hana.Blame.Services.ReplayManager
             {
               upcomingRinshan = true;
             }
-            data.Add(MeldTypeIds[decoder.MeldType]);
-            data.AddRange(decoder.Tiles);
+            game.Actions.Add(MeldTypeIds[decoder.MeldType]);
+            game.Actions.AddRange(decoder.Tiles);
             break;
           case "REACH":
             var step = e.Attribute("step")?.Value;
             if (step == "1")
             {
-              data.Add(Ids.Reach);
+              game.Actions.Add(Ids.Reach);
             }
             break;
           case "RYUUKYOKU":
-            data.Add(Ids.Ryuukyoku);
+            game.Actions.Add(Ids.Ryuukyoku);
             break;
           default:
             throw new NotImplementedException();
         }
       }
-      result.Data = data.ToArray();
+      result.Games = games.ToArray();
       return result;
     }
 
@@ -158,7 +164,6 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
     private struct Ids
     {
-      public const int Init = 300;
       public const int Agari = 301;
       public const int Ryuukyoku = 302;
       public const int Reach = 303;

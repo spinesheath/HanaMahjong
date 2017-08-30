@@ -20,7 +20,7 @@ namespace Spines.Hana.Blame.Controllers
     {
       var replayManager = new ReplayManager();
       var replay = replayManager.GetReplay("x");
-      var json = JsonConvert.SerializeObject(replay.Data);
+      var json = JsonConvert.SerializeObject(replay);
       ViewData["GameDataJson"] = json;
       ViewData["CopyrightHolder"] = _options.CopyrightHolder;
       return View();

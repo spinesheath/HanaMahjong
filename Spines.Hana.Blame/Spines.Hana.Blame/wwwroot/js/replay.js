@@ -81,11 +81,9 @@ function parseReplay(data) {
     const playerCount = 4;
     const defaultDoraIndicatorCount = 1;
     const akaDora = true;
-
-    const rawData = splitRawData(data);
-
+   
     const games = [];
-    for (let gameId = 0; gameId < rawData.length; gameId++) {
+    for (let gameId = 0; gameId < data.games.length; gameId++) {
         const game = {};
         game.frames = [];
         const setupFrame = {};
@@ -93,14 +91,14 @@ function parseReplay(data) {
         setupFrame.tilesDrawn = 13 * 4;
         setupFrame.rinshanTilesDrawn = 0;
         setupFrame.doraIndicators = defaultDoraIndicatorCount;
-        setupFrame.static = { wall: rawData[gameId].wall, dice: rawData[gameId].dice, akaDora: akaDora, playerCount: playerCount, oya: rawData[gameId].oya };
+        setupFrame.static = { wall: data.games[gameId].wall, dice: data.games[gameId].dice, akaDora: akaDora, playerCount: playerCount, oya: data.games[gameId].oya };
         setStartingHands(setupFrame);
         setupFrame.ponds = [[], [], [], []];
         setupFrame.players = [{ reach: false }, { reach: false }, { reach: false }, { reach: false }];
         game.frames.push(setupFrame);
 
         let previousFrame = setupFrame;
-        const decisions = rawData[gameId].decisions;
+        const decisions = data.games[gameId].actions;
         for (let decisionId = 0; decisionId < decisions.length; decisionId++) {
             const decision = decisions[decisionId];
 
@@ -543,34 +541,6 @@ function getDealtTileIds(wall, playerId, oyaId) {
     tileIds.push(wall[135 - (playerOffset + 3 * 4 * 4)]);
     sort(tileIds);
     return tileIds;
-}
-
-function splitRawData(data) {
-    const tileCount = 136;
-    const diceCount = 2;
-
-    const rawData = [];
-    var i = 0;
-    while (i < data.length && data[i] !== _ids.init) {
-        i += 1;
-    }
-    while (i < data.length) {
-        i += 1;
-        const wall = data.slice(i, i + tileCount);
-        i += tileCount;
-        const dice = data.slice(i, i + diceCount);
-        i += diceCount;
-        const oya = data[i];
-        i += 1;
-        let c = 0;
-        while (data[i + c] !== _ids.init && i + c < data.length) {
-            c += 1;
-        }
-        const decisions = data.slice(i, i + c);
-        rawData.push({ wall: wall, dice: dice, oya: oya, decisions: decisions });
-        i += c;
-    }
-    return rawData;
 }
 
 function createMeld(playerId, x, meld) {
