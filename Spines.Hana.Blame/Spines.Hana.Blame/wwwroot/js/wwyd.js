@@ -51,7 +51,8 @@ function loadThread(val) {
 }
 
 function arrangeTiles(tileTypes) {
-    for (let i = 0; i < tileTypes.length && i < 14; i++) {
+    const tileTypeCount = tileTypes.length;
+    for (let i = 0; i < tileTypeCount && i < 14; i++) {
         const [number, suit] = tileTypes[i];
         const mesh = wwydContext.createTileMesh(number, suit);
         const tileWidth = 0.97;
@@ -94,8 +95,8 @@ function parseWwyd(hand) {
         counts.fill(0);
         var reverse = hand.split("").reverse();
         var offset = -1;
-
-        for (var i = 0; i < reverse.length; i++) {
+        const characterCount = reverse.length;
+        for (var i = 0; i < characterCount; i++) {
             var c = reverse[i];
             var suit = suits.indexOf(c);
             if (suit >= 0) {
@@ -135,7 +136,8 @@ function parseWwyd(hand) {
         }
 
         var result = [];
-        for (var m = 0; m < counts.length; m++) {
+        const length = counts.length;
+        for (var m = 0; m < length; m++) {
 
             var j = m;
             if (m < 30) {
@@ -145,8 +147,8 @@ function parseWwyd(hand) {
                     j = m - 4;
                 }
             }
-
-            for (var k = 0; k < counts[j]; k++) {
+            const tileCount = counts[j];
+            for (var k = 0; k < tileCount; k++) {
                 var n = j % 10;
                 var s = (j - n) / 10;
                 result.push([n, s]);

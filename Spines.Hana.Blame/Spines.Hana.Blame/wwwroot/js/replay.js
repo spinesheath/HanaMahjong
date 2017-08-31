@@ -83,7 +83,8 @@ function parseReplay(data) {
     const akaDora = true;
    
     const games = [];
-    for (let gameId = 0; gameId < data.games.length; gameId++) {
+    let gameCount = data.games.length;
+    for (let gameId = 0; gameId < gameCount; gameId++) {
         const game = {};
         game.frames = [];
         const setupFrame = {};
@@ -99,7 +100,8 @@ function parseReplay(data) {
 
         let previousFrame = setupFrame;
         const decisions = data.games[gameId].actions;
-        for (let decisionId = 0; decisionId < decisions.length; decisionId++) {
+        const decisionCount = decisions.length;
+        for (let decisionId = 0; decisionId < decisionCount; decisionId++) {
             const decision = decisions[decisionId];
 
             if (decision === _ids.draw) {
@@ -346,7 +348,8 @@ function cloneFrame(frame) {
     clone.id += 1;
     if (clone.players.some(p => p.announcement)) {
         clone.players = frame.players.slice(0);
-        for (let i = 0; i < clone.players.length; i++) {
+        const playerCount = frame.static.playerCount;
+        for (let i = 0; i < playerCount; i++) {
             if (clone.players[i].announcement) {
                 clone.players[i] = Object.assign({}, clone.players[i]);
                 clone.players[i].announcement = undefined;
@@ -358,7 +361,8 @@ function cloneFrame(frame) {
 }
 
 function getCallingPlayerId(frame, meldedTiles) {
-    for (let i = 0; i < frame.static.playerCount; i++) {
+    const playerCount = frame.static.playerCount;
+    for (let i = 0; i < playerCount; i++) {
         if (meldedTiles.some(x => frame.hands[i].tiles.indexOf(x) !== -1)) {
             return i;
         }
@@ -374,7 +378,8 @@ function createHands(frame) {
     const meldStartX = -a + 4 * tileWidth;
     const flip = (allHandsOpen ? 0 : 3);
 
-    for (let i = 0; i < frame.hands.length; i++) {
+    const tileCount = frame.hands.length;
+    for (let i = 0; i < tileCount; i++) {
         let x = handStartX;
         const hand = frame.hands[i];
         const tilesInHand = hand.tiles.length;
@@ -388,7 +393,8 @@ function createHands(frame) {
         }
 
         let meldX = meldStartX;
-        for (let meldId = 0; meldId < hand.melds.length; meldId++) {
+        const meldCount = hand.melds.length;
+        for (let meldId = 0; meldId < meldCount; meldId++) {
             const meld = hand.melds[meldId];
             meldX = createMeld(i, meldX, meld);
         }
@@ -396,7 +402,8 @@ function createHands(frame) {
 }
 
 function createPonds(frame) {
-    for (let playerId = 0; playerId < frame.static.playerCount; playerId++) {
+    const playerCount = frame.static.playerCount;
+    for (let playerId = 0; playerId < playerCount; playerId++) {
         const pond = frame.ponds[playerId].filter(p => showGhostTiles || p.meld === undefined);
         createPondRow(pond.slice(0, 6), 0, playerId);
         createPondRow(pond.slice(6, 12), 1, playerId);
@@ -408,7 +415,8 @@ function createPondRow(pondRow, row, playerId) {
     const a = -(3 * tileWidth);
     var x = a + 0.5 * tileWidth;
     const y = a - 0.5 * tileHeight - row * tileHeight;
-    for (let column = 0; column < pondRow.length; column++) {
+    const tileCount = pondRow.length;
+    for (let column = 0; column < tileCount; column++) {
         const pondTile = pondRow[column];
         const tileId = pondTile.tileId;
         const flip = pondTile.flipped ? 1 : 0;
@@ -423,7 +431,8 @@ function createPondRow(pondRow, row, playerId) {
 }
 
 function createAnnouncements(frame) {
-    for (let playerId = 0; playerId < frame.players.length; playerId++) {
+    const playerCount = frame.static.playerCount;
+    for (let playerId = 0; playerId < playerCount; playerId++) {
         createAnnouncement(frame.players[playerId].announcement);
     }
     createAnnouncement(frame.announcement);
@@ -493,7 +502,8 @@ function createWall(frame) {
 
 function setStartingHands(frame) {
     frame.hands = [];
-    for (let playerId = 0; playerId < frame.static.playerCount; playerId++) {
+    const playerCount = frame.static.playerCount;
+    for (let playerId = 0; playerId < playerCount; playerId++) {
         const tileIds = getDealtTileIds(frame.static.wall, playerId, frame.static.oya);
         frame.hands.push({ tiles: tileIds, melds: [], justCalled: false, drewRinshan: false });
     }
@@ -517,8 +527,9 @@ function createMeld(playerId, x, meld) {
     const tileIds = meld.tiles.slice(0);
     tileIds.sort((a, b) => b - a);
     let isClosedKan = false;
+    const tileCount = tileIds.length;
     if (meld.relativeFrom === 0) {
-        isClosedKan = tileIds.length === 4;
+        isClosedKan = tileCount === 4;
     } else {
         remove(tileIds, meld.flipped);
         remove(tileIds, meld.added);
@@ -531,7 +542,7 @@ function createMeld(playerId, x, meld) {
         }
     }
 
-    for (let i = 0; i < tileIds.length; i++) {
+    for (let i = 0; i < tileCount; i++) {
         const tileId = tileIds[i];
         const face = isClosedKan && (i === 0 || i === 3) ? 2 : 0;
         const isFlipped = tileId === meld.flipped;
@@ -605,7 +616,8 @@ function remove(array, value) {
 }
 
 function removeMany(array, values) {
-    for (let i = 0; i < values.length; i++) {
+    const itemCount = values.length;
+    for (let i = 0; i < itemCount; i++) {
         remove(array, values[i]);
     }
 }

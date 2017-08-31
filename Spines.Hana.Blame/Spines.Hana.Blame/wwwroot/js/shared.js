@@ -91,7 +91,12 @@ function initThreeJS() {
         }
     );
 
-    THREE.DefaultLoadingManager.onLoad = function () { renderContexts.forEach(r => r.render()); };
+    THREE.DefaultLoadingManager.onLoad = function () {
+        const count = renderContexts.length;
+        for (let i = 0; i < count; i++) {
+            renderContexts[i].render();
+        }
+    };
 }
 
 function resourceUrl(folder, filename) {
