@@ -6,7 +6,7 @@ const tileHeight = 1.28;
 const gap = 0.2;
 
 const _ids = {
-    init: 300,
+    draw: 300,
     agari: 301,
     ryuukyoku: 302,
     reach: 303,
@@ -102,14 +102,13 @@ function parseReplay(data) {
         for (let decisionId = 0; decisionId < decisions.length; decisionId++) {
             const decision = decisions[decisionId];
 
+            if (decision === _ids.draw) {
+                const frame = createDrawFrame(previousFrame);
+                game.frames.push(frame);
+                previousFrame = frame;
+            }
             // discard
-            if (decision < 136) {
-                if (!activeHandHasDraw(previousFrame)) {
-                    const frame = createDrawFrame(previousFrame);
-                    game.frames.push(frame);
-                    previousFrame = frame;
-                }
-                
+            else if (decision < 136) {
                 const discardFrame = createDiscardFrame(previousFrame, decision);
                 game.frames.push(discardFrame);
                 previousFrame = discardFrame;
@@ -129,23 +128,11 @@ function parseReplay(data) {
                 previousFrame = frames[1];
                 decisionId += 4;
             } else if (decision === _ids.closedKan) {
-                if (!activeHandHasDraw(previousFrame)) {
-                    const frame = createDrawFrame(previousFrame);
-                    game.frames.push(frame);
-                    previousFrame = frame;
-                }
-
                 const frames = createClosedKanFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 5), announcements.kan);
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
                 decisionId += 4;
             } else if (decision === _ids.addedKan) {
-                if (!activeHandHasDraw(previousFrame)) {
-                    const frame = createDrawFrame(previousFrame);
-                    game.frames.push(frame);
-                    previousFrame = frame;
-                }
-
                 const frames = createAddedKanFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 5), announcements.kan);
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
@@ -153,11 +140,6 @@ function parseReplay(data) {
             } else if (decision === _ids.agari) {
                 var who = decisions[decisionId + 1];
                 var fromWho = decisions[decisionId + 2];
-                if (who === fromWho && !activeHandHasDraw(previousFrame)) {
-                    const drawFrame = createDrawFrame(previousFrame);
-                    game.frames.push(drawFrame);
-                    previousFrame = drawFrame;
-                }
                 const agariFrame = createAgariFrame(previousFrame, who, fromWho);
                 game.frames.push(agariFrame);
                 previousFrame = agariFrame;
@@ -167,12 +149,6 @@ function parseReplay(data) {
                 game.frames.push(frame);
                 previousFrame = frame;
             } else if (decision === _ids.reach) {
-                if (!activeHandHasDraw(previousFrame)) {
-                    const drawFrame = createDrawFrame(previousFrame);
-                    game.frames.push(drawFrame);
-                    previousFrame = drawFrame;
-                }
-
                 const reachFrame = createReachFrame(previousFrame);
                 game.frames.push(reachFrame);
                 previousFrame = reachFrame;
@@ -190,14 +166,6 @@ function parseReplay(data) {
         games.push(game);
     }
     return games;
-}
-
-function activeHandHasDraw(frame) {
-    if (frame.activePlayer === undefined) {
-        return false;
-    }
-    const count = frame.hands[frame.activePlayer].tiles.length;
-    return count % 3 === 2;
 }
 
 function createRyuukyokuFrame(previousFrame) {

@@ -83,6 +83,10 @@ namespace Spines.Hana.Blame.Services.ReplayManager
             upcomingRinshan = false;
             game.Actions.Add(Ids.Rinshan);
           }
+          else
+          {
+            game.Actions.Add(Ids.Draw);
+          }
           continue;
         }
         var match = DiscardRegex.Match(name);
@@ -164,6 +168,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
     private struct Ids
     {
+      public const int Draw = 300;
       public const int Agari = 301;
       public const int Ryuukyoku = 302;
       public const int Reach = 303;
