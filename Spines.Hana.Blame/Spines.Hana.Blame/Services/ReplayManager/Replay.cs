@@ -107,7 +107,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
           else
           {
             var index = hands[playerId].OrderBy(x => x).ToList().IndexOf(tileId);
-            game.Actions.Add(index);
+            game.Actions.Add(Ids.DiscardOffset + index);
           }
           hands[playerId].Remove(tileId);
           continue;
@@ -191,18 +191,19 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
     private struct Ids
     {
-      public const int Draw = 300;
-      public const int Agari = 301;
-      public const int Ryuukyoku = 302;
-      public const int Reach = 303;
-      public const int Dora = 304;
-      public const int Rinshan = 305;
-      public const int Tsumogiri = 306;
-      public const int Pon = 400;
-      public const int Chii = 401;
-      public const int ClosedKan = 402;
-      public const int CalledKan = 403;
-      public const int AddedKan = 404;
+      public const int Draw = 0;
+      public const int Tsumogiri = 1;
+      public const int DiscardOffset = 2;
+      public const int Agari = 50;
+      public const int Ryuukyoku = 51;
+      public const int Reach = 52;
+      public const int Dora = 53;
+      public const int Rinshan = 54;
+      public const int Pon = 55;
+      public const int Chii = 56;
+      public const int ClosedKan = 57;
+      public const int CalledKan = 58;
+      public const int AddedKan = 59;
     }
   }
 }

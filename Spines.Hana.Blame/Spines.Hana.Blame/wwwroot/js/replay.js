@@ -6,18 +6,19 @@ const tileHeight = 1.28;
 const gap = 0.2;
 
 const _ids = {
-    draw: 300,
-    agari: 301,
-    ryuukyoku: 302,
-    reach: 303,
-    dora: 304,
-    rinshan: 305,
-    tsumogiri: 306,
-    pon: 400,
-    chii: 401,
-    closedKan: 402,
-    calledKan: 403,
-    addedKan: 404
+    draw: 0,
+    tsumogiri: 1,
+    discardOffset: 2,
+    agari: 50,
+    ryuukyoku: 51,
+    reach: 52,
+    dora: 53,
+    rinshan: 54,
+    pon: 55,
+    chii: 56,
+    closedKan: 57,
+    calledKan: 58,
+    addedKan: 59
 }
 
 const allHandsOpen = true;
@@ -113,8 +114,8 @@ function parseReplay(data) {
                 const frame = createTsumogiriFrame(previousFrame, decision);
                 game.frames.push(frame);
                 previousFrame = frame;
-            } else if (decision < 136) {
-                const frame = createDiscardFrame(previousFrame, decision);
+            } else if (decision > 1 && decision < 50) {
+                const frame = createDiscardFrame(previousFrame, decision - _ids.discardOffset);
                 game.frames.push(frame);
                 previousFrame = frame;
             } else if (decision === _ids.pon) {
