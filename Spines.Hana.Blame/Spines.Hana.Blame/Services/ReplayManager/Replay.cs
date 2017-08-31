@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
@@ -41,8 +42,8 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     {
     }
 
-    private static readonly Regex DiscardRegex = new Regex(@"[DEFG](\d{1,3})");
-    private static readonly Regex DrawRegex = new Regex(@"[TUVW](\d{1,3})");
+    private static readonly Regex DiscardRegex = new Regex(@"([DEFG])(\d{1,3})");
+    private static readonly Regex DrawRegex = new Regex(@"([TUVW])(\d{1,3})");
 
     private static readonly Dictionary<MeldType, int> MeldTypeIds = new Dictionary<MeldType, int>
     {
@@ -72,12 +73,17 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
       var upcomingRinshan = false;
       var game = new Game();
+      var hands = new List<List<int>>();
 
       foreach (var e in xElement.Elements())
       {
         var name = e.Name.LocalName;
-        if (DrawRegex.IsMatch(name))
+        var drawMatch = DrawRegex.Match(name);
+        if (drawMatch.Success)
         {
+          var tileId = ToInt(drawMatch.Groups[2].Value);
+          var playerId = drawMatch.Groups[1].Value[0] - 'T';
+          hands[playerId].Add(tileId);
           if (upcomingRinshan)
           {
             upcomingRinshan = false;
@@ -89,10 +95,21 @@ namespace Spines.Hana.Blame.Services.ReplayManager
           }
           continue;
         }
-        var match = DiscardRegex.Match(name);
-        if (match.Success)
+        var discardMatch = DiscardRegex.Match(name);
+        if (discardMatch.Success)
         {
-          game.Actions.Add(ToInt(match.Groups[1].Value));
+          var playerId = discardMatch.Groups[1].Value[0] - 'D';
+          var tileId = ToInt(discardMatch.Groups[2].Value);
+          if (hands[playerId].Last() == tileId)
+          {
+            game.Actions.Add(Ids.Tsumogiri);
+          }
+          else
+          {
+            var index = hands[playerId].OrderBy(x => x).ToList().IndexOf(tileId);
+            game.Actions.Add(index);
+          }
+          hands[playerId].Remove(tileId);
           continue;
         }
         switch (name)
@@ -112,6 +129,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
             game.Wall.AddRange(generator.GetWall(gameIndex));
             game.Dice.AddRange(generator.GetDice(gameIndex));
             game.Oya = ToInt(e.Attribute("oya")?.Value);
+            hands = GetStartingHands(e).ToList();
             gameIndex += 1;
             upcomingRinshan = false;
             break;
@@ -147,6 +165,11 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       return result;
     }
 
+    private static IEnumerable<List<int>> GetStartingHands(XElement element)
+    {
+      return Enumerable.Range(0, 4).Select(i => element.Attribute($"hai{i}")?.Value.Split(',').Select(ToInt)).Select(t => t.ToList());
+    }
+
     private static bool IsKan(MeldType meldType)
     {
       return meldType == MeldType.AddedKan || meldType == MeldType.CalledKan || meldType == MeldType.ClosedKan;
@@ -174,6 +197,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       public const int Reach = 303;
       public const int Dora = 304;
       public const int Rinshan = 305;
+      public const int Tsumogiri = 306;
       public const int Pon = 400;
       public const int Chii = 401;
       public const int ClosedKan = 402;
