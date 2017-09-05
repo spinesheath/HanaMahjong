@@ -81,6 +81,13 @@ function arrangeFrame(frame) {
     createBa(frame);
 }
 
+function createInitialPlayer() {
+    return {
+        riichi: false,
+        payment: undefined
+    };
+}
+
 function parseReplay(data) {
     const playerCount = 4;
     const defaultDoraIndicatorCount = 1;
@@ -99,7 +106,7 @@ function parseReplay(data) {
         setupFrame.static = { wall: data.games[gameId].wall, dice: data.games[gameId].dice, akaDora: akaDora, playerCount: playerCount, oya: data.games[gameId].oya };
         setStartingHands(setupFrame);
         setupFrame.ponds = [[], [], [], []];
-        setupFrame.players = [{ riichi: false }, { riichi: false }, { riichi: false }, { riichi: false }];
+        setupFrame.players = [createInitialPlayer(), createInitialPlayer(), createInitialPlayer(), createInitialPlayer()];
         game.frames.push(setupFrame);
 
         let previousFrame = setupFrame;
@@ -320,6 +327,9 @@ function createRiichiFrame(previousFrame) {
 
 function createRiichiPaymentFrame(previousFrame) {
     const frame = cloneFrame(previousFrame);
+    frame.players = frame.players.slice(0);
+    frame.players[frame.activePlayer] = Object.assign({}, frame.players[frame.activePlayer]);
+    frame.players[frame.activePlayer].payment = 1000;
     return frame;
 }
 
@@ -470,14 +480,14 @@ function createBa(frame) {
 
     const playerCount = frame.static.playerCount;
     for (let i = 0; i < playerCount; i++) {
-        const mesh = replayContext.createBaMesh(1000);
-
+        if (frame.players[i].payment === undefined) {
+            continue;
+        }
+        const mesh = replayContext.createBaMesh(frame.players[i].payment);
         mesh.rotateZ(Math.PI * 0.5 * i);
-        //mesh.translateX(1);
-        mesh.translateY(1.5);
+        mesh.translateY(-1.5);
         mesh.rotateY(Math.PI * 0.5);
         mesh.rotateZ(Math.PI * 0.5);
-
         replayContext.addBa(mesh);
     }
 }
