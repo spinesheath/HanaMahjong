@@ -2,8 +2,9 @@
 var renderContexts = [];
 
 var _staticDisplayData = {
-    uvs: [new Array(10), new Array(10), new Array(10), new Array(10)],
+    tileUvs: [new Array(10), new Array(10), new Array(10), new Array(10)],
     tileGeometries: [new Array(10), new Array(10), new Array(10), new Array(10)],
+    baUvs: new Array(10),
     baGeometries: new Array(10)
 };
 
@@ -164,7 +165,7 @@ function createCamera(width, height) {
 RenderContext.prototype._getTileGeometry = function (number, suit) {
     if (_staticDisplayData.tileGeometries[suit][number] === undefined) {
         const g = this._cloneGeometry(this.tileGeometry);
-        g.faceVertexUvs = this._getUvs(suit, number);
+        g.faceVertexUvs = this._getTileUvs(suit, number);
         _staticDisplayData.tileGeometries[suit][number] = g;
     }
     return _staticDisplayData.tileGeometries[suit][number];
@@ -173,7 +174,7 @@ RenderContext.prototype._getTileGeometry = function (number, suit) {
 RenderContext.prototype._getBaGeometry = function (index) {
     if (_staticDisplayData.baGeometries[index] === undefined) {
         const g = this._cloneGeometry(this.baGeometry);
-        g.faceVertexUvs = this.baGeometry.faceVertexUvs;
+        g.faceVertexUvs = this._getBaUvs(index);
         _staticDisplayData.baGeometries[index] = g;
     }
     return _staticDisplayData.baGeometries[index];
@@ -205,8 +206,27 @@ RenderContext.prototype._cloneGeometry = function (source) {
     return g;
 }
 
-RenderContext.prototype._getUvs = function (suit, number) {
-    if (_staticDisplayData.uvs[suit][number] === undefined) {
+RenderContext.prototype._getBaUvs = function (index) {
+    if (_staticDisplayData.baUvs[index] === undefined) {
+        const delta = (32 * index) / 512;
+
+        const uvs = this.baGeometry.faceVertexUvs.slice(0);
+        uvs[0] = uvs[0].slice(0);
+        const length = uvs[0].length;
+        for (let i = 0; i < length; i++) {
+            const source = uvs[0][i];
+            const a = new THREE.Vector2(source[0].x, source[0].y + delta);
+            const b = new THREE.Vector2(source[1].x, source[1].y + delta);
+            const c = new THREE.Vector2(source[2].x, source[2].y + delta);
+            uvs[0][i] = [a, b, c];
+        }
+        _staticDisplayData.baUvs[index] = uvs;
+    }
+    return _staticDisplayData.baUvs[index];
+}
+
+RenderContext.prototype._getTileUvs = function (suit, number) {
+    if (_staticDisplayData.tileUvs[suit][number] === undefined) {
         const left = (100 + number * 32) / 512;
         const right = (100 + 24 + number * 32) / 512;
         const top = (512 - 32 - 64 * suit) / 512;
@@ -220,7 +240,7 @@ RenderContext.prototype._getUvs = function (suit, number) {
         uvs[0] = uvs[0].slice(0);
         uvs[0][3] = [a, b, c];
         uvs[0][153] = [a, d, b];
-        _staticDisplayData.uvs[suit][number] = uvs;
+        _staticDisplayData.tileUvs[suit][number] = uvs;
     }
-    return _staticDisplayData.uvs[suit][number];
+    return _staticDisplayData.tileUvs[suit][number];
 }
