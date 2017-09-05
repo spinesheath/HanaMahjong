@@ -151,7 +151,11 @@ namespace Spines.Hana.Blame.Services.ReplayManager
             var step = e.Attribute("step")?.Value;
             if (step == "1")
             {
-              game.Actions.Add(Ids.Reach);
+              game.Actions.Add(Ids.Riichi);
+            }
+            else
+            {
+              game.Actions.Add(Ids.RiichiPayment);
             }
             break;
           case "RYUUKYOKU":
@@ -196,7 +200,8 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       public const int DiscardOffset = 2;
       public const int Agari = 50;
       public const int Ryuukyoku = 51;
-      public const int Reach = 52;
+      public const int Riichi = 52;
+      public const int RiichiPayment = 60;
       public const int Dora = 53;
       public const int Rinshan = 54;
       public const int Pon = 55;

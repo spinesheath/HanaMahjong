@@ -21,11 +21,9 @@ namespace GeometryConverter
     private static void Main(string[] args)
     {
       Console.WriteLine("Source:");
-      //var sourcePath = Console.ReadLine();
-      const string sourcePath = @"D:\Johannes\Desktop\textures\tile.obj";
+      var sourcePath = Console.ReadLine();
       Console.WriteLine("Target:");
-      //var targetPath = Console.ReadLine();
-      var targetPath = @"D:\Johannes\Desktop\textures\converted.json";
+      var targetPath = Console.ReadLine();
 
       var source = File.ReadAllLines(sourcePath);
       var vertices = GetVertices(source).ToList();

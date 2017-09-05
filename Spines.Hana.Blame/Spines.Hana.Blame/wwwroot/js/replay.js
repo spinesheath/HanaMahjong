@@ -11,7 +11,8 @@ const _ids = {
     discardOffset: 2,
     agari: 50,
     ryuukyoku: 51,
-    reach: 52,
+    riichi: 52,
+    riichiPayment: 60,
     dora: 53,
     rinshan: 54,
     pon: 55,
@@ -25,7 +26,7 @@ const allHandsOpen = true;
 const showGhostTiles = false;
 
 const announcements = {
-    reach: { text: "reach" },
+    riichi: { text: "riichi" },
     pon: { text: "pon" },
     chii: { text: "chii" },
     kan: { text: "kan" },
@@ -77,6 +78,7 @@ function arrangeFrame(frame) {
     createHands(frame);
     createPonds(frame);
     createAnnouncements(frame);
+    createBa(frame);
 }
 
 function parseReplay(data) {
@@ -97,7 +99,7 @@ function parseReplay(data) {
         setupFrame.static = { wall: data.games[gameId].wall, dice: data.games[gameId].dice, akaDora: akaDora, playerCount: playerCount, oya: data.games[gameId].oya };
         setStartingHands(setupFrame);
         setupFrame.ponds = [[], [], [], []];
-        setupFrame.players = [{ reach: false }, { reach: false }, { reach: false }, { reach: false }];
+        setupFrame.players = [{ riichi: false }, { riichi: false }, { riichi: false }, { riichi: false }];
         game.frames.push(setupFrame);
 
         let previousFrame = setupFrame;
@@ -154,10 +156,14 @@ function parseReplay(data) {
                 const frame = createRyuukyokuFrame(previousFrame);
                 game.frames.push(frame);
                 previousFrame = frame;
-            } else if (decision === _ids.reach) {
-                const reachFrame = createReachFrame(previousFrame);
-                game.frames.push(reachFrame);
-                previousFrame = reachFrame;
+            } else if (decision === _ids.riichi) {
+                const frame = createRiichiFrame(previousFrame);
+                game.frames.push(frame);
+                previousFrame = frame;
+            } else if (decision === _ids.riichiPayment) {
+                const frame = createRiichiPaymentFrame(previousFrame);
+                game.frames.push(frame);
+                previousFrame = frame;
             } else if (decision === _ids.dora) {
                 const frame = createDoraFrame(previousFrame);
                 game.frames.push(frame);
@@ -303,12 +309,17 @@ function createCallFrames(previousFrame, meldedTiles, announcement) {
     return [announcementFrame, frame];
 }
 
-function createReachFrame(previousFrame) {
+function createRiichiFrame(previousFrame) {
     const frame = cloneFrame(previousFrame);
     frame.players = frame.players.slice(0);
     frame.players[frame.activePlayer] = Object.assign({}, frame.players[frame.activePlayer]);
-    frame.players[frame.activePlayer].announcement = announcements.reach;
-    frame.players[frame.activePlayer].reach = true;
+    frame.players[frame.activePlayer].announcement = announcements.riichi;
+    frame.players[frame.activePlayer].riichi = true;
+    return frame;
+}
+
+function createRiichiPaymentFrame(previousFrame) {
+    const frame = cloneFrame(previousFrame);
     return frame;
 }
 
@@ -324,7 +335,7 @@ function createTsumogiriFrame(previousFrame) {
     frame.hands[frame.activePlayer] = hand;
     frame.ponds = frame.ponds.slice(0);
     const pond = frame.ponds[frame.activePlayer].slice(0);
-    const flipped = frame.players[frame.activePlayer].reach && !pond.some(p => p.flipped && !p.meld);
+    const flipped = frame.players[frame.activePlayer].riichi && !pond.some(p => p.flipped && !p.meld);
     pond.push({ tileId: tileId, flipped: flipped });
     frame.ponds[frame.activePlayer] = pond;
     return frame;
@@ -345,7 +356,7 @@ function createDiscardFrame(previousFrame, indexInHand) {
     frame.hands[frame.activePlayer] = hand;
     frame.ponds = frame.ponds.slice(0);
     const pond = frame.ponds[frame.activePlayer].slice(0);
-    const flipped = frame.players[frame.activePlayer].reach && !pond.some(p => p.flipped && !p.meld);
+    const flipped = frame.players[frame.activePlayer].riichi && !pond.some(p => p.flipped && !p.meld);
     pond.push({ tileId: tileId, flipped: flipped });
     frame.ponds[frame.activePlayer] = pond;
     return frame;
@@ -452,6 +463,22 @@ function createPondRow(pondRow, row, playerId) {
             addTile(playerId, tileId, x, y, 0, 0, flip);
         }
         x += tileWidth;
+    }
+}
+
+function createBa(frame) {
+
+    const playerCount = frame.static.playerCount;
+    for (let i = 0; i < playerCount; i++) {
+        const mesh = replayContext.createBaMesh(1000);
+
+        mesh.rotateZ(Math.PI * 0.5 * i);
+        //mesh.translateX(1);
+        mesh.translateY(1.5);
+        mesh.rotateY(Math.PI * 0.5);
+        mesh.rotateZ(Math.PI * 0.5);
+
+        replayContext.addBa(mesh);
     }
 }
 
