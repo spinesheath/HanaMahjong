@@ -495,30 +495,38 @@ function createBa(frame) {
 function createAnnouncements(frame) {
     const playerCount = frame.static.playerCount;
     for (let playerId = 0; playerId < playerCount; playerId++) {
-        createAnnouncement(frame.players[playerId].announcement);
+        createAnnouncement(frame.players[playerId].announcement, playerId);
     }
     createAnnouncement(frame.announcement);
 }
 
-function createAnnouncement(announcement) {
+function createAnnouncement(announcement, playerId) {
     if (!announcement) {
         return;
     }
-    if (!announcement.mesh) {
+    if (!announcement.geometry) {
         const text = announcement.text;
         const geometry = new THREE.TextBufferGeometry(text, { font: font, size: 2, height: 0, curveSegments: 2 });
         geometry.computeBoundingBox();
-        const x = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
-        const y = -0.5 * (geometry.boundingBox.max.y - geometry.boundingBox.min.y);
-        const z = 2;
-        const mesh = new THREE.Mesh(geometry, announcements.material);
-        mesh.position.x = x;
-        mesh.position.y = y;
-        mesh.position.z = z;
-        announcement.mesh = mesh;
+        announcement.geometry = geometry;
+    }
+    const g = announcement.geometry;
+    const boundingBox = g.boundingBox;
+    const x = -0.5 * (boundingBox.max.x - boundingBox.min.x);
+    const y = -0.5 * (boundingBox.max.y - boundingBox.min.y);
+    const z = 2;
+    const mesh = new THREE.Mesh(g, announcements.material);
+    mesh.position.x = x;
+    mesh.position.y = y;
+    mesh.position.z = z;
+
+    if (playerId !== undefined) {
+        mesh.rotateZ(Math.PI * 0.5 * playerId);
+        mesh.translateY(-7);
+        mesh.rotateZ(Math.PI * -0.5 * playerId);
     }
 
-    replayContext.addMesh(announcement.mesh, false);
+    replayContext.addMesh(mesh, false);
 }
 
 function createWall(frame) {
