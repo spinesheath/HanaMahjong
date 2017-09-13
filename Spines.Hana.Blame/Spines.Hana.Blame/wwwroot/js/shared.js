@@ -22,6 +22,19 @@ function RenderContext(canvasName) {
     renderContexts.push(this);
 }
 
+RenderContext.prototype.createAmbientLight = function (color) {
+    const light = new THREE.AmbientLight(color);
+    this.scene.add(light);
+};
+
+RenderContext.prototype.createPointLight = function (color, x, y, z) {
+    const light = new THREE.PointLight(color);
+    light.position.x = x;
+    light.position.y = y;
+    light.position.z = z;
+    this.scene.add(light);
+};
+
 RenderContext.prototype.render = function() {
     this.renderer.render(this.scene, this.camera);
 };

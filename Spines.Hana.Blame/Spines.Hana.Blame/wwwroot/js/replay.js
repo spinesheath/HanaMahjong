@@ -52,7 +52,8 @@ function loadReplay() {
 function initReplay() {
     replayContext = new RenderContext("replayCanvas");
     replayContext.setCameraPosition(0, -21, 31);
-    replayCreateLights();
+    replayContext.createAmbientLight(0x888888);
+    replayContext.createPointLight(0x555555, 50, 50, 100);
     replayContext.createTiles(() => arrange());
 }
 
@@ -666,16 +667,6 @@ function numberFromTileId(tileId) {
     if (tileId === 4 * 4 || tileId === 16 + 9 * 4 || tileId === 16 + 9 * 4 * 2)
         return 0;
     return 1 + Math.floor((tileId % (9 * 4)) / 4);
-}
-
-function replayCreateLights() {
-    const light = new THREE.AmbientLight(0x999999);
-    replayContext.scene.add(light);
-    const pointLight = new THREE.PointLight(0x555555);
-    pointLight.position.x = 100;
-    pointLight.position.y = 100;
-    pointLight.position.z = 700;
-    replayContext.scene.add(pointLight);
 }
 
 function remove(array, value) {
