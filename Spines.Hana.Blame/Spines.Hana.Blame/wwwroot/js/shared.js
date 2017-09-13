@@ -12,19 +12,19 @@ function RenderContext(canvasName) {
     const canvas = document.querySelector(`#${canvasName}`);
     const displayWidth = canvas.clientWidth;
     const displayHeight = canvas.clientHeight;
-    this.camera = createCamera(displayWidth, displayHeight);
-    this.scene = new THREE.Scene();
-    this.renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-    this.renderer.setSize(displayWidth, displayHeight);
-    this.meshes = [];
-    this.tiles = [];
-    this.ba = [];
+    this._camera = createCamera(displayWidth, displayHeight);
+    this._scene = new THREE.Scene();
+    this._renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+    this._renderer.setSize(displayWidth, displayHeight);
+    this._meshes = [];
+    this._tiles = [];
+    this._ba = [];
     renderContexts.push(this);
 }
 
 RenderContext.prototype.createAmbientLight = function (color) {
     const light = new THREE.AmbientLight(color);
-    this.scene.add(light);
+    this._scene.add(light);
 };
 
 RenderContext.prototype.createPointLight = function (color, x, y, z) {
@@ -32,20 +32,20 @@ RenderContext.prototype.createPointLight = function (color, x, y, z) {
     light.position.x = x;
     light.position.y = y;
     light.position.z = z;
-    this.scene.add(light);
+    this._scene.add(light);
 };
 
 RenderContext.prototype.render = function() {
-    this.renderer.render(this.scene, this.camera);
+    this._renderer.render(this._scene, this._camera);
 };
 
 RenderContext.prototype.createTiles = function(arrange) {
-    this.clear();
+    this._clear();
     createMaterial();
 
-    if (this.tileGeometry === undefined) {
+    if (this._tileGeometry === undefined) {
         Promise.all([getGeometryPromise("tile"), getGeometryPromise("ba")]).then(geometries => {
-            [this.tileGeometry, this.baGeometry] = geometries;
+            [this._tileGeometry, this._baGeometry] = geometries;
             arrange();
             this.render();
         });
@@ -72,44 +72,44 @@ RenderContext.prototype.createGhostTileMesh = function (number, suit) {
 }
 
 RenderContext.prototype.setCameraPosition = function (x, y, z) {
-    this.camera.position.x = x;
-    this.camera.position.y = y;
-    this.camera.position.z = z;
-    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+    this._camera.position.x = x;
+    this._camera.position.y = y;
+    this._camera.position.z = z;
+    this._camera.lookAt(new THREE.Vector3(0, 0, 0));
 }
 
 RenderContext.prototype.addMesh = function(mesh, disposeOnClear) {
-    this.scene.add(mesh);
-    this.meshes.push({ mesh: mesh, disposeOnClear: disposeOnClear });
+    this._scene.add(mesh);
+    this._meshes.push({ mesh: mesh, disposeOnClear: disposeOnClear });
 }
 
 RenderContext.prototype.addTile = function(mesh) {
-    this.scene.add(mesh);
-    this.tiles.push(mesh);
+    this._scene.add(mesh);
+    this._tiles.push(mesh);
 }
 
 RenderContext.prototype.addBa = function (mesh) {
-    this.scene.add(mesh);
-    this.ba.push(mesh);
+    this._scene.add(mesh);
+    this._ba.push(mesh);
 }
 
-RenderContext.prototype.clear = function () {
-    while (this.meshes.length > 0) {
-        const tuple = this.meshes.pop();
+RenderContext.prototype._clear = function () {
+    while (this._meshes.length > 0) {
+        const tuple = this._meshes.pop();
         const mesh = tuple.mesh;
-        this.scene.remove(mesh);
+        this._scene.remove(mesh);
         if (tuple.disposeOnClear) {
             mesh.material.dispose();
             mesh.geometry.dispose();
         }
     }
-    while (this.tiles.length > 0) {
-        const mesh = this.tiles.pop();
-        this.scene.remove(mesh);
+    while (this._tiles.length > 0) {
+        const mesh = this._tiles.pop();
+        this._scene.remove(mesh);
     }
-    while (this.ba.length > 0) {
-        const mesh = this.ba.pop();
-        this.scene.remove(mesh);
+    while (this._ba.length > 0) {
+        const mesh = this._ba.pop();
+        this._scene.remove(mesh);
     }
 }
 
@@ -177,7 +177,7 @@ function createCamera(width, height) {
 
 RenderContext.prototype._getTileGeometry = function (number, suit) {
     if (_staticDisplayData.tileGeometries[suit][number] === undefined) {
-        const g = this._cloneGeometry(this.tileGeometry);
+        const g = this._cloneGeometry(this._tileGeometry);
         g.faceVertexUvs = this._getTileUvs(suit, number);
         _staticDisplayData.tileGeometries[suit][number] = g;
     }
@@ -186,7 +186,7 @@ RenderContext.prototype._getTileGeometry = function (number, suit) {
 
 RenderContext.prototype._getBaGeometry = function (index) {
     if (_staticDisplayData.baGeometries[index] === undefined) {
-        const g = this._cloneGeometry(this.baGeometry);
+        const g = this._cloneGeometry(this._baGeometry);
         g.faceVertexUvs = this._getBaUvs(index);
         _staticDisplayData.baGeometries[index] = g;
     }
@@ -223,7 +223,7 @@ RenderContext.prototype._getBaUvs = function (index) {
     if (_staticDisplayData.baUvs[index] === undefined) {
         const delta = (32 * index) / 512;
 
-        const uvs = this.baGeometry.faceVertexUvs.slice(0);
+        const uvs = this._baGeometry.faceVertexUvs.slice(0);
         uvs[0] = uvs[0].slice(0);
         const length = uvs[0].length;
         for (let i = 0; i < length; i++) {
@@ -249,7 +249,7 @@ RenderContext.prototype._getTileUvs = function (suit, number) {
         const c = new THREE.Vector2(left, bottom);
         const d = new THREE.Vector2(right, top);
 
-        const uvs = this.tileGeometry.faceVertexUvs.slice(0);
+        const uvs = this._tileGeometry.faceVertexUvs.slice(0);
         uvs[0] = uvs[0].slice(0);
         uvs[0][3] = [a, b, c];
         uvs[0][153] = [a, d, b];
