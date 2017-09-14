@@ -1,4 +1,5 @@
 ﻿var replayContext;
+var _observedPlayerId;
 
 const tileDepth = 0.78;
 const tileWidth = 0.97;
@@ -22,7 +23,7 @@ const _ids = {
     addedKan: 59
 }
 
-const allHandsOpen = true;
+const allHandsOpen = false;
 const showGhostTiles = false;
 
 const announcements = {
@@ -57,16 +58,24 @@ function initReplay() {
     replayContext.createTiles(() => arrange());
 }
 
+function getIntFromInput(id) {
+    const input = document.querySelector(id);
+    return input.value ? parseInt(input.value) : 0;
+}
+
 function arrange() {
+    const playerId = getIntFromInput("#playerId");
+    if (playerId < 0 || playerId > 3) {
+        return;
+    }
+    _observedPlayerId = playerId;
+
     if (replay === undefined) {
         loadReplay();
     }
-
-    const gameInput = document.querySelector("#gameId");
-    const game = gameInput.value ? gameInput.value : 0;
-    const frameInput = document.querySelector("#frameId");
-    const frame = frameInput.value ? frameInput.value : 0;
-
+    
+    const game = getIntFromInput("#gameId");
+    const frame = getIntFromInput("#frameId");
     if (game < replay.length && game >= 0) {
         if (frame < replay[game].frames.length && frame >= 0) {
             arrangeFrame(replay[game].frames[frame]);
@@ -596,7 +605,7 @@ function createMeld(playerId, x, meld) {
     const b = -(11 * tileWidth);
     const y = b - 0.5 * tileHeight;
     const tileIds = meld.tiles.slice(0);
-    tileIds.sort((a, b) => b - a);
+    tileIds.sort((x1, x2) => x2 - x1);
     let isClosedKan = false;
     const tileCount = tileIds.length;
     if (meld.relativeFrom === 0) {
@@ -642,13 +651,15 @@ function addGhostTile(playerId, tileId, x, y, z, open, flip) {
 }
 
 function addTileMesh(mesh, playerId, x, y, z, open, flip) {
+    const p = (playerId + 4 - _observedPlayerId) % 4;
+
     if (flip % 2 === 1) {
         const a = (tileHeight - tileWidth) / 2;
         x -= a;
         y -= a;
     }
 
-    mesh.rotateZ(Math.PI * 0.5 * playerId);
+    mesh.rotateZ(Math.PI * 0.5 * p);
     mesh.translateX(x);
     mesh.translateY(y);
     mesh.translateZ(z);
