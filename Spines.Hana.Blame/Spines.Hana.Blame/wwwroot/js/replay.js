@@ -313,6 +313,7 @@ function createCallFrames(previousFrame, meldedTiles, announcement) {
     announcementFrame.players[activePlayer].announcement = announcement;
 
     const frame = cloneFrame(announcementFrame);
+    frame.activeDiscardPlayerId = undefined;
 
     frame.ponds = frame.ponds.slice(0);
     const pond = frame.ponds[playerCalledFrom].slice(0);
@@ -358,6 +359,7 @@ function createRiichiPaymentFrame(previousFrame) {
 
 function createTsumogiriFrame(previousFrame) {
     const frame = cloneFrame(previousFrame);
+    frame.activeDiscardPlayerId = frame.activePlayer;
     frame.hands = frame.hands.slice(0);
     const hand = Object.assign({}, frame.hands[frame.activePlayer]);
     hand.tiles = hand.tiles.slice(0);
@@ -376,6 +378,7 @@ function createTsumogiriFrame(previousFrame) {
 
 function createDiscardFrame(previousFrame, indexInHand) {
     const frame = cloneFrame(previousFrame);
+    frame.activeDiscardPlayerId = frame.activePlayer;
     frame.hands = frame.hands.slice(0);
     const hand = Object.assign({}, frame.hands[frame.activePlayer]);
     hand.tiles = hand.tiles.slice(0);
@@ -397,6 +400,7 @@ function createDiscardFrame(previousFrame, indexInHand) {
 
 function createDrawFrame(previousFrame) {
     const frame = cloneFrame(previousFrame);
+    frame.activeDiscardPlayerId = undefined;
     frame.tilesDrawn += 1;
     if (frame.activePlayer === undefined) {
         frame.activePlayer = frame.static.oya;
@@ -473,21 +477,26 @@ function createPonds(frame) {
     const playerCount = frame.static.playerCount;
     for (let playerId = 0; playerId < playerCount; playerId++) {
         const pond = frame.ponds[playerId].filter(p => showGhostTiles || p.meld === undefined);
-        createPondRow(pond.slice(0, 6), 0, playerId);
-        createPondRow(pond.slice(6, 12), 1, playerId);
-        createPondRow(pond.slice(12), 2, playerId);
+        const gapOnLastTile = frame.activeDiscardPlayerId === playerId;
+        createPondRow(pond.slice(0, 6), 0, playerId, pond.length <= 6 && gapOnLastTile);
+        createPondRow(pond.slice(6, 12), 1, playerId, pond.length <= 12 && gapOnLastTile);
+        createPondRow(pond.slice(12), 2, playerId, gapOnLastTile);
     }
 }
 
-function createPondRow(pondRow, row, playerId) {
+function createPondRow(pondRow, row, playerId, gapOnLastTile) {
     const a = -(3 * tileWidth);
     var x = a + 0.5 * tileWidth;
-    const y = a - 0.5 * tileHeight - row * tileHeight;
+    var y = a - 0.5 * tileHeight - row * tileHeight;
     const tileCount = pondRow.length;
     for (let column = 0; column < tileCount; column++) {
         const pondTile = pondRow[column];
         const tileId = pondTile.tileId;
         x += pondTile.flipped ? tileHeight - tileWidth : 0;
+        if (gapOnLastTile && column === tileCount - 1) {
+            x += 0.1;
+            y -= 0.1;
+        }
         if (pondTile.meld) {
             const placement = pondTile.flipped ? _tilePlacement.pondGhostFlipped : _tilePlacement.pondGhost;
             addGhostTile(playerId, tileId, x, y, 0, placement);
