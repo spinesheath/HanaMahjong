@@ -146,6 +146,9 @@ namespace Spines.Hana.Blame.Services.ReplayManager
             }
             game.Actions.Add(MeldTypeIds[decoder.MeldType]);
             game.Actions.AddRange(decoder.Tiles);
+
+            var who = ToInt(e.Attribute("who")?.Value);
+            hands[who].RemoveAll(t => decoder.Tiles.Contains(t));
             break;
           case "REACH":
             var step = e.Attribute("step")?.Value;
