@@ -23,6 +23,19 @@ const _ids = {
     addedKan: 59
 }
 
+const _tilePlacement = {
+    wall: 0,
+    doraIndicator: 1,
+    pond: 2,
+    pondFlipped: 3,
+    pondGhost: 4,
+    pondGhostFlipped: 5,
+    hand: 6,
+    melded: 7,
+    meldedFaceDown: 8,
+    meldedFlipped: 9
+}
+
 const allHandsOpen = false;
 const showGhostTiles = false;
 
@@ -432,7 +445,6 @@ function createHands(frame) {
     const y = b - 0.5 * tileHeight;
     const handStartX = a + 0.5 * tileWidth - tileWidth;
     const meldStartX = -a + 4 * tileWidth;
-    const flip = (allHandsOpen ? 0 : 3);
 
     const tileCount = frame.hands.length;
     for (let i = 0; i < tileCount; i++) {
@@ -441,7 +453,7 @@ function createHands(frame) {
         const tilesInHand = hand.tiles.length;
         for (let k = 0; k < tilesInHand; k++) {
             const tileId = hand.tiles[k];
-            addTile(i, tileId, x, y, 0, i === 0 ? -0.40 : flip, 0);
+            addTile(i, tileId, x, y, 0, _tilePlacement.hand);
             if (!frame.hands[i].justCalled && k === tilesInHand - 2 && tilesInHand % 3 === 2) {
                 x += gap;
             }
@@ -475,12 +487,13 @@ function createPondRow(pondRow, row, playerId) {
     for (let column = 0; column < tileCount; column++) {
         const pondTile = pondRow[column];
         const tileId = pondTile.tileId;
-        const flip = pondTile.flipped ? 1 : 0;
-        x += flip ? tileHeight - tileWidth : 0;
+        x += pondTile.flipped ? tileHeight - tileWidth : 0;
         if (pondTile.meld) {
-            addGhostTile(playerId, tileId, x, y, 0, 0, flip);
+            const placement = pondTile.flipped ? _tilePlacement.pondGhostFlipped : _tilePlacement.pondGhost;
+            addGhostTile(playerId, tileId, x, y, 0, placement);
         } else {
-            addTile(playerId, tileId, x, y, 0, 0, flip);
+            const placement = pondTile.flipped ? _tilePlacement.pondFlipped : _tilePlacement.pond;
+            addTile(playerId, tileId, x, y, 0, placement);
         }
         x += tileWidth;
     }
@@ -568,7 +581,8 @@ function createWall(frame) {
                 if (rinshanId >= rinshanTilesDrawn && shiftedId < 136 - tilesDrawn) {
                     const tileId = wall[shiftedId];
                     const isDoraIndicator = shiftedId > 4 && shiftedId % 2 === 1 && shiftedId < 4 + doraIndicators * 2;
-                    addTile(i, tileId, x, y, k * tileDepth, isDoraIndicator ? 0 : 2, 0);
+                    const placement = isDoraIndicator ? _tilePlacement.doraIndicator : _tilePlacement.wall;
+                    addTile(i, tileId, x, y, k * tileDepth, placement);
                 }
                 wallId += 1;
                 if (shiftedId === 13) {
@@ -624,34 +638,62 @@ function createMeld(playerId, x, meld) {
 
     for (let i = 0; i < tileCount; i++) {
         const tileId = tileIds[i];
-        const face = isClosedKan && (i === 0 || i === 3) ? 2 : 0;
+        const isFaceDown = isClosedKan && (i === 0 || i === 3);
         const isFlipped = tileId === meld.flipped;
-        const flip = isFlipped ? 1 : 0;
-        addTile(playerId, tileId, x, y, 0, face, flip);
+        const placement = isFlipped ? _tilePlacement.meldedFlipped : (isFaceDown ? _tilePlacement.meldedFaceDown : _tilePlacement.melded);
+        addTile(playerId, tileId, x, y, 0, placement);
         if (isFlipped && meld.added !== undefined) {
-            addTile(playerId, tileId, x, y + tileWidth, 0, 0, 1);
+            addTile(playerId, tileId, x, y + tileWidth, 0, _tilePlacement.meldedFlipped);
         }
         x -= isFlipped ? tileHeight : tileWidth;
     }
     return x;
 }
 
-function addTile(playerId, tileId, x, y, z, open, flip) {
+function addTile(playerId, tileId, x, y, z, placement) {
     const number = numberFromTileId(tileId);
     const suit = suitFromTileId(tileId);
     const mesh = replayContext.createTileMesh(number, suit);
-    addTileMesh(mesh, playerId, x, y, z, open, flip);
+    addTileMesh(mesh, playerId, x, y, z, placement);
 }
 
-function addGhostTile(playerId, tileId, x, y, z, open, flip) {
+function addGhostTile(playerId, tileId, x, y, z, placement) {
     const number = numberFromTileId(tileId);
     const suit = suitFromTileId(tileId);
     const mesh = replayContext.createGhostTileMesh(number, suit);
-    addTileMesh(mesh, playerId, x, y, z, open, flip);
+    addTileMesh(mesh, playerId, x, y, z, placement);
 }
 
-function addTileMesh(mesh, playerId, x, y, z, open, flip) {
+function addTileMesh(mesh, playerId, x, y, z, placement) {
     const p = (playerId + 4 - _observedPlayerId) % 4;
+
+    var open = 0;
+    var flip = 0;
+    if (placement === _tilePlacement.wall) {
+        open = 2;
+    } else if (placement === _tilePlacement.doraIndicator) {
+        
+    } else if (placement === _tilePlacement.hand) {
+        if (p === 0) {
+            open = -0.4;
+        } else {
+            open = allHandsOpen ? 0 : 3;
+        }
+    } else if (placement === _tilePlacement.pond) {
+        
+    } else if (placement === _tilePlacement.pondFlipped) {
+        flip = 1;
+    } else if (placement === _tilePlacement.pondGhost) {
+
+    } else if (placement === _tilePlacement.pondGhostFlipped) {
+        flip = 1;
+    } else if (placement === _tilePlacement.melded) {
+
+    } else if (placement === _tilePlacement.meldedFaceDown) {
+        open = 2;
+    } else if (placement === _tilePlacement.meldedFlipped) {
+        flip = 1;
+    }
 
     if (flip % 2 === 1) {
         const a = (tileHeight - tileWidth) / 2;
