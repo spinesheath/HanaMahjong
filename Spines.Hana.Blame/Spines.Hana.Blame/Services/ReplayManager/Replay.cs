@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
@@ -25,6 +26,9 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
     [DataMember(Name = "games")]
     public IReadOnlyList<Game> Games { get; private set; }
+
+    [DataMember(Name = "players")]
+    public IReadOnlyList<Player> Players { get; private set; }
 
     public static Replay Parse(string xml)
     {
@@ -70,6 +74,18 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       var flags = (GameTypeFlag) int.Parse(go?.Attribute("type")?.Value);
       result.Rules = RuleSet.Parse(flags);
       result.Room = GetRoom(flags);
+
+      var un = xElement.Element("UN");
+      var names = GetUserNames(un).ToList();
+      var ranks = un?.Attribute("dan")?.Value.Split(',').Select(ToInt).ToList();
+      var rates = un?.Attribute("rate")?.Value.Split(',').Select(ToDecimal).ToList();
+      var genders = un?.Attribute("sx")?.Value.Split(',').ToList();
+      var players = new List<Player>();
+      for (var i = 0; i < names.Count; ++i)
+      {
+        players.Add(new Player(names[i], ranks[i], rates[i], genders[i]));
+      }
+      result.Players = players;
 
       var upcomingRinshan = false;
       var game = new Game();
@@ -168,13 +184,33 @@ namespace Spines.Hana.Blame.Services.ReplayManager
             throw new NotImplementedException();
         }
       }
-      result.Games = games.ToArray();
+      result.Games = games;
       return result;
     }
 
     private static IEnumerable<List<int>> GetStartingHands(XElement element)
     {
       return Enumerable.Range(0, 4).Select(i => element.Attribute($"hai{i}")?.Value.Split(',').Select(ToInt)).Select(t => t.ToList());
+    }
+
+    private static IEnumerable<string> GetUserNames(XElement element)
+    {
+      return Enumerable.Range(0, 4).Select(i => DecodeName(element.Attribute($"n{i}")?.Value));
+    }
+
+    private static string DecodeName(string encodedName)
+    {
+      if (encodedName.Length == 0)
+      {
+        return encodedName;
+      }
+      if (encodedName[0] != '%')
+      {
+        return encodedName;
+      }
+      var hexValues = encodedName.Split('%', StringSplitOptions.RemoveEmptyEntries);
+      var bytes = hexValues.Select(v => Convert.ToByte(v, 16)).ToArray();
+      return new UTF8Encoding().GetString(bytes);
     }
 
     private static bool IsKan(MeldType meldType)
@@ -185,6 +221,11 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     private static int ToInt(string value)
     {
       return Convert.ToInt32(value, CultureInfo.InvariantCulture);
+    }
+
+    private static decimal ToDecimal(string value)
+    {
+      return Convert.ToDecimal(value, CultureInfo.InvariantCulture);
     }
 
     private static Room GetRoom(GameTypeFlag flags)

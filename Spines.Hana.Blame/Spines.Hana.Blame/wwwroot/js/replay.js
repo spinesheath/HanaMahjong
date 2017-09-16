@@ -1,5 +1,6 @@
 ﻿var replayContext;
 var _observedPlayerId;
+var replay;
 
 const tileDepth = 0.78;
 const tileWidth = 0.97;
@@ -49,8 +50,6 @@ const announcements = {
     ryuukyoku: { text: "ryuukyoku" },
     material: new THREE.MeshBasicMaterial({ color: 0x777777 })
 }
-
-var replay;
 
 function showFrame() {
     replayContext.createTiles(() => arrange());
@@ -102,6 +101,19 @@ function arrangeFrame(frame) {
     createPonds(frame);
     createAnnouncements(frame);
     createBa(frame);
+    createPlayerInfos(frame);
+}
+
+function createPlayerInfos(frame) {
+    const staticPlayers = frame.static.players;
+    const playerCount = frame.static.playerCount;
+    for (let playerId = 0; playerId < playerCount; playerId++) {
+        createPlayerInfo(staticPlayers[playerId], playerId);
+    }
+}
+
+function createPlayerInfo(staticPlayer, playerId) {
+
 }
 
 function createInitialPlayer() {
@@ -112,9 +124,11 @@ function createInitialPlayer() {
 }
 
 function parseReplay(data) {
-    const playerCount = 4;
     const defaultDoraIndicatorCount = 1;
     const akaDora = true;
+
+    const playerCount = data.players.length;
+    const players = data.players;
    
     const games = [];
     let gameCount = data.games.length;
@@ -126,7 +140,7 @@ function parseReplay(data) {
         setupFrame.tilesDrawn = 13 * 4;
         setupFrame.rinshanTilesDrawn = 0;
         setupFrame.doraIndicators = defaultDoraIndicatorCount;
-        setupFrame.static = { wall: data.games[gameId].wall, dice: data.games[gameId].dice, akaDora: akaDora, playerCount: playerCount, oya: data.games[gameId].oya };
+        setupFrame.static = { wall: data.games[gameId].wall, dice: data.games[gameId].dice, akaDora: akaDora, playerCount: playerCount, oya: data.games[gameId].oya, players: players };
         setStartingHands(setupFrame);
         setupFrame.ponds = [[], [], [], []];
         setupFrame.players = [createInitialPlayer(), createInitialPlayer(), createInitialPlayer(), createInitialPlayer()];
