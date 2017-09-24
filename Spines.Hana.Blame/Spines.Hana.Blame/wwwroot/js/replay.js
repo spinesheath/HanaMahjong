@@ -37,6 +37,30 @@ const _tilePlacement = {
     meldedFlipped: 9
 }
 
+var _ranks = [
+    "新人",
+    "９級",
+    "８級",
+    "７級",
+    "６級",
+    "５級",
+    "４級",
+    "３級",
+    "２級",
+    "１級",
+    "初段",
+    "二段",
+    "三初",
+    "四段",
+    "五初",
+    "六段",
+    "七段",
+    "八段",
+    "九段",
+    "十段",
+    "天鳳位"
+];
+
 const allHandsOpen = false;
 const showGhostTiles = false;
 
@@ -116,7 +140,9 @@ function createPlayerInfos(frame) {
 }
 
 function createPlayerInfo(staticPlayer, playerId) {
-
+    const p = getRotatedPlayerId(playerId);
+    const div = document.querySelector(`#playerInfo${p}`);
+    div.textContent = staticPlayer.name + "\r\n" + staticPlayer.gender + " " + _ranks[staticPlayer.rank] + " R" + staticPlayer.rate;
 }
 
 function createInitialPlayer() {
@@ -570,9 +596,10 @@ function createAnnouncement(announcement, playerId) {
     mesh.position.z = z;
 
     if (playerId !== undefined) {
-        mesh.rotateZ(Math.PI * 0.5 * playerId);
+        const p = getRotatedPlayerId(playerId);
+        mesh.rotateZ(Math.PI * 0.5 * p);
         mesh.translateY(-7);
-        mesh.rotateZ(Math.PI * -0.5 * playerId);
+        mesh.rotateZ(Math.PI * -0.5 * p);
     }
 
     replayContext.addMesh(mesh, false);
@@ -691,7 +718,7 @@ function addGhostTile(playerId, tileId, x, y, z, placement) {
 }
 
 function addTileMesh(mesh, playerId, x, y, z, placement) {
-    const p = (playerId + 4 - _observedPlayerId) % 4;
+    const p = getRotatedPlayerId(playerId);
 
     var open = 0;
     var flip = 0;
@@ -746,6 +773,10 @@ function numberFromTileId(tileId) {
     if (tileId === 4 * 4 || tileId === 16 + 9 * 4 || tileId === 16 + 9 * 4 * 2)
         return 0;
     return 1 + Math.floor((tileId % (9 * 4)) / 4);
+}
+
+function getRotatedPlayerId(playerId) {
+    return (playerId + 4 - _observedPlayerId) % 4;
 }
 
 function remove(array, value) {

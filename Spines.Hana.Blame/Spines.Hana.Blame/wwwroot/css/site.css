@@ -73,3 +73,34 @@ textarea {
     min-width: 100%;
     margin-bottom: 10px;
 }
+
+.replayContainer {
+    position: relative;
+}
+
+#playerInfo0, #playerInfo1, #playerInfo2, #playerInfo3 {
+    position: absolute;
+    z-index: 1;
+    color: white;
+    white-space: pre;
+}
+
+#playerInfo0 {
+    top: 320px;
+    left: 490px;
+}
+
+#playerInfo1 {
+    top: 110px;
+    left: 480px;
+}
+
+#playerInfo2 {
+    top: 110px;
+    left: 230px;
+}
+
+#playerInfo3 {
+    top: 320px;
+    left: 200px;
+}
