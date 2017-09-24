@@ -40,6 +40,9 @@ const _tilePlacement = {
 const allHandsOpen = false;
 const showGhostTiles = false;
 
+const _cameraPosition = [0, -15.5, 25];
+const _lookAt = [0, -2.5, 0];
+
 const announcements = {
     riichi: { text: "riichi" },
     pon: { text: "pon" },
@@ -64,7 +67,7 @@ function loadReplay() {
 
 function initReplay() {
     replayContext = new RenderContext("replayCanvas");
-    replayContext.setCameraPosition(0, -21, 31);
+    replayContext.setCameraPosition(_cameraPosition, _lookAt);
     replayContext.createAmbientLight(0x888888);
     replayContext.createPointLight(0x555555, 50, 50, 100);
     replayContext.createTiles(() => arrange());
@@ -723,7 +726,7 @@ function addTileMesh(mesh, playerId, x, y, z, placement) {
         x -= a;
         y -= a;
     }
-
+    
     mesh.rotateZ(Math.PI * 0.5 * p);
     mesh.translateX(x);
     mesh.translateY(y);

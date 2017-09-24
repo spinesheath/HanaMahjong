@@ -71,11 +71,9 @@ RenderContext.prototype.createGhostTileMesh = function (number, suit) {
     return new THREE.Mesh(geometry, _staticDisplayData.ghostMaterial);
 }
 
-RenderContext.prototype.setCameraPosition = function (x, y, z) {
-    this._camera.position.x = x;
-    this._camera.position.y = y;
-    this._camera.position.z = z;
-    this._camera.lookAt(new THREE.Vector3(0, 0, 0));
+RenderContext.prototype.setCameraPosition = function (pos, lookAt) {
+    this._camera.position.set(pos[0], pos[1], pos[2]);
+    this._camera.lookAt(new THREE.Vector3(lookAt[0], lookAt[1], lookAt[2]));
 }
 
 RenderContext.prototype.addMesh = function(mesh, disposeOnClear) {
