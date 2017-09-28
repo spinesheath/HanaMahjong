@@ -18,6 +18,9 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     [DataMember(Name = "dice")]
     public List<int> Dice { get; } = new List<int>();
 
+    [DataMember(Name = "scores")]
+    public List<int> Scores { get; } = new List<int>();
+
     [DataMember(Name = "actions")]
     public List<int> Actions { get; } = new List<int>();
   }

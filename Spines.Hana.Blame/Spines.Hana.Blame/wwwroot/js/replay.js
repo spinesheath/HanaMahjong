@@ -133,23 +133,37 @@ function arrangeFrame(frame) {
 
 function createPlayerInfos(frame) {
     const staticPlayers = frame.static.players;
+    const players = frame.players;
     const playerCount = frame.static.playerCount;
     for (let playerId = 0; playerId < playerCount; playerId++) {
-        createPlayerInfo(staticPlayers[playerId], playerId);
+        createPlayerInfo(staticPlayers[playerId], players[playerId], playerId);
     }
 }
 
-function createPlayerInfo(staticPlayer, playerId) {
+function createPlayerInfo(staticPlayer, player, playerId) {
     const p = getRotatedPlayerId(playerId);
     const div = document.querySelector(`#playerInfo${p}`);
-    div.textContent = staticPlayer.name + "\r\n" + staticPlayer.gender + " " + _ranks[staticPlayer.rank] + " R" + staticPlayer.rate;
+    div.textContent =
+        staticPlayer.name + "\r\n" +
+        staticPlayer.gender + " " + _ranks[staticPlayer.rank] + " R" + staticPlayer.rate + "\r\n" +
+        player.score;
 }
 
-function createInitialPlayer() {
+function createInitialPlayer(s) {
     return {
         riichi: false,
-        payment: undefined
+        payment: undefined,
+        score: s
     };
+}
+
+function createInitialPlayers(gameData) {
+    return [
+        createInitialPlayer(gameData.scores[0] * 100),
+        createInitialPlayer(gameData.scores[1] * 100),
+        createInitialPlayer(gameData.scores[2] * 100),
+        createInitialPlayer(gameData.scores[3] * 100)
+    ];
 }
 
 function parseReplay(data) {
@@ -162,6 +176,7 @@ function parseReplay(data) {
     const games = [];
     let gameCount = data.games.length;
     for (let gameId = 0; gameId < gameCount; gameId++) {
+        var gameData = data.games[gameId];
         const game = {};
         game.frames = [];
         const setupFrame = {};
@@ -169,14 +184,14 @@ function parseReplay(data) {
         setupFrame.tilesDrawn = 13 * 4;
         setupFrame.rinshanTilesDrawn = 0;
         setupFrame.doraIndicators = defaultDoraIndicatorCount;
-        setupFrame.static = { wall: data.games[gameId].wall, dice: data.games[gameId].dice, akaDora: akaDora, playerCount: playerCount, oya: data.games[gameId].oya, players: players };
+        setupFrame.static = { wall: gameData.wall, dice: gameData.dice, akaDora: akaDora, playerCount: playerCount, oya: gameData.oya, players: players };
         setStartingHands(setupFrame);
         setupFrame.ponds = [[], [], [], []];
-        setupFrame.players = [createInitialPlayer(), createInitialPlayer(), createInitialPlayer(), createInitialPlayer()];
+        setupFrame.players = createInitialPlayers(gameData);
         game.frames.push(setupFrame);
 
         let previousFrame = setupFrame;
-        const decisions = data.games[gameId].actions;
+        const decisions = gameData.actions;
         const decisionCount = decisions.length;
         for (let decisionId = 0; decisionId < decisionCount; decisionId++) {
             const decision = decisions[decisionId];
@@ -260,15 +275,13 @@ function createRyuukyokuFrame(previousFrame) {
 }
 
 function createAgariFrame(previousFrame, who, fromWho) {
-    const activePlayer = who;
-
     const frame = cloneFrame(previousFrame);
     frame.players = frame.players.slice(0);
-    frame.players[activePlayer] = Object.assign({}, frame.players[frame.activePlayer]);
+    frame.players[who] = Object.assign({}, frame.players[who]);
     if (who === fromWho) {
-        frame.players[activePlayer].announcement = announcements.tsumo;
+        frame.players[who].announcement = announcements.tsumo;
     } else {
-        frame.players[activePlayer].announcement = announcements.ron;
+        frame.players[who].announcement = announcements.ron;
     }
 
     return frame;

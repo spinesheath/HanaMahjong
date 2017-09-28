@@ -145,6 +145,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
             game.Wall.AddRange(generator.GetWall(gameIndex));
             game.Dice.AddRange(generator.GetDice(gameIndex));
             game.Oya = ToInt(e.Attribute("oya")?.Value);
+            game.Scores.AddRange(ToInts(e.Attribute("ten")?.Value));
             hands = GetStartingHands(e).ToList();
             gameIndex += 1;
             upcomingRinshan = false;
@@ -190,7 +191,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
     private static IEnumerable<List<int>> GetStartingHands(XElement element)
     {
-      return Enumerable.Range(0, 4).Select(i => element.Attribute($"hai{i}")?.Value.Split(',').Select(ToInt)).Select(t => t.ToList());
+      return Enumerable.Range(0, 4).Select(i => ToInts(element.Attribute($"hai{i}")?.Value)).Select(t => t.ToList());
     }
 
     private static IEnumerable<string> GetUserNames(XElement element)
@@ -216,6 +217,11 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     private static bool IsKan(MeldType meldType)
     {
       return meldType == MeldType.AddedKan || meldType == MeldType.CalledKan || meldType == MeldType.ClosedKan;
+    }
+
+    private static IEnumerable<int> ToInts(string value)
+    {
+      return value.Split(',').Select(ToInt);
     }
 
     private static int ToInt(string value)
