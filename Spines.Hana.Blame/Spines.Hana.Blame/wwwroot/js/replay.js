@@ -408,8 +408,10 @@ function createRiichiFrame(previousFrame) {
 function createRiichiPaymentFrame(previousFrame) {
     const frame = cloneFrame(previousFrame);
     frame.players = frame.players.slice(0);
-    frame.players[frame.activePlayer] = Object.assign({}, frame.players[frame.activePlayer]);
-    frame.players[frame.activePlayer].payment = 1000;
+    const activePlayer = frame.activePlayer;
+    frame.players[activePlayer] = Object.assign({}, frame.players[activePlayer]);
+    frame.players[activePlayer].payment = 1000;
+    frame.players[activePlayer].score -= 1000;
     return frame;
 }
 
