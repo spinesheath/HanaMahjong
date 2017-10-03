@@ -53,45 +53,45 @@ RenderContext.prototype.createTiles = function(arrange) {
         arrange();
         this.render();
     }
-}
+};
 
-RenderContext.prototype.createBaMesh = function (value) {
+RenderContext.prototype.createBaMesh = function(value) {
     const index = [100, 1000, 5000, 10000].indexOf(value);
     const geometry = this._getBaGeometry(index);
     return new THREE.Mesh(geometry, _staticDisplayData.material);
-}
+};
 
-RenderContext.prototype.createTileMesh = function (number, suit) {
+RenderContext.prototype.createTileMesh = function(number, suit) {
     const geometry = this._getTileGeometry(number, suit);
     return new THREE.Mesh(geometry, _staticDisplayData.material);
-}
+};
 
-RenderContext.prototype.createGhostTileMesh = function (number, suit) {
+RenderContext.prototype.createGhostTileMesh = function(number, suit) {
     const geometry = this._getTileGeometry(number, suit);
     return new THREE.Mesh(geometry, _staticDisplayData.ghostMaterial);
-}
+};
 
-RenderContext.prototype.setCameraPosition = function (pos, lookAt) {
+RenderContext.prototype.setCameraPosition = function(pos, lookAt) {
     this._camera.position.set(pos[0], pos[1], pos[2]);
     this._camera.lookAt(new THREE.Vector3(lookAt[0], lookAt[1], lookAt[2]));
-}
+};
 
 RenderContext.prototype.addMesh = function(mesh, disposeOnClear) {
     this._scene.add(mesh);
     this._meshes.push({ mesh: mesh, disposeOnClear: disposeOnClear });
-}
+};
 
 RenderContext.prototype.addTile = function(mesh) {
     this._scene.add(mesh);
     this._tiles.push(mesh);
-}
+};
 
-RenderContext.prototype.addBa = function (mesh) {
+RenderContext.prototype.addBa = function(mesh) {
     this._scene.add(mesh);
     this._ba.push(mesh);
-}
+};
 
-RenderContext.prototype._clear = function () {
+RenderContext.prototype._clear = function() {
     while (this._meshes.length > 0) {
         const tuple = this._meshes.pop();
         const mesh = tuple.mesh;
@@ -109,7 +109,7 @@ RenderContext.prototype._clear = function () {
         const mesh = this._ba.pop();
         this._scene.remove(mesh);
     }
-}
+};
 
 function initThreeJS() {
     const fontLoader = new THREE.FontLoader();
@@ -167,31 +167,31 @@ function createCamera(width, height) {
     const viewAngle = 30;
     const near = 0.1;
     const far = 10000;
-    const tanFov = Math.tan(((Math.PI / 180) * viewAngle / 2));
-    const fov = (360 / Math.PI) * Math.atan(tanFov * (height / tempHeight));
+    const tanFov = Math.tan(Math.PI / 180 * viewAngle / 2);
+    const fov = 360 / Math.PI * Math.atan(tanFov * (height / tempHeight));
     const cameraAspect = width / height;
     return new THREE.PerspectiveCamera(fov, cameraAspect, near, far);
 }
 
-RenderContext.prototype._getTileGeometry = function (number, suit) {
+RenderContext.prototype._getTileGeometry = function(number, suit) {
     if (_staticDisplayData.tileGeometries[suit][number] === undefined) {
         const g = this._cloneGeometry(this._tileGeometry);
         g.faceVertexUvs = this._getTileUvs(suit, number);
         _staticDisplayData.tileGeometries[suit][number] = g;
     }
     return _staticDisplayData.tileGeometries[suit][number];
-}
+};
 
-RenderContext.prototype._getBaGeometry = function (index) {
+RenderContext.prototype._getBaGeometry = function(index) {
     if (_staticDisplayData.baGeometries[index] === undefined) {
         const g = this._cloneGeometry(this._baGeometry);
         g.faceVertexUvs = this._getBaUvs(index);
         _staticDisplayData.baGeometries[index] = g;
     }
     return _staticDisplayData.baGeometries[index];
-}
+};
 
-RenderContext.prototype._cloneGeometry = function (source) {
+RenderContext.prototype._cloneGeometry = function(source) {
     const g = new THREE.Geometry();
     g.boundingBox = source.boundingBox;
     g.boundingSphere = source.boundingSphere;
@@ -215,11 +215,11 @@ RenderContext.prototype._cloneGeometry = function (source) {
     g.verticesNeedUpdate = source.verticesNeedUpdate;
     //g.id = source.id;
     return g;
-}
+};
 
-RenderContext.prototype._getBaUvs = function (index) {
+RenderContext.prototype._getBaUvs = function(index) {
     if (_staticDisplayData.baUvs[index] === undefined) {
-        const delta = (32 * index) / 512;
+        const delta = 32 * index / 512;
 
         const uvs = this._baGeometry.faceVertexUvs.slice(0);
         uvs[0] = uvs[0].slice(0);
@@ -234,9 +234,9 @@ RenderContext.prototype._getBaUvs = function (index) {
         _staticDisplayData.baUvs[index] = uvs;
     }
     return _staticDisplayData.baUvs[index];
-}
+};
 
-RenderContext.prototype._getTileUvs = function (suit, number) {
+RenderContext.prototype._getTileUvs = function(suit, number) {
     if (_staticDisplayData.tileUvs[suit][number] === undefined) {
         const left = (100 + number * 32) / 512;
         const right = (100 + 24 + number * 32) / 512;
@@ -254,4 +254,21 @@ RenderContext.prototype._getTileUvs = function (suit, number) {
         _staticDisplayData.tileUvs[suit][number] = uvs;
     }
     return _staticDisplayData.tileUvs[suit][number];
+};
+
+// data must be an object with property names matching the keys used in the url parameters
+function setBrowserHistory(data) {
+    const keys = Object.keys(data);
+    sort(keys);
+    const x = keys.map(k => k + "=" + data[k]).join("&");
+    window.history.pushState(data, "", `//${location.host}${location.pathname}?${x}`);
+}
+
+function getIntFromInput(id) {
+    const input = document.querySelector(id);
+    return input.value ? parseInt(input.value) : 0;
+}
+
+function setIntToInput(id, value) {
+    document.querySelector(id).value = value;
 }

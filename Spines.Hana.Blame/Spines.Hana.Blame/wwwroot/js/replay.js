@@ -22,7 +22,7 @@ const _ids = {
     closedKan: 57,
     calledKan: 58,
     addedKan: 59
-}
+};
 
 const _tilePlacement = {
     wall: 0,
@@ -35,7 +35,7 @@ const _tilePlacement = {
     melded: 7,
     meldedFaceDown: 8,
     meldedFlipped: 9
-}
+};
 
 var _ranks = [
     "新人",
@@ -76,11 +76,7 @@ const announcements = {
     tsumo: { text: "tsumo" },
     ryuukyoku: { text: "ryuukyoku" },
     material: new THREE.MeshBasicMaterial({ color: 0x777777 })
-}
-
-function showFrame() {
-    replayContext.createTiles(() => arrange());
-}
+};
 
 function loadReplay() {
     const input = document.querySelector("#gameDataJson");
@@ -90,20 +86,64 @@ function loadReplay() {
 }
 
 function initReplay() {
+    window.onpopstate = onPopState;
+
     replayContext = new RenderContext("replayCanvas");
     replayContext.setCameraPosition(_cameraPosition, _lookAt);
     replayContext.createAmbientLight(0x888888);
     replayContext.createPointLight(0x555555, 50, 50, 100);
+
+    const d = getFrameInputDataFromUrl();
+    setFrameInputData(d);
+
     replayContext.createTiles(() => arrange());
 }
 
-function getIntFromInput(id) {
-    const input = document.querySelector(id);
-    return input.value ? parseInt(input.value) : 0;
+function onPopState(e) {
+    const d = e.state;
+    if (d) {
+        setFrameInputData(d);
+        replayContext.createTiles(() => arrange());
+    }
+}
+
+function showFrame() {
+    const d = getFrameInputData();
+    setBrowserHistory(d);
+    replayContext.createTiles(() => arrange());
+}
+
+function getFrameInputDataFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const playerId = getIntFromParams(params, "p");
+    const game = getIntFromParams(params, "g");
+    const frame = getIntFromParams(params, "f");
+    return { p: playerId, g: game, f: frame };
+}
+
+function getFrameInputData() {
+    const playerId = getIntFromInput("#playerId");
+    const game = getIntFromInput("#gameId");
+    const frame = getIntFromInput("#frameId");
+    return {p: playerId, g: game, f: frame};
+}
+
+function setFrameInputData(data) {
+    setIntToInput("#playerId", data.p);
+    setIntToInput("#gameId", data.g);
+    setIntToInput("#frameId", data.f);
+}
+
+function getIntFromParams(params, key) {
+    return parseInt(params.get(key)) || 0;
 }
 
 function arrange() {
-    const playerId = getIntFromInput("#playerId");
+    const d = getFrameInputDataFromUrl();
+    const playerId = d.p;
+    const game = d.g;
+    const frame = d.f;
+
     if (playerId < 0 || playerId > 3) {
         return;
     }
@@ -113,8 +153,6 @@ function arrange() {
         loadReplay();
     }
     
-    const game = getIntFromInput("#gameId");
-    const frame = getIntFromInput("#frameId");
     if (game < replay.length && game >= 0) {
         if (frame < replay[game].frames.length && frame >= 0) {
             arrangeFrame(replay[game].frames[frame]);
@@ -708,7 +746,7 @@ function createMeld(playerId, x, meld) {
         const tileId = tileIds[i];
         const isFaceDown = isClosedKan && (i === 0 || i === 3);
         const isFlipped = tileId === meld.flipped;
-        const placement = isFlipped ? _tilePlacement.meldedFlipped : (isFaceDown ? _tilePlacement.meldedFaceDown : _tilePlacement.melded);
+        const placement = isFlipped ? _tilePlacement.meldedFlipped : isFaceDown ? _tilePlacement.meldedFaceDown : _tilePlacement.melded;
         addTile(playerId, tileId, x, y, 0, placement);
         if (isFlipped && meld.added !== undefined) {
             addTile(playerId, tileId, x, y + tileWidth, 0, _tilePlacement.meldedFlipped);
@@ -739,29 +777,25 @@ function addTileMesh(mesh, playerId, x, y, z, placement) {
     var flip = 0;
     if (placement === _tilePlacement.wall) {
         open = 2;
-    } else if (placement === _tilePlacement.doraIndicator) {
-        
     } else if (placement === _tilePlacement.hand) {
         if (p === 0) {
             open = -0.4;
         } else {
             open = allHandsOpen ? 0 : 3;
         }
-    } else if (placement === _tilePlacement.pond) {
-        
-    } else if (placement === _tilePlacement.pondFlipped) {
+    }  else if (placement === _tilePlacement.pondFlipped) {
         flip = 1;
-    } else if (placement === _tilePlacement.pondGhost) {
-
-    } else if (placement === _tilePlacement.pondGhostFlipped) {
+    }  else if (placement === _tilePlacement.pondGhostFlipped) {
         flip = 1;
-    } else if (placement === _tilePlacement.melded) {
-
-    } else if (placement === _tilePlacement.meldedFaceDown) {
+    }  else if (placement === _tilePlacement.meldedFaceDown) {
         open = 2;
     } else if (placement === _tilePlacement.meldedFlipped) {
         flip = 1;
     }
+    // else if (placement === _tilePlacement.melded)
+    // else if (placement === _tilePlacement.pondGhost)
+    // else if (placement === _tilePlacement.pond)
+    // else if (placement === _tilePlacement.doraIndicator)
 
     if (flip % 2 === 1) {
         const a = (tileHeight - tileWidth) / 2;
@@ -775,7 +809,7 @@ function addTileMesh(mesh, playerId, x, y, z, placement) {
     mesh.translateZ(z);
     mesh.rotateY(Math.PI);
     mesh.rotateX(Math.PI * 0.5 * (open - 1));
-    mesh.rotateY(Math.PI * 0.5 * (flip));
+    mesh.rotateY(Math.PI * 0.5 * flip);
 
     replayContext.addTile(mesh);
 }
@@ -787,7 +821,7 @@ function suitFromTileId(tileId) {
 function numberFromTileId(tileId) {
     if (tileId === 4 * 4 || tileId === 16 + 9 * 4 || tileId === 16 + 9 * 4 * 2)
         return 0;
-    return 1 + Math.floor((tileId % (9 * 4)) / 4);
+    return 1 + Math.floor(tileId % (9 * 4) / 4);
 }
 
 function getRotatedPlayerId(playerId) {

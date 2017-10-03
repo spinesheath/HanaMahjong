@@ -7,7 +7,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
   {
     public Replay GetReplay(string id)
     {
-      return Replay.Parse(Data);
+      return Replay.Parse(AddedKanData);
     }
 
     // http://tenhou.net/0/?log=2017043022gm-0089-0000-c47632a3&tw=0&ts=5
