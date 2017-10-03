@@ -1,14 +1,27 @@
 ﻿// This file is licensed to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Generic;
+
 namespace Spines.Hana.Blame.Services.ReplayManager
 {
   internal class ReplayManager
   {
     public Replay GetReplay(string id)
     {
+      if (null != id && Replays.ContainsKey(id))
+      {
+        return Replay.Parse(Replays[id]);
+      }
       return Replay.Parse(AddedKanData);
     }
+
+    private static readonly Dictionary<string, string> Replays = new Dictionary<string, string>
+    {
+      {"2017043022gm-0089-0000-c47632a3", Data},
+      {"2017042905gm-0009-7447-0f7d7d36", AddedKanData},
+      {"2017042917gm-0089-0000-62dfb255", ClosedAndCalledKan}
+    };
 
     // http://tenhou.net/0/?log=2017043022gm-0089-0000-c47632a3&tw=0&ts=5
     private const string Data =

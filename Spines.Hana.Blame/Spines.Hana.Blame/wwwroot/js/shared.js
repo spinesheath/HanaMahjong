@@ -257,9 +257,10 @@ RenderContext.prototype._getTileUvs = function(suit, number) {
 // data must be an object with property names matching the keys used in the url parameters
 function setBrowserHistory(data) {
     const keys = Object.keys(data);
-    sort(keys);
+    keys.sort();
     const x = keys.map(k => k + "=" + data[k]).join("&");
-    window.history.pushState(data, "", `//${location.host}${location.pathname}?${x}`);
+    const url = `//${location.host}${location.pathname}?${x}`;
+    window.history.pushState(data, "", url);
 }
 
 function getIntFromInput(id) {
@@ -267,6 +268,10 @@ function getIntFromInput(id) {
     return input.value ? parseInt(input.value) : 0;
 }
 
-function setIntToInput(id, value) {
+function setValueToInput(id, value) {
     document.querySelector(id).value = value;
+}
+
+function getValueFromComboBox(id) {
+    return document.querySelector(id).value;
 }

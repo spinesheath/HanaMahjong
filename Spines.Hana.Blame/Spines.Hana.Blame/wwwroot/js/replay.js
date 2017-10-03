@@ -1,12 +1,63 @@
 ﻿var replayContext;
 var _observedPlayerId;
-var replay;
+var _replay;
+var _replayJson;
 
-function loadReplay() {
-    const input = document.querySelector("#gameDataJson");
-    const json = input.value;
-    const data = JSON.parse(json);
-    replay = parseReplay(data);
+function updateHistory(d) {
+    const c = window.history.state;
+    if (!c || c.r !== d.r || c.p !== d.p || c.g !== d.g || c.f !== d.f)
+        setBrowserHistory(d);
+}
+
+function onReplayIdChanged(replayId) {
+    const d = { r: replayId, p: 0, g: 0, f: 0 };
+    loadReplay(d);
+}
+
+function loadReplay(d) {
+    setValueToInput("#replayId", d.r);
+    const xhr = $.ajax({
+        type: "GET",
+        url: "/Home/Replay",
+        data: { replayId: d.r },
+        success: function (data, textStatus, xhr2) {
+            const r = getReplayId();
+            if (xhr2.replayId === r) {
+                _replayJson = data;
+                setFrameInputData(d);
+                updateHistory(d);
+                replayContext.createTiles(() => arrange());
+            }
+        }
+    });
+    xhr.replayId = d.r;
+}
+
+function getReplayId() {
+    return getValueFromComboBox("#replayId");
+}
+
+function getFrameInputDataFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const replayId = params.get("r");
+    const playerId = getIntFromParams(params, "p");
+    const game = getIntFromParams(params, "g");
+    const frame = getIntFromParams(params, "f");
+    return { r: replayId, p: playerId, g: game, f: frame };
+}
+
+function getFrameInputData() {
+    const replayId = getReplayId();
+    const playerId = getIntFromInput("#playerId");
+    const game = getIntFromInput("#gameId");
+    const frame = getIntFromInput("#frameId");
+    return { r: replayId, p: playerId, g: game, f: frame };
+}
+
+function setFrameInputData(data) {
+    setValueToInput("#playerId", data.p);
+    setValueToInput("#gameId", data.g);
+    setValueToInput("#frameId", data.f);
 }
 
 function initReplay() {
@@ -16,11 +67,9 @@ function initReplay() {
     replayContext.setCameraPosition(_cameraPosition, _lookAt);
     replayContext.createAmbientLight(_ambientLightColor);
     replayContext.createPointLight(_pointLightColor, _pointLightPosition);
-
+    
     const d = getFrameInputDataFromUrl();
-    setFrameInputData(d);
-
-    replayContext.createTiles(() => arrange());
+    loadReplay(d);
 }
 
 function onPopState(e) {
@@ -31,31 +80,10 @@ function onPopState(e) {
     }
 }
 
-function showFrame() {
+function onFrameChanged() {
     const d = getFrameInputData();
-    setBrowserHistory(d);
+    updateHistory(d);
     replayContext.createTiles(() => arrange());
-}
-
-function getFrameInputDataFromUrl() {
-    const params = new URLSearchParams(window.location.search);
-    const playerId = getIntFromParams(params, "p");
-    const game = getIntFromParams(params, "g");
-    const frame = getIntFromParams(params, "f");
-    return { p: playerId, g: game, f: frame };
-}
-
-function getFrameInputData() {
-    const playerId = getIntFromInput("#playerId");
-    const game = getIntFromInput("#gameId");
-    const frame = getIntFromInput("#frameId");
-    return {p: playerId, g: game, f: frame};
-}
-
-function setFrameInputData(data) {
-    setIntToInput("#playerId", data.p);
-    setIntToInput("#gameId", data.g);
-    setIntToInput("#frameId", data.f);
 }
 
 function getIntFromParams(params, key) {
@@ -63,6 +91,10 @@ function getIntFromParams(params, key) {
 }
 
 function arrange() {
+    if (!_replayJson) {
+        return;
+    }
+
     const d = getFrameInputDataFromUrl();
     const playerId = d.p;
     const game = d.g;
@@ -73,13 +105,13 @@ function arrange() {
     }
     _observedPlayerId = playerId;
 
-    if (replay === undefined) {
-        loadReplay();
+    if (_replay === undefined) {
+        _replay = parseReplay(_replayJson);
     }
     
-    if (game < replay.length && game >= 0) {
-        if (frame < replay[game].frames.length && frame >= 0) {
-            arrangeFrame(replay[game].frames[frame]);
+    if (game < _replay.length && game >= 0) {
+        if (frame < _replay[game].frames.length && frame >= 0) {
+            arrangeFrame(_replay[game].frames[frame]);
         }
     }
 }

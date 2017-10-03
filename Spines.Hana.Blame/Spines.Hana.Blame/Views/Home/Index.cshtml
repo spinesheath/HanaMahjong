@@ -3,10 +3,14 @@
 }
 
 <div>
-    <input id="gameId" type="number" onchange="showFrame()" />
-    <input id="frameId" type="number" onchange="showFrame()"/>
-    <input id="playerId" type="number" onchange="showFrame()" />
-    <input id="gameDataJson" type="hidden" value="@(ViewData["GameDataJson"])"/>
+    <select id="replayId" onchange="onReplayIdChanged(this.value)">
+        <option value="2017043022gm-0089-0000-c47632a3" selected="selected">A</option>
+        <option value="2017042905gm-0009-7447-0f7d7d36">B</option>
+        <option value="2017042917gm-0089-0000-62dfb255">C</option>
+    </select>
+    <input id="gameId" type="number" onchange="onFrameChanged()"/>
+    <input id="frameId" type="number" onchange="onFrameChanged()"/>
+    <input id="playerId" type="number" onchange="onFrameChanged()"/>
 </div>
 <div class="replayContainer">
     <canvas id="replayCanvas" width="800" height="600"></canvas>
@@ -16,20 +20,10 @@
     <div id="playerInfo3"></div>
 </div>
 
-
-@*<input id="handInput" type="text" onchange="changeUrl(this.value)" value="@(ViewData["Hand"])" />
-
-<div>
-    <canvas id="wwydCanvas" width="600" height="100"></canvas>
-</div>
-
-<div class="row" id="threadDiv"></div>*@
-
 @section Scripts
 {
     <script>
         $(initThreeJS);
-        //$(initWwyd);
         $(initReplay);
     </script>
 }
