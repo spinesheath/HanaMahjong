@@ -27,11 +27,9 @@ RenderContext.prototype.createAmbientLight = function (color) {
     this._scene.add(light);
 };
 
-RenderContext.prototype.createPointLight = function (color, x, y, z) {
+RenderContext.prototype.createPointLight = function (color, pos) {
     const light = new THREE.PointLight(color);
-    light.position.x = x;
-    light.position.y = y;
-    light.position.z = z;
+    [light.position.x, light.position.y, light.position.z] = pos;
     this._scene.add(light);
 };
 
