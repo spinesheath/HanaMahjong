@@ -16,6 +16,14 @@ function onReplayIdChanged(replayId) {
 
 function loadReplay(d) {
     setValueToInput("#replayId", d.r);
+    if (!d.r) {
+        _replayJson = undefined;
+        setFrameInputData(d);
+        updateHistory(d);
+        replayContext.createTiles(() => arrange());
+        return;
+    }
+
     const xhr = $.ajax({
         type: "GET",
         url: "/Home/Replay",
@@ -39,7 +47,7 @@ function getReplayId() {
 
 function getFrameInputDataFromUrl() {
     const params = new URLSearchParams(window.location.search);
-    const replayId = params.get("r");
+    const replayId = getStringFromParams(params, "r");
     const playerId = getIntFromParams(params, "p");
     const game = getIntFromParams(params, "g");
     const frame = getIntFromParams(params, "f");
@@ -88,6 +96,12 @@ function onFrameChanged() {
 
 function getIntFromParams(params, key) {
     return parseInt(params.get(key)) || 0;
+}
+
+function getStringFromParams(params, key) {
+    if (!params.has(key))
+        return undefined;
+    return params.get(key);
 }
 
 function arrange() {
