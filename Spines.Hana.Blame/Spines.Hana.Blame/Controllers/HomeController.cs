@@ -4,6 +4,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Spines.Hana.Blame.Data;
 using Spines.Hana.Blame.Models;
 using Spines.Hana.Blame.Services.ReplayManager;
 
@@ -11,14 +12,15 @@ namespace Spines.Hana.Blame.Controllers
 {
   public class HomeController : Controller
   {
-    public HomeController(IOptions<CopyrightOptions> optionsAccessor)
+    public HomeController(IOptions<CopyrightOptions> copyrightOptions, IOptions<StorageOptions> storageOptions)
     {
-      _options = optionsAccessor.Value;
+      _storage = storageOptions.Value;
+      _copyright = copyrightOptions.Value;
     }
 
     public IActionResult Index()
     {
-      ViewData["CopyrightHolder"] = _options.CopyrightHolder;
+      ViewData["CopyrightHolder"] = _copyright.CopyrightHolder;
       return View();
     }
 
@@ -48,6 +50,8 @@ namespace Spines.Hana.Blame.Controllers
       return ViewComponent("Thread", hand);
     }
 
-    private readonly CopyrightOptions _options;
+    private readonly StorageOptions _storage;
+
+    private readonly CopyrightOptions _copyright;
   }
 }

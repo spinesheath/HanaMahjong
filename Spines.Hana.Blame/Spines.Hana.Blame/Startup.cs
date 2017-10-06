@@ -39,7 +39,7 @@ namespace Spines.Hana.Blame
     {
       // Add framework services.
       services.AddDbContext<ApplicationDbContext>(options =>
-          options.UseSqlServer(Configuration.GetConnectionString("SpinesHanaBlameDefaultConnectionString")));
+          options.UseSqlServer(Configuration.GetValue<string>("SpinesHanaBlameDefaultConnectionString")));
 
       services.AddIdentity<ApplicationUser, IdentityRole>(config => { config.SignIn.RequireConfirmedEmail = true; })
         .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -55,6 +55,7 @@ namespace Spines.Hana.Blame
       services.Configure<AuthMessageSenderOptions>(Configuration);
       services.Configure<InitializeIdentityOptions>(Configuration);
       services.Configure<CopyrightOptions>(Configuration);
+      services.Configure<StorageOptions>(Configuration);
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
