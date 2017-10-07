@@ -90,8 +90,6 @@ namespace Spines.Hana.Blame
           name: "default",
           template: "{controller=Home}/{action=Index}/{id?}");
       });
-
-      identityInitializer.Seed().Wait();
     }
   }
 }
