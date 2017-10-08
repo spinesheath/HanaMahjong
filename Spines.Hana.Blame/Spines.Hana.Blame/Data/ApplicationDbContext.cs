@@ -19,7 +19,7 @@ namespace Spines.Hana.Blame.Data
     public DbSet<Comment> Comments { get; set; }
 
     public DbSet<Player> Players { get; set; }
-    public DbSet<Match> Matchs { get; set; }
+    public DbSet<Match> Matches { get; set; }
     public DbSet<Participant> Participants { get; set; }
     public DbSet<Game> Games { get; set; }
 

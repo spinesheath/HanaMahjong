@@ -13,6 +13,6 @@ namespace Spines.Hana.Blame.Models
   {
     public int Id { get; set; }
     public string Name { get; set; }
-    public ICollection<Participant> Participants { get; set; }
+    public ICollection<Participant> Participants { get; } = new List<Participant>();
   }
 }

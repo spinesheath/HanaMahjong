@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Spines.Hana.Blame.Models
 {
@@ -12,11 +13,21 @@ namespace Spines.Hana.Blame.Models
   /// </summary>
   public class Match
   {
+    public Match()
+    {
+    }
+
+    public Match(IEnumerable<Game> games, IEnumerable<Participant> participants)
+    {
+      Games = games.ToList();
+      Participants = participants.ToList();
+    }
+
     public int Id { get; set; }
     public string FileName { get; set; }
     public string ContainerName { get; set; }
     public DateTime UploadTime { get; set; }
-    public ICollection<Participant> Participants { get; set; }
-    public ICollection<Game> Games { get; set; }
+    public ICollection<Participant> Participants { get; } = new List<Participant>();
+    public ICollection<Game> Games { get; } = new List<Game>();
   }
 }

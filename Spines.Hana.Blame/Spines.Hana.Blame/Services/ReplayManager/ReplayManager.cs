@@ -2,13 +2,15 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Spines.Hana.Blame.Services.ReplayManager
 {
   internal class ReplayManager
   {
-    public Replay GetReplay(string id)
+    public async Task<Replay> GetReplay(string id)
     {
+      await Task.Delay(1);
       if (null != id && Replays.ContainsKey(id))
       {
         return Replay.Parse(Replays[id]);
