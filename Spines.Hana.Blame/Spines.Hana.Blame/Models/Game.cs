@@ -9,7 +9,8 @@ namespace Spines.Hana.Blame.Models
   /// </summary>
   public class Game
   {
-    public long Id { get; set; }
+    public int Id { get; set; }
+    public int MatchId { get; set; }
     public Match Match { get; set; }
     public int Index { get; set; }
     public int FrameCount { get; set; }

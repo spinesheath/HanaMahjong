@@ -4,6 +4,7 @@
 using System;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Spines.Hana.Blame.Data;
@@ -22,6 +23,7 @@ namespace Spines.Hana.Blame
 
         try
         {
+          scope.ServiceProvider.GetService<ApplicationDbContext>().Database.Migrate();
           services.GetService<IdentityInitializer>().Seed().Wait();
         }
         catch (Exception ex)

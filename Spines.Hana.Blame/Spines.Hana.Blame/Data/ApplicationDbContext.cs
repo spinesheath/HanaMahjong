@@ -18,10 +18,10 @@ namespace Spines.Hana.Blame.Data
     public DbSet<WwydThread> WwydThreads { get; set; }
     public DbSet<Comment> Comments { get; set; }
 
-    //public DbSet<Player> Players { get; set; }
-    //public DbSet<Match> Matchs { get; set; }
-    //public DbSet<Participant> Participants { get; set; }
-    //public DbSet<Game> Games { get; set; }
+    public DbSet<Player> Players { get; set; }
+    public DbSet<Match> Matchs { get; set; }
+    public DbSet<Participant> Participants { get; set; }
+    public DbSet<Game> Games { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -39,31 +39,32 @@ namespace Spines.Hana.Blame.Data
 
 
 
-      //builder.Entity<Player>().ToTable("Player").HasKey(p => p.Id);
-      //builder.Entity<Player>().Property(p => p.Name).IsRequired();
-      //builder.Entity<Player>().HasIndex(p => p.Name).IsUnique();
-      //builder.Entity<Player>().HasMany(p => p.Participants);
+      builder.Entity<Player>().ToTable("Player").HasKey(p => p.Id);
+      builder.Entity<Player>().Property(p => p.Name).HasMaxLength(32).IsRequired();
+      builder.Entity<Player>().HasIndex(p => p.Name).IsUnique();
+      builder.Entity<Player>().HasMany(p => p.Participants);
 
-      //builder.Entity<Match>().ToTable("Match").HasKey(m => m.Id);
-      //builder.Entity<Match>().Property(m => m.ContainerName).IsRequired();
-      //builder.Entity<Match>().Property(m => m.FileName).IsRequired();
-      //builder.Entity<Match>().Property(m => m.Hash).IsRequired();
-      //builder.Entity<Match>().Property(m => m.UploadTime).IsRequired();
-      //builder.Entity<Match>().HasIndex(m => new {m.ContainerName, m.FileName}).IsUnique();
-      //builder.Entity<Match>().HasMany(m => m.Games);
-      //builder.Entity<Match>().HasMany(m => m.Participants);
+      builder.Entity<Match>().ToTable("Match").HasKey(m => m.Id);
+      builder.Entity<Match>().Property(m => m.ContainerName).HasMaxLength(16).IsRequired();
+      builder.Entity<Match>().Property(m => m.FileName).HasMaxLength(64).IsRequired();
+      builder.Entity<Match>().Property(m => m.UploadTime).IsRequired();
+      builder.Entity<Match>().HasIndex(m => new { m.ContainerName, m.FileName }).IsUnique();
+      builder.Entity<Match>().HasMany(m => m.Games);
+      builder.Entity<Match>().HasMany(m => m.Participants);
 
-      //builder.Entity<Participant>().ToTable("Participant");
-      //builder.Entity<Participant>().Property(p => p.Seat).IsRequired();
-      //builder.Entity<Participant>().HasIndex(p => new {p.Player, p.Match}).IsUnique();
-      //builder.Entity<Participant>().HasIndex(p => new {p.Match, p.Seat}).IsUnique();
+      builder.Entity<Participant>().ToTable("Participant").HasKey(p => p.Id);
+      builder.Entity<Participant>().Property(p => p.Seat).IsRequired();
+      builder.Entity<Participant>().Property(p => p.PlayerId).IsRequired();
+      builder.Entity<Participant>().Property(p => p.MatchId).IsRequired();
+      builder.Entity<Participant>().HasIndex(p => new { p.PlayerId, p.MatchId }).IsUnique();
+      builder.Entity<Participant>().HasIndex(p => new { p.MatchId, p.Seat }).IsUnique();
 
-      //builder.Entity<Game>().ToTable("Game");
-      //builder.Entity<Game>().HasKey(g => g.Id);
-      //builder.Entity<Game>().Property(g => g.Match).IsRequired();
-      //builder.Entity<Game>().Property(g => g.Index).IsRequired();
-      //builder.Entity<Game>().Property(g => g.FrameCount).IsRequired();
-      //builder.Entity<Game>().HasIndex(g => new {g.Match, g.Index}).IsUnique();
+      builder.Entity<Game>().ToTable("Game");
+      builder.Entity<Game>().HasKey(g => g.Id);
+      builder.Entity<Game>().Property(g => g.MatchId).IsRequired();
+      builder.Entity<Game>().Property(g => g.Index).IsRequired();
+      builder.Entity<Game>().Property(g => g.FrameCount).IsRequired();
+      builder.Entity<Game>().HasIndex(g => new { g.MatchId, g.Index }).IsUnique();
 
 
 

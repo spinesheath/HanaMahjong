@@ -12,10 +12,9 @@ namespace Spines.Hana.Blame.Models
   /// </summary>
   public class Match
   {
-    public long Id { get; set; }
+    public int Id { get; set; }
     public string FileName { get; set; }
     public string ContainerName { get; set; }
-    public string Hash { get; set; }
     public DateTime UploadTime { get; set; }
     public ICollection<Participant> Participants { get; set; }
     public ICollection<Game> Games { get; set; }

@@ -59,15 +59,10 @@ namespace Spines.Hana.Blame
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IdentityInitializer identityInitializer)
+    public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
     {
       loggerFactory.AddConsole(Configuration.GetSection("Logging"));
       loggerFactory.AddDebug();
-
-      using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-      {
-        scope.ServiceProvider.GetService<ApplicationDbContext>().Database.Migrate();
-      }
 
       if (env.IsDevelopment())
       {
