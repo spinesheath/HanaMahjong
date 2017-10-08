@@ -1,7 +1,6 @@
 ﻿var replayContext;
 var _observedPlayerId;
 var _replay;
-var _replayJson;
 
 function updateHistory(d) {
     const c = window.history.state;
@@ -17,7 +16,7 @@ function onReplayIdChanged(replayId) {
 function loadReplay(d) {
     setValueToInput("#replayId", d.r);
     if (!d.r) {
-        _replayJson = undefined;
+        _replay = undefined;
         setFrameInputData(d);
         updateHistory(d);
         replayContext.createTiles(() => arrange());
@@ -31,7 +30,7 @@ function loadReplay(d) {
         success: function (data, textStatus, xhr2) {
             const r = getReplayId();
             if (xhr2.replayId === r) {
-                _replayJson = data;
+                _replay = parseReplay(data);
                 setFrameInputData(d);
                 updateHistory(d);
                 replayContext.createTiles(() => arrange());
@@ -105,7 +104,7 @@ function getStringFromParams(params, key) {
 }
 
 function arrange() {
-    if (!_replayJson) {
+    if (!_replay) {
         return;
     }
 
@@ -119,10 +118,6 @@ function arrange() {
     }
     _observedPlayerId = playerId;
 
-    if (_replay === undefined) {
-        _replay = parseReplay(_replayJson);
-    }
-    
     if (game < _replay.length && game >= 0) {
         if (frame < _replay[game].frames.length && frame >= 0) {
             arrangeFrame(_replay[game].frames[frame]);
