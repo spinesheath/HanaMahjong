@@ -24,6 +24,9 @@
 {
     <script>
         $(initThreeJS);
-        $(initReplay);
+        $(function () {
+            const url = '@ViewData["StorageUrl"]';
+            initReplay(url);
+        });
     </script>
 }

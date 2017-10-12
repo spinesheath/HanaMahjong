@@ -3,14 +3,19 @@
 
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Auth;
+using Newtonsoft.Json;
 using Spines.Hana.Blame.Data;
 using Spines.Hana.Blame.Models;
 using Spines.Hana.Blame.Services.ReplayManager;
 using Game = Spines.Hana.Blame.Models.Game;
+using Match = Spines.Hana.Blame.Models.Match;
 using Player = Spines.Hana.Blame.Models.Player;
 
 namespace Spines.Hana.Blame.Controllers
@@ -27,13 +32,16 @@ namespace Spines.Hana.Blame.Controllers
     public IActionResult Index()
     {
       ViewData["CopyrightHolder"] = _copyright.CopyrightHolder;
+      ViewData["StorageUrl"] = _storage.StorageUrl;
       return View();
     }
+
+    private static readonly Regex ReplayIdRegex = new Regex(@"\A\d{10}gm-\d{4}-\d{4}-[\da-f]{8}\z");
 
     [HttpGet]
     public async Task<IActionResult> Replay(string replayId)
     {
-      if (string.IsNullOrEmpty(replayId))
+      if (string.IsNullOrEmpty(replayId) || !ReplayIdRegex.IsMatch(replayId))
       {
         return BadRequest();
       }
@@ -64,6 +72,17 @@ namespace Spines.Hana.Blame.Controllers
       {
         var replayManager = new ReplayManager();
         var replay = await replayManager.GetReplay(x.FileName);
+
+        //var json = JsonConvert.SerializeObject(replay);
+
+        //var storageCredentials = new StorageCredentials(_storage.StorageAccountName, _storage.StorageAccountKey);
+        //var cloudStorageAccount = new CloudStorageAccount(storageCredentials, false);
+        //var cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+        //var container = cloudBlobClient.GetContainerReference("tenhoureplays");
+        //var newBlob = container.GetBlockBlobReference(replayId + ".json");
+        //await newBlob.UploadTextAsync(json);
+
+
         return Json(replay);
       }
     }

@@ -17,5 +17,10 @@ namespace Spines.Hana.Blame.Data
     /// Key of the storage account.
     /// </summary>
     public string StorageAccountKey { get; set; }
+
+    /// <summary>
+    /// Url of the storage.
+    /// </summary>
+    public string StorageUrl { get; set; }
   }
 }

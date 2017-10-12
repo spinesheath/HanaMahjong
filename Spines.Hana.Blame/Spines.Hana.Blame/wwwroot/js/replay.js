@@ -1,6 +1,8 @@
 ﻿var replayContext;
 var _observedPlayerId;
 var _replay;
+var _replayIdRegex = /^\d{10}gm-\d{4}-\d{4}-[\da-f]{8}$/;
+var _storageUrl;
 
 function updateHistory(d) {
     const c = window.history.state;
@@ -15,7 +17,7 @@ function onReplayIdChanged(replayId) {
 
 function loadReplay(d) {
     setValueToInput("#replayId", d.r);
-    if (!d.r) {
+    if (!d.r || !_replayIdRegex.test(d.r)) {
         _replay = undefined;
         setFrameInputData(d);
         updateHistory(d);
@@ -23,14 +25,15 @@ function loadReplay(d) {
         return;
     }
 
+    const jsonUrl = `${_storageUrl}${d.r}.json`;
+
     const xhr = $.ajax({
         type: "GET",
-        url: "/Home/Replay",
-        data: { replayId: d.r },
+        url: jsonUrl,
         success: function (data, textStatus, xhr2) {
             const r = getReplayId();
             if (xhr2.replayId === r) {
-                _replay = parseReplay(data);
+                _replay = parseReplay(JSON.parse(data));
                 setFrameInputData(d);
                 updateHistory(d);
                 replayContext.createTiles(() => arrange());
@@ -67,7 +70,9 @@ function setFrameInputData(data) {
     setValueToInput("#frameId", data.f);
 }
 
-function initReplay() {
+function initReplay(storageUrl) {
+    _storageUrl = storageUrl;
+
     window.onpopstate = onPopState;
 
     replayContext = new RenderContext("replayCanvas");
