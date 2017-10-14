@@ -2,6 +2,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -56,7 +57,7 @@ namespace Spines.Hana.Blame.Controllers
     }
 
     private const string TenhouStorageContainerName = "tenhoureplays";
-    private static readonly Regex ReplayIdRegex = new Regex(@"\A\d{10}gm-\d{4}-\d{4}-[\da-f]{8}\z");
+    private static readonly Regex ReplayIdRegex = new Regex(@"\A(\d{10})gm-\d{4}-\d{4}-[\da-f]{8}\z");
     private readonly ApplicationDbContext _context;
     private readonly StorageOptions _storage;
 
@@ -68,6 +69,7 @@ namespace Spines.Hana.Blame.Controllers
       match.ContainerName = TenhouStorageContainerName;
       match.FileName = replayId;
       match.UploadTime = DateTime.UtcNow;
+      match.CreationTime = GetReplayCreationTIme(replayId);
       await _context.Matches.AddAsync(match);
       await _context.SaveChangesAsync();
     }
@@ -92,6 +94,19 @@ namespace Spines.Hana.Blame.Controllers
     {
       var p = await _context.Players.FirstOrDefaultAsync(x => x.Name == player.Name);
       return p ?? (await _context.Players.AddAsync(new Player {Name = player.Name})).Entity;
+    }
+
+    /// <summary>
+    /// The first 10 characters of the replayId defined the hour the match was played, in japanese time.
+    /// </summary>
+    /// <param name="replayId">The ID of the replay.</param>
+    /// <returns>The time the replay was created, in UTC.</returns>
+    private static DateTime GetReplayCreationTIme(string replayId)
+    {
+      var timeString = ReplayIdRegex.Match(replayId).Groups[1].Value;
+      var dateTime = DateTime.ParseExact(timeString, "yyyyMMddhh", CultureInfo.InvariantCulture);
+      var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time");
+      return TimeZoneInfo.ConvertTimeToUtc(dateTime, timeZone);
     }
   }
 }

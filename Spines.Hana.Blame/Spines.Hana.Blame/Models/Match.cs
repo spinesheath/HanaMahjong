@@ -26,6 +26,7 @@ namespace Spines.Hana.Blame.Models
     public int Id { get; set; }
     public string FileName { get; set; }
     public string ContainerName { get; set; }
+    public DateTime CreationTime { get; set; }
     public DateTime UploadTime { get; set; }
     public ICollection<Participant> Participants { get; } = new List<Participant>();
     public ICollection<Game> Games { get; } = new List<Game>();

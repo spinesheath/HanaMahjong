@@ -48,6 +48,7 @@ namespace Spines.Hana.Blame.Data
       builder.Entity<Match>().Property(m => m.ContainerName).HasMaxLength(16).IsRequired();
       builder.Entity<Match>().Property(m => m.FileName).HasMaxLength(64).IsRequired();
       builder.Entity<Match>().Property(m => m.UploadTime).IsRequired();
+      builder.Entity<Match>().Property(m => m.CreationTime).IsRequired();
       builder.Entity<Match>().HasIndex(m => new { m.ContainerName, m.FileName }).IsUnique();
       builder.Entity<Match>().HasMany(m => m.Games);
       builder.Entity<Match>().HasMany(m => m.Participants);
