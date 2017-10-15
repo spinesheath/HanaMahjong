@@ -67,6 +67,9 @@ namespace Spines.Hana.Blame.Controllers
       var rulesName = replay.Rules.Name;
       var ruleSet = await _context.RuleSets.FirstAsync(r => r.Name == rulesName);
 
+      var roomName = replay.Room.Name;
+      var room = await _context.Rooms.FirstAsync(r => r.Name == roomName);
+
       var seat = 0;
       var participants = new List<Participant>();
       foreach (var player in replay.Players)
@@ -83,6 +86,7 @@ namespace Spines.Hana.Blame.Controllers
       match.UploadTime = DateTime.UtcNow;
       match.CreationTime = GetReplayCreationTIme(replayId);
       match.RuleSet = ruleSet;
+      match.Room = room;
       await _context.Matches.AddAsync(match);
       await _context.SaveChangesAsync();
     }

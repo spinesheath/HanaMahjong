@@ -26,6 +26,7 @@ namespace Spines.Hana.Blame
           scope.ServiceProvider.GetService<ApplicationDbContext>().Database.Migrate();
           services.GetService<IdentityInitializer>().Seed().Wait();
           services.GetService<RuleSetInitializer>().Seed().Wait();
+          services.GetService<RoomInitializer>().Seed().Wait();
         }
         catch (Exception ex)
         {

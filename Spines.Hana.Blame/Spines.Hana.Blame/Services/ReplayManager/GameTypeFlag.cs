@@ -5,6 +5,13 @@ using System;
 
 namespace Spines.Hana.Blame.Services.ReplayManager
 {
+  /// <summary>
+  ///         |  Expert | Advanced
+  /// Ippan   |  0      | 0
+  /// Joukyuu |  0      | 1
+  /// Tokujou |  1      | 0
+  /// Houou   |  1      | 1
+  /// </summary>
   [Flags]
   internal enum GameTypeFlag
   {

@@ -89,7 +89,11 @@ namespace Spines.Hana.Blame.Services.ReplayManager
         return null;
       }
 
-      result.Room = GetRoom(flags);
+      result.Room = Room.Parse(flags);
+      if (result.Room == null)
+      {
+        return null;
+      }
 
       var un = xElement.Element("UN");
       var names = GetUserNames(un).ToList();
@@ -319,15 +323,6 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     private static decimal ToDecimal(string value)
     {
       return Convert.ToDecimal(value, CultureInfo.InvariantCulture);
-    }
-
-    private static Room GetRoom(GameTypeFlag flags)
-    {
-      if (flags.HasFlag(GameTypeFlag.Advanced))
-      {
-        return flags.HasFlag(GameTypeFlag.Expert) ? Room.Phoenix : Room.LowerDan;
-      }
-      return flags.HasFlag(GameTypeFlag.Expert) ? Room.UpperDan : Room.General;
     }
 
     /// <summary>

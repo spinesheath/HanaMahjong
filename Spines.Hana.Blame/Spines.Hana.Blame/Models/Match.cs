@@ -32,5 +32,7 @@ namespace Spines.Hana.Blame.Models
     public ICollection<Game> Games { get; } = new List<Game>();
     public int RuleSetId { get; set; }
     public RuleSet RuleSet { get; set; }
+    public int RoomId { get; set; }
+    public Room Room { get; set; }
   }
 }

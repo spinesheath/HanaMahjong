@@ -52,6 +52,7 @@ namespace Spines.Hana.Blame
       services.AddTransient<ISmsSender, AuthMessageSender>();
       services.AddTransient<IdentityInitializer>();
       services.AddTransient<RuleSetInitializer>();
+      services.AddTransient<RoomInitializer>();
 
       services.Configure<AuthMessageSenderOptions>(Configuration);
       services.Configure<InitializeIdentityOptions>(Configuration);
