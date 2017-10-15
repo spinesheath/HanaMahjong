@@ -1,6 +1,7 @@
 // This file is licensed to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Spines.Hana.Blame.Services.ReplayManager
@@ -8,6 +9,12 @@ namespace Spines.Hana.Blame.Services.ReplayManager
   [DataContract]
   internal class RuleSet
   {
+    /// <summary>
+    /// Name of the rule set.
+    /// </summary>
+    [DataMember(Name = "name")]
+    public string Name { get; }
+
     /// <summary>
     /// Are there aka dora?
     /// </summary>
@@ -42,15 +49,19 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     /// How often the dealer position goes around the table in a regular game.
     /// </summary>
     [DataMember(Name = "rounds")]
-    public int Rounds { get; set; }
+    public int Rounds { get; }
+
+    public static IEnumerable<RuleSet> RuleSets => AllRuleSets.Values;
 
     public static RuleSet Parse(GameTypeFlag flags)
     {
-      return new RuleSet(flags);
+      return AllRuleSets.ContainsKey(flags) ? AllRuleSets[flags] : null;
     }
 
-    private RuleSet(GameTypeFlag flags)
+    private RuleSet(GameTypeFlag flags, string name)
     {
+      _flags = flags;
+      Name = name;
       Aka = !flags.HasFlag(GameTypeFlag.AkaNashi);
       Kuitan = !flags.HasFlag(GameTypeFlag.KuitanNashi);
       Rounds = flags.HasFlag(GameTypeFlag.Tonnansen) ? 2 : 1;
@@ -66,5 +77,14 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       }
       PlayerCount = flags.HasFlag(GameTypeFlag.Sanma) ? 3 : 4;
     }
+
+    private readonly GameTypeFlag _flags;
+
+    private static readonly RuleSet TenhouAriAri = new RuleSet(GameTypeFlag.Multiplayer | GameTypeFlag.Tonnansen, nameof(TenhouAriAri));
+
+    private static readonly Dictionary<GameTypeFlag, RuleSet> AllRuleSets = new Dictionary<GameTypeFlag, RuleSet>
+    {
+      {TenhouAriAri._flags, TenhouAriAri}
+    };
   }
 }

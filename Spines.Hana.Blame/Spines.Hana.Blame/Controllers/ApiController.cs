@@ -64,6 +64,9 @@ namespace Spines.Hana.Blame.Controllers
 
     private async Task SaveToDatabase(string replayId, Replay replay)
     {
+      var rulesName = replay.Rules.Name;
+      var ruleSet = await _context.RuleSets.FirstAsync(r => r.Name == rulesName);
+
       var seat = 0;
       var participants = new List<Participant>();
       foreach (var player in replay.Players)
@@ -72,12 +75,14 @@ namespace Spines.Hana.Blame.Controllers
         participants.Add(new Participant {Seat = seat, Player = p});
         seat += 1;
       }
+
       var games = replay.Games.Select((g, i) => new Game {Index = i, FrameCount = g.Actions.Count});
       var match = new Match(games, participants);
       match.ContainerName = TenhouStorageContainerName;
       match.FileName = replayId;
       match.UploadTime = DateTime.UtcNow;
       match.CreationTime = GetReplayCreationTIme(replayId);
+      match.RuleSet = ruleSet;
       await _context.Matches.AddAsync(match);
       await _context.SaveChangesAsync();
     }

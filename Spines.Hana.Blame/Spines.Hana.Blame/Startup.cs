@@ -51,6 +51,7 @@ namespace Spines.Hana.Blame
       services.AddTransient<IEmailSender, AuthMessageSender>();
       services.AddTransient<ISmsSender, AuthMessageSender>();
       services.AddTransient<IdentityInitializer>();
+      services.AddTransient<RuleSetInitializer>();
 
       services.Configure<AuthMessageSenderOptions>(Configuration);
       services.Configure<InitializeIdentityOptions>(Configuration);

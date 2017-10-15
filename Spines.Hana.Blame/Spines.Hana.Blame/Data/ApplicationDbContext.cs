@@ -22,6 +22,7 @@ namespace Spines.Hana.Blame.Data
     public DbSet<Match> Matches { get; set; }
     public DbSet<Participant> Participants { get; set; }
     public DbSet<Game> Games { get; set; }
+    public DbSet<RuleSet> RuleSets { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -49,6 +50,7 @@ namespace Spines.Hana.Blame.Data
       builder.Entity<Match>().Property(m => m.FileName).HasMaxLength(64).IsRequired();
       builder.Entity<Match>().Property(m => m.UploadTime).IsRequired();
       builder.Entity<Match>().Property(m => m.CreationTime).IsRequired();
+      builder.Entity<Match>().Property(m => m.RuleSetId).IsRequired();
       builder.Entity<Match>().HasIndex(m => new { m.ContainerName, m.FileName }).IsUnique();
       builder.Entity<Match>().HasMany(m => m.Games);
       builder.Entity<Match>().HasMany(m => m.Participants);
@@ -67,7 +69,16 @@ namespace Spines.Hana.Blame.Data
       builder.Entity<Game>().Property(g => g.FrameCount).IsRequired();
       builder.Entity<Game>().HasIndex(g => new { g.MatchId, g.Index }).IsUnique();
 
-
+      builder.Entity<RuleSet>().ToTable("RuleSet");
+      builder.Entity<RuleSet>().HasKey(r => r.Id);
+      builder.Entity<RuleSet>().Property(r => r.Aka).IsRequired();
+      builder.Entity<RuleSet>().Property(r => r.ExtraSecondsPerGame).IsRequired();
+      builder.Entity<RuleSet>().Property(r => r.Kuitan).IsRequired();
+      builder.Entity<RuleSet>().Property(r => r.Name).HasMaxLength(64).IsRequired();
+      builder.Entity<RuleSet>().Property(r => r.PlayerCount).IsRequired();
+      builder.Entity<RuleSet>().Property(r => r.Rounds).IsRequired();
+      builder.Entity<RuleSet>().Property(r => r.SecondsPerAction).IsRequired();
+      builder.Entity<RuleSet>().HasIndex(r => r.Name).IsUnique();
 
       base.OnModelCreating(builder);
     }

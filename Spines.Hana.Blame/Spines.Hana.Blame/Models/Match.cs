@@ -30,5 +30,7 @@ namespace Spines.Hana.Blame.Models
     public DateTime UploadTime { get; set; }
     public ICollection<Participant> Participants { get; } = new List<Participant>();
     public ICollection<Game> Games { get; } = new List<Game>();
+    public int RuleSetId { get; set; }
+    public RuleSet RuleSet { get; set; }
   }
 }
