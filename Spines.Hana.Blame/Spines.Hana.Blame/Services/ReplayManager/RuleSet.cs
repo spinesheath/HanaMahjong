@@ -55,7 +55,8 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
     public static RuleSet Parse(GameTypeFlag flags)
     {
-      return AllRuleSets.ContainsKey(flags) ? AllRuleSets[flags] : null;
+      var relevantFlags = flags & RelevantFlags;
+      return AllRuleSets.ContainsKey(relevantFlags) ? AllRuleSets[relevantFlags] : null;
     }
 
     private RuleSet(GameTypeFlag flags, string name)
@@ -78,9 +79,11 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       PlayerCount = flags.HasFlag(GameTypeFlag.Sanma) ? 3 : 4;
     }
 
+    private const GameTypeFlag RelevantFlags = GameTypeFlag.AkaNashi | GameTypeFlag.Fast | GameTypeFlag.KuitanNashi | GameTypeFlag.Sanma | GameTypeFlag.Tonnansen;
+
     private readonly GameTypeFlag _flags;
 
-    private static readonly RuleSet TenhouAriAri = new RuleSet(GameTypeFlag.Multiplayer | GameTypeFlag.Tonnansen, nameof(TenhouAriAri));
+    private static readonly RuleSet TenhouAriAri = new RuleSet(GameTypeFlag.Tonnansen, nameof(TenhouAriAri));
 
     private static readonly Dictionary<GameTypeFlag, RuleSet> AllRuleSets = new Dictionary<GameTypeFlag, RuleSet>
     {

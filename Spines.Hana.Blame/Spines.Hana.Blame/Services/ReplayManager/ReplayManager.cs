@@ -15,7 +15,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       {
         return Replay.Parse(Replays[id]);
       }
-      return Replay.Parse(AddedKanData);
+      return null;
     }
 
     private static readonly Dictionary<string, string> Replays = new Dictionary<string, string>

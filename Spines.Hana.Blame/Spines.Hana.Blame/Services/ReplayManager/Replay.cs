@@ -277,7 +277,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     private static int GetRyuukyokuId(XElement element)
     {
       var ryuukyouType = element.Attribute("type")?.Value;
-      return RyuukyokuTypeIds.ContainsKey(ryuukyouType) ? RyuukyokuTypeIds[ryuukyouType] : Ids.ExhaustiveDraw;
+      return ryuukyouType == null ? Ids.ExhaustiveDraw : RyuukyokuTypeIds[ryuukyouType];
     }
 
     private static IEnumerable<List<int>> GetStartingHands(XElement element)
