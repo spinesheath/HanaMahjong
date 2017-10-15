@@ -34,5 +34,6 @@ namespace Spines.Hana.Blame.Models
     public RuleSet RuleSet { get; set; }
     public int RoomId { get; set; }
     public Room Room { get; set; }
+    public string Lobby { get; set; }
   }
 }

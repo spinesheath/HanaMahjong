@@ -75,7 +75,21 @@ namespace Spines.Hana.Blame.Controllers
       foreach (var player in replay.Players)
       {
         var p = await GetOrCreatePlayer(player.Name);
-        participants.Add(new Participant {Seat = seat, Player = p});
+        var points = replay.Owari.Points[seat];
+        var score = replay.Owari.Scores[seat];
+        var placement = replay.Owari.Points.Count(x => x > points) + 1;
+        var participant = new Participant
+        {
+          Seat = seat,
+          Player = p,
+          Score = score,
+          Points = points,
+          Placement = placement,
+          Rank = player.Rank,
+          Rate = player.Rate,
+          Gender = player.Gender
+        };
+        participants.Add(participant);
         seat += 1;
       }
 
@@ -87,6 +101,7 @@ namespace Spines.Hana.Blame.Controllers
       match.CreationTime = GetReplayCreationTIme(replayId);
       match.RuleSet = ruleSet;
       match.Room = room;
+      match.Lobby = replay.Lobby;
       await _context.Matches.AddAsync(match);
       await _context.SaveChangesAsync();
     }

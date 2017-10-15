@@ -53,6 +53,7 @@ namespace Spines.Hana.Blame.Data
       builder.Entity<Match>().Property(m => m.CreationTime).IsRequired();
       builder.Entity<Match>().Property(m => m.RuleSetId).IsRequired();
       builder.Entity<Match>().Property(m => m.RoomId).IsRequired();
+      builder.Entity<Match>().Property(m => m.Lobby).HasMaxLength(16).IsRequired();
       builder.Entity<Match>().HasIndex(m => new { m.ContainerName, m.FileName }).IsUnique();
       builder.Entity<Match>().HasMany(m => m.Games);
       builder.Entity<Match>().HasMany(m => m.Participants);
@@ -61,6 +62,12 @@ namespace Spines.Hana.Blame.Data
       builder.Entity<Participant>().Property(p => p.Seat).IsRequired();
       builder.Entity<Participant>().Property(p => p.PlayerId).IsRequired();
       builder.Entity<Participant>().Property(p => p.MatchId).IsRequired();
+      builder.Entity<Participant>().Property(p => p.Points).IsRequired();
+      builder.Entity<Participant>().Property(p => p.Score).IsRequired();
+      builder.Entity<Participant>().Property(p => p.Placement).IsRequired();
+      builder.Entity<Participant>().Property(p => p.Rank).IsRequired();
+      builder.Entity<Participant>().Property(p => p.Rate).IsRequired();
+      builder.Entity<Participant>().Property(p => p.Gender).HasMaxLength(16).IsRequired();
       builder.Entity<Participant>().HasIndex(p => new { p.PlayerId, p.MatchId }).IsUnique();
       builder.Entity<Participant>().HasIndex(p => new { p.MatchId, p.Seat }).IsUnique();
 
@@ -76,7 +83,7 @@ namespace Spines.Hana.Blame.Data
       builder.Entity<RuleSet>().Property(r => r.Aka).IsRequired();
       builder.Entity<RuleSet>().Property(r => r.ExtraSecondsPerGame).IsRequired();
       builder.Entity<RuleSet>().Property(r => r.Kuitan).IsRequired();
-      builder.Entity<RuleSet>().Property(r => r.Name).HasMaxLength(64).IsRequired();
+      builder.Entity<RuleSet>().Property(r => r.Name).HasMaxLength(32).IsRequired();
       builder.Entity<RuleSet>().Property(r => r.PlayerCount).IsRequired();
       builder.Entity<RuleSet>().Property(r => r.Rounds).IsRequired();
       builder.Entity<RuleSet>().Property(r => r.SecondsPerAction).IsRequired();
@@ -84,7 +91,7 @@ namespace Spines.Hana.Blame.Data
 
       builder.Entity<Room>().ToTable("Room");
       builder.Entity<Room>().HasKey(r => r.Id);
-      builder.Entity<Room>().Property(r => r.Name).HasMaxLength(64).IsRequired();
+      builder.Entity<Room>().Property(r => r.Name).HasMaxLength(16).IsRequired();
       builder.Entity<Room>().HasIndex(r => r.Name).IsUnique();
 
       base.OnModelCreating(builder);

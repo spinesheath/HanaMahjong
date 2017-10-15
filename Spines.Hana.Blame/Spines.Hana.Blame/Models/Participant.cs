@@ -10,10 +10,16 @@ namespace Spines.Hana.Blame.Models
   public class Participant
   {
     public int Id { get; set; }
+    public int Score { get; set; }
+    public decimal Points { get; set; }
     public int PlayerId { get; set; }
     public Player Player { get; set; }
     public int MatchId { get; set; }
     public Match Match { get; set; }
     public int Seat { get; set; }
+    public int Placement { get; set; }
+    public int Rank { get; set; }
+    public decimal Rate { get; set; }
+    public string Gender { get; set; }
   }
 }
