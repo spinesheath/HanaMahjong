@@ -9,6 +9,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Spines.Hana.Blame.Utility;
 
 namespace Spines.Hana.Blame.Services.ReplayManager
 {
@@ -23,6 +24,9 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
     [DataMember(Name = "rules")]
     public RuleSet Rules { get; private set; }
+
+    [DataMember(Name = "owari")]
+    public Owari Owari { get; } = new Owari();
 
     [DataMember(Name = "games")]
     public IReadOnlyList<Game> Games { get; private set; }
@@ -48,7 +52,6 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
     private static readonly Regex DiscardRegex = new Regex(@"([DEFG])(\d{1,3})");
     private static readonly Regex DrawRegex = new Regex(@"([TUVW])(\d{1,3})");
-
     private static readonly Dictionary<MeldType, int> MeldTypeIds = new Dictionary<MeldType, int>
     {
       {MeldType.Koutsu, Ids.Pon},
@@ -57,13 +60,21 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       {MeldType.CalledKan, Ids.CalledKan},
       {MeldType.AddedKan, Ids.AddedKan}
     };
+    private static readonly Dictionary<string, int> RyuukyokuTypeIds = new Dictionary<string, int>
+    {
+      {RyuukyokuTypes.FourKan, Ids.FourKan},
+      {RyuukyokuTypes.FourRiichi, Ids.FourRiichi},
+      {RyuukyokuTypes.FourWind, Ids.FourWind},
+      {RyuukyokuTypes.NagashiMangan, Ids.NagashiMangan},
+      {RyuukyokuTypes.NineYaochuuHai, Ids.NineYaochuuHai},
+      {RyuukyokuTypes.ThreeRon, Ids.ThreeRon}
+    };
 
     private static Replay ParseInternal(string xml)
     {
       var result = new Replay();
       var xElement = XElement.Parse(xml);
       var games = new List<Game>();
-      var gameIndex = 0;
 
       var shuffle = xElement.Element("SHUFFLE");
       var seed = shuffle?.Attribute("seed")?.Value;
@@ -123,7 +134,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
           else
           {
             var index = hands[playerId].OrderBy(x => x).ToList().IndexOf(tileId);
-            game.Actions.Add(Ids.DiscardOffset + index);
+            game.Actions.Add(index);
           }
           hands[playerId].Remove(tileId);
           continue;
@@ -131,55 +142,107 @@ namespace Spines.Hana.Blame.Services.ReplayManager
         switch (name)
         {
           case "SHUFFLE":
-          case "UN":
           case "TAIKYOKU":
           case "GO":
+            break;
           case "BYE":
+            game.Actions.Add(Ids.DisconnectBase + ToInt(e.Attribute("who")?.Value));
+            break;
+          case "UN":
+            foreach (var i in Enumerable.Range(0, 4))
+            {
+              if (e.Attribute($"n{i}") == null)
+              {
+                continue;
+              }
+              game.Actions.Add(Ids.ReconnectBase + i);
+            }
             break;
           case "DORA":
             game.Actions.Add(Ids.Dora);
             break;
           case "INIT":
             game = new Game();
-            games.Add(game);
-            game.Wall.AddRange(generator.GetWall(gameIndex));
-            game.Dice.AddRange(generator.GetDice(gameIndex));
+            
+            game.Wall.AddRange(generator.GetWall(games.Count));
+            game.Dice.AddRange(generator.GetDice(games.Count));
             game.Oya = ToInt(e.Attribute("oya")?.Value);
             game.Scores.AddRange(ToInts(e.Attribute("ten")?.Value));
-            hands = GetStartingHands(e).ToList();
-            gameIndex += 1;
+
+            // (round indicator), (honba), (riichi sticks), (dice0), (dice1), (dora indicator)
+            var gameSeed = ToInts(e.Attribute("seed")?.Value).ToList();
+            game.Round = gameSeed[0];
+            game.Honba = gameSeed[1];
+            game.Riichi = gameSeed[2];
+
+            if (games.Count > 1)
+            {
+              var prev = games[games.Count - 1];
+              if (prev.Round == game.Round)
+              {
+                game.Repetition = prev.Repetition + 1;
+              }
+            }
+
+            games.Add(game);
+
             upcomingRinshan = false;
-            break;
-          case "AGARI":
-            game.Actions.Add(Ids.Agari);
-            game.Actions.Add(ToInt(e.Attribute("who")?.Value));
-            game.Actions.Add(ToInt(e.Attribute("fromWho")?.Value));
+            hands = GetStartingHands(e).ToList();
+
             break;
           case "N":
+          {
             var decoder = new MeldDecoder(e.Attribute("m")?.Value);
-            if (IsKan(decoder.MeldType))
-            {
-              upcomingRinshan = true;
-            }
+
             game.Actions.Add(MeldTypeIds[decoder.MeldType]);
-            game.Actions.AddRange(decoder.Tiles);
+            var call = new Call();
+            call.Tiles.AddRange(decoder.Tiles);
+            game.Calls.Add(call);
 
             var who = ToInt(e.Attribute("who")?.Value);
             hands[who].RemoveAll(t => decoder.Tiles.Contains(t));
+            upcomingRinshan = IsKan(decoder.MeldType);
             break;
+          }
           case "REACH":
             var step = e.Attribute("step")?.Value;
-            if (step == "1")
-            {
-              game.Actions.Add(Ids.Riichi);
-            }
-            else
-            {
-              game.Actions.Add(Ids.RiichiPayment);
-            }
+            game.Actions.Add(step == "1" ? Ids.Riichi : Ids.RiichiPayment);
             break;
+          case "AGARI":
+          {
+            var who = ToInt(e.Attribute("who")?.Value);
+            var fromWho = ToInt(e.Attribute("fromWho")?.Value);
+
+            game.Actions.Add(who == fromWho ? Ids.Tsumo : Ids.Ron);
+
+            // Alternating list of yaku ID and yaku value.
+            var yakuAndHan = ToInts(e.Attribute("yaku")?.Value).ToList();
+
+            var agari = new Agari();
+            agari.Winner = who;
+            agari.From = fromWho;
+            agari.Fu = ToInts(e.Attribute("ten")?.Value).First();
+            agari.ScoreChanges.AddRange(ToInts(e.Attribute("sc")?.Value).Stride(2, 1));
+            for (var i = 0; i < yakuAndHan.Count; i += 2)
+            {
+              agari.Yaku.Add(new Yaku { Id = yakuAndHan[i], Han = yakuAndHan[i + 1] });
+            }
+
+            game.Agaris.Add(agari);
+
+            AddOwari(result, e);
+
+            break;
+          }
           case "RYUUKYOKU":
-            game.Actions.Add(Ids.Ryuukyoku);
+            game.Actions.Add(GetRyuukyokuId(e));
+
+            var ryuukyoku = new Ryuukyoku();
+            ryuukyoku.ScoreChanges.AddRange(ToInts(e.Attribute("sc")?.Value).Stride(2, 1));
+            ryuukyoku.Revealed.AddRange(GetRevealedHands(e));
+
+            AddOwari(result, e);
+
             break;
           default:
             throw new NotImplementedException();
@@ -187,6 +250,29 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       }
       result.Games = games;
       return result;
+    }
+
+    private static void AddOwari(Replay replay, XElement element)
+    {
+      var attribute = element.Attribute("owari");
+      if (attribute == null)
+      {
+        return;
+      }
+      var values = attribute.Value.Split(',');
+      replay.Owari.Scores.AddRange(values.Stride(2).Select(ToInt));
+      replay.Owari.Points.AddRange(values.Stride(2, 1).Select(ToDecimal));
+    }
+
+    private static IEnumerable<bool> GetRevealedHands(XElement e)
+    {
+      return Enumerable.Range(0, 4).Select(i => e.Attribute($"hai{i}") != null);
+    }
+
+    private static int GetRyuukyokuId(XElement element)
+    {
+      var ryuukyouType = element.Attribute("type")?.Value;
+      return RyuukyokuTypeIds.ContainsKey(ryuukyouType) ? RyuukyokuTypeIds[ryuukyouType] : Ids.ExhaustiveDraw;
     }
 
     private static IEnumerable<List<int>> GetStartingHands(XElement element)
@@ -201,11 +287,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
     private static string DecodeName(string encodedName)
     {
-      if (encodedName.Length == 0)
-      {
-        return encodedName;
-      }
-      if (encodedName[0] != '%')
+      if (encodedName.Length == 0 || encodedName[0] != '%')
       {
         return encodedName;
       }
@@ -243,22 +325,51 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       return flags.HasFlag(GameTypeFlag.Expert) ? Room.UpperDan : Room.General;
     }
 
+    /// <summary>
+    /// Ids for events during a match. 0-12 are used for discards, defining the index of the discard in a sorted hand.
+    /// </summary>
     private struct Ids
     {
-      public const int Draw = 0;
-      public const int Tsumogiri = 1;
-      public const int DiscardOffset = 2;
-      public const int Agari = 50;
-      public const int Ryuukyoku = 51;
-      public const int Riichi = 52;
-      public const int RiichiPayment = 60;
-      public const int Dora = 53;
-      public const int Rinshan = 54;
-      public const int Pon = 55;
-      public const int Chii = 56;
-      public const int ClosedKan = 57;
-      public const int CalledKan = 58;
-      public const int AddedKan = 59;
+      public const int Draw = 40;
+      public const int Tsumogiri = 41;
+
+      public const int Ron = 50;
+      public const int Tsumo = 51;
+
+      public const int ExhaustiveDraw = 60;
+      public const int NineYaochuuHai = 61;
+      public const int FourRiichi = 62;
+      public const int ThreeRon = 63;
+      public const int FourKan = 64;
+      public const int FourWind = 65;
+      public const int NagashiMangan = 66;
+
+      public const int Pon = 70;
+      public const int Chii = 71;
+      public const int ClosedKan = 72;
+      public const int CalledKan = 73;
+      public const int AddedKan = 74;
+
+      public const int Dora = 80;
+      public const int Rinshan = 81;
+      public const int Riichi = 82;
+      public const int RiichiPayment = 83;
+
+      // If player n disconnects, the id is this + n.
+      public const int DisconnectBase = 90;
+
+      // If player n reconnects, the id is this + n.
+      public const int ReconnectBase = 94;
+    }
+
+    private struct RyuukyokuTypes
+    {
+      public const string NineYaochuuHai = "yao9";
+      public const string FourRiichi = "reach4";
+      public const string ThreeRon = "ron3";
+      public const string FourKan = "kan4";
+      public const string FourWind = "kaze4";
+      public const string NagashiMangan = "nm";
     }
   }
 }

@@ -1,13 +1,16 @@
 // This file is licensed to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Runtime.Serialization;
+
 namespace Spines.Hana.Blame.Services.ReplayManager
 {
+  [DataContract]
   internal class RuleSet
   {
-    public static RuleSet Parse(GameTypeFlag goElement)
+    public static RuleSet Parse(GameTypeFlag flags)
     {
-      return new RuleSet(goElement);
+      return new RuleSet(flags);
     }
 
     private RuleSet(GameTypeFlag flags)

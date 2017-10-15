@@ -2,6 +2,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -63,7 +64,14 @@ namespace Spines.Hana.Blame.Controllers
 
     private async Task SaveToDatabase(string replayId, Replay replay)
     {
-      var participants = await Task.WhenAll(replay.Players.Select(async (p, i) => new Participant {Seat = i, Player = await GetOrCreatePlayer(p)}));
+      var seat = 0;
+      var participants = new List<Participant>();
+      foreach (var player in replay.Players)
+      {
+        var p = await GetOrCreatePlayer(player.Name);
+        participants.Add(new Participant {Seat = seat, Player = p});
+        seat += 1;
+      }
       var games = replay.Games.Select((g, i) => new Game {Index = i, FrameCount = g.Actions.Count});
       var match = new Match(games, participants);
       match.ContainerName = TenhouStorageContainerName;
@@ -72,6 +80,12 @@ namespace Spines.Hana.Blame.Controllers
       match.CreationTime = GetReplayCreationTIme(replayId);
       await _context.Matches.AddAsync(match);
       await _context.SaveChangesAsync();
+    }
+
+    private async Task<Player> GetOrCreatePlayer(string name)
+    {
+      var p = await _context.Players.FirstOrDefaultAsync(x => x.Name == name);
+      return p ?? (await _context.Players.AddAsync(new Player {Name = name})).Entity;
     }
 
     private async Task SaveToStorage(string replayId, Replay replay)
@@ -90,12 +104,6 @@ namespace Spines.Hana.Blame.Controllers
       return await _context.Matches.AnyAsync(m => m.ContainerName == TenhouStorageContainerName && m.FileName == replayId);
     }
 
-    private async Task<Player> GetOrCreatePlayer(Services.ReplayManager.Player player)
-    {
-      var p = await _context.Players.FirstOrDefaultAsync(x => x.Name == player.Name);
-      return p ?? (await _context.Players.AddAsync(new Player {Name = player.Name})).Entity;
-    }
-
     /// <summary>
     /// The first 10 characters of the replayId defined the hour the match was played, in japanese time.
     /// </summary>
@@ -104,7 +112,7 @@ namespace Spines.Hana.Blame.Controllers
     private static DateTime GetReplayCreationTIme(string replayId)
     {
       var timeString = ReplayIdRegex.Match(replayId).Groups[1].Value;
-      var dateTime = DateTime.ParseExact(timeString, "yyyyMMddhh", CultureInfo.InvariantCulture);
+      var dateTime = DateTime.ParseExact(timeString, "yyyyMMddHH", CultureInfo.InvariantCulture);
       var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time");
       return TimeZoneInfo.ConvertTimeToUtc(dateTime, timeZone);
     }

@@ -14,20 +14,33 @@ const tileHeight = 1.28;
 const gap = 0.2;
 
 const _ids = {
-    draw: 0,
-    tsumogiri: 1,
-    discardOffset: 2,
-    agari: 50,
-    ryuukyoku: 51,
-    riichi: 52,
-    riichiPayment: 60,
-    dora: 53,
-    rinshan: 54,
-    pon: 55,
-    chii: 56,
-    closedKan: 57,
-    calledKan: 58,
-    addedKan: 59
+    draw: 40,
+    tsumogiri: 41,
+
+    ron: 50,
+    tsumo: 51,
+
+    exhaustiveDraw: 60,
+    nineYaochuuHai: 61,
+    fourRiichi: 62,
+    threeRon: 63,
+    fourKan: 64,
+    fourWind: 65,
+    nagashiMangan: 66,
+
+    pon: 70,
+    chii: 71,
+    closedKan: 72,
+    calledKan: 73,
+    addedKan: 74,
+
+    dora: 80,
+    rinshan: 81,
+    riichi: 82,
+    riichiPayment: 83,
+
+    disconnectBase: 90,
+    reconnectBase: 94
 };
 
 const _tilePlacement = {

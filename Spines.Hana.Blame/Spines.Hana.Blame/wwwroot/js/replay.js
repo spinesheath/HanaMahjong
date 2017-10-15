@@ -161,7 +161,8 @@ function createInitialPlayer(s) {
     return {
         riichi: false,
         payment: undefined,
-        score: s
+        score: s,
+        disconnected: false
     };
 }
 
@@ -201,6 +202,8 @@ function parseReplay(data) {
         let previousFrame = setupFrame;
         const decisions = gameData.actions;
         const decisionCount = decisions.length;
+        let callCount = 0;
+        let agariCount = 0;
         for (let decisionId = 0; decisionId < decisionCount; decisionId++) {
             const decision = decisions[decisionId];
 
@@ -212,43 +215,47 @@ function parseReplay(data) {
                 const frame = createTsumogiriFrame(previousFrame, decision);
                 game.frames.push(frame);
                 previousFrame = frame;
-            } else if (decision > 1 && decision < 50) {
-                const frame = createDiscardFrame(previousFrame, decision - _ids.discardOffset);
+            } else if (decision < 20) {
+                const frame = createDiscardFrame(previousFrame, decision);
                 game.frames.push(frame);
                 previousFrame = frame;
             } else if (decision === _ids.pon) {
-                const frames = createCallFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 4), announcements.pon);
+                const tiles = gameData.calls[callCount].tiles;
+                callCount += 1;
+                const frames = createCallFrames(previousFrame, tiles, announcements.pon);
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
-                decisionId += 3;
             } else if (decision === _ids.chii) {
-                const frames = createCallFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 4), announcements.chii);
+                const tiles = gameData.calls[callCount].tiles;
+                callCount += 1;
+                const frames = createCallFrames(previousFrame, tiles, announcements.chii);
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
-                decisionId += 3;
             } else if (decision === _ids.calledKan) {
-                const frames = createCallFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 5), announcements.kan);
+                const tiles = gameData.calls[callCount].tiles;
+                callCount += 1;
+                const frames = createCallFrames(previousFrame, tiles, announcements.kan);
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
-                decisionId += 4;
             } else if (decision === _ids.closedKan) {
-                const frames = createClosedKanFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 5), announcements.kan);
+                const tiles = gameData.calls[callCount].tiles;
+                callCount += 1;
+                const frames = createClosedKanFrames(previousFrame, tiles, announcements.kan);
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
-                decisionId += 4;
             } else if (decision === _ids.addedKan) {
-                const frames = createAddedKanFrames(previousFrame, decisions.slice(decisionId + 1, decisionId + 5), announcements.kan);
+                const tiles = gameData.calls[callCount].tiles;
+                callCount += 1;
+                const frames = createAddedKanFrames(previousFrame, tiles, announcements.kan);
                 game.frames.push(frames[0], frames[1]);
                 previousFrame = frames[1];
-                decisionId += 4;
-            } else if (decision === _ids.agari) {
-                var who = decisions[decisionId + 1];
-                var fromWho = decisions[decisionId + 2];
-                const agariFrame = createAgariFrame(previousFrame, who, fromWho);
+            } else if (decision === _ids.ron || decision === _ids.tsumo) {
+                const agari = gameData.agaris[agariCount];
+                agariCount += 1;
+                const agariFrame = createAgariFrame(previousFrame, agari);
                 game.frames.push(agariFrame);
                 previousFrame = agariFrame;
-                decisionId += 2;
-            } else if (decision === _ids.ryuukyoku) {
+            } else if (isRyuukyokuDecision(decision)) {
                 const frame = createRyuukyokuFrame(previousFrame);
                 game.frames.push(frame);
                 previousFrame = frame;
@@ -268,6 +275,14 @@ function parseReplay(data) {
                 const frame = createRinshanFrame(previousFrame);
                 game.frames.push(frame);
                 previousFrame = frame;
+            } else if (decision >= _ids.disconnectBase && decision < _ids.disconnectBase + 4) {
+                const frame = createDisconnectFrame(previousFrame, decision - _ids.disconnectBase);
+                game.frames.push(frame);
+                previousFrame = frame;
+            } else if (decision >= _ids.reconnectBase && decision < _ids.reconnectBase + 4) {
+                const frame = createReconnectFrame(previousFrame, decision - _ids.reconnectBase);
+                game.frames.push(frame);
+                previousFrame = frame;
             }
         }
 
@@ -276,14 +291,42 @@ function parseReplay(data) {
     return games;
 }
 
+function isRyuukyokuDecision(decision) {
+    return decision === _ids.exhaustiveDraw ||
+        decision === _ids.fourKan ||
+        decision === _ids.fourRiichi ||
+        decision === _ids.fourWind ||
+        decision === _ids.nagashiMangan ||
+        decision === _ids.nineYaochuuHai ||
+        decision === _ids.threeRon;
+}
+
+function createDisconnectFrame(previousFrame, who) {
+    const frame = cloneFrame(previousFrame);
+    frame.players = frame.players.slice(0);
+    frame.players[who] = Object.assign({}, frame.players[who]);
+    frame.players[who].disconnected = true;
+    return frame;
+}
+
+function createReconnectFrame(previousFrame, who) {
+    const frame = cloneFrame(previousFrame);
+    frame.players = frame.players.slice(0);
+    frame.players[who] = Object.assign({}, frame.players[who]);
+    frame.players[who].disconnected = false;
+    return frame;
+}
+
 function createRyuukyokuFrame(previousFrame) {
     const frame = cloneFrame(previousFrame);
     frame.announcement = announcements.ryuukyoku;
     return frame;
 }
 
-function createAgariFrame(previousFrame, who, fromWho) {
+function createAgariFrame(previousFrame, agari) {
     const frame = cloneFrame(previousFrame);
+    const who = agari.winner;
+    const fromWho = agari.from;
     frame.players = frame.players.slice(0);
     frame.players[who] = Object.assign({}, frame.players[who]);
     if (who === fromWho) {
@@ -291,7 +334,6 @@ function createAgariFrame(previousFrame, who, fromWho) {
     } else {
         frame.players[who].announcement = announcements.ron;
     }
-
     return frame;
 }
 
