@@ -84,6 +84,11 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       result.Lobby = go?.Attribute("lobby")?.Value;
       var flags = (GameTypeFlag) int.Parse(go?.Attribute("type")?.Value);
       result.Rules = RuleSet.Parse(flags);
+      if (result.Rules.PlayerCount != 4)
+      {
+        return null;
+      }
+
       result.Room = GetRoom(flags);
 
       var un = xElement.Element("UN");
