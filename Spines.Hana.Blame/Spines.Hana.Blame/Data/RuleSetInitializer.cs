@@ -21,7 +21,11 @@ namespace Spines.Hana.Blame.Data
       var missing = Services.ReplayManager.RuleSet.RuleSets.Where(r => !existing.Contains(r.Name));
 
       var allToAdd = missing.Select(ToEntity).ToList();
-      await _context.AddRangeAsync(allToAdd);
+      if (allToAdd.Any())
+      { 
+        await _context.RuleSets.AddRangeAsync(allToAdd);
+        await _context.SaveChangesAsync();
+      }
     }
 
     private readonly ApplicationDbContext _context;
