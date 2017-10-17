@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Spines.Hana.Blame.Data;
 using Spines.Hana.Blame.Models;
 using Spines.Hana.Blame.Services;
+using Spines.Hana.Blame.Services.ReplayManager;
 
 namespace Spines.Hana.Blame
 {
@@ -53,6 +54,7 @@ namespace Spines.Hana.Blame
       services.AddTransient<IdentityInitializer>();
       services.AddTransient<RuleSetInitializer>();
       services.AddTransient<RoomInitializer>();
+      services.AddTransient<ReplayManager>();
 
       services.Configure<AuthMessageSenderOptions>(Configuration);
       services.Configure<InitializeIdentityOptions>(Configuration);
