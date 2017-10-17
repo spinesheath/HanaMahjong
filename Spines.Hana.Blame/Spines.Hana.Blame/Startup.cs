@@ -1,6 +1,7 @@
 ﻿// This file is licensed to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -54,7 +55,10 @@ namespace Spines.Hana.Blame
       services.AddTransient<IdentityInitializer>();
       services.AddTransient<RuleSetInitializer>();
       services.AddTransient<RoomInitializer>();
+      services.AddTransient<ReplayDownloader>();
       services.AddTransient<ReplayManager>();
+
+      services.AddSingleton<HttpClient>();
 
       services.Configure<AuthMessageSenderOptions>(Configuration);
       services.Configure<InitializeIdentityOptions>(Configuration);

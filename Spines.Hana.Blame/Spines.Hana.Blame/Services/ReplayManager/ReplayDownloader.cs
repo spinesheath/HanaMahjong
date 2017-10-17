@@ -10,13 +10,19 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 {
   public class ReplayDownloader : IReplayDownloader
   {
+    public ReplayDownloader(HttpClient client)
+    {
+      _client = client;
+    }
+
     public async Task<string> DownloadAsync(string id)
     {
       var url = GenerateDownloadUrl(id);
-      return await Client.GetStringAsync(url);
+      return await _client.GetStringAsync(url);
     }
 
-    private static readonly HttpClient Client = new HttpClient();
+    private const string BaseUrl = "http://e.mjv.jp/0/log/?";
+    private readonly HttpClient _client;
 
     private static readonly int[] TranslationTable =
     {
@@ -37,7 +43,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       }
       if (parts[3][0] != 'x')
       {
-        return "http://tenhou.net/0/log/?" + id;
+        return BaseUrl + id;
       }
       var a = UnHex4(parts[3].Substring(1, 4));
       var b = UnHex4(parts[3].Substring(5, 4));
@@ -48,7 +54,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
         d = Convert.ToInt32("3" + parts[0].Substring(4, 6)) % (17 * 2 - Convert.ToInt32(parts[0].Substring(9, 1)) - 1);
       }
       parts[3] = HexToString4(a ^ b ^ TranslationTable[d + 0]) + HexToString4(b ^ TranslationTable[d + 0] ^ c ^ TranslationTable[d + 1]);
-      return "http://tenhou.net/0/log/?" + string.Join("-", parts);
+      return BaseUrl + string.Join("-", parts);
     }
 
     private static string HexToString4(int i)

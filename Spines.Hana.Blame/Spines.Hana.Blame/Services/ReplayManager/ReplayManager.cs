@@ -10,51 +10,26 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Newtonsoft.Json;
 using Spines.Hana.Blame.Data;
 using Spines.Hana.Blame.Models;
+using Match = Spines.Hana.Blame.Models.Match;
 
 namespace Spines.Hana.Blame.Services.ReplayManager
 {
   public class ReplayManager
   {
-    private readonly ApplicationDbContext _context;
-    private readonly StorageOptions _storage;
-
-    public ReplayManager(ApplicationDbContext context, IOptions<StorageOptions> storageOptions)
+    public ReplayManager(ApplicationDbContext context, IOptions<StorageOptions> storageOptions, ReplayDownloader downloader, ILoggerFactory loggerFactory)
     {
       _context = context;
+      _downloader = downloader;
       _storage = storageOptions.Value;
+      _logger = loggerFactory.CreateLogger<ReplayManager>();
     }
-
-    private static readonly ConcurrentDictionary<string, string> DummyDatabase = new ConcurrentDictionary<string, string>();
-    private static readonly ConcurrentQueue<string> DownloadHistory = new ConcurrentQueue<string>();
-    private static readonly ConcurrentQueue<string> Errors = new ConcurrentQueue<string>();
-
-    private static async Task<string> DownloadAsync(string replayId)
-    {
-      // Use replay downloader class
-      var xml = await Task.FromResult("");
-      DownloadHistory.Enqueue(replayId);
-      return xml;
-    }
-
-    private async Task<bool> MatchExists(string replayId)
-    {
-      return await Task.FromResult(DummyDatabase.TryGetValue(replayId, out var t));
-      //return await _context.Matches.AnyAsync(m => m.ContainerName == TenhouStorageContainerName && m.FileName == replayId);
-    }
-
-    //private static readonly TimeSpan Delay = TimeSpan.FromSeconds(1);
-    private static readonly TimeSpan Delay = TimeSpan.FromSeconds(10);
-    private static DateTime _lastDownloadTime = DateTime.MinValue;
-    private const string TenhouStorageContainerName = "tenhoureplays";
-    private static readonly Regex ReplayIdRegex = new Regex(@"\A(\d{10})gm-\d{4}-\d{4}-[\da-f]{8}\z");
-    private static readonly ConcurrentDictionary<string, Task<bool>> CurrentWork = new ConcurrentDictionary<string, Task<bool>>();
-    private static readonly SemaphoreSlim TenhouSemaphore = new SemaphoreSlim(1, 1);
 
     public async Task<bool> PrepareAsync(string replayId)
     {
@@ -89,6 +64,28 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       return await MatchExists(replayId);
     }
 
+    private const string TenhouStorageContainerName = "tenhoureplays";
+    private readonly ApplicationDbContext _context;
+    private readonly ReplayDownloader _downloader;
+    private readonly StorageOptions _storage;
+    
+    private static readonly TimeSpan Delay = TimeSpan.FromSeconds(10);
+    private static DateTime _lastDownloadTime = DateTime.MinValue;
+    private static readonly Regex ReplayIdRegex = new Regex(@"\A(\d{10})gm-\d{4}-\d{4}-[\da-f]{8}\z");
+    private static readonly ConcurrentDictionary<string, Task<bool>> CurrentWork = new ConcurrentDictionary<string, Task<bool>>();
+    private static readonly SemaphoreSlim TenhouSemaphore = new SemaphoreSlim(1, 1);
+    private readonly ILogger<ReplayManager> _logger;
+
+    private async Task<string> DownloadAsync(string replayId)
+    {
+      return await _downloader.DownloadAsync(replayId);
+    }
+
+    private async Task<bool> MatchExists(string replayId)
+    {
+      return await _context.Matches.AnyAsync(m => m.ContainerName == TenhouStorageContainerName && m.FileName == replayId);
+    }
+
     private async Task<bool> QueuedDownload(string replayId)
     {
       // Synchronize downloads.
@@ -120,15 +117,13 @@ namespace Spines.Hana.Blame.Services.ReplayManager
         }
 
         // Save the downloaded replay.
-        if (!DummyDatabase.TryAdd(replayId, replayId))
-        {
-          Errors.Enqueue(replayId + " already in dummy DB");
-        }
-
-        //var replay = Replay.Parse(xml);
-        //await Task.WhenAll(SaveToDatabase(replayId, replay), SaveToStorage(replayId, replay));
-        //await SaveToDatabase(replayId, replay);
-        //await SaveToStorage(replayId, replay);
+        var replay = Replay.Parse(xml);
+        await Task.WhenAll(SaveToDatabase(replayId, replay), SaveToStorage(replayId, replay));
+      }
+      catch(Exception e)
+      {
+        _logger.LogError(e, "Failed to download or store replay.");
+        return false;
       }
       finally
       {
@@ -169,8 +164,8 @@ namespace Spines.Hana.Blame.Services.ReplayManager
         seat += 1;
       }
 
-      var games = replay.Games.Select((g, i) => new Models.Game { Index = i, FrameCount = g.Actions.Count });
-      var match = new Models.Match(games, participants);
+      var games = replay.Games.Select((g, i) => new Models.Game {Index = i, FrameCount = g.Actions.Count});
+      var match = new Match(games, participants);
       match.ContainerName = TenhouStorageContainerName;
       match.FileName = replayId;
       match.UploadTime = DateTime.UtcNow;
@@ -185,7 +180,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     private async Task<Models.Player> GetOrCreatePlayer(string name)
     {
       var p = await _context.Players.FirstOrDefaultAsync(x => x.Name == name);
-      return p ?? (await _context.Players.AddAsync(new Models.Player { Name = name })).Entity;
+      return p ?? (await _context.Players.AddAsync(new Models.Player {Name = name})).Entity;
     }
 
     private async Task SaveToStorage(string replayId, Replay replay)
