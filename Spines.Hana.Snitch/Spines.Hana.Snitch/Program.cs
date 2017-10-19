@@ -2,18 +2,15 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Windows.Forms;
 
 namespace Spines.Hana.Snitch
 {
   internal static class Program
   {
     [STAThread]
-    private static void Main()
+    private static void Main(string[] args)
     {
-      var context = new SnitchContext();
-      Application.ApplicationExit += context.OnExit;
-      Application.Run(context);
+      new SingleInstanceManager().Run(args);
     }
   }
 }

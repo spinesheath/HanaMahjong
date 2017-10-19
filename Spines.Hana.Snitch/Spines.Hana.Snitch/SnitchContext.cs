@@ -17,7 +17,6 @@ namespace Spines.Hana.Snitch
     // TODO recent files in UserSettings
     // TODO Info Bubble
     // TODO Hyperlink
-    // TODO Single Application Instance
 
     public SnitchContext()
     {
