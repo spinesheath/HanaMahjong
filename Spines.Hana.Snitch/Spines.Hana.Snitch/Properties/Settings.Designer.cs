@@ -22,5 +22,29 @@ namespace Spines.Hana.Snitch.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ShowedFirstLaunchInfo {
+            get {
+                return ((bool)(this["ShowedFirstLaunchInfo"]));
+            }
+            set {
+                this["ShowedFirstLaunchInfo"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ShowNotifications {
+            get {
+                return ((bool)(this["ShowNotifications"]));
+            }
+            set {
+                this["ShowNotifications"] = value;
+            }
+        }
     }
 }
