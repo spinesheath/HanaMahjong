@@ -130,18 +130,12 @@ namespace Spines.Hana.Snitch
       await OnConfigIniChanged(e.FullPath);
     }
 
-    private static int _counter;
-
     private async Task OnConfigIniChanged(string path)
     {
-      var id = Interlocked.Increment(ref _counter);
-
-      Console.WriteLine(id + " Change " + DateTime.Now.ToLongTimeString());
       _queue.Enqueue(DateTime.UtcNow);
 
       if (_semaphore.CurrentCount == 0)
       {
-        Console.WriteLine(id + " Quick Exit");
         return;
       }
       await _semaphore.WaitAsync();
@@ -159,7 +153,6 @@ namespace Spines.Hana.Snitch
 
         try
         {
-          Console.WriteLine(id + " Read Attempt");
           var newIds = ReadConfigIni(path).ToList();
           if (newIds.Any())
           {
@@ -169,14 +162,14 @@ namespace Spines.Hana.Snitch
         }
         catch (IOException)
         {
-          Console.WriteLine(id + " IO Exception");
           await OnConfigIniChanged(path);
+          Logger.Warn("IOException on file change");
         }
       }
-      catch (Exception exception)
+      catch (Exception ex)
       {
-        Console.WriteLine(id + " Error");
-        ShowError(exception);
+        ShowError(ex);
+        Logger.Error(ex, "on file change");
       }
       finally
       {
@@ -202,14 +195,14 @@ namespace Spines.Hana.Snitch
 
     private static void OnBalloonClicked(object sender, EventArgs e)
     {
+      const string url = "http://www.hanablame.com";
       try
       {
-        Process.Start("http://www.hanablame.com");
+        Process.Start(url);
       }
-      catch (Exception exception)
+      catch (Exception ex)
       {
-        Console.WriteLine(exception);
-        throw;
+        Logger.Error(ex, $"open {url} from balloon");
       }
     }
 
@@ -246,8 +239,6 @@ namespace Spines.Hana.Snitch
       {
         return Enumerable.Empty<string>();
       }
-
-      Console.WriteLine(string.Join(Environment.NewLine, newIds));
 
       History.Append(newIds);
 
