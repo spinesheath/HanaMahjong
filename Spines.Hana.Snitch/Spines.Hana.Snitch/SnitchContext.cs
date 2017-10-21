@@ -47,47 +47,18 @@ namespace Spines.Hana.Snitch
       _icon.Visible = false;
     }
 
+    private const string HanablameUrl = "http://www.hanablame.com";
     private static readonly Regex ConfigIniRegex = new Regex(@"^\d+=file=(\d{10}gm-\d{4}-\d{4}-[\da-f]{8}).*sc=");
     //private static readonly RegistryKey AutostartRegistryKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
     private readonly NotifyIcon _icon;
-
     private string _balloonUrl = HanablameUrl;
-
-    private static ContextMenu BuildMenu()
-    {
-      var menu = new ContextMenu();
-
-      // the last couple replays as a list
-      foreach (var id in History.Recent(10))
-      {
-        menu.MenuItems.Add(new MenuItem(id, OpenBlame));
-      }
-      if (menu.MenuItems.Count > 0)
-      {
-        menu.MenuItems.Add("-");
-      }
-
-      TryAddAutostart(menu);
-      AddDisableNotifications(menu);
-      menu.MenuItems.Add("-");
-      menu.MenuItems.Add(new MenuItem("Exit", Exit));
-      return menu;
-    }
+    private static readonly ConcurrentQueue<DateTime> FileChangeQueue = new ConcurrentQueue<DateTime>();
+    private static readonly SemaphoreSlim Semaphore = new SemaphoreSlim(1, 1);
+    private static readonly HttpClient Client = new HttpClient();
 
     private void UpdateMenu()
     {
       _icon.ContextMenu = BuildMenu();
-    }
-
-    private static string GetReviewUrl(string id)
-    {
-      return $"{HanablameUrl}/?r={id}";
-    }
-
-    private static void OpenBlame(object sender, EventArgs e)
-    {
-      var item = (MenuItem) sender;
-      OpenUrl(GetReviewUrl(item.Text));
     }
 
     private void WatchWindowsClient()
@@ -103,11 +74,6 @@ namespace Spines.Hana.Snitch
       fsw.Changed += OnConfigIniChanged;
       fsw.EnableRaisingEvents = true;
     }
-
-    private static readonly ConcurrentQueue<DateTime> FileChangeQueue = new ConcurrentQueue<DateTime>();
-    private static readonly SemaphoreSlim Semaphore = new SemaphoreSlim(1, 1);
-    private static readonly HttpClient Client = new HttpClient();
-    private const string HanablameUrl = "http://www.hanablame.com";
 
     private async void OnConfigIniChanged(object sender, FileSystemEventArgs e)
     {
@@ -167,11 +133,6 @@ namespace Spines.Hana.Snitch
       }
     }
 
-    private static string GetSnitchUrl(string id)
-    {
-      return $"{HanablameUrl}/api/snitch/?replayId={id}";
-    }
-
     private void ShowError(Exception exception)
     {
       if (Settings.Default.ShowNotifications)
@@ -191,6 +152,64 @@ namespace Spines.Hana.Snitch
     private void OnBalloonClicked(object sender, EventArgs e)
     {
       OpenUrl(_balloonUrl);
+    }
+
+    private IEnumerable<string> ReadConfigIni(string path)
+    {
+      var lines = File.ReadAllLines(path);
+      var matches = lines.Select(l => ConfigIniRegex.Match(l)).Where(m => m.Success);
+      var ids = matches.Select(m => m.Groups[1].Value).ToList();
+      ids.Reverse();
+
+      var recent = new HashSet<string>(History.All());
+      var newIds = ids.Where(id => !recent.Contains(id)).ToList();
+      if (!newIds.Any())
+      {
+        return Enumerable.Empty<string>();
+      }
+
+      History.Append(newIds);
+
+      UpdateMenu();
+
+      return newIds;
+    }
+
+    private static ContextMenu BuildMenu()
+    {
+      var menu = new ContextMenu();
+
+      // the last couple replays as a list
+      foreach (var id in History.Recent(10))
+      {
+        menu.MenuItems.Add(new MenuItem(id, OpenBlame));
+      }
+      if (menu.MenuItems.Count > 0)
+      {
+        menu.MenuItems.Add("-");
+      }
+
+      TryAddAutostart(menu);
+      AddDisableNotifications(menu);
+      menu.MenuItems.Add("-");
+      menu.MenuItems.Add(new MenuItem("Exit", Exit));
+      return menu;
+    }
+
+    private static string GetReviewUrl(string id)
+    {
+      return $"{HanablameUrl}/?r={id}";
+    }
+
+    private static void OpenBlame(object sender, EventArgs e)
+    {
+      var item = (MenuItem) sender;
+      OpenUrl(GetReviewUrl(item.Text));
+    }
+
+    private static string GetSnitchUrl(string id)
+    {
+      return $"{HanablameUrl}/api/snitch/?replayId={id}";
     }
 
     private static void OpenUrl(string url)
@@ -223,27 +242,6 @@ namespace Spines.Hana.Snitch
     private static void Exit(object sender, EventArgs e)
     {
       Application.Exit();
-    }
-
-    private IEnumerable<string> ReadConfigIni(string path)
-    {
-      var lines = File.ReadAllLines(path);
-      var matches = lines.Select(l => ConfigIniRegex.Match(l)).Where(m => m.Success);
-      var ids = matches.Select(m => m.Groups[1].Value).ToList();
-      ids.Reverse();
-
-      var recent = new HashSet<string>(History.All());
-      var newIds = ids.Where(id => !recent.Contains(id)).ToList();
-      if (!newIds.Any())
-      {
-        return Enumerable.Empty<string>();
-      }
-
-      History.Append(newIds);
-
-      UpdateMenu();
-
-      return newIds;
     }
 
     private static void TryAddAutostart(Menu menu)
