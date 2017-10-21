@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
+using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json;
 using Spines.Hana.Blame.Data;
 using Spines.Hana.Blame.Models;
@@ -64,13 +65,13 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       return await MatchExists(replayId);
     }
 
-    private const string TenhouStorageContainerName = "tenhoureplays";
+    private const string TenhouJsonContainerName = "tenhoureplays";
+    private const string TenhouXmlContainerName = "tenhouxml";
     private readonly ApplicationDbContext _context;
     private readonly ReplayDownloader _downloader;
     private readonly StorageOptions _storage;
     
-    private static readonly TimeSpan Delay = TimeSpan.FromSeconds(10);
-    private static DateTime _lastDownloadTime = DateTime.MinValue;
+    private static readonly TimeSpan Delay = TimeSpan.FromSeconds(5);
     private static readonly Regex ReplayIdRegex = new Regex(@"\A(\d{10})gm-\d{4}-\d{4}-[\da-f]{8}\z");
     private static readonly ConcurrentDictionary<string, Task<bool>> CurrentWork = new ConcurrentDictionary<string, Task<bool>>();
     private static readonly SemaphoreSlim TenhouSemaphore = new SemaphoreSlim(1, 1);
@@ -83,7 +84,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
     private async Task<bool> MatchExists(string replayId)
     {
-      return await _context.Matches.AnyAsync(m => m.ContainerName == TenhouStorageContainerName && m.FileName == replayId);
+      return await _context.Matches.AnyAsync(m => m.ContainerName == TenhouJsonContainerName && m.FileName == replayId);
     }
 
     private async Task<bool> QueuedDownload(string replayId)
@@ -98,17 +99,12 @@ namespace Spines.Hana.Blame.Services.ReplayManager
           return true;
         }
 
-        // Wait until at least the delay has passed since the last request.
-        var nextDownloadTime = _lastDownloadTime + Delay;
-        var current = DateTime.UtcNow;
-        if (current < nextDownloadTime)
-        {
-          await Task.Delay(nextDownloadTime - current);
-        }
+        // Wait for a while to let tenhou make the replay available.
+        // Also prevents too many replays being requested from tenhou at once.
+        await Task.Delay(Delay);
 
         // Else we are sending out a request and remeber the time of that request.
         var xml = await DownloadAsync(replayId);
-        _lastDownloadTime = DateTime.UtcNow;
 
         // If the download was unsuccessful, the ID is invalid.
         if (xml == null)
@@ -118,7 +114,11 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
         // Save the downloaded replay.
         var replay = Replay.Parse(xml);
-        await Task.WhenAll(SaveToDatabase(replayId, replay), SaveToStorage(replayId, replay));
+        var cloudBlobClient = GetCloudBlobClient();
+        await Task.WhenAll(
+          SaveToDatabase(replayId, replay), 
+          SaveToJsonStorage(replayId, replay, cloudBlobClient), 
+          SaveToXmlStorage(replayId, xml, cloudBlobClient));
       }
       catch(Exception e)
       {
@@ -166,7 +166,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
       var games = replay.Games.Select((g, i) => new Models.Game {Index = i, FrameCount = g.Actions.Count});
       var match = new Match(games, participants);
-      match.ContainerName = TenhouStorageContainerName;
+      match.ContainerName = TenhouJsonContainerName;
       match.FileName = replayId;
       match.UploadTime = DateTime.UtcNow;
       match.CreationTime = GetReplayCreationTIme(replayId);
@@ -183,15 +183,26 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       return p ?? (await _context.Players.AddAsync(new Models.Player {Name = name})).Entity;
     }
 
-    private async Task SaveToStorage(string replayId, Replay replay)
+    private CloudBlobClient GetCloudBlobClient()
     {
-      var json = JsonConvert.SerializeObject(replay);
       var storageCredentials = new StorageCredentials(_storage.StorageAccountName, _storage.StorageAccountKey);
       var cloudStorageAccount = new CloudStorageAccount(storageCredentials, false);
-      var cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
-      var container = cloudBlobClient.GetContainerReference(TenhouStorageContainerName);
+      return cloudStorageAccount.CreateCloudBlobClient();
+    }
+
+    private static async Task SaveToJsonStorage(string replayId, Replay replay, CloudBlobClient client)
+    {
+      var json = JsonConvert.SerializeObject(replay);
+      var container = client.GetContainerReference(TenhouJsonContainerName);
       var newBlob = container.GetBlockBlobReference(replayId + ".json");
       await newBlob.UploadTextAsync(json);
+    }
+
+    private static async Task SaveToXmlStorage(string replayId, string xml, CloudBlobClient client)
+    {
+      var container = client.GetContainerReference(TenhouXmlContainerName);
+      var newBlob = container.GetBlockBlobReference(replayId + ".xml");
+      await newBlob.UploadTextAsync(xml);
     }
 
     /// <summary>
