@@ -2,11 +2,14 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Spines.Hana.Snitch.Properties;
 
@@ -44,11 +47,9 @@ namespace Spines.Hana.Snitch
       _icon.Visible = false;
     }
 
-    private static readonly Regex ConfigIniRegex = new Regex(@"^\d+=file=(\d{10}gm-\d{4}-\d{4}-[\da-f]{8})");
+    private static readonly Regex ConfigIniRegex = new Regex(@"^\d+=file=(\d{10}gm-\d{4}-\d{4}-[\da-f]{8}).*sc=");
     //private static readonly RegistryKey AutostartRegistryKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
     private readonly NotifyIcon _icon;
-
-    private DateTime _lastChange = DateTime.MinValue;
 
     private ContextMenu BuildMenu()
     {
@@ -57,7 +58,7 @@ namespace Spines.Hana.Snitch
       // the last couple replays as a list
       foreach (var id in History.Recent(10))
       {
-        menu.MenuItems.Add(new MenuItem(id, OpenBlame));
+        menu.MenuItems.Add(ToItem(id));
       }
       if (menu.MenuItems.Count > 0)
       {
@@ -69,6 +70,27 @@ namespace Spines.Hana.Snitch
       menu.MenuItems.Add("-");
       menu.MenuItems.Add(new MenuItem("Exit", Exit));
       return menu;
+    }
+
+    private class ReplayIdTag
+    {
+      public string Id { get; }
+
+      public ReplayIdTag(string id)
+      {
+        Id = id;
+      }
+    }
+
+    private MenuItem ToItem(string id)
+    {
+      return new MenuItem(id, OpenBlame) {Tag = new ReplayIdTag(id)};
+    }
+
+    private void UpdateMenu()
+    {
+      _icon.ContextMenu.MenuItems.Clear();
+      BuildMenu();
     }
 
     private void OpenBlame(object sender, EventArgs e)
@@ -97,26 +119,68 @@ namespace Spines.Hana.Snitch
       fsw.EnableRaisingEvents = true;
     }
 
-    private void OnConfigIniChanged(object sender, FileSystemEventArgs e)
+    private readonly ConcurrentQueue<DateTime> _queue = new ConcurrentQueue<DateTime>();
+    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+
+    /// <summary>
+    /// FileSystemWatcher sometimes raises multiple events for a single modification.
+    /// </summary>
+    private async void OnConfigIniChanged(object sender, FileSystemEventArgs e)
     {
+      await OnConfigIniChanged(e.FullPath);
+    }
+
+    private static int _counter;
+
+    private async Task OnConfigIniChanged(string path)
+    {
+      var id = Interlocked.Increment(ref _counter);
+
+      Console.WriteLine(id + " Change " + DateTime.Now.ToLongTimeString());
+      _queue.Enqueue(DateTime.UtcNow);
+
+      if (_semaphore.CurrentCount == 0)
+      {
+        Console.WriteLine(id + " Quick Exit");
+        return;
+      }
+      await _semaphore.WaitAsync();
       try
       {
-        // FileSystemWatcher sometimes raises multiple events for a single modification.
-        var now = DateTime.UtcNow;
-        var isNewChange = now - _lastChange > TimeSpan.FromSeconds(10);
-        _lastChange = now;
-
-        if (isNewChange)
+        while (_queue.TryDequeue(out var next))
         {
-          var newIds = ReadConfigIni(e);
+          var target = next + TimeSpan.FromSeconds(1);
+          var now = DateTime.UtcNow;
+          if (target > now)
+          {
+            await Task.Delay(target - now);
+          }
+        }
 
-          var body = string.Join(Environment.NewLine, newIds);
-          ShowBalloon("New:", body);
+        try
+        {
+          Console.WriteLine(id + " Read Attempt");
+          var newIds = ReadConfigIni(path).ToList();
+          if (newIds.Any())
+          {
+            var body = string.Join(Environment.NewLine, newIds);
+            ShowBalloon("New:", body);
+          }
+        }
+        catch (IOException)
+        {
+          Console.WriteLine(id + " IO Exception");
+          await OnConfigIniChanged(path);
         }
       }
       catch (Exception exception)
       {
+        Console.WriteLine(id + " Error");
         ShowError(exception);
+      }
+      finally
+      {
+        _semaphore.Release();
       }
     }
 
@@ -169,17 +233,27 @@ namespace Spines.Hana.Snitch
       Application.Exit();
     }
 
-    private static IEnumerable<string> ReadConfigIni(FileSystemEventArgs e)
+    private IEnumerable<string> ReadConfigIni(string path)
     {
-        var lines = File.ReadAllLines(e.FullPath);
-        var matches = lines.Select(l => ConfigIniRegex.Match(l)).Where(m => m.Success);
-        var ids = matches.Select(m => m.Groups[1].Value);
+      var lines = File.ReadAllLines(path);
+      var matches = lines.Select(l => ConfigIniRegex.Match(l)).Where(m => m.Success);
+      var ids = matches.Select(m => m.Groups[1].Value).ToList();
+      ids.Reverse();
 
-        var recent = History.All();
-        var newIds = ids.Except(recent).ToList();
-        History.Append(newIds);
+      var recent = new HashSet<string>(History.All());
+      var newIds = ids.Where(id => !recent.Contains(id)).ToList();
+      if (!newIds.Any())
+      {
+        return Enumerable.Empty<string>();
+      }
 
-        return newIds;
+      Console.WriteLine(string.Join(Environment.NewLine, newIds));
+
+      History.Append(newIds);
+
+      UpdateMenu();
+
+      return newIds;
     }
 
     private static void TryAddAutostart(Menu menu)
