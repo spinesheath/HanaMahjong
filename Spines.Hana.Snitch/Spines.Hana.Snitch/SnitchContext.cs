@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,12 +20,9 @@ namespace Spines.Hana.Snitch
   {
     public SnitchContext()
     {
-      var menu = BuildMenu();
-
       _icon = new NotifyIcon
       {
         Icon = Resources.AppIcon,
-        ContextMenu = menu,
         Visible = true
       };
 
@@ -40,6 +38,8 @@ namespace Spines.Hana.Snitch
         Settings.Default.ShowedFirstLaunchInfo = true;
         Settings.Default.Save();
       }
+
+      UpdateMenu();
     }
 
     public void OnExit(object sender, EventArgs e)
@@ -51,14 +51,16 @@ namespace Spines.Hana.Snitch
     //private static readonly RegistryKey AutostartRegistryKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
     private readonly NotifyIcon _icon;
 
-    private ContextMenu BuildMenu()
+    private string _balloonUrl = HanablameUrl;
+
+    private static ContextMenu BuildMenu()
     {
       var menu = new ContextMenu();
 
       // the last couple replays as a list
       foreach (var id in History.Recent(10))
       {
-        menu.MenuItems.Add(ToItem(id));
+        menu.MenuItems.Add(new MenuItem(id, OpenBlame));
       }
       if (menu.MenuItems.Count > 0)
       {
@@ -72,37 +74,20 @@ namespace Spines.Hana.Snitch
       return menu;
     }
 
-    private class ReplayIdTag
-    {
-      public string Id { get; }
-
-      public ReplayIdTag(string id)
-      {
-        Id = id;
-      }
-    }
-
-    private MenuItem ToItem(string id)
-    {
-      return new MenuItem(id, OpenBlame) {Tag = new ReplayIdTag(id)};
-    }
-
     private void UpdateMenu()
     {
-      _icon.ContextMenu.MenuItems.Clear();
-      BuildMenu();
+      _icon.ContextMenu = BuildMenu();
     }
 
-    private void OpenBlame(object sender, EventArgs e)
+    private static string GetReviewUrl(string id)
+    {
+      return $"{HanablameUrl}/?r={id}";
+    }
+
+    private static void OpenBlame(object sender, EventArgs e)
     {
       var item = (MenuItem) sender;
-      OpenBlame(item.Text);
-    }
-
-    private void OpenBlame(string id)
-    {
-      ShowBalloon("Look!", id);
-      //System.Diagnostics.Process.Start(hanablame.com/?r={id} p={?});
+      OpenUrl(GetReviewUrl(item.Text));
     }
 
     private void WatchWindowsClient()
@@ -119,29 +104,32 @@ namespace Spines.Hana.Snitch
       fsw.EnableRaisingEvents = true;
     }
 
-    private readonly ConcurrentQueue<DateTime> _queue = new ConcurrentQueue<DateTime>();
-    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+    private static readonly ConcurrentQueue<DateTime> FileChangeQueue = new ConcurrentQueue<DateTime>();
+    private static readonly SemaphoreSlim Semaphore = new SemaphoreSlim(1, 1);
+    private static readonly HttpClient Client = new HttpClient();
+    private const string HanablameUrl = "http://www.hanablame.com";
 
-    /// <summary>
-    /// FileSystemWatcher sometimes raises multiple events for a single modification.
-    /// </summary>
     private async void OnConfigIniChanged(object sender, FileSystemEventArgs e)
     {
       await OnConfigIniChanged(e.FullPath);
     }
 
+    /// <summary>
+    /// Queues a timestamp, then waits until a second after the last timestamp.
+    /// FileSystemWatcher sometimes raises multiple events for a single modification.
+    /// </summary>
     private async Task OnConfigIniChanged(string path)
     {
-      _queue.Enqueue(DateTime.UtcNow);
+      FileChangeQueue.Enqueue(DateTime.UtcNow);
 
-      if (_semaphore.CurrentCount == 0)
+      if (Semaphore.CurrentCount == 0)
       {
         return;
       }
-      await _semaphore.WaitAsync();
+      await Semaphore.WaitAsync();
       try
       {
-        while (_queue.TryDequeue(out var next))
+        while (FileChangeQueue.TryDequeue(out var next))
         {
           var target = next + TimeSpan.FromSeconds(1);
           var now = DateTime.UtcNow;
@@ -153,11 +141,13 @@ namespace Spines.Hana.Snitch
 
         try
         {
-          var newIds = ReadConfigIni(path).ToList();
-          if (newIds.Any())
+          var newIds = ReadConfigIni(path);
+          foreach (var id in newIds)
           {
-            var body = string.Join(Environment.NewLine, newIds);
-            ShowBalloon("New:", body);
+            await Task.Delay(TimeSpan.FromSeconds(5));
+            await Client.GetStringAsync(GetSnitchUrl(id));
+            _balloonUrl = GetReviewUrl(id);
+            ShowBalloon("Snitched!", "Click to review on hanablame.com");
           }
         }
         catch (IOException)
@@ -173,8 +163,13 @@ namespace Spines.Hana.Snitch
       }
       finally
       {
-        _semaphore.Release();
+        Semaphore.Release();
       }
+    }
+
+    private static string GetSnitchUrl(string id)
+    {
+      return $"{HanablameUrl}/api/snitch/?replayId={id}";
     }
 
     private void ShowError(Exception exception)
@@ -193,16 +188,20 @@ namespace Spines.Hana.Snitch
       }
     }
 
-    private static void OnBalloonClicked(object sender, EventArgs e)
+    private void OnBalloonClicked(object sender, EventArgs e)
     {
-      const string url = "http://www.hanablame.com";
+      OpenUrl(_balloonUrl);
+    }
+
+    private static void OpenUrl(string url)
+    {
       try
       {
         Process.Start(url);
       }
       catch (Exception ex)
       {
-        Logger.Error(ex, $"open {url} from balloon");
+        Logger.Error(ex, $"open {url}");
       }
     }
 
