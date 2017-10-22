@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Win32;
 using Spines.Hana.Snitch.Properties;
 
 namespace Spines.Hana.Snitch
@@ -50,7 +51,7 @@ namespace Spines.Hana.Snitch
 
     private const string HanablameUrl = "http://www.hanablame.com";
     private static readonly Regex ConfigIniRegex = new Regex(@"^\d+=file=(\d{10}gm-\d{4}-\d{4}-[\da-f]{8}).*oya=(\d).*sc=(.*)$");
-    //private static readonly RegistryKey AutostartRegistryKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
+    private static readonly RegistryKey AutostartRegistryKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
     private readonly NotifyIcon _icon;
     private string _balloonUrl = HanablameUrl;
     private static readonly ConcurrentQueue<DateTime> FileChangeQueue = new ConcurrentQueue<DateTime>();
@@ -261,29 +262,29 @@ namespace Spines.Hana.Snitch
 
     private static void TryAddAutostart(Menu menu)
     {
-      //if (AutostartRegistryKey == null)
-      //{
-      //  return;
-      //}
-      //var item = new MenuItem("Autostart");
-      //var value = AutostartRegistryKey.GetValue(Application.ProductName) as string;
-      //item.Checked = value == Application.ExecutablePath;
-      //item.Click += OnAutostartChanged;
-      //menu.MenuItems.Add(item);
+      if (AutostartRegistryKey == null)
+      {
+        return;
+      }
+      var item = new MenuItem("Autostart");
+      var value = AutostartRegistryKey.GetValue(Application.ProductName) as string;
+      item.Checked = value == Application.ExecutablePath;
+      item.Click += OnAutostartChanged;
+      menu.MenuItems.Add(item);
     }
 
     private static void OnAutostartChanged(object sender, EventArgs e)
     {
-      //var item = (MenuItem) sender;
-      //item.Checked = !item.Checked;
-      //if (item.Checked)
-      //{
-      //  AutostartRegistryKey.SetValue(Application.ProductName, Application.ExecutablePath);
-      //}
-      //else
-      //{
-      //  AutostartRegistryKey.DeleteValue(Application.ProductName, false);
-      //}
+      var item = (MenuItem)sender;
+      item.Checked = !item.Checked;
+      if (item.Checked)
+      {
+        AutostartRegistryKey.SetValue(Application.ProductName, Application.ExecutablePath);
+      }
+      else
+      {
+        AutostartRegistryKey.DeleteValue(Application.ProductName, false);
+      }
     }
 
     private static void WatchFlashClient()
