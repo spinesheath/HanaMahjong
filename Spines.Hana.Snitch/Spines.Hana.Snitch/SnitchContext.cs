@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -48,18 +49,13 @@ namespace Spines.Hana.Snitch
     }
 
     private const string HanablameUrl = "http://www.hanablame.com";
-    private static readonly Regex ConfigIniRegex = new Regex(@"^\d+=file=(\d{10}gm-\d{4}-\d{4}-[\da-f]{8}).*sc=");
+    private static readonly Regex ConfigIniRegex = new Regex(@"^\d+=file=(\d{10}gm-\d{4}-\d{4}-[\da-f]{8}).*oya=(\d).*sc=(.*)$");
     //private static readonly RegistryKey AutostartRegistryKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
     private readonly NotifyIcon _icon;
     private string _balloonUrl = HanablameUrl;
     private static readonly ConcurrentQueue<DateTime> FileChangeQueue = new ConcurrentQueue<DateTime>();
     private static readonly SemaphoreSlim Semaphore = new SemaphoreSlim(1, 1);
     private static readonly HttpClient Client = new HttpClient();
-
-    private void UpdateMenu()
-    {
-      _icon.ContextMenu = BuildMenu();
-    }
 
     private void WatchWindowsClient()
     {
@@ -107,12 +103,12 @@ namespace Spines.Hana.Snitch
 
         try
         {
-          var newIds = ReadConfigIni(path);
-          foreach (var id in newIds)
+          var newReplays = ReadConfigIni(path);
+          foreach (var replayData in newReplays)
           {
             await Task.Delay(TimeSpan.FromSeconds(5));
-            await Client.GetStringAsync(GetSnitchUrl(id));
-            _balloonUrl = GetReviewUrl(id);
+            await Client.GetStringAsync(GetSnitchUrl(replayData));
+            _balloonUrl = GetReviewUrl(replayData);
             ShowBalloon("Snitched!", "Click to review on hanablame.com");
           }
         }
@@ -131,6 +127,68 @@ namespace Spines.Hana.Snitch
       {
         Semaphore.Release();
       }
+    }
+
+    private IEnumerable<ReplayData> ReadConfigIni(string path)
+    {
+      var lines = File.ReadAllLines(path);
+      var matches = lines.Select(l => ConfigIniRegex.Match(l)).Where(m => m.Success);
+      var results = new List<ReplayData>();
+      foreach (var match in matches.Reverse())
+      {
+        var id = match.Groups[1].Value;
+        var oya = ToInt(match.Groups[2].Value);
+        var scores = match.Groups[3].Value.Split(',');
+        var playerCount = scores.Length / 2;
+        var position = (playerCount - oya) % playerCount;
+        results.Add(new ReplayData(id, position));
+      }
+
+      var recent = new HashSet<string>(History.All().Select(r => r.Id));
+      var newReplays = results.Where(r => !recent.Contains(r.Id)).ToList();
+      if (!newReplays.Any())
+      {
+        return Enumerable.Empty<ReplayData>();
+      }
+
+      History.Append(newReplays);
+
+      UpdateMenu();
+
+      return newReplays;
+    }
+
+    private static ContextMenu BuildMenu()
+    {
+      var menu = new ContextMenu();
+
+      // the last couple replays as a list
+      foreach (var replay in History.Recent(10))
+      {
+        menu.MenuItems.Add(new MenuItem(replay.Id, OpenBlame) {Tag = replay});
+      }
+      if (menu.MenuItems.Count > 0)
+      {
+        menu.MenuItems.Add("-");
+      }
+
+      TryAddAutostart(menu);
+      AddDisableNotifications(menu);
+      menu.MenuItems.Add("-");
+      menu.MenuItems.Add(new MenuItem("Exit", Exit));
+      return menu;
+    }
+
+    private void UpdateMenu()
+    {
+      _icon.ContextMenu = BuildMenu();
+    }
+
+    private static void OpenBlame(object sender, EventArgs e)
+    {
+      var item = (MenuItem) sender;
+      var replayData = (ReplayData) item.Tag;
+      OpenUrl(GetReviewUrl(replayData));
     }
 
     private void ShowError(Exception exception)
@@ -154,62 +212,19 @@ namespace Spines.Hana.Snitch
       OpenUrl(_balloonUrl);
     }
 
-    private IEnumerable<string> ReadConfigIni(string path)
+    private static string GetReviewUrl(ReplayData replayData)
     {
-      var lines = File.ReadAllLines(path);
-      var matches = lines.Select(l => ConfigIniRegex.Match(l)).Where(m => m.Success);
-      var ids = matches.Select(m => m.Groups[1].Value).ToList();
-      ids.Reverse();
-
-      var recent = new HashSet<string>(History.All());
-      var newIds = ids.Where(id => !recent.Contains(id)).ToList();
-      if (!newIds.Any())
-      {
-        return Enumerable.Empty<string>();
-      }
-
-      History.Append(newIds);
-
-      UpdateMenu();
-
-      return newIds;
+      return $"{HanablameUrl}/?f=0&g=0&p={replayData.Position}&r={replayData.Id}";
     }
 
-    private static ContextMenu BuildMenu()
+    private static string GetSnitchUrl(ReplayData replayData)
     {
-      var menu = new ContextMenu();
-
-      // the last couple replays as a list
-      foreach (var id in History.Recent(10))
-      {
-        menu.MenuItems.Add(new MenuItem(id, OpenBlame));
-      }
-      if (menu.MenuItems.Count > 0)
-      {
-        menu.MenuItems.Add("-");
-      }
-
-      TryAddAutostart(menu);
-      AddDisableNotifications(menu);
-      menu.MenuItems.Add("-");
-      menu.MenuItems.Add(new MenuItem("Exit", Exit));
-      return menu;
+      return $"{HanablameUrl}/api/snitch/?replayId={replayData.Id}";
     }
 
-    private static string GetReviewUrl(string id)
+    private static int ToInt(string value)
     {
-      return $"{HanablameUrl}/?r={id}";
-    }
-
-    private static void OpenBlame(object sender, EventArgs e)
-    {
-      var item = (MenuItem) sender;
-      OpenUrl(GetReviewUrl(item.Text));
-    }
-
-    private static string GetSnitchUrl(string id)
-    {
-      return $"{HanablameUrl}/api/snitch/?replayId={id}";
+      return Convert.ToInt32(value, CultureInfo.InvariantCulture);
     }
 
     private static void OpenUrl(string url)
