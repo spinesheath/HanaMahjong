@@ -79,69 +79,24 @@ namespace Spines.Hana.Snitch
       fsw.EnableRaisingEvents = true;
     }
 
-    private async void OnRenamed(object sender, RenamedEventArgs e)
+    private async void OnRenamed(object sender, FileSystemEventArgs e)
     {
-      await OnMjinfoSolChanged(e.FullPath);
+      await QueueChange(e.FullPath, HandleMjinfoSolChange);
     }
-
-    /// <summary>
-    /// Queues a timestamp, then waits until a second after the last timestamp.
-    /// FileSystemWatcher sometimes raises multiple events for a single modification.
-    /// </summary>
-    private async Task OnMjinfoSolChanged(string path)
-    {
-      FileChangeQueue.Enqueue(DateTime.UtcNow);
-
-      if (Semaphore.CurrentCount == 0)
-      {
-        return;
-      }
-      await Semaphore.WaitAsync();
-      try
-      {
-        while (FileChangeQueue.TryDequeue(out var next))
-        {
-          var target = next + TimeSpan.FromSeconds(1);
-          var now = DateTime.UtcNow;
-          if (target > now)
-          {
-            await Task.Delay(target - now);
-          }
-        }
-
-        try
-        {
-          var newReplays = ReadMjinfoSol(path);
-          foreach (var replayData in newReplays)
-          {
-            await Task.Delay(TimeSpan.FromSeconds(5));
-            await Client.GetStringAsync(GetSnitchUrl(replayData));
-            _balloonUrl = GetReviewUrl(replayData);
-            ShowBalloon("Snitched!", "Click to review on hanablame.com");
-          }
-        }
-        catch (IOException)
-        {
-          await OnConfigIniChanged(path);
-          Logger.Warn("IOException on file change");
-        }
-      }
-      catch (Exception ex)
-      {
-        ShowError(ex);
-        Logger.Error(ex, "on file change");
-      }
-      finally
-      {
-        Semaphore.Release();
-      }
-    }
-
-    // TODO for some reason this doesn't seem to work on flash games. Check with extensive logging. Maybe revert refactoring first.
 
     // TODO Handler base class with template method and concrete implementation for WindowsClient, FlashClient and HtmlClient
     // TODO only the ReadXFile() method is different, put the rest in QueueChange/another shared method
-
+    private async Task HandleMjinfoSolChange(string path)
+    {
+      var newReplays = ReadMjinfoSol(path);
+      foreach (var replayData in newReplays)
+      {
+        await Task.Delay(TimeSpan.FromSeconds(5));
+        await Client.GetStringAsync(GetSnitchUrl(replayData));
+        _balloonUrl = GetReviewUrl(replayData);
+        ShowBalloon("Snitched!", "Click to review on hanablame.com");
+      }
+    }
 
     private IEnumerable<ReplayData> ReadMjinfoSol(string path)
     {
@@ -190,59 +145,18 @@ namespace Spines.Hana.Snitch
 
     private async void OnConfigIniChanged(object sender, FileSystemEventArgs e)
     {
-      await OnConfigIniChanged(e.FullPath);
+      await QueueChange(e.FullPath, HandleWindowsChange);
     }
 
-    /// <summary>
-    /// Queues a timestamp, then waits until a second after the last timestamp.
-    /// FileSystemWatcher sometimes raises multiple events for a single modification.
-    /// </summary>
-    private async Task OnConfigIniChanged(string path)
+    private async Task HandleWindowsChange(string path)
     {
-      FileChangeQueue.Enqueue(DateTime.UtcNow);
-
-      if (Semaphore.CurrentCount == 0)
+      var newReplays = ReadConfigIni(path);
+      foreach (var replayData in newReplays)
       {
-        return;
-      }
-      await Semaphore.WaitAsync();
-      try
-      {
-        while (FileChangeQueue.TryDequeue(out var next))
-        {
-          var target = next + TimeSpan.FromSeconds(1);
-          var now = DateTime.UtcNow;
-          if (target > now)
-          {
-            await Task.Delay(target - now);
-          }
-        }
-
-        try
-        {
-          var newReplays = ReadConfigIni(path);
-          foreach (var replayData in newReplays)
-          {
-            await Task.Delay(TimeSpan.FromSeconds(5));
-            await Client.GetStringAsync(GetSnitchUrl(replayData));
-            _balloonUrl = GetReviewUrl(replayData);
-            ShowBalloon("Snitched!", "Click to review on hanablame.com");
-          }
-        }
-        catch (IOException)
-        {
-          await OnConfigIniChanged(path);
-          Logger.Warn("IOException on file change");
-        }
-      }
-      catch (Exception ex)
-      {
-        ShowError(ex);
-        Logger.Error(ex, "on file change");
-      }
-      finally
-      {
-        Semaphore.Release();
+        await Task.Delay(TimeSpan.FromSeconds(5));
+        await Client.GetStringAsync(GetSnitchUrl(replayData));
+        _balloonUrl = GetReviewUrl(replayData);
+        ShowBalloon("Snitched!", "Click to review on hanablame.com");
       }
     }
 
@@ -275,6 +189,55 @@ namespace Spines.Hana.Snitch
       return newReplays;
     }
 
+    /// <summary>
+    /// Queues a timestamp, then waits until a second after the last timestamp.
+    /// FileSystemWatcher sometimes raises multiple events for a single modification.
+    /// </summary>
+    private async Task QueueChange(string path, Func<string, Task> changeHandler)
+    {
+      FileChangeQueue.Enqueue(DateTime.UtcNow);
+      if (Semaphore.CurrentCount == 0)
+      {
+        return;
+      }
+      await Semaphore.WaitAsync();
+      try
+      {
+        await ClearQueue();
+        await changeHandler(path);
+      }
+      catch (IOException)
+      {
+        await QueueChange(path, changeHandler);
+        Logger.Warn($"IOException on file change {path}");
+      }
+      catch (Exception ex)
+      {
+        ShowError(ex);
+        Logger.Error(ex, "on file change");
+      }
+      finally
+      {
+        Semaphore.Release();
+      }
+    }
+
+    /// <summary>
+    /// Waits until a second after the last timestamp in the queue.
+    /// </summary>
+    private static async Task ClearQueue()
+    {
+      while (FileChangeQueue.TryDequeue(out var next))
+      {
+        var target = next + TimeSpan.FromSeconds(1);
+        var now = DateTime.UtcNow;
+        if (target > now)
+        {
+          await Task.Delay(target - now);
+        }
+      }
+    }
+
     private static ContextMenu BuildMenu()
     {
       var menu = new ContextMenu();
@@ -282,7 +245,7 @@ namespace Spines.Hana.Snitch
       // the last couple replays as a list
       foreach (var replay in History.Recent(10))
       {
-        menu.MenuItems.Add(new MenuItem(replay.Id, OpenBlame) {Tag = replay});
+        menu.MenuItems.Add(new MenuItem(replay.Id, OpenBlame) { Tag = replay });
       }
       if (menu.MenuItems.Count > 0)
       {
@@ -303,8 +266,8 @@ namespace Spines.Hana.Snitch
 
     private static void OpenBlame(object sender, EventArgs e)
     {
-      var item = (MenuItem) sender;
-      var replayData = (ReplayData) item.Tag;
+      var item = (MenuItem)sender;
+      var replayData = (ReplayData)item.Tag;
       OpenUrl(GetReviewUrl(replayData));
     }
 
@@ -365,7 +328,7 @@ namespace Spines.Hana.Snitch
 
     private static void OnChangeNotifications(object sender, EventArgs e)
     {
-      var item = (MenuItem) sender;
+      var item = (MenuItem)sender;
       item.Checked = !item.Checked;
       Settings.Default.ShowNotifications = item.Checked;
       Settings.Default.Save();
