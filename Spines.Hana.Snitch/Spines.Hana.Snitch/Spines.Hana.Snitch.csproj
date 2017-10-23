@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Decoder.cs" />
     <Compile Include="History.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Paths.cs" />

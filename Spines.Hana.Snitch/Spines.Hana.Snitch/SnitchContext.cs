@@ -29,6 +29,7 @@ namespace Spines.Hana.Snitch
       };
 
       WatchWindowsClient();
+      WatchFlashClient();
 
       _icon.BalloonTipClicked += OnBalloonClicked;
 
@@ -51,12 +52,127 @@ namespace Spines.Hana.Snitch
 
     private const string HanablameUrl = "http://www.hanablame.com";
     private static readonly Regex ConfigIniRegex = new Regex(@"^\d+=file=(\d{10}gm-\d{4}-\d{4}-[\da-f]{8}).*oya=(\d).*sc=(.*)$");
+    private static readonly Regex MjinfoSolRegex = new Regex(@"file=(\d{10}gm%2D\d{4}%2D\d{4}%2Dx[\da-f]{12}).*oya=(\d).*sc=([\d\.,-]*)");
     private static readonly RegistryKey AutostartRegistryKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
     private readonly NotifyIcon _icon;
     private string _balloonUrl = HanablameUrl;
     private static readonly ConcurrentQueue<DateTime> FileChangeQueue = new ConcurrentQueue<DateTime>();
     private static readonly SemaphoreSlim Semaphore = new SemaphoreSlim(1, 1);
     private static readonly HttpClient Client = new HttpClient();
+
+    private void WatchFlashClient()
+    {
+      var roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+      var shared = Path.Combine(roaming, "Macromedia", "Flash Player", "#SharedObjects");
+      if (!Directory.Exists(shared))
+      {
+        return;
+      }
+      var mjv = Directory.GetDirectories(shared, "mjv.jp", SearchOption.AllDirectories).FirstOrDefault();
+      if (mjv == null)
+      {
+        return;
+      }
+      var fsw = new FileSystemWatcher(mjv, "mjinfo.sol");
+      fsw.NotifyFilter = NotifyFilters.FileName;
+      fsw.Renamed += OnRenamed;
+      fsw.EnableRaisingEvents = true;
+    }
+
+    private async void OnRenamed(object sender, RenamedEventArgs e)
+    {
+      await OnMjinfoSolChanged(e.FullPath);
+    }
+
+    /// <summary>
+    /// Queues a timestamp, then waits until a second after the last timestamp.
+    /// FileSystemWatcher sometimes raises multiple events for a single modification.
+    /// </summary>
+    private async Task OnMjinfoSolChanged(string path)
+    {
+      FileChangeQueue.Enqueue(DateTime.UtcNow);
+
+      if (Semaphore.CurrentCount == 0)
+      {
+        return;
+      }
+      await Semaphore.WaitAsync();
+      try
+      {
+        while (FileChangeQueue.TryDequeue(out var next))
+        {
+          var target = next + TimeSpan.FromSeconds(1);
+          var now = DateTime.UtcNow;
+          if (target > now)
+          {
+            await Task.Delay(target - now);
+          }
+        }
+
+        try
+        {
+          var newReplays = ReadMjinfoSol(path);
+          foreach (var replayData in newReplays)
+          {
+            await Task.Delay(TimeSpan.FromSeconds(5));
+            await Client.GetStringAsync(GetSnitchUrl(replayData));
+            _balloonUrl = GetReviewUrl(replayData);
+            ShowBalloon("Snitched!", "Click to review on hanablame.com");
+          }
+        }
+        catch (IOException)
+        {
+          await OnConfigIniChanged(path);
+          Logger.Warn("IOException on file change");
+        }
+      }
+      catch (Exception ex)
+      {
+        ShowError(ex);
+        Logger.Error(ex, "on file change");
+      }
+      finally
+      {
+        Semaphore.Release();
+      }
+    }
+
+    // TODO for some reason this doesn't seem to work on flash games. Check with extensive logging. Maybe revert refactoring first.
+
+    // TODO Handler base class with template method and concrete implementation for WindowsClient, FlashClient and HtmlClient
+    // TODO only the ReadXFile() method is different, put the rest in QueueChange/another shared method
+
+
+    private IEnumerable<ReplayData> ReadMjinfoSol(string path)
+    {
+      var lines = File.ReadAllLines(path);
+      var matches = lines.Select(l => MjinfoSolRegex.Match(l)).Where(m => m.Success);
+
+      // TODO can reuse the parts below too
+      var results = new List<ReplayData>();
+      foreach (var match in matches.Reverse())
+      {
+        var id = Decoder.FromMjinfoSol(match.Groups[1].Value);
+        var oya = ToInt(match.Groups[2].Value);
+        var scores = match.Groups[3].Value.Split(',');
+        var playerCount = scores.Length / 2;
+        var position = (playerCount - oya) % playerCount;
+        results.Add(new ReplayData(id, position));
+      }
+
+      var recent = new HashSet<string>(History.All().Select(r => r.Id));
+      var newReplays = results.Where(r => !recent.Contains(r.Id)).ToList();
+      if (!newReplays.Any())
+      {
+        return Enumerable.Empty<ReplayData>();
+      }
+
+      History.Append(newReplays);
+
+      UpdateMenu();
+
+      return newReplays;
+    }
 
     private void WatchWindowsClient()
     {
@@ -285,29 +401,6 @@ namespace Spines.Hana.Snitch
       {
         AutostartRegistryKey.DeleteValue(Application.ProductName, false);
       }
-    }
-
-    private static void WatchFlashClient()
-    {
-      var roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-      var shared = Path.Combine(roaming, "Macromedia", "Flash Player", "#SharedObjects");
-      if (!Directory.Exists(shared))
-      {
-        return;
-      }
-      var mjv = Directory.GetDirectories(shared, "mjv.jp", SearchOption.AllDirectories).FirstOrDefault();
-      if (mjv == null)
-      {
-        return;
-      }
-      var fsw = new FileSystemWatcher(mjv, "mjinfo.sol");
-      fsw.NotifyFilter = NotifyFilters.LastWrite;
-      fsw.Changed += OnMjinfoSolChanged;
-      fsw.EnableRaisingEvents = true;
-    }
-
-    private static void OnMjinfoSolChanged(object sender, FileSystemEventArgs e)
-    {
     }
   }
 }
