@@ -102,9 +102,15 @@ namespace Spines.Hana.Snitch
 
       TryAddAutostart(menu);
       AddDisableNotifications(menu);
+      menu.MenuItems.Add(new MenuItem("Open error log", OpenErrorLog));
       menu.MenuItems.Add("-");
       menu.MenuItems.Add(new MenuItem("Exit", Exit));
       return menu;
+    }
+
+    private static void OpenErrorLog(object sender, EventArgs e)
+    {
+      Logger.OpenLogFile();
     }
 
     private static void OpenBlame(object sender, EventArgs e)

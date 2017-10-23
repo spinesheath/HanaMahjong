@@ -2,6 +2,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -23,6 +24,22 @@ namespace Spines.Hana.Snitch
     {
       var now = DateTime.Now.ToString("G", CultureInfo.InvariantCulture);
       Log($"Warn | {now} | {message}");
+    }
+
+    public static void OpenLogFile()
+    {
+      try
+      {
+        if (!File.Exists(Paths.Log))
+        {
+          File.WriteAllLines(Paths.Log, Enumerable.Empty<string>());
+        }
+        Process.Start(Paths.Log);
+      }
+      catch (Exception e)
+      {
+        Error(e, "Failed to open log file.");
+      }
     }
 
     private static readonly object LogLock = new object();
