@@ -12,6 +12,9 @@ using Spines.Hana.Snitch.Properties;
 
 namespace Spines.Hana.Snitch
 {
+  // TODO scan for new replays on startup?
+  // TODO HTML client
+  // TODO Only add Id to history if success or deny
   internal class SnitchContext : ApplicationContext
   {
     public SnitchContext()
@@ -22,10 +25,12 @@ namespace Spines.Hana.Snitch
         Visible = true
       };
 
-      var w = new WindowsWatcher(Handler);
+      var w = new PremiumWatcher(Handler);
       w.HistoryUpdated += OnHistoryUpdated;
-      var f = new FlashWatcher(Handler);
+      var f = new FirefoxFlashWatcher(Handler);
       f.HistoryUpdated += OnHistoryUpdated;
+      var c = new ChromeFlashWatcher(Handler);
+      c.HistoryUpdated += OnHistoryUpdated;
 
       _icon.BalloonTipClicked += OnBalloonClicked;
 
@@ -62,7 +67,7 @@ namespace Spines.Hana.Snitch
       foreach (var replayData in newReplays)
       {
         await Task.Delay(TimeSpan.FromSeconds(5));
-        await Client.GetStringAsync(GetSnitchUrl(replayData));
+        //await Client.GetStringAsync(GetSnitchUrl(replayData));
         _balloonUrl = GetReviewUrl(replayData);
         ShowBalloon("Snitched!", "Click to review on hanablame.com");
       }

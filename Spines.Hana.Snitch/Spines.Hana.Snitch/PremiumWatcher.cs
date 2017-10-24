@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Spines.Hana.Snitch
 {
-  internal class WindowsWatcher : Watcher
+  internal class PremiumWatcher : Watcher
   {
-    public WindowsWatcher(Func<IEnumerable<ReplayData>, Task> resultHandler)
+    public PremiumWatcher(Func<IEnumerable<ReplayData>, Task> resultHandler)
       : base(resultHandler)
     {
       var roaming = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);

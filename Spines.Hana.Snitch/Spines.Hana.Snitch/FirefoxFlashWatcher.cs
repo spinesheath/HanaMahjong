@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace Spines.Hana.Snitch
 {
-  internal class FlashWatcher : Watcher
+  internal class FirefoxFlashWatcher : Watcher
   {
-    public FlashWatcher(Func<IEnumerable<ReplayData>, Task> resultHandler)
+    public FirefoxFlashWatcher(Func<IEnumerable<ReplayData>, Task> resultHandler)
       : base(resultHandler)
     {
       var roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);

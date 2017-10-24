@@ -48,7 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Decoder.cs" />
-    <Compile Include="FlashWatcher.cs" />
+    <Compile Include="ChromeFlashWatcher.cs" />
+    <Compile Include="FirefoxFlashWatcher.cs" />
     <Compile Include="History.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Paths.cs" />
@@ -58,7 +59,7 @@
     <Compile Include="SingleInstanceManager.cs" />
     <Compile Include="SnitchContext.cs" />
     <Compile Include="Watcher.cs" />
-    <Compile Include="WindowsWatcher.cs" />
+    <Compile Include="PremiumWatcher.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
