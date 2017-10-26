@@ -9,18 +9,20 @@ using System.Threading.Tasks;
 
 namespace Spines.Hana.Snitch
 {
+  /// <summary>
+  /// Watcher for the windows premium client.
+  /// </summary>
   internal class PremiumWatcher : Watcher
   {
     public PremiumWatcher(Func<IEnumerable<ReplayData>, Task> resultHandler)
       : base(resultHandler)
     {
-      var roaming = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-      var folder = Path.Combine(roaming, "C-EGG", "tenhou", "130");
-      if (!Directory.Exists(folder))
+      var directory = GetDirectory();
+      if (!Directory.Exists(directory))
       {
         return;
       }
-      var fsw = new FileSystemWatcher(folder, "config.ini");
+      var fsw = new FileSystemWatcher(directory, FileName);
       fsw.NotifyFilter = NotifyFilters.LastWrite;
       fsw.Changed += OnFileChanged;
       fsw.EnableRaisingEvents = true;
@@ -28,9 +30,22 @@ namespace Spines.Hana.Snitch
 
     protected override Regex ReplayRegex { get; } = new Regex(@"^\d+=file=(\d{10}gm-\d{4}-\d{4}-[\da-f]{8}).*oya=(\d).*sc=(.*)$");
 
+    protected override string GetPath()
+    {
+      return Path.Combine(GetDirectory(), FileName);
+    }
+
+    private const string FileName = "config.ini";
+
     private async void OnFileChanged(object sender, FileSystemEventArgs e)
     {
       await QueueChange(e.FullPath);
+    }
+
+    private static string GetDirectory()
+    {
+      var roaming = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+      return Path.Combine(roaming, "C-EGG", "tenhou", "130");
     }
   }
 }

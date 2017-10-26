@@ -15,18 +15,12 @@ namespace Spines.Hana.Snitch
     public FirefoxFlashWatcher(Func<IEnumerable<ReplayData>, Task> resultHandler)
       : base(resultHandler)
     {
-      var roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-      var shared = Path.Combine(roaming, "Macromedia", "Flash Player", "#SharedObjects");
-      if (!Directory.Exists(shared))
+      var directory = GetDirectory();
+      if (!Directory.Exists(directory))
       {
         return;
       }
-      var mjv = Directory.GetDirectories(shared, "mjv.jp", SearchOption.AllDirectories).FirstOrDefault();
-      if (mjv == null)
-      {
-        return;
-      }
-      var fsw = new FileSystemWatcher(mjv, "mjinfo.sol");
+      var fsw = new FileSystemWatcher(directory, FileName);
       fsw.NotifyFilter = NotifyFilters.FileName;
       fsw.Renamed += OnRenamed;
       fsw.EnableRaisingEvents = true;
@@ -34,9 +28,23 @@ namespace Spines.Hana.Snitch
 
     protected override Regex ReplayRegex { get; } = new Regex(@"file=(\d{10}gm%2D\d{4}%2D\d{4}%2Dx[\da-f]{12}).*oya=(\d).*sc=([\d\.,-]*)");
 
+    protected override string GetPath()
+    {
+      return Path.Combine(GetDirectory(), FileName);
+    }
+
+    private const string FileName = "mjinfo.sol";
+
     private async void OnRenamed(object sender, FileSystemEventArgs e)
     {
       await QueueChange(e.FullPath);
+    }
+
+    private static string GetDirectory()
+    {
+      var roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+      var shared = Path.Combine(roaming, "Macromedia", "Flash Player", "#SharedObjects");
+      return Directory.GetDirectories(shared, "mjv.jp", SearchOption.AllDirectories).FirstOrDefault();
     }
   }
 }

@@ -17,10 +17,27 @@ namespace Spines.Hana.Snitch
   {
     public event EventHandler HistoryUpdated;
 
+    /// <summary>
+    /// Scans for existing files that have not been added to the history yet.
+    /// </summary>
+    public async Task Scan()
+    {
+      var path = GetPath();
+      if (File.Exists(path))
+      {
+        await QueueChange(path);
+      }
+    }
+
     protected Watcher(Func<IEnumerable<ReplayData>, Task> resultHandler)
     {
       _resultHandler = resultHandler;
     }
+
+    /// <summary>
+    /// Gets the path to the replay file.
+    /// </summary>
+    protected abstract string GetPath();
 
     /// <summary>
     /// Queues a timestamp, then waits until a second after the last timestamp.

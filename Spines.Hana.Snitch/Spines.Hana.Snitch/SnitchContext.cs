@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -13,8 +14,9 @@ using Spines.Hana.Snitch.Properties;
 namespace Spines.Hana.Snitch
 {
   // TODO scan for new replays on startup?
-  // TODO HTML client
   // TODO Only add Id to history if success or deny
+  // TODO access leveldb in chrome. Also access localstorage in chrome.
+  // TODO access localstorage in firefox
   internal class SnitchContext : ApplicationContext
   {
     public SnitchContext()
@@ -25,12 +27,13 @@ namespace Spines.Hana.Snitch
         Visible = true
       };
 
-      var w = new PremiumWatcher(Handler);
-      w.HistoryUpdated += OnHistoryUpdated;
-      var f = new FirefoxFlashWatcher(Handler);
-      f.HistoryUpdated += OnHistoryUpdated;
-      var c = new ChromeFlashWatcher(Handler);
-      c.HistoryUpdated += OnHistoryUpdated;
+      _watchers.Add(new PremiumWatcher(Handler));
+      _watchers.Add(new FirefoxFlashWatcher(Handler));
+      _watchers.Add(new ChromeFlashWatcher(Handler));
+      foreach (var watcher in _watchers)
+      {
+        watcher.HistoryUpdated += OnHistoryUpdated;
+      }
 
       _icon.BalloonTipClicked += OnBalloonClicked;
 
@@ -52,6 +55,7 @@ namespace Spines.Hana.Snitch
     }
 
     private const string HanablameUrl = "http://www.hanablame.com";
+    private readonly List<Watcher> _watchers = new List<Watcher>();
     private static readonly RegistryKey AutostartRegistryKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
     private readonly NotifyIcon _icon;
     private string _balloonUrl = HanablameUrl;
@@ -67,7 +71,7 @@ namespace Spines.Hana.Snitch
       foreach (var replayData in newReplays)
       {
         await Task.Delay(TimeSpan.FromSeconds(5));
-        //await Client.GetStringAsync(GetSnitchUrl(replayData));
+        await Client.GetStringAsync(GetSnitchUrl(replayData));
         _balloonUrl = GetReviewUrl(replayData);
         ShowBalloon("Snitched!", "Click to review on hanablame.com");
       }
@@ -91,7 +95,7 @@ namespace Spines.Hana.Snitch
       OpenUrl(_balloonUrl);
     }
 
-    private static ContextMenu BuildMenu()
+    private ContextMenu BuildMenu()
     {
       var menu = new ContextMenu();
 
@@ -105,12 +109,20 @@ namespace Spines.Hana.Snitch
         menu.MenuItems.Add("-");
       }
 
+      menu.MenuItems.Add(new MenuItem("Scan", OnScan));
+      menu.MenuItems.Add("-");
       TryAddAutostart(menu);
       AddDisableNotifications(menu);
       menu.MenuItems.Add(new MenuItem("Open error log", OpenErrorLog));
       menu.MenuItems.Add("-");
       menu.MenuItems.Add(new MenuItem("Exit", Exit));
       return menu;
+    }
+
+    private async void OnScan(object sender, EventArgs e)
+    {
+      var tasks = _watchers.Select(w => w.Scan());
+      await Task.WhenAll(tasks);
     }
 
     private static void OpenErrorLog(object sender, EventArgs e)

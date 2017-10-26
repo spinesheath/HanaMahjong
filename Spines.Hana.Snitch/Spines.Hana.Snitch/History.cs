@@ -22,12 +22,12 @@ namespace Spines.Hana.Snitch
         return Enumerable.Empty<ReplayData>();
       }
       var recent = File.ReadAllLines(Paths.History).Select(StringToReplay).ToList();
-      if (recent.Count <= 200)
+      if (recent.Count <= MaxHistoryLength)
       {
         recent.Reverse();
         return recent.Take(count);
       }
-      // Trim to 100 lines at startup if more than 200.
+      // Trim to 100 lines at startup if more than max.
       var remaining = recent.Skip(recent.Count - 100).ToList();
       File.WriteAllLines(Paths.History, remaining.Select(ReplayToString));
       remaining.Reverse();
@@ -38,6 +38,8 @@ namespace Spines.Hana.Snitch
     {
       File.AppendAllLines(Paths.History, replays.Select(ReplayToString));
     }
+
+    private const int MaxHistoryLength = 1000;
 
     private static ReplayData StringToReplay(string value)
     {
