@@ -40,8 +40,7 @@ namespace Spines.Hana.Blame
     public void ConfigureServices(IServiceCollection services)
     {
       // Add framework services.
-      services.AddDbContext<ApplicationDbContext>(options =>
-          options.UseSqlServer(Configuration.GetValue<string>("SpinesHanaBlameDefaultConnectionString")));
+      services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(GetConnectionString()));
 
       services.AddIdentity<ApplicationUser, IdentityRole>(config => { config.SignIn.RequireConfirmedEmail = true; })
         .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -93,6 +92,12 @@ namespace Spines.Hana.Blame
           name: "default",
           template: "{controller=Home}/{action=Index}/{id?}");
       });
+    }
+
+    private string GetConnectionString()
+    {
+      var connectionString = Configuration.GetConnectionString("SpinesHanaBlameDefaultConnectionString");
+      return string.IsNullOrEmpty(connectionString) ? Configuration.GetValue<string>("SpinesHanaBlameDefaultConnectionString") : connectionString;
     }
   }
 }
