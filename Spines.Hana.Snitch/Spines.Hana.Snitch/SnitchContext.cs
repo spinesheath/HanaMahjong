@@ -17,6 +17,7 @@ namespace Spines.Hana.Snitch
   // TODO Only add Id to history if success or deny
   // TODO access leveldb in chrome. Also access localstorage in chrome.
   // TODO access localstorage in firefox
+  // TODO store replays with x[\da-f]{12} pattern as [\da-f]{8} pattern in history
   internal class SnitchContext : ApplicationContext
   {
     public SnitchContext()

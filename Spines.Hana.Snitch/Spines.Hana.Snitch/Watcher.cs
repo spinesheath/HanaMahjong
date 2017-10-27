@@ -45,12 +45,12 @@ namespace Spines.Hana.Snitch
     /// </summary>
     protected async Task QueueChange(string path)
     {
-      FileChangeQueue.Enqueue(DateTime.UtcNow);
-      if (Semaphore.CurrentCount == 0)
+      _fileChangeQueue.Enqueue(DateTime.UtcNow);
+      if (_semaphore.CurrentCount == 0)
       {
         return;
       }
-      await Semaphore.WaitAsync();
+      await _semaphore.WaitAsync();
       try
       {
         await ClearQueue();
@@ -68,14 +68,14 @@ namespace Spines.Hana.Snitch
       }
       finally
       {
-        Semaphore.Release();
+        _semaphore.Release();
       }
     }
 
     protected abstract Regex ReplayRegex { get; }
     private readonly Func<IEnumerable<ReplayData>, Task> _resultHandler;
-    private static readonly ConcurrentQueue<DateTime> FileChangeQueue = new ConcurrentQueue<DateTime>();
-    private static readonly SemaphoreSlim Semaphore = new SemaphoreSlim(1, 1);
+    private readonly ConcurrentQueue<DateTime> _fileChangeQueue = new ConcurrentQueue<DateTime>();
+    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
     private IEnumerable<ReplayData> ReadFile(string path)
     {
@@ -99,7 +99,7 @@ namespace Spines.Hana.Snitch
 
     private static ReplayData MatchToReplayData(Match match)
     {
-      var id = match.Groups[1].Value;
+      var id = match.Groups[1].Value.Replace("%2D", "-");
       var oya = ToInt(match.Groups[2].Value);
       var scores = match.Groups[3].Value.Split(',');
       var playerCount = scores.Length / 2;
@@ -115,9 +115,9 @@ namespace Spines.Hana.Snitch
     /// <summary>
     /// Waits until a second after the last timestamp in the queue.
     /// </summary>
-    private static async Task ClearQueue()
+    private async Task ClearQueue()
     {
-      while (FileChangeQueue.TryDequeue(out var next))
+      while (_fileChangeQueue.TryDequeue(out var next))
       {
         var target = next + TimeSpan.FromSeconds(1);
         var now = DateTime.UtcNow;
