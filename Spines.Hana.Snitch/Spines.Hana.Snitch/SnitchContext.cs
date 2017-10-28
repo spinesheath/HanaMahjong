@@ -15,7 +15,6 @@ namespace Spines.Hana.Snitch
 {
   // TODO access leveldb in chrome. Also access localstorage in chrome.
   // TODO access localstorage in firefox
-  // TODO history of ids of failed snitches
   internal class SnitchContext : ApplicationContext
   {
     public SnitchContext()
@@ -99,7 +98,6 @@ namespace Spines.Hana.Snitch
     {
       var menu = new ContextMenu();
 
-      // the last couple replays as a list
       foreach (var replay in History.Recent(10))
       {
         menu.MenuItems.Add(new MenuItem(replay.Id, OpenBlame) {Tag = replay});
