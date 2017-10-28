@@ -34,9 +34,9 @@ namespace Spines.Hana.Snitch
       return remaining.Take(count);
     }
 
-    public static void Append(IEnumerable<ReplayData> replays)
+    public static void Append(ReplayData replay)
     {
-      File.AppendAllLines(Paths.History, replays.Select(ReplayToString));
+      File.AppendAllLines(Paths.History, new []{ReplayToString(replay)});
     }
 
     private const int MaxHistoryLength = 1000;

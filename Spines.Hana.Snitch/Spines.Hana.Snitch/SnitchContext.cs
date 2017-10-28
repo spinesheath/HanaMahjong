@@ -13,11 +13,9 @@ using Spines.Hana.Snitch.Properties;
 
 namespace Spines.Hana.Snitch
 {
-  // TODO scan for new replays on startup?
-  // TODO Only add Id to history if success or deny
   // TODO access leveldb in chrome. Also access localstorage in chrome.
   // TODO access localstorage in firefox
-  // TODO store replays with x[\da-f]{12} pattern as [\da-f]{8} pattern in history
+  // TODO history of ids of failed snitches
   internal class SnitchContext : ApplicationContext
   {
     public SnitchContext()
@@ -31,10 +29,6 @@ namespace Spines.Hana.Snitch
       _watchers.Add(new PremiumWatcher(Handler));
       _watchers.Add(new FirefoxFlashWatcher(Handler));
       _watchers.Add(new ChromeFlashWatcher(Handler));
-      foreach (var watcher in _watchers)
-      {
-        watcher.HistoryUpdated += OnHistoryUpdated;
-      }
 
       _icon.BalloonTipClicked += OnBalloonClicked;
 
@@ -62,19 +56,23 @@ namespace Spines.Hana.Snitch
     private string _balloonUrl = HanablameUrl;
     private static readonly HttpClient Client = new HttpClient();
 
-    private void OnHistoryUpdated(object sender, EventArgs e)
-    {
-      UpdateMenu();
-    }
-
     private async Task Handler(IEnumerable<ReplayData> newReplays)
     {
       foreach (var replayData in newReplays)
       {
         await Task.Delay(TimeSpan.FromSeconds(5));
-        await Client.GetStringAsync(GetSnitchUrl(replayData));
-        _balloonUrl = GetReviewUrl(replayData);
-        ShowBalloon("Snitched!", "Click to review on hanablame.com");
+        var response = await Client.GetAsync(GetSnitchUrl(replayData));
+        if (response.IsSuccessStatusCode)
+        {
+          History.Append(replayData);
+          UpdateMenu();
+          _balloonUrl = GetReviewUrl(replayData);
+          ShowBalloon("Snitched!", "Click to review on hanablame.com");
+        }
+        else
+        {
+          Logger.Warn($"Failed to snitch {replayData.Id}.");
+        }
       }
     }
 

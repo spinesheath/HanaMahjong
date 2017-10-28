@@ -13,8 +13,6 @@ namespace Spines.Hana.Snitch
 {
   internal abstract class Watcher
   {
-    public event EventHandler HistoryUpdated;
-
     /// <summary>
     /// Scans for existing files that have not been added to the history yet.
     /// </summary>
@@ -74,23 +72,13 @@ namespace Spines.Hana.Snitch
     private readonly ConcurrentQueue<DateTime> _fileChangeQueue = new ConcurrentQueue<DateTime>();
     private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
-    private IEnumerable<ReplayData> ReadFile(string path)
+    private static IEnumerable<ReplayData> ReadFile(string path)
     {
       var lines = File.ReadAllLines(path);
       var results = ReplayId.GetData(lines.Reverse());
 
       var recent = new HashSet<string>(History.All().Select(r => r.Id));
-      var newReplays = results.Where(r => !recent.Contains(r.Id)).ToList();
-      if (!newReplays.Any())
-      {
-        return Enumerable.Empty<ReplayData>();
-      }
-
-      History.Append(newReplays);
-
-      HistoryUpdated?.Invoke(this, EventArgs.Empty);
-
-      return newReplays;
+      return results.Where(r => !recent.Contains(r.Id));
     }
 
     /// <summary>
