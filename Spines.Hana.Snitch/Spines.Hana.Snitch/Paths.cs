@@ -9,7 +9,8 @@ namespace Spines.Hana.Snitch
 {
   internal static class Paths
   {
-    public static string History { get; } = GetPath("recent.txt");
+    public static string HistorySuccess { get; } = GetPath("recent.txt");
+    public static string HistoryFail { get; } = GetPath("failed.txt");
     public static string Log { get; } = GetPath("log.txt");
 
     private static string GetPath(string fileName)

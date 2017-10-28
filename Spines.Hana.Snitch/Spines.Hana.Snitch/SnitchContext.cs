@@ -64,7 +64,7 @@ namespace Spines.Hana.Snitch
         var response = await Client.GetAsync(GetSnitchUrl(replayData));
         if (response.IsSuccessStatusCode)
         {
-          History.Append(replayData);
+          History.Success(replayData);
           UpdateMenu();
           _balloonUrl = GetReviewUrl(replayData);
           ShowBalloon("Snitched!", "Click to review on hanablame.com");
@@ -72,6 +72,7 @@ namespace Spines.Hana.Snitch
         else
         {
           Logger.Warn($"Failed to snitch {replayData.Id}.");
+          History.Fail(replayData);
         }
       }
     }

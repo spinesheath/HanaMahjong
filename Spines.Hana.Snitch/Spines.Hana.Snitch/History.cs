@@ -8,20 +8,55 @@ using System.Linq;
 
 namespace Spines.Hana.Snitch
 {
+  /// <summary>
+  /// A history of successfully snitched replays and a separate history of failed attempts.
+  /// </summary>
   internal static class History
   {
-    public static IEnumerable<ReplayData> All()
+    public static void Success(ReplayData replay)
+    {
+      Append(replay, Paths.HistorySuccess);
+    }
+
+    public static void Fail(ReplayData replay)
+    {
+      Append(replay, Paths.HistoryFail);
+    }
+
+    public static IEnumerable<ReplayData> Successful()
     {
       return Recent(int.MaxValue);
     }
 
     public static IEnumerable<ReplayData> Recent(int count)
     {
-      if (!File.Exists(Paths.History))
+      return Parse(Paths.HistorySuccess, count);
+    }
+
+    public static IEnumerable<ReplayData> All()
+    {
+      return Successful().Concat(Failed());
+    }
+
+    public static IEnumerable<ReplayData> Failed()
+    {
+      return Parse(Paths.HistoryFail, int.MaxValue);
+    }
+
+    private const int MaxHistoryLength = 1000;
+
+    private static void Append(ReplayData replay, string path)
+    {
+      File.AppendAllLines(path, new[] {ReplayToString(replay)});
+    }
+
+    private static IEnumerable<ReplayData> Parse(string path, int count)
+    {
+      if (!File.Exists(path))
       {
         return Enumerable.Empty<ReplayData>();
       }
-      var recent = File.ReadAllLines(Paths.History).Select(StringToReplay).ToList();
+      var recent = File.ReadAllLines(path).Select(StringToReplay).ToList();
       if (recent.Count <= MaxHistoryLength)
       {
         recent.Reverse();
@@ -29,17 +64,10 @@ namespace Spines.Hana.Snitch
       }
       // Trim to 100 lines at startup if more than max.
       var remaining = recent.Skip(recent.Count - 100).ToList();
-      File.WriteAllLines(Paths.History, remaining.Select(ReplayToString));
+      File.WriteAllLines(path, remaining.Select(ReplayToString));
       remaining.Reverse();
       return remaining.Take(count);
     }
-
-    public static void Append(ReplayData replay)
-    {
-      File.AppendAllLines(Paths.History, new []{ReplayToString(replay)});
-    }
-
-    private const int MaxHistoryLength = 1000;
 
     private static ReplayData StringToReplay(string value)
     {
