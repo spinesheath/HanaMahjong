@@ -19,16 +19,22 @@ namespace Spines.Hana.Snitch
   {
     public SnitchContext()
     {
+      try
+      {
+        _watchers.Add(new PremiumWatcher(Handler));
+        _watchers.Add(new FirefoxFlashWatcher(Handler));
+        _watchers.Add(new ChromeFlashWatcher(Handler));
+      }
+      catch (Exception ex)
+      {
+        Logger.Error(ex, "Error creating watcher");
+      }
+
       _icon = new NotifyIcon
       {
         Icon = Resources.AppIcon,
         Visible = true
       };
-
-      _watchers.Add(new PremiumWatcher(Handler));
-      _watchers.Add(new FirefoxFlashWatcher(Handler));
-      _watchers.Add(new ChromeFlashWatcher(Handler));
-
       _icon.BalloonTipClicked += OnBalloonClicked;
 
       if (!Settings.Default.ShowedFirstLaunchInfo)
@@ -59,19 +65,26 @@ namespace Spines.Hana.Snitch
     {
       foreach (var replayData in newReplays)
       {
-        await Task.Delay(TimeSpan.FromSeconds(5));
-        var response = await Client.GetAsync(GetSnitchUrl(replayData));
-        if (response.IsSuccessStatusCode)
+        try
         {
-          History.Success(replayData);
-          UpdateMenu();
-          _balloonUrl = GetReviewUrl(replayData);
-          ShowBalloon("Snitched!", "Click to review on hanablame.com");
+          await Task.Delay(TimeSpan.FromSeconds(5));
+          var response = await Client.GetAsync(GetSnitchUrl(replayData));
+          if (response.IsSuccessStatusCode)
+          {
+            History.Success(replayData);
+            UpdateMenu();
+            _balloonUrl = GetReviewUrl(replayData);
+            ShowBalloon("Snitched!", "Click to review on hanablame.com");
+          }
+          else
+          {
+            Logger.Warn($"Failed to snitch {replayData.Id}.");
+            History.Fail(replayData);
+          }
         }
-        else
+        catch (Exception ex)
         {
-          Logger.Warn($"Failed to snitch {replayData.Id}.");
-          History.Fail(replayData);
+          Logger.Error(ex, $"Error handling {replayData?.Id}");
         }
       }
     }
@@ -119,8 +132,15 @@ namespace Spines.Hana.Snitch
 
     private async void OnScan(object sender, EventArgs e)
     {
-      var tasks = _watchers.Select(w => w.Scan());
-      await Task.WhenAll(tasks);
+      try
+      {
+        var tasks = _watchers.Select(w => w.Scan());
+        await Task.WhenAll(tasks);
+      }
+      catch (Exception ex)
+      {
+        Logger.Error(ex, "Error while scanning");
+      }
     }
 
     private static void OpenErrorLog(object sender, EventArgs e)
@@ -130,9 +150,16 @@ namespace Spines.Hana.Snitch
 
     private static void OpenBlame(object sender, EventArgs e)
     {
-      var item = (MenuItem) sender;
-      var replayData = (ReplayData) item.Tag;
-      OpenUrl(GetReviewUrl(replayData));
+      try
+      {
+        var item = (MenuItem) sender;
+        var replayData = (ReplayData) item.Tag;
+        OpenUrl(GetReviewUrl(replayData));
+      }
+      catch (Exception ex)
+      {
+        Logger.Error(ex, "Error navigating to replay");
+      }
     }
 
     private static string GetReviewUrl(ReplayData replayData)
@@ -166,10 +193,17 @@ namespace Spines.Hana.Snitch
 
     private static void OnChangeNotifications(object sender, EventArgs e)
     {
-      var item = (MenuItem) sender;
-      item.Checked = !item.Checked;
-      Settings.Default.ShowNotifications = item.Checked;
-      Settings.Default.Save();
+      try
+      {
+        var item = (MenuItem) sender;
+        item.Checked = !item.Checked;
+        Settings.Default.ShowNotifications = item.Checked;
+        Settings.Default.Save();
+      }
+      catch (Exception ex)
+      {
+        Logger.Error(ex, "Error toggling notifications.");
+      }
     }
 
     private static void Exit(object sender, EventArgs e)
@@ -192,15 +226,22 @@ namespace Spines.Hana.Snitch
 
     private static void OnAutostartChanged(object sender, EventArgs e)
     {
-      var item = (MenuItem) sender;
-      item.Checked = !item.Checked;
-      if (item.Checked)
+      try
       {
-        AutostartRegistryKey.SetValue(Application.ProductName, Application.ExecutablePath);
+        var item = (MenuItem) sender;
+        item.Checked = !item.Checked;
+        if (item.Checked)
+        {
+          AutostartRegistryKey.SetValue(Application.ProductName, Application.ExecutablePath);
+        }
+        else
+        {
+          AutostartRegistryKey.DeleteValue(Application.ProductName, false);
+        }
       }
-      else
+      catch (Exception ex)
       {
-        AutostartRegistryKey.DeleteValue(Application.ProductName, false);
+        Logger.Error(ex, "Error toggling autostart.");
       }
     }
   }

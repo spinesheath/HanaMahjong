@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Spines.Hana.Snitch
@@ -28,7 +27,8 @@ namespace Spines.Hana.Snitch
 
     protected override string GetPath()
     {
-      return Path.Combine(GetDirectory(), FileName);
+      var directory = GetDirectory();
+      return directory == null ? null : Path.Combine(directory, FileName);
     }
 
     private const string FileName = "mjinfo.sol";
