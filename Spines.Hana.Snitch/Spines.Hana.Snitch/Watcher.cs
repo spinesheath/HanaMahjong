@@ -4,10 +4,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -72,7 +70,6 @@ namespace Spines.Hana.Snitch
       }
     }
 
-    protected abstract Regex ReplayRegex { get; }
     private readonly Func<IEnumerable<ReplayData>, Task> _resultHandler;
     private readonly ConcurrentQueue<DateTime> _fileChangeQueue = new ConcurrentQueue<DateTime>();
     private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
@@ -80,8 +77,7 @@ namespace Spines.Hana.Snitch
     private IEnumerable<ReplayData> ReadFile(string path)
     {
       var lines = File.ReadAllLines(path);
-      var matches = lines.Select(l => ReplayRegex.Match(l)).Where(m => m.Success);
-      var results = matches.Reverse().Select(MatchToReplayData).ToList();
+      var results = ReplayId.GetData(lines.Reverse());
 
       var recent = new HashSet<string>(History.All().Select(r => r.Id));
       var newReplays = results.Where(r => !recent.Contains(r.Id)).ToList();
@@ -95,21 +91,6 @@ namespace Spines.Hana.Snitch
       HistoryUpdated?.Invoke(this, EventArgs.Empty);
 
       return newReplays;
-    }
-
-    private static ReplayData MatchToReplayData(Match match)
-    {
-      var id = match.Groups[1].Value.Replace("%2D", "-");
-      var oya = ToInt(match.Groups[2].Value);
-      var scores = match.Groups[3].Value.Split(',');
-      var playerCount = scores.Length / 2;
-      var position = (playerCount - oya) % playerCount;
-      return new ReplayData(id, position);
-    }
-
-    private static int ToInt(string value)
-    {
-      return Convert.ToInt32(value, CultureInfo.InvariantCulture);
     }
 
     /// <summary>

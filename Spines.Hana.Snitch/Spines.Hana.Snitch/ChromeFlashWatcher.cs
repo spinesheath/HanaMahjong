@@ -26,8 +26,6 @@ namespace Spines.Hana.Snitch
       fsw.EnableRaisingEvents = true;
     }
 
-    protected override Regex ReplayRegex { get; } = new Regex(@"file=(\d{10}gm%2D\d{4}%2D\d{4}%2Dx[\da-f]{12}).*oya=(\d).*sc=([\d\.,-]*)");
-
     protected override string GetPath()
     {
       return Path.Combine(GetDirectory(), FileName);

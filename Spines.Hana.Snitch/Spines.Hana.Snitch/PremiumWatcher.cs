@@ -28,8 +28,6 @@ namespace Spines.Hana.Snitch
       fsw.EnableRaisingEvents = true;
     }
 
-    protected override Regex ReplayRegex { get; } = new Regex(@"^\d+=file=(\d{10}gm-\d{4}-\d{4}-[\da-f]{8}).*oya=(\d).*sc=(.*)$");
-
     protected override string GetPath()
     {
       return Path.Combine(GetDirectory(), FileName);
