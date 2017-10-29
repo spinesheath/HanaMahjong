@@ -17,12 +17,8 @@ namespace Spines.Hana.Blame.Controllers
     [HttpGet]
     public async Task<IActionResult> Snitch(string replayId)
     {
-      var success = await _replayManager.PrepareAsync(replayId);
-      if (success)
-      {
-        return Json(replayId);
-      }
-      return BadRequest();
+      var result = await _replayManager.PrepareAsync(replayId);
+      return StatusCode((int) result);
     }
 
     private readonly ReplayManager _replayManager;

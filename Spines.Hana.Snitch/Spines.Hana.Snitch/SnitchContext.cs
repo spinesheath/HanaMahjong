@@ -78,8 +78,10 @@ namespace Spines.Hana.Snitch
           }
           else
           {
-            Logger.Warn($"Failed to snitch {replayData.Id}.");
-            History.Fail(replayData);
+            _balloonUrl = null;
+            ShowBalloon("Failed upload", "Unable to publish your replay. See the log for details.");
+            Logger.Warn($"Failed to snitch {replayData.Id}. Server returned status code {(int)response.StatusCode}.");
+            History.Fail(replayData, response.StatusCode);
           }
         }
         catch (Exception ex)
@@ -174,6 +176,10 @@ namespace Spines.Hana.Snitch
 
     private static void OpenUrl(string url)
     {
+      if (url == null)
+      {
+        return;
+      }
       try
       {
         Process.Start(url);

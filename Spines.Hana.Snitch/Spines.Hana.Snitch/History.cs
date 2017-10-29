@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 
 namespace Spines.Hana.Snitch
 {
@@ -15,12 +16,12 @@ namespace Spines.Hana.Snitch
   {
     public static void Success(ReplayData replay)
     {
-      Append(replay, Paths.HistorySuccess);
+      File.AppendAllLines(Paths.HistorySuccess, new[] {ReplayToString(replay)});
     }
 
-    public static void Fail(ReplayData replay)
+    public static void Fail(ReplayData replay, HttpStatusCode responseStatusCode)
     {
-      Append(replay, Paths.HistoryFail);
+      File.AppendAllLines(Paths.HistoryFail, new[] {$"{ReplayToString(replay)};{(int)responseStatusCode}"});
     }
 
     public static IEnumerable<ReplayData> Successful()
@@ -45,18 +46,13 @@ namespace Spines.Hana.Snitch
 
     private const int MaxHistoryLength = 1000;
 
-    private static void Append(ReplayData replay, string path)
-    {
-      File.AppendAllLines(path, new[] {ReplayToString(replay)});
-    }
-
     private static IEnumerable<ReplayData> Parse(string path, int count)
     {
       if (!File.Exists(path))
       {
         return Enumerable.Empty<ReplayData>();
       }
-      var recent = File.ReadAllLines(path).Select(StringToReplay).ToList();
+      var recent = LinesToReplays(File.ReadAllLines(path)).ToList();
       if (recent.Count <= MaxHistoryLength)
       {
         recent.Reverse();
@@ -69,12 +65,19 @@ namespace Spines.Hana.Snitch
       return remaining.Take(count);
     }
 
-    private static ReplayData StringToReplay(string value)
+    private static IEnumerable<ReplayData> LinesToReplays(IEnumerable<string> lines)
     {
-      var parts = value.Split(';');
-      var id = parts[0];
-      var position = Convert.ToInt32(parts[1]);
-      return new ReplayData(id, position);
+      foreach (var line in lines)
+      {
+        var parts = line.Split(';');
+        if (parts.Length < 2)
+        {
+          continue;
+        }
+        var id = parts[0];
+        var position = Convert.ToInt32(parts[1]);
+        yield return new ReplayData(id, position);
+      }
     }
 
     private static string ReplayToString(ReplayData replay)

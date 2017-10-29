@@ -6,6 +6,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,20 +26,20 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 {
   public class ReplayManager
   {
-    public ReplayManager(ApplicationDbContext context, IOptions<StorageOptions> storageOptions, ReplayDownloader downloader, ILoggerFactory loggerFactory)
+    public ReplayManager(ApplicationDbContext context, IOptions<StorageOptions> storageOptions, HttpClient client, ILoggerFactory loggerFactory)
     {
       _context = context;
-      _downloader = downloader;
+      _client = client;
       _storage = storageOptions.Value;
       _logger = loggerFactory.CreateLogger<ReplayManager>();
     }
 
-    public async Task<bool> PrepareAsync(string replayId)
+    public async Task<HttpStatusCode> PrepareAsync(string replayId)
     {
       // Deny invalid IDs.
       if (string.IsNullOrEmpty(replayId) || !ReplayIdRegex.IsMatch(replayId))
       {
-        return false;
+        return HttpStatusCode.BadRequest;
       }
       // If the ID is currently being downloaded, wait on the existing task.
       if (CurrentWork.TryGetValue(replayId, out var t))
@@ -47,7 +49,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       // If the replay already exists in the DB, no need to do anything.
       if (await MatchExists(replayId))
       {
-        return true;
+        return HttpStatusCode.NoContent;
       }
       // Try to queue a new download. If it was queued, await that.
       var work = QueuedDownload(replayId);
@@ -62,75 +64,73 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       }
       // If we didn't find the ongoing download, it must have completed somewhere between the TryAdd and the TryGetValue,
       // so all we have to check if the download was successful.
-      return await MatchExists(replayId);
+      return await MatchExists(replayId) ? HttpStatusCode.NoContent : HttpStatusCode.NotFound;
     }
 
     private const string TenhouJsonContainerName = "tenhoureplays";
     private const string TenhouXmlContainerName = "tenhouxml";
     private readonly ApplicationDbContext _context;
-    private readonly ReplayDownloader _downloader;
+    private readonly HttpClient _client;
     private readonly StorageOptions _storage;
-    
     private static readonly TimeSpan Delay = TimeSpan.FromSeconds(5);
     private static readonly Regex ReplayIdRegex = new Regex(@"\A(\d{10})gm-\d{4}-\d{4}-[\da-f]{8}\z");
-    private static readonly ConcurrentDictionary<string, Task<bool>> CurrentWork = new ConcurrentDictionary<string, Task<bool>>();
+    private static readonly ConcurrentDictionary<string, Task<HttpStatusCode>> CurrentWork = new ConcurrentDictionary<string, Task<HttpStatusCode>>();
     private static readonly SemaphoreSlim TenhouSemaphore = new SemaphoreSlim(1, 1);
     private readonly ILogger<ReplayManager> _logger;
-
-    private async Task<string> DownloadAsync(string replayId)
-    {
-      return await _downloader.DownloadAsync(replayId);
-    }
 
     private async Task<bool> MatchExists(string replayId)
     {
       return await _context.Matches.AnyAsync(m => m.ContainerName == TenhouJsonContainerName && m.FileName == replayId);
     }
 
-    private async Task<bool> QueuedDownload(string replayId)
+    private async Task<HttpStatusCode> QueuedDownload(string replayId)
     {
-      // Synchronize downloads.
       await TenhouSemaphore.WaitAsync();
       try
       {
         // If the replay was downloaded by now, we are done.
         if (await MatchExists(replayId))
         {
-          return true;
+          return HttpStatusCode.NoContent;
         }
 
         // Wait for a while to let tenhou make the replay available.
         // Also prevents too many replays being requested from tenhou at once.
         await Task.Delay(Delay);
 
-        // Else we are sending out a request and remeber the time of that request.
-        var xml = await DownloadAsync(replayId);
-
-        // If the download was unsuccessful, the ID is invalid.
-        if (xml == null)
+        var response = await _client.GetAsync($"http://e.mjv.jp/0/log/?{replayId}");
+        if (response.IsSuccessStatusCode)
         {
-          return false;
-        }
+          var xml = await response.Content.ReadAsStringAsync();
+          if (string.IsNullOrEmpty(xml))
+          {
+            return HttpStatusCode.NotFound;
+          }
 
-        // Save the downloaded replay.
-        var replay = Replay.Parse(xml);
-        var cloudBlobClient = GetCloudBlobClient();
-        await Task.WhenAll(
-          SaveToDatabase(replayId, replay), 
-          SaveToJsonStorage(replayId, replay, cloudBlobClient), 
-          SaveToXmlStorage(replayId, xml, cloudBlobClient));
+          // Save the downloaded replay.
+          var replay = Replay.Parse(xml);
+          var cloudBlobClient = GetCloudBlobClient();
+          await Task.WhenAll(
+            SaveToDatabase(replayId, replay),
+            SaveToJsonStorage(replayId, replay, cloudBlobClient),
+            SaveToXmlStorage(replayId, xml, cloudBlobClient));
+        }
+        else
+        {
+          return response.StatusCode;
+        }
       }
       catch(Exception e)
       {
         _logger.LogError(e, "Failed to download or store replay.");
-        return false;
+        return HttpStatusCode.InternalServerError;
       }
       finally
       {
         CurrentWork.TryRemove(replayId, out var t);
         TenhouSemaphore.Release();
       }
-      return true;
+      return HttpStatusCode.NoContent;
     }
 
     private async Task SaveToDatabase(string replayId, Replay replay)

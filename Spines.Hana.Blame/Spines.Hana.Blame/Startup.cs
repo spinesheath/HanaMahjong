@@ -54,7 +54,6 @@ namespace Spines.Hana.Blame
       services.AddTransient<IdentityInitializer>();
       services.AddTransient<RuleSetInitializer>();
       services.AddTransient<RoomInitializer>();
-      services.AddTransient<ReplayDownloader>();
       services.AddTransient<ReplayManager>();
 
       services.AddSingleton<HttpClient>();
