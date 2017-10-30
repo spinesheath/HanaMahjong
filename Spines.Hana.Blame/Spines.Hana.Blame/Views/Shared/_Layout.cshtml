@@ -1,14 +1,9 @@
-﻿@using System
-@{
-    ViewData["CopyrightYear"] = DateTime.Today.Year;
-}
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewData["Title"] - Hana Blame</title>
+    <title>Hana Blame</title>
 
     <environment names="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css"/>
@@ -31,14 +26,16 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">Hana Blame</a>
         </div>
         <div class="navbar-collapse collapse">
-            @*<ul class="nav navbar-nav">
-                <li>
-                    <a asp-area="" asp-controller="Home" asp-action="Index">WWYD</a>
+            <ul class="nav navbar-nav">
+                <li onclick="showBlame();" style="cursor:pointer;">
+                    <a>Blame</a>
                 </li>
-            </ul>*@
+                <li onclick="showSnitch();" style="cursor:pointer;">
+                    <a>Snitch</a>
+                </li>
+            </ul>
             @await Html.PartialAsync("_LoginPartial")
         </div>
     </div>
@@ -47,7 +44,12 @@
     <p class="center-vertical">This is a preview. Expect all data to be wiped.</p>
 </div>
 <div class="container body-content">
-    @RenderBody()
+    <div id="BlameContent">
+        @RenderBody()
+    </div>
+    <div id="SnitchContent">
+        @await Html.PartialAsync("_SnitchPartial")
+    </div>
     <hr/>
     <footer>
         <p>Copyright &copy; @ViewData["CopyrightYear"] - @ViewData["CopyrightHolder"]</p>
@@ -89,5 +91,20 @@
 </environment>
 
 @RenderSection("Scripts", required: false)
+<script>
+    $(document).ready(function() {
+        $("#SnitchContent").hide();
+    });
+
+    function showSnitch() {
+        $("#BlameContent").hide();
+        $("#SnitchContent").show();
+    }
+
+    function showBlame() {
+        $("#BlameContent").show();
+        $("#SnitchContent").hide();
+    }
+</script>
 </body>
 </html>

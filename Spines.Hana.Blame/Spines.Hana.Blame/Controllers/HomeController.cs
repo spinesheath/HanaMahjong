@@ -1,6 +1,7 @@
 ﻿// This file is licensed to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -23,20 +24,16 @@ namespace Spines.Hana.Blame.Controllers
     public async Task<IActionResult> Index()
     {
       ViewData["CopyrightHolder"] = _copyright.CopyrightHolder;
+      ViewData["CopyrightYear"] = DateTime.Today.Year;
       ViewData["StorageUrl"] = _storage.StorageUrl;
       var fileNames = await _context.Matches.OrderByDescending(r => r.CreationTime).Select(r => r.FileName).Take(10).ToArrayAsync();
       ViewData["ReplayIds"] = fileNames;
       return View();
     }
 
-    public IActionResult Contact()
-    {
-      ViewData["Message"] = "Your contact page.";
-      return View();
-    }
-
     public IActionResult Error()
     {
+      ViewData["CopyrightHolder"] = _copyright.CopyrightHolder;
       return View();
     }
 
