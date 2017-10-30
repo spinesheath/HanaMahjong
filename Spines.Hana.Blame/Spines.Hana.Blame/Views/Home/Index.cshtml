@@ -1,28 +1,68 @@
-﻿@{
-    ViewData["Title"] = "a random replay";
-}
+﻿<div id="BrowseContent" class="content">
+    @await Html.PartialAsync("_BrowsePartial")
+</div>
+<div id="BlameContent" class="content">
+    @await Html.PartialAsync("_BlamePartial")
+</div>
+<div id="PlayContent" class="content">
+    @await Html.PartialAsync("_PlayPartial")
+</div>
+<div id="SnitchContent" class="content">
+    @await Html.PartialAsync("_SnitchPartial")
+</div>
 
-<div>
-    @Html.DropDownList("replayId", new SelectList(ViewData["ReplayIds"] as IEnumerable<string>), new { onchange = "onReplayIdChanged(this.value)" })
-    <input id="gameId" type="number" onchange="onFrameChanged()"/>
-    <input id="frameId" type="number" onchange="onFrameChanged()"/>
-    <input id="playerId" type="number" onchange="onFrameChanged()"/>
-</div>
-<div class="replayContainer">
-    <canvas id="replayCanvas" width="800" height="600"></canvas>
-    <div id="playerInfo0"></div>
-    <div id="playerInfo1"></div>
-    <div id="playerInfo2"></div>
-    <div id="playerInfo3"></div>
-</div>
+@section MenuItems
+{
+    <li onclick="showBrowse();" style="cursor: pointer;">
+        <a>Browse</a>
+    </li>
+    <li onclick="showBlame();" style="cursor: pointer;">
+        <a>Blame</a>
+    </li>
+    <li onclick="showPlay();" style="cursor: pointer;">
+        <a>Play</a>
+    </li>
+    <li onclick="showSnitch();" style="cursor: pointer;">
+        <a>Snitch</a>
+    </li>
+}
 
 @section Scripts
 {
     <script>
-        $(initThreeJS);
-        $(function () {
+        $(init);
+
+        function init() {
+            initThreeJS();
             const url = '@ViewData["StorageUrl"]';
             initReplay(url);
-        });
+
+            showContent("BlameContent");
+        }
+
+        function showContent(id) {
+            const contents = document.getElementsByClassName("content");
+            const count = contents.length;
+            for (let i = 0; i < count; i++) {
+                const content = contents[i];
+                content.hidden = content.id !== id;
+            }
+        }
+
+        function showBrowse() {
+            showContent("BrowseContent");
+        }
+
+        function showBlame() {
+            showContent("BlameContent");
+        }
+
+        function showPlay() {
+            showContent("PlayContent");
+        }
+
+        function showSnitch() {
+            showContent("SnitchContent");
+        }
     </script>
 }

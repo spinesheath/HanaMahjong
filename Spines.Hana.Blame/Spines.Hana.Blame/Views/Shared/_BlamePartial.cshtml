@@ -1,0 +1,13 @@
+﻿<div>
+    @Html.DropDownList("replayId", new SelectList(ViewData["ReplayIds"] as IEnumerable<string>), new { onchange = "onReplayIdChanged(this.value)" })
+    <input id="gameId" type="number" onchange="onFrameChanged()" />
+    <input id="frameId" type="number" onchange="onFrameChanged()" />
+    <input id="playerId" type="number" onchange="onFrameChanged()" />
+</div>
+<div class="replayContainer">
+    <canvas id="replayCanvas" width="800" height="600"></canvas>
+    <div id="playerInfo0"></div>
+    <div id="playerInfo1"></div>
+    <div id="playerInfo2"></div>
+    <div id="playerInfo3"></div>
+</div>
