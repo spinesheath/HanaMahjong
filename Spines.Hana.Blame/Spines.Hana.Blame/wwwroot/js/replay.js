@@ -6,8 +6,13 @@ var _storageUrl;
 
 function updateHistory(d) {
     const c = window.history.state;
-    if (!c || c.r !== d.r || c.p !== d.p || c.g !== d.g || c.f !== d.f)
-        setBrowserHistory(d);
+    if (!c || c.r !== d.r || c.p !== d.p || c.g !== d.g || c.f !== d.f) {
+        if (d && d.r) {
+            setBrowserHistory(d);
+        } else {
+            setBrowserHistory();
+        }
+    }
 }
 
 function onReplayIdChanged(replayId) {

@@ -256,11 +256,16 @@ RenderContext.prototype._getTileUvs = function(suit, number) {
 
 // data must be an object with property names matching the keys used in the url parameters
 function setBrowserHistory(data) {
-    const keys = Object.keys(data);
-    keys.sort();
-    const x = keys.map(k => k + "=" + data[k]).join("&");
-    const url = `//${location.host}${location.pathname}?${x}`;
-    window.history.pushState(data, "", url);
+    if (data) {
+        const keys = Object.keys(data);
+        keys.sort();
+        const x = keys.map(k => k + "=" + data[k]).join("&");
+        const url = `//${location.host}${location.pathname}?${x}`;
+        window.history.pushState(data, "", url);
+    } else {
+        const url = `//${location.host}${location.pathname}`;
+        window.history.pushState(data, "", url);
+    }
 }
 
 function getIntFromInput(id) {
