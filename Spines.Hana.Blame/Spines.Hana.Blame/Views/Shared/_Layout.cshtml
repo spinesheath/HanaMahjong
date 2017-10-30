@@ -29,10 +29,16 @@
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li onclick="showBlame();" style="cursor:pointer;">
+                <li onclick="showBrowse();" style="cursor:pointer;">
+                    <a>Browse</a>
+                </li>
+                <li onclick="showBlame();" style="cursor: pointer;">
                     <a>Blame</a>
                 </li>
-                <li onclick="showSnitch();" style="cursor:pointer;">
+                <li onclick="showPlay();" style="cursor: pointer;">
+                    <a>Play</a>
+                </li>
+                <li onclick="showSnitch();" style="cursor: pointer;">
                     <a>Snitch</a>
                 </li>
             </ul>
@@ -44,10 +50,16 @@
     <p class="center-vertical">This is a preview. Expect all data to be wiped.</p>
 </div>
 <div class="container body-content">
-    <div id="BlameContent">
+    <div id="BrowseContent" class="content">
+        @await Html.PartialAsync("_BrowsePartial")
+    </div>
+    <div id="BlameContent" class="content">
         @RenderBody()
     </div>
-    <div id="SnitchContent">
+    <div id="PlayContent" class="content">
+        @await Html.PartialAsync("_PlayPartial")
+    </div>
+    <div id="SnitchContent" class="content">
         @await Html.PartialAsync("_SnitchPartial")
     </div>
     <hr/>
@@ -93,17 +105,32 @@
 @RenderSection("Scripts", required: false)
 <script>
     $(document).ready(function() {
-        $("#SnitchContent").hide();
+        showContent();
     });
 
-    function showSnitch() {
-        $("#BlameContent").hide();
-        $("#SnitchContent").show();
+    function showContent(id) {
+        const contents = document.getElementsByClassName("content");
+        const count = contents.length;
+        for (let i = 0; i < count; i++) {
+            const content = contents[i];
+            content.hidden = content.id !== id;
+        }
+    }
+
+    function showBrowse() {
+        showContent("BrowseContent");
     }
 
     function showBlame() {
-        $("#BlameContent").show();
-        $("#SnitchContent").hide();
+        showContent("BlameContent");
+    }
+
+    function showPlay() {
+        showContent("PlayContent");
+    }
+
+    function showSnitch() {
+        showContent("SnitchContent");
     }
 </script>
 </body>

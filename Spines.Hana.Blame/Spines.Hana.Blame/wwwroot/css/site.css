@@ -78,6 +78,10 @@ textarea {
     position: relative;
 }
 
+.content {
+    
+}
+
 #playerInfo0, #playerInfo1, #playerInfo2, #playerInfo3 {
     position: absolute;
     z-index: 1;
