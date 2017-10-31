@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Spines.Hana.Blame.Data;
 using Spines.Hana.Blame.Models;
+using Spines.Hana.Blame.Services;
 
 namespace Spines.Hana.Blame.Controllers
 {
@@ -25,9 +26,10 @@ namespace Spines.Hana.Blame.Controllers
     {
       ViewData["CopyrightHolder"] = _copyright.CopyrightHolder;
       ViewData["CopyrightYear"] = DateTime.Today.Year;
-      ViewData["StorageUrl"] = _storage.StorageUrl;
+      ViewData["StorageUrl"] = $"{_storage.StorageUrl}/{StorageContainers.TenhouJson}/";
       var fileNames = await _context.Matches.OrderByDescending(r => r.CreationTime).Select(r => r.FileName).Take(10).ToArrayAsync();
       ViewData["ReplayIds"] = fileNames;
+      ViewData["SnitchUrl"] = $"{_storage.StorageUrl}/{StorageContainers.Binaries}/Spines.Hana.Snitch.exe";
       return View();
     }
 

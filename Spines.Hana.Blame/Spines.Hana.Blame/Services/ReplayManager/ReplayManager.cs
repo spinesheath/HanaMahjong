@@ -67,8 +67,6 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       return await MatchExists(replayId) ? HttpStatusCode.NoContent : HttpStatusCode.NotFound;
     }
 
-    private const string TenhouJsonContainerName = "tenhoureplays";
-    private const string TenhouXmlContainerName = "tenhouxml";
     private readonly ApplicationDbContext _context;
     private readonly HttpClient _client;
     private readonly StorageOptions _storage;
@@ -80,7 +78,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
     private async Task<bool> MatchExists(string replayId)
     {
-      return await _context.Matches.AnyAsync(m => m.ContainerName == TenhouJsonContainerName && m.FileName == replayId);
+      return await _context.Matches.AnyAsync(m => m.ContainerName == StorageContainers.TenhouJson && m.FileName == replayId);
     }
 
     private async Task<HttpStatusCode> QueuedDownload(string replayId)
@@ -127,7 +125,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       }
       finally
       {
-        CurrentWork.TryRemove(replayId, out var t);
+        CurrentWork.TryRemove(replayId, out var unused);
         TenhouSemaphore.Release();
       }
       return HttpStatusCode.NoContent;
@@ -166,7 +164,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
       var games = replay.Games.Select((g, i) => new Models.Game {Index = i, FrameCount = g.Actions.Count});
       var match = new Match(games, participants);
-      match.ContainerName = TenhouJsonContainerName;
+      match.ContainerName = StorageContainers.TenhouJson;
       match.FileName = replayId;
       match.UploadTime = DateTime.UtcNow;
       match.CreationTime = GetReplayCreationTIme(replayId);
@@ -193,14 +191,14 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     private static async Task SaveToJsonStorage(string replayId, Replay replay, CloudBlobClient client)
     {
       var json = JsonConvert.SerializeObject(replay);
-      var container = client.GetContainerReference(TenhouJsonContainerName);
+      var container = client.GetContainerReference(StorageContainers.TenhouJson);
       var newBlob = container.GetBlockBlobReference(replayId + ".json");
       await newBlob.UploadTextAsync(json);
     }
 
     private static async Task SaveToXmlStorage(string replayId, string xml, CloudBlobClient client)
     {
-      var container = client.GetContainerReference(TenhouXmlContainerName);
+      var container = client.GetContainerReference(StorageContainers.TenhouXml);
       var newBlob = container.GetBlockBlobReference(replayId + ".xml");
       await newBlob.UploadTextAsync(xml);
     }

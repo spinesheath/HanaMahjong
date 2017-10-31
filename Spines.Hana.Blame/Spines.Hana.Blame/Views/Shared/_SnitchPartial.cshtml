@@ -1,2 +1,20 @@
-﻿<h2>_SnitchPartial</h2>
+﻿@model string
 
+<h3>Hana Snitch</h3>
+<h4>Publish your games on Hana Blame</h4>
+<p>
+    Hana Snitch is a background application for windows.
+    It requires no installation, just place it anywhere and run it.
+    You will see an icon in your system tray, but no window.
+    You can interact with Hana Snitch using the context menu on the tray icon.
+    It monitors the files various tenhou.net clients use to persist your recent history of up to 40 games.
+    If a new game is detected, it will automatically be published to this website and a popup will inform you if the process was successful.
+    There is a delay before publishing because tenhou doesn't make the replay available right away.
+    When Hana Snitch finds a new game for the first time, it will likely find all of your current history at once and report all of these replays one after another.
+    You can trigger this process without playing a game by using the Scan entry in the context menu.
+    Hana Snitch only transmits the ID of the game to Hana Blame, the actual replay is acquired directly from tenhou.net.
+    Hana Snitch can be configured to launch automatically on windows sign-in.
+    This requires setting a value in the windows registry, which could potentially trigger some antivirus tools.
+    Currently Hana Snitch supports the windows premium client, the flash based clients on chrome, firefox and probably many other browsers, though no other browsers have been tested.
+</p>
+<a href="@Model" download="Hana Snitch">Download Hana Snitch</a>

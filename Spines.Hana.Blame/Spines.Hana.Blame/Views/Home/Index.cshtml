@@ -8,7 +8,7 @@
     @await Html.PartialAsync("_PlayPartial")
 </div>
 <div id="SnitchContent" class="content">
-    @await Html.PartialAsync("_SnitchPartial")
+    @await Html.PartialAsync("_SnitchPartial", ViewData["SnitchUrl"])
 </div>
 
 @section MenuItems
