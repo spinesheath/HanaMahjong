@@ -1,29 +1,29 @@
-﻿<div id="BrowseContent" class="content">
+﻿<div class="content" data-content="browse">
     @await Html.PartialAsync("_BrowsePartial")
 </div>
-<div id="BlameContent" class="content">
+<div class="content" data-content="blame">
     @await Html.PartialAsync("_BlamePartial")
 </div>
-<div id="PlayContent" class="content">
+<div class="content" data-content="play">
     @await Html.PartialAsync("_PlayPartial")
 </div>
-<div id="SnitchContent" class="content">
+<div class="content" data-content="snitch">
     @await Html.PartialAsync("_SnitchPartial", ViewData["SnitchUrl"])
 </div>
 
 @section MenuItems
 {
-    <li onclick="showBrowse();" style="cursor: pointer;">
-        <a>Browse</a>
+    <li onclick="changeView(this);" data-content="browse">
+        <a href="#">Browse</a>
     </li>
-    <li onclick="showBlame();" style="cursor: pointer;">
-        <a>Blame</a>
+    <li onclick="changeView(this);" data-content="blame">
+        <a href="#">Blame</a>
     </li>
-    <li onclick="showPlay();" style="cursor: pointer;">
-        <a>Play</a>
+    <li onclick="changeView(this);" data-content="play">
+        <a href="#">Play</a>
     </li>
-    <li onclick="showSnitch();" style="cursor: pointer;">
-        <a>Snitch</a>
+    <li onclick="changeView(this);" data-content="snitch">
+        <a href="#">Snitch</a>
     </li>
 }
 
@@ -37,32 +37,17 @@
             const url = '@ViewData["StorageUrl"]';
             initReplay(url);
 
-            showContent("BlameContent");
+            changeView();
         }
 
-        function showContent(id) {
+        function changeView(li) {
+            const c = (li && li.dataset.content) || "blame";
             const contents = document.getElementsByClassName("content");
             const count = contents.length;
             for (let i = 0; i < count; i++) {
                 const content = contents[i];
-                content.hidden = content.id !== id;
+                content.hidden = content.dataset.content !== c;
             }
-        }
-
-        function showBrowse() {
-            showContent("BrowseContent");
-        }
-
-        function showBlame() {
-            showContent("BlameContent");
-        }
-
-        function showPlay() {
-            showContent("PlayContent");
-        }
-
-        function showSnitch() {
-            showContent("SnitchContent");
         }
     </script>
 }
