@@ -5,13 +5,10 @@ var _replayIdRegex = /^\d{10}gm-\d{4}-\d{4}-[\da-f]{8}$/;
 var _storageUrl;
 
 function updateHistory(d) {
-    const c = window.history.state;
-    if (!c || c.r !== d.r || c.p !== d.p || c.g !== d.g || c.f !== d.f) {
-        if (d && d.r) {
-            setBrowserHistory(d);
-        } else {
-            setBrowserHistory();
-        }
+    if (d && d.r) {
+        updateBrowserHistoryParameters(d);
+    } else {
+        updateBrowserHistoryParameters({ r: undefined, p: undefined, g: undefined, f: undefined });
     }
 }
 
@@ -70,6 +67,7 @@ function getFrameInputData() {
 }
 
 function setFrameInputData(data) {
+    setValueToInput("#replayId", data.r);
     setValueToInput("#playerId", data.p);
     setValueToInput("#gameId", data.g);
     setValueToInput("#frameId", data.f);
@@ -77,9 +75,7 @@ function setFrameInputData(data) {
 
 function initReplay(storageUrl) {
     _storageUrl = storageUrl;
-
-    window.onpopstate = onPopState;
-
+    
     replayContext = new RenderContext("replayCanvas");
     replayContext.setCameraPosition(_cameraPosition, _lookAt);
     replayContext.createAmbientLight(_ambientLightColor);
@@ -89,10 +85,9 @@ function initReplay(storageUrl) {
     loadReplay(d);
 }
 
-function onPopState(e) {
-    const d = e.state;
-    if (d) {
-        setFrameInputData(d);
+function replayOnPopState(state) {
+    if (state) {
+        setFrameInputData(state);
         replayContext.createTiles(() => arrange());
     }
 }

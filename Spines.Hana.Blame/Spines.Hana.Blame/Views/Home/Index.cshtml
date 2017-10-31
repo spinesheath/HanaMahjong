@@ -13,17 +13,17 @@
 
 @section MenuItems
 {
-    <li onclick="changeView(this);" data-content="browse">
-        <a href="#">Browse</a>
+    <li onclick="changeView(this.dataset.content);" data-content="browse">
+        <a href="javascript:;">Browse</a>
     </li>
-    <li onclick="changeView(this);" data-content="blame">
-        <a href="#">Blame</a>
+    <li onclick="changeView(this.dataset.content);" data-content="blame">
+        <a href="javascript:;">Blame</a>
     </li>
-    <li onclick="changeView(this);" data-content="play">
-        <a href="#">Play</a>
+    <li onclick="changeView(this.dataset.content);" data-content="play">
+        <a href="javascript:;">Play</a>
     </li>
-    <li onclick="changeView(this);" data-content="snitch">
-        <a href="#">Snitch</a>
+    <li onclick="changeView(this.dataset.content);" data-content="snitch">
+        <a href="javascript:;">Snitch</a>
     </li>
 }
 
@@ -33,6 +33,8 @@
         $(init);
 
         function init() {
+            window.onpopstate = onPopstate;
+
             initThreeJS();
             const url = '@ViewData["StorageUrl"]';
             initReplay(url);
@@ -40,14 +42,25 @@
             changeView();
         }
 
-        function changeView(li) {
-            const c = (li && li.dataset.content) || "blame";
+        function onPopstate(e) {
+            navigationOnPopState(e.state);
+            replayOnPopState(e.state);
+        }
+
+        function navigationOnPopState(state) {
+            changeView(state && state.v);
+        }
+
+        function changeView(target) {
+            const c = target || "blame";
             const contents = document.getElementsByClassName("content");
             const count = contents.length;
             for (let i = 0; i < count; i++) {
                 const content = contents[i];
                 content.hidden = content.dataset.content !== c;
             }
+            const param = c === "blame" ? undefined : c;
+            updateBrowserHistoryParameters({ v: param });
         }
     </script>
 }

@@ -254,18 +254,52 @@ RenderContext.prototype._getTileUvs = function(suit, number) {
     return _staticDisplayData.tileUvs[suit][number];
 };
 
+function getBrowserHistoryData() {
+    return window.history.state;
+}
+
 // data must be an object with property names matching the keys used in the url parameters
 function setBrowserHistory(data) {
+    const previousData = getBrowserHistoryData();
+    const previousParams = _getHistoryParameterString(previousData);
+    const params = _getHistoryParameterString(data);
+    if (previousParams === params) {
+        return;
+    }
+    const url = `//${location.host}${location.pathname}${params}`;
+    window.history.pushState(data, "", url);
+}
+
+function _getHistoryParameterString(data) {
     if (data) {
         const keys = Object.keys(data);
+        if (keys.length === 0) {
+            return "";
+        }
         keys.sort();
         const x = keys.map(k => k + "=" + data[k]).join("&");
-        const url = `//${location.host}${location.pathname}?${x}`;
-        window.history.pushState(data, "", url);
+        return `?${x}`;
     } else {
-        const url = `//${location.host}${location.pathname}`;
-        window.history.pushState(data, "", url);
+        return "";
     }
+}
+
+// keeps existing parameters, adds new ones and overwrites parameters with identical keys
+// keys with undefined values will be removed
+function updateBrowserHistoryParameters(data) {
+    const current = Object.assign({}, getBrowserHistoryData());
+    const keys = Object.keys(data);
+    const count = keys.length;
+    for (let i = 0; i < count; i++) {
+        const key = keys[i];
+        const value = data[key];
+        if (value) {
+            current[key] = value;
+        } else {
+            delete current[key];
+        }
+    }
+    setBrowserHistory(current);
 }
 
 function getIntFromInput(id) {
@@ -274,7 +308,8 @@ function getIntFromInput(id) {
 }
 
 function setValueToInput(id, value) {
-    document.querySelector(id).value = value;
+    const x = value || "";
+    document.querySelector(id).value = x;
 }
 
 function getValueFromComboBox(id) {
