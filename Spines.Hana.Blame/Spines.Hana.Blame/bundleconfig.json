@@ -15,7 +15,8 @@
       "wwwroot/js/shared.js",
       "wwwroot/js/wwyd.js",
       "wwwroot/js/replay.js",
-      "wwwroot/js/data.js"
+      "wwwroot/js/data.js",
+      "wwwroot/js/navigation.js"
     ],
     // Optionally specify minification options
     "minify": {

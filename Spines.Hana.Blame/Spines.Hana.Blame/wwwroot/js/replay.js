@@ -4,19 +4,6 @@ var _replay;
 var _replayIdRegex = /^\d{10}gm-\d{4}-\d{4}-[\da-f]{8}$/;
 var _storageUrl;
 
-function updateHistory(d) {
-    if (d && d.r) {
-        updateBrowserHistoryParameters(d);
-    } else {
-        updateBrowserHistoryParameters({ r: undefined, p: undefined, g: undefined, f: undefined });
-    }
-}
-
-function onReplayIdChanged(replayId) {
-    const d = { r: replayId, p: 0, g: 0, f: 0 };
-    loadReplay(d);
-}
-
 function loadReplay(d) {
     setValueToInput("#replayId", d.r);
     if (!d.r || !_replayIdRegex.test(d.r)) {
@@ -45,34 +32,6 @@ function loadReplay(d) {
     xhr.replayId = d.r;
 }
 
-function getReplayId() {
-    return getValueFromComboBox("#replayId");
-}
-
-function getFrameInputDataFromUrl() {
-    const params = new URLSearchParams(window.location.search);
-    const replayId = getStringFromParams(params, "r");
-    const playerId = getIntFromParams(params, "p");
-    const game = getIntFromParams(params, "g");
-    const frame = getIntFromParams(params, "f");
-    return { r: replayId, p: playerId, g: game, f: frame };
-}
-
-function getFrameInputData() {
-    const replayId = getReplayId();
-    const playerId = getIntFromInput("#playerId");
-    const game = getIntFromInput("#gameId");
-    const frame = getIntFromInput("#frameId");
-    return { r: replayId, p: playerId, g: game, f: frame };
-}
-
-function setFrameInputData(data) {
-    setValueToInput("#replayId", data.r);
-    setValueToInput("#playerId", data.p);
-    setValueToInput("#gameId", data.g);
-    setValueToInput("#frameId", data.f);
-}
-
 function initReplay(storageUrl) {
     _storageUrl = storageUrl;
     
@@ -81,37 +40,8 @@ function initReplay(storageUrl) {
     replayContext.createAmbientLight(_ambientLightColor);
     replayContext.createPointLight(_pointLightColor, _pointLightPosition);
     
-    const d = getFrameInputDataFromUrl();
-    loadReplay(d);
-}
-
-function replayOnPopState(state) {
-    if (state) {
-        const oldReplayId = getReplayId();
-        setFrameInputData(state);
-        const newReplayId = getReplayId();
-        if (oldReplayId !== newReplayId) {
-            loadReplay(getFrameInputData());
-        }
-        
-        replayContext.createTiles(() => arrange());
-    }
-}
-
-function onFrameChanged() {
-    const d = getFrameInputData();
-    updateHistory(d);
-    replayContext.createTiles(() => arrange());
-}
-
-function getIntFromParams(params, key) {
-    return parseInt(params.get(key)) || 0;
-}
-
-function getStringFromParams(params, key) {
-    if (!params.has(key))
-        return undefined;
-    return params.get(key);
+    const urlParams = getUrlParams();
+    loadReplay(urlParams);
 }
 
 function arrange() {
@@ -119,10 +49,10 @@ function arrange() {
         return;
     }
 
-    const d = getFrameInputDataFromUrl();
-    const playerId = d.p;
-    const game = d.g;
-    const frame = d.f;
+    const urlParams = getUrlParams();
+    const playerId = urlParams.p;
+    const game = urlParams.g;
+    const frame = urlParams.f;
 
     if (playerId < 0 || playerId > 3) {
         return;

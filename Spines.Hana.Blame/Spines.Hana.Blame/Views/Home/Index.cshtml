@@ -13,16 +13,16 @@
 
 @section MenuItems
 {
-    <li onclick="changeView(this.dataset.content);" data-content="browse">
+    <li onclick="navigateTo(this.dataset.content);" data-content="browse">
         <a href="javascript:;">Browse</a>
     </li>
-    <li onclick="changeView(this.dataset.content);" data-content="blame">
+    <li onclick="navigateTo(this.dataset.content);" data-content="blame">
         <a href="javascript:;">Blame</a>
     </li>
-    <li onclick="changeView(this.dataset.content);" data-content="play">
+    <li onclick="navigateTo(this.dataset.content);" data-content="play">
         <a href="javascript:;">Play</a>
     </li>
-    <li onclick="changeView(this.dataset.content);" data-content="snitch">
+    <li onclick="navigateTo(this.dataset.content);" data-content="snitch">
         <a href="javascript:;">Snitch</a>
     </li>
 }
@@ -31,37 +31,11 @@
 {
     <script>
         $(init);
-
         function init() {
             window.onpopstate = onPopstate;
-
             initThreeJS();
-            const url = '@ViewData["StorageUrl"]';
-            initReplay(url);
-
-            changeView();
-        }
-
-        function onPopstate(e) {
-            const state = e.state;
-            showView(state && state.v);
-            replayOnPopState(state);
-        }
-
-        function changeView(target) {
-            showView(target);
-            const data = target === "blame" ? {} : { v: target };
-            setBrowserHistory(data);
-        }
-
-        function showView(target) {
-            const contentName = target || "blame";
-            const contents = document.getElementsByClassName("content");
-            const count = contents.length;
-            for (let i = 0; i < count; i++) {
-                const content = contents[i];
-                content.hidden = content.dataset.content !== contentName;
-            }
+            initReplay('@ViewData["StorageUrl"]');
+            navigateTo();
         }
     </script>
 }
