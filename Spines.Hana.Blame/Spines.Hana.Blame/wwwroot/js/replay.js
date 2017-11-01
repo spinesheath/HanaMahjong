@@ -87,7 +87,13 @@ function initReplay(storageUrl) {
 
 function replayOnPopState(state) {
     if (state) {
+        const oldReplayId = getReplayId();
         setFrameInputData(state);
+        const newReplayId = getReplayId();
+        if (oldReplayId !== newReplayId) {
+            loadReplay(getFrameInputData());
+        }
+        
         replayContext.createTiles(() => arrange());
     }
 }

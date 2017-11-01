@@ -272,7 +272,7 @@ function setBrowserHistory(data) {
 
 function _getHistoryParameterString(data) {
     if (data) {
-        const keys = Object.keys(data);
+        const keys = Object.keys(data).filter(k => data[k]);
         if (keys.length === 0) {
             return "";
         }

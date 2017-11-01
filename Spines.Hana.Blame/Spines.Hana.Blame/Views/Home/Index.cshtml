@@ -43,24 +43,25 @@
         }
 
         function onPopstate(e) {
-            navigationOnPopState(e.state);
-            replayOnPopState(e.state);
-        }
-
-        function navigationOnPopState(state) {
-            changeView(state && state.v);
+            const state = e.state;
+            showView(state && state.v);
+            replayOnPopState(state);
         }
 
         function changeView(target) {
-            const c = target || "blame";
+            showView(target);
+            const data = target === "blame" ? {} : { v: target };
+            setBrowserHistory(data);
+        }
+
+        function showView(target) {
+            const contentName = target || "blame";
             const contents = document.getElementsByClassName("content");
             const count = contents.length;
             for (let i = 0; i < count; i++) {
                 const content = contents[i];
-                content.hidden = content.dataset.content !== c;
+                content.hidden = content.dataset.content !== contentName;
             }
-            const param = c === "blame" ? undefined : c;
-            updateBrowserHistoryParameters({ v: param });
         }
     </script>
 }
