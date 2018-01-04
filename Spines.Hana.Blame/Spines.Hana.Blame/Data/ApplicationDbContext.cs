@@ -16,6 +16,7 @@ namespace Spines.Hana.Blame.Data
 
     public DbSet<Thread> Threads { get; set; }
     public DbSet<WwydThread> WwydThreads { get; set; }
+    public DbSet<FrameThread> FrameThreads { get; set; }
     public DbSet<Comment> Comments { get; set; }
 
     public DbSet<Player> Players { get; set; }
@@ -32,6 +33,16 @@ namespace Spines.Hana.Blame.Data
 
       builder.Entity<WwydThread>().ToTable("WwydThread");
       builder.Entity<WwydThread>().Property(t => t.Hand).IsRequired();
+      builder.Entity<WwydThread>().HasIndex(t => t.Hand).IsUnique();
+
+      builder.Entity<FrameThread>().ToTable("FrameThread");
+      builder.Entity<FrameThread>().Property(t => t.MatchId).IsRequired();
+      builder.Entity<FrameThread>().Property(t => t.GameId).IsRequired();
+      builder.Entity<FrameThread>().Property(t => t.FrameId).IsRequired();
+      builder.Entity<FrameThread>().Property(t => t.ParticipantId).IsRequired();
+      builder.Entity<FrameThread>().HasOne(t => t.Game).WithMany(g => g.FrameThreads).OnDelete(DeleteBehavior.Restrict);
+      builder.Entity<FrameThread>().HasOne(t => t.Participant).WithMany(p => p.FrameThreads).OnDelete(DeleteBehavior.Restrict);
+      builder.Entity<FrameThread>().HasIndex(t => new {t.MatchId, t.GameId, t.FrameId, t.ParticipantId}).IsUnique();
 
       builder.Entity<Comment>().ToTable("Comment").HasKey(c => c.Id);
       builder.Entity<Comment>().Property(c => c.Time).IsRequired();

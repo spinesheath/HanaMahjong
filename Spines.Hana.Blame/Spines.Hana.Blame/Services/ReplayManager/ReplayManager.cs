@@ -37,34 +37,44 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     public async Task<HttpStatusCode> PrepareAsync(string replayId)
     {
       // Deny invalid IDs.
-      if (string.IsNullOrEmpty(replayId) || !ReplayIdRegex.IsMatch(replayId))
+      if (!IsValidId(replayId))
       {
         return HttpStatusCode.BadRequest;
       }
+
       // If the ID is currently being downloaded, wait on the existing task.
       if (CurrentWork.TryGetValue(replayId, out var t))
       {
         return await t;
       }
+
       // If the replay already exists in the DB, no need to do anything.
       if (await MatchExists(replayId))
       {
         return HttpStatusCode.NoContent;
       }
+
       // Try to queue a new download. If it was queued, await that.
       var work = QueuedDownload(replayId);
       if (CurrentWork.TryAdd(replayId, work))
       {
         return await work;
       }
+
       // If we were unable to queue the download, that means a download with the same ID is currently running, so try to await that.
       if (CurrentWork.TryGetValue(replayId, out var t2))
       {
         return await t2;
       }
+
       // If we didn't find the ongoing download, it must have completed somewhere between the TryAdd and the TryGetValue,
       // so all we have to check if the download was successful.
       return await MatchExists(replayId) ? HttpStatusCode.NoContent : HttpStatusCode.NotFound;
+    }
+
+    public bool IsValidId(string replayId)
+    {
+      return !string.IsNullOrEmpty(replayId) && ReplayIdRegex.IsMatch(replayId);
     }
 
     private readonly ApplicationDbContext _context;
@@ -118,7 +128,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
           return response.StatusCode;
         }
       }
-      catch(Exception e)
+      catch (Exception e)
       {
         _logger.LogError(e, "Failed to download or store replay.");
         return HttpStatusCode.InternalServerError;
@@ -128,6 +138,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
         CurrentWork.TryRemove(replayId, out var unused);
         TenhouSemaphore.Release();
       }
+
       return HttpStatusCode.NoContent;
     }
 

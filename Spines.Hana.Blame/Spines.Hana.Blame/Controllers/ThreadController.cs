@@ -2,81 +2,149 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Spines.Hana.Blame.Data;
 using Spines.Hana.Blame.Models;
 using Spines.Hana.Blame.Models.ThreadViewModels;
-using Spines.Hana.Blame.Models.Wwyd;
+using Spines.Hana.Blame.Services.ReplayManager;
+using Game = Spines.Hana.Blame.Models.Game;
 
 namespace Spines.Hana.Blame.Controllers
 {
   [Authorize]
   public class ThreadController : Controller
   {
-    public ThreadController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    public ThreadController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ReplayManager replayManager)
     {
       _context = context;
       _userManager = userManager;
+      _replayManager = replayManager;
+    }
+
+    private async Task<FrameThread> GetFrameThread(CreateFrameComment comment, Match match)
+    {
+      var game = match.Games.First(g => g.Index == comment.GameId);
+      var participant = match.Participants.First(p => p.Seat == comment.PlayerId);
+      var thread = await _context.FrameThreads.FirstOrDefaultAsync(t => 
+        t.Match == match && 
+        t.Game == game &&
+        t.FrameId == comment.FrameId && 
+        t.Participant == participant);
+      return thread ?? await CreateThreadAsync(comment, match, game, participant);
+    }
+
+    private async Task<FrameThread> CreateThreadAsync(CreateFrameComment comment, Match match, Game game, Participant participant)
+    {
+      var thread = new FrameThread();
+      thread.Match = match;
+      thread.Game = game;
+      thread.FrameId = comment.FrameId;
+      thread.Participant = participant;
+      var result = await _context.FrameThreads.AddAsync(thread);
+      return result.Entity;
+    }
+
+    private async Task<IEnumerable<FrameComment>> GetComments(Match match)
+    {
+      var threads = await _context.FrameThreads.Where(t => t.Match == match).Include(t => t.Game).Include(t => t.Comments).ThenInclude(c => c.User).ToListAsync();
+      var frameComments = threads.SelectMany(t => t.Comments.Select(c =>
+        new FrameComment
+        {
+          Message = HttpUtility.HtmlEncode(c.Message),
+          FrameId = t.FrameId,
+          GameId = t.Game.Index,
+          Timestamp = c.Time,
+          UserName = HttpUtility.HtmlEncode(c.User.UserName),
+          PlayerId = t.Participant.Seat
+        }));
+      return frameComments;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Comments(string replayId)
+    {
+      var thread = new MatchComments { ReplayId = replayId, Comments = new List<FrameComment>() };
+      if (!_replayManager.IsValidId(replayId))
+      {
+        return Json(thread);
+      }
+      var match = await _context.Matches.Include(m => m.Participants).FirstOrDefaultAsync(m => m.FileName == replayId);
+      if (null == match)
+      {
+        return Json(thread);
+      }
+      var comments = await GetComments(match);
+      thread.Comments.AddRange(comments);
+      return Json(thread);
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostComment(ThreadViewModel model)
+    public async Task<IActionResult> Comment(CreateFrameComment comment)
     {
-      var hand = model?.Hand;
-      if (hand == null || string.IsNullOrEmpty(model.Message))
+      if (!_replayManager.IsValidId(comment.ReplayId))
       {
-        return StatusCode(StatusCodes.Status400BadRequest);
+        return BadRequest();
       }
-      var parsed = WwydHand.Parse(hand);
-      if (!parsed.IsValid)
+      if (string.IsNullOrWhiteSpace(comment.Message))
       {
-        return StatusCode(StatusCodes.Status400BadRequest);
+        return BadRequest();
+      }
+      if (comment.FrameId < 0 || comment.GameId < 0 || comment.PlayerId < 0)
+      {
+        return BadRequest();
       }
       var user = await _userManager.GetUserAsync(HttpContext.User);
       if (null == user)
       {
-        return StatusCode(StatusCodes.Status400BadRequest);
+        return BadRequest();
+      }
+      var match = await _context.Matches.Include(m => m.Participants).Include(m => m.Games).FirstOrDefaultAsync(m => m.FileName == comment.ReplayId);
+      if (null == match)
+      {
+        return BadRequest();
+      }
+      // TODO get firstordefault participant with seat == playerId and use that later on.
+      if (comment.PlayerId >= match.Participants.Count)
+      {
+        return BadRequest();
+      }
+      // TODO get firstordefault game with index == gameId and use that later on.
+      if (comment.GameId >= match.Games.Count)
+      {
+        return BadRequest();
+      }
+      if (comment.FrameId > match.Games.First(g => g.Index == comment.GameId).FrameCount)
+      {
+        return BadRequest();
       }
 
-      var normalizedHand = parsed.NormalizedRepresentation;
-      var thread = await GetThread(normalizedHand);
+      var thread = await GetFrameThread(comment, match);
 
-      var comment = new Comment();
-      comment.Thread = thread;
-      comment.Message = model.Message;
-      comment.Time = DateTime.UtcNow;
-      comment.User = user;
+      var frameComment = new Comment();
+      frameComment.Thread = thread;
+      frameComment.Message = HttpUtility.HtmlEncode(comment.Message);
+      frameComment.Time = DateTime.UtcNow;
+      frameComment.User = user;
 
-      await _context.Comments.AddAsync(comment);
+      await _context.Comments.AddAsync(frameComment);
       await _context.SaveChangesAsync();
 
-      var manager = new ThreadManager(_context);
-      var commentViewModels = await manager.GetCommentViewModelsAsync(normalizedHand);
+      var resultThread = new MatchComments { ReplayId = comment.ReplayId, Comments = new List<FrameComment>() };
+      var comments = await GetComments(match);
+      resultThread.Comments.AddRange(comments);
 
-      return PartialView("Comments", commentViewModels.ToList());
-    }
-
-    private async Task<WwydThread> GetThread(string normalizedHand)
-    {
-      var thread = await _context.WwydThreads.FirstOrDefaultAsync(t => t.Hand == normalizedHand);
-      return thread ?? await CreateThreadAsync(normalizedHand);
-    }
-
-    private async Task<WwydThread> CreateThreadAsync(string normalizedHand)
-    {
-      var thread = new WwydThread();
-      thread.Hand = normalizedHand;
-      var result = await _context.WwydThreads.AddAsync(thread);
-      return result.Entity;
+      return Json(resultThread);
     }
 
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ReplayManager _replayManager;
   }
 }

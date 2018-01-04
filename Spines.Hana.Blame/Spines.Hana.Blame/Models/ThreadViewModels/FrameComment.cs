@@ -5,10 +5,16 @@ using System;
 
 namespace Spines.Hana.Blame.Models.ThreadViewModels
 {
-  public class CommentViewModel
+  /// <summary>
+  /// A comment for a single frame.
+  /// </summary>
+  public class FrameComment
   {
+    public int GameId { get; set; }
+    public int FrameId { get; set; }
+    public int PlayerId { get; set; }
     public string Message { get; set; }
     public string UserName { get; set; }
-    public DateTime Time { get; set; }
+    public DateTime Timestamp { get; set; }
   }
 }

@@ -1,6 +1,7 @@
 ﻿// This file is licensed to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Spines.Hana.Blame.Models;
 using Spines.Hana.Blame.Models.AccountViewModels;
 using Spines.Hana.Blame.Services;
@@ -24,13 +26,15 @@ namespace Spines.Hana.Blame.Controllers
       SignInManager<ApplicationUser> signInManager,
       IEmailSender emailSender,
       ISmsSender smsSender,
-      ILoggerFactory loggerFactory)
+      ILoggerFactory loggerFactory,
+      IOptions<CopyrightOptions> copyrightOptions)
     {
       _userManager = userManager;
       _signInManager = signInManager;
       _emailSender = emailSender;
       _smsSender = smsSender;
       _logger = loggerFactory.CreateLogger<AccountController>();
+      _copyright = copyrightOptions.Value;
     }
 
     //
@@ -42,8 +46,10 @@ namespace Spines.Hana.Blame.Controllers
       // Clear the existing external cookie to ensure a clean login process
       await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
+      ViewData["CopyrightHolder"] = _copyright.CopyrightHolder;
+      ViewData["CopyrightYear"] = DateTime.Today.Year;
       ViewData["ReturnUrl"] = returnUrl;
-      return View();
+      return View(new LoginViewModel());
     }
 
     //
@@ -101,8 +107,10 @@ namespace Spines.Hana.Blame.Controllers
     [AllowAnonymous]
     public IActionResult Register(string returnUrl = null)
     {
+      ViewData["CopyrightHolder"] = _copyright.CopyrightHolder;
+      ViewData["CopyrightYear"] = DateTime.Today.Year;
       ViewData["ReturnUrl"] = returnUrl;
-      return View();
+      return View(new RegisterViewModel());
     }
 
     //
@@ -454,6 +462,7 @@ namespace Spines.Hana.Blame.Controllers
     private readonly IEmailSender _emailSender;
     private readonly ISmsSender _smsSender;
     private readonly ILogger _logger;
+    private CopyrightOptions _copyright;
 
     private void AddErrors(IdentityResult result)
     {

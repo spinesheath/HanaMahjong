@@ -32,7 +32,12 @@ function updateHistory(urlParams) {
 
 function onReplayIdChanged(replayId) {
     const d = { r: replayId, p: 0, g: 0, f: 0 };
+    loadReplayAndThread(d);
+}
+
+function loadReplayAndThread(d) {
     loadReplay(d);
+    updateThread(d);
 }
 
 function getReplayId() {
@@ -60,7 +65,8 @@ function replayOnPopState(state) {
         setFrameInputData(state);
         const newReplayId = getReplayId();
         if (oldReplayId !== newReplayId) {
-            loadReplay(getUrlParamsFromInputs());
+            const d = getUrlParamsFromInputs();
+            loadReplayAndThread(d);
         }
 
         replayContext.createTiles(() => arrange());
@@ -71,6 +77,7 @@ function onFrameChanged() {
     const urlParams = getUrlParamsFromInputs();
     updateHistory(urlParams);
     replayContext.createTiles(() => arrange());
+    updateThread(urlParams);
 }
 
 function getIntFromParams(params, key) {

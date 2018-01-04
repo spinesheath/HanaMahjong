@@ -39,6 +39,8 @@
   <ItemGroup>
     <Folder Include="Connected Services\" />
     <Folder Include="Properties\PublishProfiles\" />
+    <Folder Include="ViewComponents\" />
+    <Folder Include="Views\Shared\Components\" />
     <Folder Include="wwwroot\resources\bumpmaps\" />
     <Folder Include="wwwroot\resources\fonts\" />
     <Folder Include="wwwroot\resources\textures\" />

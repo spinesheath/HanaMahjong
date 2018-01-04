@@ -1,6 +1,8 @@
 ﻿// This file is licensed to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Generic;
+
 namespace Spines.Hana.Blame.Models
 {
   /// <summary>
@@ -21,5 +23,6 @@ namespace Spines.Hana.Blame.Models
     public int Rank { get; set; }
     public decimal Rate { get; set; }
     public string Gender { get; set; }
+    public virtual IEnumerable<FrameThread> FrameThreads { get; set; }
   }
 }

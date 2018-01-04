@@ -1,6 +1,8 @@
 ﻿// This file is licensed to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Generic;
+
 namespace Spines.Hana.Blame.Models
 {
   /// <summary>
@@ -14,5 +16,6 @@ namespace Spines.Hana.Blame.Models
     public Match Match { get; set; }
     public int Index { get; set; }
     public int FrameCount { get; set; }
+    public virtual IEnumerable<FrameThread> FrameThreads { get; set; }
   }
 }

@@ -24,6 +24,10 @@ namespace Spines.Hana.Blame.Models
     }
 
     public int Id { get; set; }
+
+    /// <summary>
+    /// The ID of the replay.
+    /// </summary>
     public string FileName { get; set; }
     public string ContainerName { get; set; }
     public DateTime CreationTime { get; set; }

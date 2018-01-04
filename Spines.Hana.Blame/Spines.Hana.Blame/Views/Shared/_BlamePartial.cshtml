@@ -1,4 +1,6 @@
-﻿<div>
+﻿@using Spines.Hana.Blame.Models.ThreadViewModels
+
+<div>
     @Html.DropDownList("replayId", new SelectList(ViewData["ReplayIds"] as IEnumerable<string>), new { onchange = "onReplayIdChanged(this.value)" })
     <input id="gameId" type="number" onchange="onFrameChanged()" />
     <input id="frameId" type="number" onchange="onFrameChanged()" />
@@ -10,4 +12,15 @@
     <div id="playerInfo1"></div>
     <div id="playerInfo2"></div>
     <div id="playerInfo3"></div>
+</div>
+
+<div id="threadDiv" class="thread-border">
+    @if (ViewContext.HttpContext.User != null && ViewContext.HttpContext.User.Identity.IsAuthenticated)
+    {
+        <div id="commentDiv">
+            <textarea cols="100" wrap="soft" class="post-comment-textarea" id="messageTextArea"></textarea>
+            <input type="button" value="Submit" id="commentButton" onclick="submitComment()"/>
+        </div>
+    }
+    <div id="commentsDiv"></div>
 </div>

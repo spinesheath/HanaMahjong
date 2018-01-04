@@ -39,15 +39,8 @@ namespace Spines.Hana.Blame.Controllers
       return View();
     }
 
-    public IActionResult GetThread(string hand)
-    {
-      return ViewComponent("Thread", hand);
-    }
-
     private readonly ApplicationDbContext _context;
-
     private readonly StorageOptions _storage;
-
     private readonly CopyrightOptions _copyright;
   }
 }
