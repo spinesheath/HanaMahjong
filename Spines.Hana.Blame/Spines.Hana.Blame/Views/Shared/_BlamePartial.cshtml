@@ -1,21 +1,21 @@
 ﻿<div>
     @Html.DropDownList("replayId", new SelectList(ViewData["ReplayIds"] as IEnumerable<string>), new { onchange = "onReplayIdChanged(this.value)" })
-    <div class="frameInputRow">
-        <div class="frameInputColumn">
+    <div class="frame-input-row">
+        <div class="frame-input-column">
             Hand
-            <input class="frameInput" id="gameId" type="number" onchange="onFrameChanged()" />
+            <input class="frame-input" id="gameId" type="number" onchange="onFrameChanged()" />
         </div>
-        <div class="frameInputColumn">
+        <div class="frame-input-column">
             Step
-            <input class="frameInput" id="frameId" type="number" onchange="onFrameChanged()" />
+            <input class="frame-input" id="frameId" type="number" onchange="onFrameChanged()" />
         </div>
-        <div class="frameInputColumn">
+        <div class="frame-input-column">
             Player
-            <input class="frameInput" id="playerId" type="number" onchange="onFrameChanged()" />
+            <input class="frame-input" id="playerId" type="number" onchange="onFrameChanged()" />
         </div>
     </div>
 </div>
-<div class="replayContainer">
+<div class="replay-container">
     <canvas id="replayCanvas" width="800" height="600"></canvas>
     <div id="playerInfo0"></div>
     <div id="playerInfo1"></div>
@@ -24,12 +24,12 @@
 </div>
 
 <div id="threadDiv" class="thread-border">
+    <div id="commentsDiv"></div>
     @if (ViewContext.HttpContext.User != null && ViewContext.HttpContext.User.Identity.IsAuthenticated)
     {
-        <div id="commentDiv">
+        <div class="write-comment-div">
             <textarea cols="100" wrap="soft" class="post-comment-textarea" id="messageTextArea"></textarea>
-            <input type="button" value="Submit" id="commentButton" onclick="submitComment()"/>
+            <input type="button" value="Submit" id="commentButton" onclick="submitComment()" />
         </div>
     }
-    <div id="commentsDiv"></div>
 </div>
