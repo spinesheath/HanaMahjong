@@ -78,6 +78,24 @@ textarea {
     position: relative;
 }
 
+.frameInput {
+    width: 80px;
+}
+
+.frameInputColumn {
+    float: left;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-right: 15px;
+}
+
+.frameInputRow:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
 .content {
     
 }

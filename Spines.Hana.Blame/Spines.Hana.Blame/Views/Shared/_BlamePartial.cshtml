@@ -1,10 +1,19 @@
-﻿@using Spines.Hana.Blame.Models.ThreadViewModels
-
-<div>
+﻿<div>
     @Html.DropDownList("replayId", new SelectList(ViewData["ReplayIds"] as IEnumerable<string>), new { onchange = "onReplayIdChanged(this.value)" })
-    <input id="gameId" type="number" onchange="onFrameChanged()" />
-    <input id="frameId" type="number" onchange="onFrameChanged()" />
-    <input id="playerId" type="number" onchange="onFrameChanged()" />
+    <div class="frameInputRow">
+        <div class="frameInputColumn">
+            Hand
+            <input class="frameInput" id="gameId" type="number" onchange="onFrameChanged()" />
+        </div>
+        <div class="frameInputColumn">
+            Step
+            <input class="frameInput" id="frameId" type="number" onchange="onFrameChanged()" />
+        </div>
+        <div class="frameInputColumn">
+            Player
+            <input class="frameInput" id="playerId" type="number" onchange="onFrameChanged()" />
+        </div>
+    </div>
 </div>
 <div class="replayContainer">
     <canvas id="replayCanvas" width="800" height="600"></canvas>
