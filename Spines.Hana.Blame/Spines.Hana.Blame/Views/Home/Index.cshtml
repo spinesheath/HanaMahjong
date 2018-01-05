@@ -36,6 +36,7 @@
             window.onpopstate = onPopstate;
             initThreeJS();
             initReplay('@ViewData["StorageUrl"]');
+            updateThread(getUrlParams());
             navigateTo();
         }
     </script>
