@@ -28,10 +28,8 @@ namespace Spines.Hana.Blame.Controllers
       _replayManager = replayManager;
     }
 
-    private async Task<FrameThread> GetFrameThread(CreateFrameComment comment, Match match)
+    private async Task<FrameThread> GetFrameThread(CreateFrameComment comment, Match match, Game game, Participant participant)
     {
-      var game = match.Games.First(g => g.Index == comment.GameId);
-      var participant = match.Participants.First(p => p.Seat == comment.PlayerId);
       var thread = await _context.FrameThreads.FirstOrDefaultAsync(t => 
         t.Match == match && 
         t.Game == game &&
@@ -110,22 +108,22 @@ namespace Spines.Hana.Blame.Controllers
       {
         return BadRequest();
       }
-      // TODO get firstordefault participant with seat == playerId and use that later on.
-      if (comment.PlayerId >= match.Participants.Count)
+      var participant = match.Participants.FirstOrDefault(p => p.Seat == comment.PlayerId);
+      if (null == participant)
       {
         return BadRequest();
       }
-      // TODO get firstordefault game with index == gameId and use that later on.
-      if (comment.GameId >= match.Games.Count)
+      var game = match.Games.FirstOrDefault(g => g.Index == comment.GameId);
+      if (null == game)
       {
         return BadRequest();
       }
-      if (comment.FrameId > match.Games.First(g => g.Index == comment.GameId).FrameCount)
+      if (comment.FrameId > game.FrameCount)
       {
         return BadRequest();
       }
 
-      var thread = await GetFrameThread(comment, match);
+      var thread = await GetFrameThread(comment, match, game, participant);
 
       var frameComment = new Comment();
       frameComment.Thread = thread;
