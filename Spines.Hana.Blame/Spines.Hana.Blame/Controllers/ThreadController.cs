@@ -18,7 +18,7 @@ using Game = Spines.Hana.Blame.Models.Game;
 
 namespace Spines.Hana.Blame.Controllers
 {
-  [Authorize]
+  [Authorize(Roles = RoleNames.CommonUser)]
   public class ThreadController : Controller
   {
     public ThreadController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ReplayManager replayManager)
@@ -66,6 +66,7 @@ namespace Spines.Hana.Blame.Controllers
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> Comments(string replayId)
     {
       var thread = new MatchComments { ReplayId = replayId, Comments = new List<FrameComment>() };
@@ -84,7 +85,6 @@ namespace Spines.Hana.Blame.Controllers
     }
 
     [HttpPost]
-    [Authorize(Roles = RoleNames.CommonUser)]
     public async Task<IActionResult> Comment(CreateFrameComment comment)
     {
       if (!_replayManager.IsValidId(comment.ReplayId))
