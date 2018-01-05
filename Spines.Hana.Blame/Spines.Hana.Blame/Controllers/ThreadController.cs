@@ -84,6 +84,7 @@ namespace Spines.Hana.Blame.Controllers
     }
 
     [HttpPost]
+    [Authorize(Roles = RoleNames.CommonUser)]
     public async Task<IActionResult> Comment(CreateFrameComment comment)
     {
       if (!_replayManager.IsValidId(comment.ReplayId))

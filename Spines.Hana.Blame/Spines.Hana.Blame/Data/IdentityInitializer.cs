@@ -20,9 +20,11 @@ namespace Spines.Hana.Blame.Data
 
     public async Task Seed()
     {
-      if (!await _roleManager.RoleExistsAsync(RoleNames.Admin))
+      foreach (var roleName in RoleNames.All())
       {
-        var role = new IdentityRole(RoleNames.Admin);
+        if (await _roleManager.RoleExistsAsync(roleName))
+          continue;
+        var role = new IdentityRole(roleName);
         await _roleManager.CreateAsync(role);
       }
 

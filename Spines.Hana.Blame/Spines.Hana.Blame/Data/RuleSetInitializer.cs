@@ -19,6 +19,7 @@ namespace Spines.Hana.Blame.Data
     {
       var existing = await _context.RuleSets.Select(r => r.Name).ToArrayAsync();
       var missing = Services.ReplayManager.RuleSet.RuleSets.Where(r => !existing.Contains(r.Name));
+      // TODO fix existing rulesets after changes
 
       var allToAdd = missing.Select(ToEntity).ToList();
       if (allToAdd.Any())

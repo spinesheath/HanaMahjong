@@ -3,12 +3,18 @@
 <div>
     <p>Users:</p>
     <p>@Model.UserCount</p>
-    @foreach (var userName in Model.UserNames)
-    {
-        <p>@userName</p>
-    }
     <p>Threads:</p>
     <p>@Model.ThreadCount</p>
     <p>Comments:</p>
     <p>@Model.CommentCount</p>
+
+    <form asp-controller="Admin" asp-action="MakeCommonUser" method="post">
+        <input type="text" asp-for="SelectedUserName" />
+        <input type="submit" value="make common user">
+    </form>
+
+    <form asp-controller="Admin" asp-action="RemoveCommonUser" method="post">
+        <input type="text" asp-for="SelectedUserName" />
+        <input type="submit" value="remove common user">
+    </form>
 </div>
