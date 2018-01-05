@@ -60,6 +60,7 @@ function loadCommentData() {
 function updateComments() {
     const params = getUrlParamsFromInputs();
     const frameComments = _comments.filter(c => c.gameId === params.g && c.frameId === params.f && c.playerId === params.p);
-    const commentDivs = frameComments.map(c => c.message).map(m => `<div class='comment-border'>${m}</div>`).join("\n");
+    frameComments.sort((a, b) => a.timestamp > b.timestamp);
+    const commentDivs = frameComments.map(c => `<div class='comment-border'><div class='comment-header'><p class='comment-user'>${c.userName}</p><p class='comment-time'>${new Date(c.timestamp).toLocaleString()}</p></div><p class='comment-message'>${c.message}</p></div>`).join("\n");
     $("#commentsDiv").html(commentDivs);
 }

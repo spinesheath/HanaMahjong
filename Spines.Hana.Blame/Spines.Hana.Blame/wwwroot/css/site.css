@@ -41,7 +41,7 @@ textarea {
 }
 
 .thread-border {
-    background-color: #c0c0c0;
+    background-color: #d3d3d3;
     overflow: auto;
     padding: 10px;
     border-style: solid;
@@ -59,11 +59,37 @@ textarea {
 }
 
 .comment-header {
-    background-color: #778899;
+    background-color: #a9a9a9;
     overflow: auto;
     border-style: solid;
     border-color: #808080;
     border-width: 0 0 1px 0;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.comment-header:after {
+    clear: both;
+}
+
+.comment-user {
+    float: left;
+    margin: 0;
+}
+
+.comment-time {
+    float: right;
+    margin: 0;
+}
+
+.comment-message {
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    margin: 0;
 }
 
 .post-comment-textarea {
