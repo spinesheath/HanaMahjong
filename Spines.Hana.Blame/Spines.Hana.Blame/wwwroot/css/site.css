@@ -123,8 +123,49 @@ textarea {
     padding-top: 20px
 }
 
+.browse-player-input {
+    margin-left: 6px;
+}
+
+.browse-result-div {
+    width: 100%;
+    padding-top: 6px;
+}
+
+.browse-result {
+    width: 100%;
+    background-color: #ffffff;
+    overflow: auto;
+    border-style: solid;
+    border-color: #808080;
+    border-width: 1px;
+    padding: 0;
+}
+
+.browse-result-header {
+    width: 100%;
+    text-align: left;
+    background-color: #a9a9a9;
+    overflow: auto;
+    border-style: solid;
+    border-color: #808080;
+    border-width: 0 0 1px 0;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.browse-result-body {
+    width: 100%;
+    text-align: left;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
 .content {
-    
 }
 
 #playerInfo0, #playerInfo1, #playerInfo2, #playerInfo3 {
