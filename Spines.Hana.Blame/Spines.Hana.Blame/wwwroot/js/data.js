@@ -1,4 +1,6 @@
-﻿const allHandsOpen = false;
+﻿var _replayIdRegex = /^\d{10}gm-\d{4}-\d{4}-[\da-f]{8}$/;
+
+const allHandsOpen = false;
 const showGhostTiles = false;
 
 const _cameraPosition = [0, -15.5, 25];

@@ -1,7 +1,6 @@
 ﻿var replayContext;
 var _observedPlayerId;
 var _replay;
-var _replayIdRegex = /^\d{10}gm-\d{4}-\d{4}-[\da-f]{8}$/;
 var _storageUrl;
 
 function loadReplay(d) {

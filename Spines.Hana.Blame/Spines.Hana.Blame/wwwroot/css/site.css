@@ -165,6 +165,16 @@ textarea {
     padding-bottom: 3px;
 }
 
+.snitch-replayid-input {
+    margin-left: 6px;
+}
+
+.snitch-error {
+    color: #ff0000;
+    margin-left: 6px;
+    margin-top: 6px;
+}
+
 .content {
 }
 
