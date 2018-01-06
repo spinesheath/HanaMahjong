@@ -8,7 +8,6 @@ function loadReplay(d) {
     if (!d.r || !_replayIdRegex.test(d.r)) {
         _replay = undefined;
         setFrameInputData(d);
-        updateHistory(d);
         replayContext.createTiles(() => arrange());
         return;
     }
@@ -22,7 +21,6 @@ function loadReplay(d) {
             if (xhr2.replayId === _replayId) {
                 _replay = parseReplay(JSON.parse(data));
                 setFrameInputData(d);
-                updateHistory(d);
                 replayContext.createTiles(() => arrange());
             }
         }
@@ -37,9 +35,6 @@ function initReplay(storageUrl) {
     replayContext.setCameraPosition(_cameraPosition, _lookAt);
     replayContext.createAmbientLight(_ambientLightColor);
     replayContext.createPointLight(_pointLightColor, _pointLightPosition);
-    
-    const urlParams = getUrlParams();
-    loadReplay(urlParams);
 }
 
 function arrange() {

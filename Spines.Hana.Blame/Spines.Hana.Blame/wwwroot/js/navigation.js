@@ -25,7 +25,7 @@ function onPopstate(e) {
 // displays the partial view with the given contentName. blame if undefined. Also updates browser history.
 function navigateTo(contentName) {
     showView(contentName);
-    if (contentName === "blame") {
+    if (contentName === "blame" || !contentName) {
         const replayParams = getUrlParamsFromInputs();
         setBrowserHistory(replayParams);
     } else {
@@ -42,12 +42,15 @@ function updateHistory(urlParams) {
 }
 
 function onReplayIdChanged(replayId) {
-    _replayId = replayId;
     const d = { r: replayId, p: 0, g: 0, f: 0 };
     loadReplayAndThread(d);
 }
 
 function loadReplayAndThread(d) {
+    if (!d) {
+        d = getUrlParams();
+    }
+    _replayId = d.r;
     loadReplay(d);
     updateThread(d);
 }
