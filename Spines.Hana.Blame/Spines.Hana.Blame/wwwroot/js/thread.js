@@ -1,8 +1,7 @@
-﻿var _replayId;
-var _comments;
+﻿var _comments;
 
 function submitComment() {
-    const replayId = getValueFromComboBox("#replayId");
+    const replayId = _replayId;
     const gameId = getIntFromInput("#gameId");
     const frameId = getIntFromInput("#frameId");
     const playerId = getIntFromInput("#playerId");
@@ -28,17 +27,14 @@ function updateThread(urlParams) {
     }
     
     if (!urlParams.r || !_replayIdRegex.test(urlParams.r)) {
-        _replayId = undefined;
         $("#commentsDiv").html("");
         return;
     }
 
-    if (_replayId === urlParams.r) {
+    if (_comments && _replayId === urlParams.r) {
         updateComments();
         return;
     }
-
-    _replayId = urlParams.r;
 
     loadCommentData();
 }
@@ -58,6 +54,9 @@ function loadCommentData() {
 }
 
 function updateComments() {
+    if (!_comments) {
+        return;
+    }
     const params = getUrlParamsFromInputs();
     const frameComments = _comments.filter(c => c.gameId === params.g && c.frameId === params.f && c.playerId === params.p);
     frameComments.sort((a, b) => a.timestamp > b.timestamp);

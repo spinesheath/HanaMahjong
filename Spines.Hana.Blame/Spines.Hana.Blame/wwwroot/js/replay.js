@@ -5,7 +5,6 @@ var _replayIdRegex = /^\d{10}gm-\d{4}-\d{4}-[\da-f]{8}$/;
 var _storageUrl;
 
 function loadReplay(d) {
-    setValueToInput("#replayId", d.r);
     if (!d.r || !_replayIdRegex.test(d.r)) {
         _replay = undefined;
         setFrameInputData(d);
@@ -20,8 +19,7 @@ function loadReplay(d) {
         type: "GET",
         url: jsonUrl,
         success: function (data, textStatus, xhr2) {
-            const r = getReplayId();
-            if (xhr2.replayId === r) {
+            if (xhr2.replayId === _replayId) {
                 _replay = parseReplay(JSON.parse(data));
                 setFrameInputData(d);
                 updateHistory(d);

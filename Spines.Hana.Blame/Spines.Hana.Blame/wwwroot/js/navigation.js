@@ -5,6 +5,17 @@
 // f: frameId for blame
 // p: playerId for blame
 
+var _replayId;
+
+function navigateToReplay(replayId) {
+    showView("blame");
+    const params = getUrlParams();
+    params.v = undefined;
+    params.r = replayId;
+    setBrowserHistory(params);
+    onReplayIdChanged(replayId);
+}
+
 function onPopstate(e) {
     const urlParams = e.state;
     showView(urlParams && urlParams.v);
@@ -31,6 +42,7 @@ function updateHistory(urlParams) {
 }
 
 function onReplayIdChanged(replayId) {
+    _replayId = replayId;
     const d = { r: replayId, p: 0, g: 0, f: 0 };
     loadReplayAndThread(d);
 }
@@ -40,12 +52,8 @@ function loadReplayAndThread(d) {
     updateThread(d);
 }
 
-function getReplayId() {
-    return getValueFromComboBox("#replayId");
-}
-
 function getUrlParamsFromInputs() {
-    const replayId = getReplayId();
+    const replayId = getUrlParams().r;
     const playerId = getIntFromInput("#playerId");
     const game = getIntFromInput("#gameId");
     const frame = getIntFromInput("#frameId");
@@ -53,7 +61,6 @@ function getUrlParamsFromInputs() {
 }
 
 function setFrameInputData(urlParams) {
-    setValueToInput("#replayId", urlParams.r);
     setValueToInput("#playerId", urlParams.p);
     setValueToInput("#gameId", urlParams.g);
     setValueToInput("#frameId", urlParams.f);
@@ -61,15 +68,16 @@ function setFrameInputData(urlParams) {
 
 function replayOnPopState(state) {
     if (state) {
-        const oldReplayId = getReplayId();
         setFrameInputData(state);
-        const newReplayId = getReplayId();
-        if (oldReplayId !== newReplayId) {
-            const d = getUrlParamsFromInputs();
+        const newReplayId = getUrlParams().r;
+        const d = getUrlParamsFromInputs();
+        if (_replayId !== newReplayId) {
+            _replayId = newReplayId;
             loadReplayAndThread(d);
         }
 
         replayContext.createTiles(() => arrange());
+        updateThread(d);
     }
 }
 
@@ -156,10 +164,6 @@ function getIntFromInput(id) {
 function setValueToInput(id, value) {
     const x = value || "";
     document.querySelector(id).value = x;
-}
-
-function getValueFromComboBox(id) {
-    return document.querySelector(id).value;
 }
 
 // displays the partial view with the given contentName. blame if undefined.

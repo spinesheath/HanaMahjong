@@ -2,10 +2,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Spines.Hana.Blame.Data;
 using Spines.Hana.Blame.Models;
@@ -15,20 +12,17 @@ namespace Spines.Hana.Blame.Controllers
 {
   public class HomeController : Controller
   {
-    public HomeController(IOptions<CopyrightOptions> copyrightOptions, IOptions<StorageOptions> storageOptions, ApplicationDbContext context)
+    public HomeController(IOptions<CopyrightOptions> copyrightOptions, IOptions<StorageOptions> storageOptions)
     {
-      _context = context;
       _storage = storageOptions.Value;
       _copyright = copyrightOptions.Value;
     }
 
-    public async Task<IActionResult> Index()
+    public IActionResult Index()
     {
       ViewData["CopyrightHolder"] = _copyright.CopyrightHolder;
       ViewData["CopyrightYear"] = DateTime.Today.Year;
       ViewData["StorageUrl"] = $"{_storage.StorageUrl}/{StorageContainers.TenhouJson}/";
-      var fileNames = await _context.Matches.OrderByDescending(r => r.CreationTime).Select(r => r.FileName).Take(10).ToArrayAsync();
-      ViewData["ReplayIds"] = fileNames;
       ViewData["SnitchUrl"] = $"{_storage.StorageUrl}/{StorageContainers.Binaries}/Spines.Hana.Snitch.exe";
       return View();
     }
@@ -38,8 +32,7 @@ namespace Spines.Hana.Blame.Controllers
       ViewData["CopyrightHolder"] = _copyright.CopyrightHolder;
       return View();
     }
-
-    private readonly ApplicationDbContext _context;
+    
     private readonly StorageOptions _storage;
     private readonly CopyrightOptions _copyright;
   }

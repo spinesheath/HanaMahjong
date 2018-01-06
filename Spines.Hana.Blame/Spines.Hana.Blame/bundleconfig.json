@@ -17,7 +17,8 @@
       "wwwroot/js/replay.js",
       "wwwroot/js/data.js",
       "wwwroot/js/navigation.js",
-      "wwwroot/js/thread.js"
+      "wwwroot/js/thread.js",
+      "wwwroot/js/browse.js"
     ],
     // Optionally specify minification options
     "minify": {
