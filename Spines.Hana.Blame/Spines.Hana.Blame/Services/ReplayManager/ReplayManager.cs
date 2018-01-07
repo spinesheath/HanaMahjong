@@ -77,6 +77,20 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       return !string.IsNullOrEmpty(replayId) && ReplayIdRegex.IsMatch(replayId);
     }
 
+    public async Task ReparseReplays()
+    {
+      var client = GetCloudBlobClient();
+      var replayIds = await _context.Matches.Select(m => m.FileName).ToListAsync();
+      foreach (var replayId in replayIds)
+      {
+        var container = client.GetContainerReference(StorageContainers.TenhouXml);
+        var xmlBlob = container.GetBlockBlobReference(replayId + ".xml");
+        var xml = await xmlBlob.DownloadTextAsync();
+        var replay = Replay.Parse(xml);
+        await SaveToJsonStorage(replayId, replay, client);
+      }
+    }
+
     private readonly ApplicationDbContext _context;
     private readonly HttpClient _client;
     private readonly StorageOptions _storage;

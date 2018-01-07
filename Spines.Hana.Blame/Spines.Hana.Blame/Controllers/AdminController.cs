@@ -9,16 +9,18 @@ using Microsoft.AspNetCore.Mvc;
 using Spines.Hana.Blame.Data;
 using Spines.Hana.Blame.Models;
 using Spines.Hana.Blame.Models.AdminViewModels;
+using Spines.Hana.Blame.Services.ReplayManager;
 
 namespace Spines.Hana.Blame.Controllers
 {
   [Authorize(Roles = RoleNames.Admin)]
   public class AdminController : Controller
   {
-    public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ReplayManager replayManager)
     {
       _context = context;
       _userManager = userManager;
+      _replayManager = replayManager;
     }
 
     public IActionResult Index(string returnUrl = null)
@@ -36,16 +38,19 @@ namespace Spines.Hana.Blame.Controllers
       {
         return BadRequest();
       }
+
       var user = await _userManager.FindByNameAsync(data.SelectedUserName);
       if (null == user)
       {
         return BadRequest();
       }
+
       var roleResult = await _userManager.AddToRoleAsync(user, RoleNames.CommonUser);
       if (roleResult.Succeeded)
       {
         return RedirectToAction("Index");
       }
+
       return BadRequest();
     }
 
@@ -56,20 +61,31 @@ namespace Spines.Hana.Blame.Controllers
       {
         return BadRequest();
       }
+
       var user = await _userManager.FindByNameAsync(data.SelectedUserName);
       if (null == user)
       {
         return BadRequest();
       }
+
       var roleResult = await _userManager.RemoveFromRoleAsync(user, RoleNames.CommonUser);
       if (roleResult.Succeeded)
       {
         return RedirectToAction("Index");
       }
+
       return BadRequest();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ReparseReplays()
+    {
+      await _replayManager.ReparseReplays();
+      return Ok();
     }
 
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ReplayManager _replayManager;
   }
 }
