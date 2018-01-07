@@ -29,7 +29,7 @@ namespace Spines.Hana.Blame.Controllers
       }
       var participants = _context.Players.Where(p => p.Name.Contains(playerName)).SelectMany(p => p.Participants);
       var matches = _context.Matches.Join(participants, m => m.Id, p => p.MatchId, (m, p) => m);
-      var data = await matches.Join(_context.Participants, m => m.Id, p => p.MatchId, (m, p) => new { m.FileName, m.CreationTime, p.Player.Name, p.Seat}).ToListAsync();
+      var data = await matches.Join(_context.Participants, m => m.Id, p => p.MatchId, (m, p) => new { m.FileName, m.CreationTime, p.Player.Name, p.Seat}).Distinct().ToListAsync();
       var replays = data.GroupBy(m => m.FileName).Select(g => new ReplayViewModel { Id = g.Key, Timestamp = g.First().CreationTime, Participants = g.OrderBy(x => x.Seat).Select(x => x.Name).ToList()});
       return Json(replays);
     }
