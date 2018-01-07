@@ -3,14 +3,12 @@
 
 namespace Spines.Hana.Blame.Models
 {
-  public class FrameThread : Thread
+  public class FrameComment : Comment
   {
     public int MatchId { get; set; }
     public Match Match { get; set; }
-    public int GameId { get; set; }
-    public Game Game { get; set; }
-    public int FrameId { get; set; }
-    public int ParticipantId { get; set; }
-    public Participant Participant { get; set; }
+    public int GameIndex { get; set; }
+    public int FrameIndex { get; set; }
+    public int SeatIndex { get; set; }
   }
 }

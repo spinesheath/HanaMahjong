@@ -68,13 +68,13 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       Rounds = flags.HasFlag(GameTypeFlag.Tonnansen) ? 2 : 1;
       if (flags.HasFlag(GameTypeFlag.Fast))
       {
-        SecondsPerAction = 2.5M;
+        SecondsPerAction = 3M;
         ExtraSecondsPerGame = 5M;
       }
       else
       {
         SecondsPerAction = 5M;
-        ExtraSecondsPerGame = 5M;
+        ExtraSecondsPerGame = 10M;
       }
       PlayerCount = flags.HasFlag(GameTypeFlag.Sanma) ? 3 : 4;
     }

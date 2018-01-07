@@ -23,6 +23,5 @@ namespace Spines.Hana.Blame.Models
     public int Rank { get; set; }
     public decimal Rate { get; set; }
     public string Gender { get; set; }
-    public virtual IEnumerable<FrameThread> FrameThreads { get; set; }
   }
 }

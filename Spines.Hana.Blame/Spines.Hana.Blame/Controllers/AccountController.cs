@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Spines.Hana.Blame.Models;
 using Spines.Hana.Blame.Models.AccountViewModels;
+using Spines.Hana.Blame.Options;
 using Spines.Hana.Blame.Services;
 
 namespace Spines.Hana.Blame.Controllers

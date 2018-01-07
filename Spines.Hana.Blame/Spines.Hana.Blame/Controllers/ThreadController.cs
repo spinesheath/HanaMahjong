@@ -14,7 +14,6 @@ using Spines.Hana.Blame.Data;
 using Spines.Hana.Blame.Models;
 using Spines.Hana.Blame.Models.ThreadViewModels;
 using Spines.Hana.Blame.Services.ReplayManager;
-using Game = Spines.Hana.Blame.Models.Game;
 
 namespace Spines.Hana.Blame.Controllers
 {
@@ -28,48 +27,26 @@ namespace Spines.Hana.Blame.Controllers
       _replayManager = replayManager;
     }
 
-    private async Task<FrameThread> GetFrameThread(CreateFrameComment comment, Match match, Game game, Participant participant)
+    private async Task<IEnumerable<Models.ThreadViewModels.FrameComment>> GetComments(Match match)
     {
-      var thread = await _context.FrameThreads.FirstOrDefaultAsync(t => 
-        t.Match == match && 
-        t.Game == game &&
-        t.FrameId == comment.FrameId && 
-        t.Participant == participant);
-      return thread ?? await CreateThreadAsync(comment, match, game, participant);
-    }
-
-    private async Task<FrameThread> CreateThreadAsync(CreateFrameComment comment, Match match, Game game, Participant participant)
-    {
-      var thread = new FrameThread();
-      thread.Match = match;
-      thread.Game = game;
-      thread.FrameId = comment.FrameId;
-      thread.Participant = participant;
-      var result = await _context.FrameThreads.AddAsync(thread);
-      return result.Entity;
-    }
-
-    private async Task<IEnumerable<FrameComment>> GetComments(Match match)
-    {
-      var threads = await _context.FrameThreads.Where(t => t.Match == match).Include(t => t.Game).Include(t => t.Comments).ThenInclude(c => c.User).ToListAsync();
-      var frameComments = threads.SelectMany(t => t.Comments.Select(c =>
-        new FrameComment
+      var comments = await _context.FrameComments.Where(c => c.Match == match).Include(c => c.User).ToListAsync();
+      return comments.Select(c =>
+        new Models.ThreadViewModels.FrameComment
         {
           Message = HttpUtility.HtmlEncode(c.Message),
-          FrameId = t.FrameId,
-          GameId = t.Game.Index,
+          FrameId = c.FrameIndex,
+          GameId = c.GameIndex,
           Timestamp = c.Time,
           UserName = HttpUtility.HtmlEncode(c.User.UserName),
-          PlayerId = t.Participant.Seat
-        }));
-      return frameComments;
+          PlayerId = c.SeatIndex
+        });
     }
 
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> Comments(string replayId)
     {
-      var thread = new MatchComments { ReplayId = replayId, Comments = new List<FrameComment>() };
+      var thread = new MatchComments { ReplayId = replayId, Comments = new List<Models.ThreadViewModels.FrameComment>() };
       if (!_replayManager.IsValidId(replayId))
       {
         return Json(thread);
@@ -119,23 +96,24 @@ namespace Spines.Hana.Blame.Controllers
       {
         return BadRequest();
       }
-      if (comment.FrameId > game.FrameCount)
+      if (comment.FrameId >= game.FrameCount)
       {
         return BadRequest();
       }
 
-      var thread = await GetFrameThread(comment, match, game, participant);
-
-      var frameComment = new Comment();
-      frameComment.Thread = thread;
+      var frameComment = new Models.FrameComment();
       frameComment.Message = HttpUtility.HtmlEncode(comment.Message);
       frameComment.Time = DateTime.UtcNow;
       frameComment.User = user;
+      frameComment.FrameIndex = comment.FrameId;
+      frameComment.GameIndex = comment.GameId;
+      frameComment.SeatIndex = comment.PlayerId;
+      frameComment.Match = match;
 
       await _context.Comments.AddAsync(frameComment);
       await _context.SaveChangesAsync();
 
-      var resultThread = new MatchComments { ReplayId = comment.ReplayId, Comments = new List<FrameComment>() };
+      var resultThread = new MatchComments { ReplayId = comment.ReplayId, Comments = new List<Models.ThreadViewModels.FrameComment>() };
       var comments = await GetComments(match);
       resultThread.Comments.AddRange(comments);
 

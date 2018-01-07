@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Spines.Hana.Blame.Data;
 using Spines.Hana.Blame.Models;
+using Spines.Hana.Blame.Options;
 using Spines.Hana.Blame.Services;
 using Spines.Hana.Blame.Services.ReplayManager;
 

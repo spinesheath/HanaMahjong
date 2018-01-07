@@ -6,7 +6,6 @@ namespace Spines.Hana.Blame.Models.AdminViewModels
   public class IndexViewModel
   {
     public int UserCount { get; set; }
-    public int ThreadCount { get; set; }
     public int CommentCount { get; set; }
     public string SelectedUserName { get; set; }
   }

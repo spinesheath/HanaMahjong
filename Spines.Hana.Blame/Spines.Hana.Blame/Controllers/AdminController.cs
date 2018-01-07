@@ -24,9 +24,8 @@ namespace Spines.Hana.Blame.Controllers
     public IActionResult Index(string returnUrl = null)
     {
       var userCount = _context.Users.Count();
-      var threadCount = _context.Threads.Count();
       var commentCount = _context.Comments.Count();
-      var viewModel = new IndexViewModel {UserCount = userCount, ThreadCount = threadCount, CommentCount = commentCount};
+      var viewModel = new IndexViewModel {UserCount = userCount, CommentCount = commentCount};
       return View(viewModel);
     }
 

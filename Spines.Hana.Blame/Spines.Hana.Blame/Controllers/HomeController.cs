@@ -5,7 +5,7 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Spines.Hana.Blame.Data;
-using Spines.Hana.Blame.Models;
+using Spines.Hana.Blame.Options;
 using Spines.Hana.Blame.Services;
 
 namespace Spines.Hana.Blame.Controllers

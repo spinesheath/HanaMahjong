@@ -14,11 +14,8 @@ namespace Spines.Hana.Blame.Data
     {
     }
 
-    public DbSet<Thread> Threads { get; set; }
-    public DbSet<WwydThread> WwydThreads { get; set; }
-    public DbSet<FrameThread> FrameThreads { get; set; }
     public DbSet<Comment> Comments { get; set; }
-
+    public DbSet<FrameComment> FrameComments { get; set; }
     public DbSet<Player> Players { get; set; }
     public DbSet<Match> Matches { get; set; }
     public DbSet<Participant> Participants { get; set; }
@@ -28,29 +25,16 @@ namespace Spines.Hana.Blame.Data
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-      builder.Entity<Thread>().ToTable("Thread").HasKey(t => t.Id);
-      builder.Entity<Thread>().HasMany(t => t.Comments);
-
-      builder.Entity<WwydThread>().ToTable("WwydThread");
-      builder.Entity<WwydThread>().Property(t => t.Hand).IsRequired();
-      builder.Entity<WwydThread>().HasIndex(t => t.Hand).IsUnique();
-
-      builder.Entity<FrameThread>().ToTable("FrameThread");
-      builder.Entity<FrameThread>().Property(t => t.MatchId).IsRequired();
-      builder.Entity<FrameThread>().Property(t => t.GameId).IsRequired();
-      builder.Entity<FrameThread>().Property(t => t.FrameId).IsRequired();
-      builder.Entity<FrameThread>().Property(t => t.ParticipantId).IsRequired();
-      builder.Entity<FrameThread>().HasOne(t => t.Game).WithMany(g => g.FrameThreads).OnDelete(DeleteBehavior.Restrict);
-      builder.Entity<FrameThread>().HasOne(t => t.Participant).WithMany(p => p.FrameThreads).OnDelete(DeleteBehavior.Restrict);
-      builder.Entity<FrameThread>().HasIndex(t => new {t.MatchId, t.GameId, t.FrameId, t.ParticipantId}).IsUnique();
-
       builder.Entity<Comment>().ToTable("Comment").HasKey(c => c.Id);
       builder.Entity<Comment>().Property(c => c.Time).IsRequired();
       builder.Entity<Comment>().Property(c => c.Message).IsRequired();
       builder.Entity<Comment>().Property(c => c.UserId).IsRequired();
-      builder.Entity<Comment>().Property(c => c.ThreadId).IsRequired();
 
-
+      builder.Entity<FrameComment>().ToTable("FrameComment");
+      builder.Entity<FrameComment>().Property(c => c.FrameIndex).IsRequired();
+      builder.Entity<FrameComment>().Property(c => c.GameIndex).IsRequired();
+      builder.Entity<FrameComment>().Property(c => c.SeatIndex).IsRequired();
+      builder.Entity<FrameComment>().Property(c => c.MatchId).IsRequired();
 
       builder.Entity<Player>().ToTable("Player").HasKey(p => p.Id);
       builder.Entity<Player>().Property(p => p.Name).HasMaxLength(32).IsRequired();
@@ -65,7 +49,7 @@ namespace Spines.Hana.Blame.Data
       builder.Entity<Match>().Property(m => m.RuleSetId).IsRequired();
       builder.Entity<Match>().Property(m => m.RoomId).IsRequired();
       builder.Entity<Match>().Property(m => m.Lobby).HasMaxLength(16).IsRequired();
-      builder.Entity<Match>().HasIndex(m => new { m.ContainerName, m.FileName }).IsUnique();
+      builder.Entity<Match>().HasIndex(m => new {m.ContainerName, m.FileName}).IsUnique();
       builder.Entity<Match>().HasMany(m => m.Games);
       builder.Entity<Match>().HasMany(m => m.Participants);
 
@@ -79,15 +63,15 @@ namespace Spines.Hana.Blame.Data
       builder.Entity<Participant>().Property(p => p.Rank).IsRequired();
       builder.Entity<Participant>().Property(p => p.Rate).IsRequired();
       builder.Entity<Participant>().Property(p => p.Gender).HasMaxLength(16).IsRequired();
-      builder.Entity<Participant>().HasIndex(p => new { p.PlayerId, p.MatchId }).IsUnique();
-      builder.Entity<Participant>().HasIndex(p => new { p.MatchId, p.Seat }).IsUnique();
+      builder.Entity<Participant>().HasIndex(p => new {p.PlayerId, p.MatchId}).IsUnique();
+      builder.Entity<Participant>().HasIndex(p => new {p.MatchId, p.Seat}).IsUnique();
 
       builder.Entity<Game>().ToTable("Game");
       builder.Entity<Game>().HasKey(g => g.Id);
       builder.Entity<Game>().Property(g => g.MatchId).IsRequired();
       builder.Entity<Game>().Property(g => g.Index).IsRequired();
       builder.Entity<Game>().Property(g => g.FrameCount).IsRequired();
-      builder.Entity<Game>().HasIndex(g => new { g.MatchId, g.Index }).IsUnique();
+      builder.Entity<Game>().HasIndex(g => new {g.MatchId, g.Index}).IsUnique();
 
       builder.Entity<RuleSet>().ToTable("RuleSet");
       builder.Entity<RuleSet>().HasKey(r => r.Id);
