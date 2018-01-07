@@ -226,6 +226,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
             // Alternating list of yaku ID and yaku value.
             var yakuAndHan = ToInts(e.Attribute("yaku")?.Value).ToList();
+            var yakuman = ToInts(e.Attribute("yakuman")?.Value);
 
             var agari = new Agari();
             agari.Winner = who;
@@ -236,6 +237,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
             {
               agari.Yaku.Add(new Yaku { Id = yakuAndHan[i], Han = yakuAndHan[i + 1] });
             }
+            agari.Yaku.AddRange(yakuman.Select(y => new Yaku {Id = y, Han = 0}));
 
             game.Agaris.Add(agari);
 
@@ -312,7 +314,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
     private static IEnumerable<int> ToInts(string value)
     {
-      return value.Split(',').Select(ToInt);
+      return value?.Split(',').Select(ToInt) ?? Enumerable.Empty<int>();
     }
 
     private static int ToInt(string value)
