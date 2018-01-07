@@ -166,7 +166,8 @@ textarea {
 }
 
 .snitch-replayid-input {
-    margin-left: 6px;
+    max-width: 70%;
+    width: 70%;
 }
 
 .snitch-error {

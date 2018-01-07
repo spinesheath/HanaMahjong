@@ -7,13 +7,15 @@
 
 var _replayId;
 
-function navigateToReplay(replayId) {
+function navigateToReplay(replayId, seat) {
     showView("blame");
     const params = getUrlParams();
     params.v = undefined;
     params.r = replayId;
+    params.p = seat;
+    setFrameInputData(params);
     setBrowserHistory(params);
-    onReplayIdChanged(replayId);
+    onReplayIdChanged(replayId, seat);
 }
 
 function onPopstate(e) {
@@ -41,8 +43,8 @@ function updateHistory(urlParams) {
     }
 }
 
-function onReplayIdChanged(replayId) {
-    const d = { r: replayId, p: 0, g: 0, f: 0 };
+function onReplayIdChanged(replayId, seat) {
+    const d = { r: replayId, p: seat, g: 0, f: 0 };
     loadReplayAndThread(d);
 }
 
