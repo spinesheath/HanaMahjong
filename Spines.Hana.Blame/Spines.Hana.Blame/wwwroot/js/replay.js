@@ -529,7 +529,8 @@ function createBa(frame) {
             continue;
         }
         const mesh = replayContext.createBaMesh(frame.players[i].payment);
-        mesh.rotateZ(Math.PI * 0.5 * i);
+        const rotatedSeat = getRotatedPlayerId(i);
+        mesh.rotateZ(Math.PI * 0.5 * rotatedSeat);
         mesh.translateY(-1.5);
         mesh.rotateY(Math.PI * 0.5);
         mesh.rotateZ(Math.PI * 0.5);
