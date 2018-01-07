@@ -132,6 +132,7 @@ function parseReplay(data) {
         const decisionCount = decisions.length;
         let callCount = 0;
         let agariCount = 0;
+        let discardCount = 0;
         for (let decisionId = 0; decisionId < decisionCount; decisionId++) {
             const decision = decisions[decisionId];
 
@@ -139,12 +140,10 @@ function parseReplay(data) {
                 const frame = createDrawFrame(previousFrame);
                 game.frames.push(frame);
                 previousFrame = frame;
-            } else if (decision === _ids.tsumogiri) {
-                const frame = createTsumogiriFrame(previousFrame, decision);
-                game.frames.push(frame);
-                previousFrame = frame;
-            } else if (decision < 20) {
-                const frame = createDiscardFrame(previousFrame, decision);
+            } else if (decision === _ids.discard) {
+                const discard = gameData.discards[discardCount];
+                const frame = createDiscardFrame(previousFrame, discard);
+                discardCount += 1;
                 game.frames.push(frame);
                 previousFrame = frame;
             } else if (decision === _ids.pon) {
@@ -393,13 +392,13 @@ function createRiichiPaymentFrame(previousFrame) {
     return frame;
 }
 
-function createTsumogiriFrame(previousFrame) {
+function createDiscardFrame(previousFrame, discard) {
     const frame = cloneFrame(previousFrame);
     frame.activeDiscardPlayerId = frame.activePlayer;
     frame.hands = frame.hands.slice(0);
     const hand = Object.assign({}, frame.hands[frame.activePlayer]);
     hand.tiles = hand.tiles.slice(0);
-    const tileId = hand.tiles.pop();
+    remove(hand.tiles, discard);
     sort(hand.tiles);
     hand.justCalled = false;
     hand.drewRinshan = false;
@@ -407,29 +406,7 @@ function createTsumogiriFrame(previousFrame) {
     frame.ponds = frame.ponds.slice(0);
     const pond = frame.ponds[frame.activePlayer].slice(0);
     const flipped = frame.players[frame.activePlayer].riichi && !pond.some(p => p.flipped && !p.meld);
-    pond.push({ tileId: tileId, flipped: flipped });
-    frame.ponds[frame.activePlayer] = pond;
-    return frame;
-}
-
-function createDiscardFrame(previousFrame, indexInHand) {
-    const frame = cloneFrame(previousFrame);
-    frame.activeDiscardPlayerId = frame.activePlayer;
-    frame.hands = frame.hands.slice(0);
-    const hand = Object.assign({}, frame.hands[frame.activePlayer]);
-    hand.tiles = hand.tiles.slice(0);
-    const s = hand.tiles.slice(0);
-    sort(s);
-    const tileId = s[indexInHand];
-    remove(hand.tiles, tileId);
-    sort(hand.tiles);
-    hand.justCalled = false;
-    hand.drewRinshan = false;
-    frame.hands[frame.activePlayer] = hand;
-    frame.ponds = frame.ponds.slice(0);
-    const pond = frame.ponds[frame.activePlayer].slice(0);
-    const flipped = frame.players[frame.activePlayer].riichi && !pond.some(p => p.flipped && !p.meld);
-    pond.push({ tileId: tileId, flipped: flipped });
+    pond.push({ tileId: discard, flipped: flipped });
     frame.ponds[frame.activePlayer] = pond;
     return frame;
 }

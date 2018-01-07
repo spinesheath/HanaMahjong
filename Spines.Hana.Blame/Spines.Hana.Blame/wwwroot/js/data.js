@@ -16,33 +16,35 @@ const tileHeight = 1.28;
 const gap = 0.2;
 
 const _ids = {
-    draw: 40,
-    tsumogiri: 41,
+    draw: 0,
+    discard: 1,
+    ron: 2,
+    tsumo: 3,
 
-    ron: 50,
-    tsumo: 51,
+    exhaustiveDraw: 4,
+    nineYaochuuHai: 5,
+    fourRiichi: 6,
+    threeRon: 7,
+    fourKan: 8,
+    fourWind: 9,
+    nagashiMangan: 10,
 
-    exhaustiveDraw: 60,
-    nineYaochuuHai: 61,
-    fourRiichi: 62,
-    threeRon: 63,
-    fourKan: 64,
-    fourWind: 65,
-    nagashiMangan: 66,
+    pon: 11,
+    chii: 12,
+    closedKan: 13,
+    calledKan: 14,
+    addedKan: 15,
 
-    pon: 70,
-    chii: 71,
-    closedKan: 72,
-    calledKan: 73,
-    addedKan: 74,
+    dora: 16,
+    rinshan: 17,
+    riichi: 18,
+    riichiPayment: 19,
 
-    dora: 80,
-    rinshan: 81,
-    riichi: 82,
-    riichiPayment: 83,
+    // If player n disconnects, the id is this + n.
+    disconnectBase: 30,
 
-    disconnectBase: 90,
-    reconnectBase: 94
+    // If player n reconnects, the id is this + n.
+    reconnectBase: 40
 };
 
 const _tilePlacement = {

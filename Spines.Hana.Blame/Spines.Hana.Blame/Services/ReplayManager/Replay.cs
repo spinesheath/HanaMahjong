@@ -109,7 +109,6 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
       var upcomingRinshan = false;
       var game = new Game();
-      var hands = new List<List<int>>();
 
       foreach (var e in xElement.Elements())
       {
@@ -117,9 +116,6 @@ namespace Spines.Hana.Blame.Services.ReplayManager
         var drawMatch = DrawRegex.Match(name);
         if (drawMatch.Success)
         {
-          var tileId = ToInt(drawMatch.Groups[2].Value);
-          var playerId = drawMatch.Groups[1].Value[0] - 'T';
-          hands[playerId].Add(tileId);
           if (upcomingRinshan)
           {
             upcomingRinshan = false;
@@ -134,18 +130,9 @@ namespace Spines.Hana.Blame.Services.ReplayManager
         var discardMatch = DiscardRegex.Match(name);
         if (discardMatch.Success)
         {
-          var playerId = discardMatch.Groups[1].Value[0] - 'D';
           var tileId = ToInt(discardMatch.Groups[2].Value);
-          if (hands[playerId].Last() == tileId)
-          {
-            game.Actions.Add(Ids.Tsumogiri);
-          }
-          else
-          {
-            var index = hands[playerId].OrderBy(x => x).ToList().IndexOf(tileId);
-            game.Actions.Add(index);
-          }
-          hands[playerId].Remove(tileId);
+          game.Discards.Add(tileId);
+          game.Actions.Add(Ids.Discard);
           continue;
         }
         switch (name)
@@ -196,20 +183,15 @@ namespace Spines.Hana.Blame.Services.ReplayManager
             games.Add(game);
 
             upcomingRinshan = false;
-            hands = GetStartingHands(e).ToList();
 
             break;
           case "N":
           {
             var decoder = new MeldDecoder(e.Attribute("m")?.Value);
-
             game.Actions.Add(MeldTypeIds[decoder.MeldType]);
             var call = new Call();
             call.Tiles.AddRange(decoder.Tiles);
             game.Calls.Add(call);
-
-            var who = ToInt(e.Attribute("who")?.Value);
-            hands[who].RemoveAll(t => decoder.Tiles.Contains(t));
             upcomingRinshan = IsKan(decoder.MeldType);
             break;
           }
@@ -286,11 +268,6 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       return ryuukyouType == null ? Ids.ExhaustiveDraw : RyuukyokuTypeIds[ryuukyouType];
     }
 
-    private static IEnumerable<List<int>> GetStartingHands(XElement element)
-    {
-      return Enumerable.Range(0, 4).Select(i => ToInts(element.Attribute($"hai{i}")?.Value)).Select(t => t.ToList());
-    }
-
     private static IEnumerable<string> GetUserNames(XElement element)
     {
       return Enumerable.Range(0, 4).Select(i => DecodeName(element.Attribute($"n{i}")?.Value));
@@ -332,36 +309,35 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     /// </summary>
     private struct Ids
     {
-      public const int Draw = 40;
-      public const int Tsumogiri = 41;
+      public const int Draw = 0;
+      public const int Discard = 1;
+      public const int Ron = 2;
+      public const int Tsumo = 3;
 
-      public const int Ron = 50;
-      public const int Tsumo = 51;
+      public const int ExhaustiveDraw = 4;
+      public const int NineYaochuuHai = 5;
+      public const int FourRiichi = 6;
+      public const int ThreeRon = 7;
+      public const int FourKan = 8;
+      public const int FourWind = 9;
+      public const int NagashiMangan = 10;
 
-      public const int ExhaustiveDraw = 60;
-      public const int NineYaochuuHai = 61;
-      public const int FourRiichi = 62;
-      public const int ThreeRon = 63;
-      public const int FourKan = 64;
-      public const int FourWind = 65;
-      public const int NagashiMangan = 66;
+      public const int Pon = 11;
+      public const int Chii = 12;
+      public const int ClosedKan = 13;
+      public const int CalledKan = 14;
+      public const int AddedKan = 15;
 
-      public const int Pon = 70;
-      public const int Chii = 71;
-      public const int ClosedKan = 72;
-      public const int CalledKan = 73;
-      public const int AddedKan = 74;
-
-      public const int Dora = 80;
-      public const int Rinshan = 81;
-      public const int Riichi = 82;
-      public const int RiichiPayment = 83;
+      public const int Dora = 16;
+      public const int Rinshan = 17;
+      public const int Riichi = 18;
+      public const int RiichiPayment = 19;
 
       // If player n disconnects, the id is this + n.
-      public const int DisconnectBase = 90;
+      public const int DisconnectBase = 30;
 
       // If player n reconnects, the id is this + n.
-      public const int ReconnectBase = 94;
+      public const int ReconnectBase = 40;
     }
 
     private struct RyuukyokuTypes

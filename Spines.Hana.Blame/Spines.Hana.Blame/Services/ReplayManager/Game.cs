@@ -64,7 +64,13 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     public List<int> Actions { get; } = new List<int>();
 
     /// <summary>
-    /// List of Agaris.
+    /// List of discards.
+    /// </summary>
+    [DataMember(Name = "discards")]
+    public List<int> Discards { get; } = new List<int>();
+
+    /// <summary>
+    /// List of agaris.
     /// </summary>
     [DataMember(Name = "agaris")]
     public List<Agari> Agaris { get; } = new List<Agari>();
@@ -76,7 +82,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     public Ryuukyoku Ryuukyoku { get; set; }
 
     /// <summary>
-    /// List of Calls.
+    /// List of calls.
     /// </summary>
     [DataMember(Name = "calls")]
     public List<Call> Calls { get; } = new List<Call>();
