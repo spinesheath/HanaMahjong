@@ -307,8 +307,9 @@ function createAgariFrame(previousFrame, agari) {
 function createRinshanFrame(previousFrame) {
     const frame = cloneFrame(previousFrame);
     frame.rinshanTilesDrawn += 1;
-
-    const drawnTileId = frame.static.wall[frame.rinshanTilesDrawn];
+    const count = frame.rinshanTilesDrawn;
+    const index = count % 2 ? count : count - 2;
+    const drawnTileId = frame.static.wall[index];
     frame.hands = frame.hands.slice(0);
     const hand = Object.assign({}, frame.hands[frame.activePlayer]);
     hand.tiles = hand.tiles.slice(0);
