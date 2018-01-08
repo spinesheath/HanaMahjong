@@ -1,6 +1,7 @@
 ﻿var _normalIdRegex = /(\d{10}gm-[\da-f]{4}-[\da-f]{4}-[\da-f]{8})/;
 var _xIdRegex = /(\d{10}gm)(-[\da-f]{4}-[\da-f]{4}-)x([\da-f]{4})([\da-f]{4})([\da-f]{4})/;
 var _seatRegex = /tw=(\d)/;
+var _gameRegex = /ts=(\d)/;
 var _tt =
 [
     22136, 52719, 55146, 42104, 59591, 46934, 9248, 28891, 49597,
@@ -19,6 +20,7 @@ function snitch() {
     }
     const replayId = data.replayId;
     const seat = data.seat;
+    const game = data.game;
     const button = document.querySelector("#snitchReplayIdButton");
     button.disabled = true;
     $.ajax({
@@ -32,7 +34,7 @@ function snitch() {
         },
         success: function () {
             button.disabled = false;
-            navigateToReplay(replayId, seat);
+            navigateToReplay(replayId, seat, game);
             error.html("");
         }
     });
@@ -48,11 +50,14 @@ function getSnitchedData() {
     const seatMatch = _seatRegex.exec(value);
     const seat = seatMatch && seatMatch[1];
 
+    const gameMatch = _gameRegex.exec(value);
+    const game = gameMatch && gameMatch[1];
+
     const match = _normalIdRegex.exec(value);
     if (match) {
         const replayId = match[1];
         input.value = "";
-        return { replayId: replayId, seat: seat };
+        return { replayId: replayId, seat: seat, game: game };
     }
 
     const xMatch = _xIdRegex.exec(value);
@@ -74,7 +79,7 @@ function getSnitchedData() {
 
         if (_replayIdRegex.test(replayId)) {
             input.value = "";
-            return { replayId: replayId, seat: seat };
+            return { replayId: replayId, seat: seat, game: game };
         }
     }
     

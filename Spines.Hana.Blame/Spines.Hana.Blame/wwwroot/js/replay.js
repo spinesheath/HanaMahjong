@@ -6,6 +6,9 @@ var _storageUrl;
 // if an input goes above or below the max/min value, adjusts that.
 function wrapFrameInputValues(d) {
     // wrap seats around
+    if (!d.p) {
+        d.p = 0;
+    }
     if (d.p < 0 || d.p > 3) {
         d.p = Math.abs(d.p % 4);
     }
@@ -15,6 +18,9 @@ function wrapFrameInputValues(d) {
     }
 
     // limit games to (0, max)
+    if (!d.g) {
+        d.g = 0;
+    }
     if (d.g < 0) {
         d.g = 0;
     }
@@ -23,6 +29,9 @@ function wrapFrameInputValues(d) {
     }
 
     // wrap into next/previous game if possible
+    if (!d.f) {
+        d.f = 0;
+    }
     if (d.f < 0) {
         if (d.g > 0) {
             d.g -= 1;
