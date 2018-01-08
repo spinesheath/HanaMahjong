@@ -9,8 +9,12 @@ function wrapFrameInputValues(d) {
     if (!d.p) {
         d.p = 0;
     }
-    if (d.p < 0 || d.p > 3) {
-        d.p = Math.abs(d.p % 4);
+    if (d.p < 0) {
+        const x = d.p % 4;
+        d.p = 4 + x;
+    }
+    if (d.p > 3) {
+        d.p = d.p % 4;
     }
 
     if (!_replay) {
