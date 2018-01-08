@@ -685,7 +685,7 @@ function createMeld(playerId, x, meld) {
     const tileIds = meld.tiles.slice(0);
     tileIds.sort((x1, x2) => x2 - x1);
     let isClosedKan = false;
-    const tileCount = tileIds.length;
+    let tileCount = tileIds.length;
     if (meld.relativeFrom === 0) {
         isClosedKan = tileCount === 4;
     } else {
@@ -700,6 +700,7 @@ function createMeld(playerId, x, meld) {
         }
     }
 
+    tileCount = tileIds.length;
     for (let i = 0; i < tileCount; i++) {
         const tileId = tileIds[i];
         const isFaceDown = isClosedKan && (i === 0 || i === 3);
