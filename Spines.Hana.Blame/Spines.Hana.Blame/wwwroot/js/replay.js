@@ -81,7 +81,7 @@ function arrange() {
         return;
     }
 
-    const urlParams = getUrlParams();
+    const urlParams = wrapFrameInputValues(getUrlParams());
     const playerId = urlParams.p;
     const game = urlParams.g;
     const frame = urlParams.f;

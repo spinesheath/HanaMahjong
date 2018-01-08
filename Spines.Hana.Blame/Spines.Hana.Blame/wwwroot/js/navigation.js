@@ -7,6 +7,15 @@
 
 var _replayId;
 
+function initView() {
+    const params = getUrlParams();
+    if (params.r) {
+        showView("blame");
+    } else {
+        showView("browse");
+    }
+}
+
 function navigateToReplay(replayId, seat) {
     showView("blame");
     const params = getUrlParams();
@@ -66,9 +75,10 @@ function getUrlParamsFromInputs() {
 }
 
 function setFrameInputData(urlParams) {
-    setValueToInput("#playerId", urlParams.p);
-    setValueToInput("#gameId", urlParams.g);
-    setValueToInput("#frameId", urlParams.f);
+    const wrapped = wrapFrameInputValues(urlParams);
+    setValueToInput("#playerId", wrapped.p);
+    setValueToInput("#gameId", wrapped.g);
+    setValueToInput("#frameId", wrapped.f);
 }
 
 function replayOnPopState(state) {
