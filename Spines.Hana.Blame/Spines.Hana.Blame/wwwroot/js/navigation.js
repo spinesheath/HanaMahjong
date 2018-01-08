@@ -88,9 +88,11 @@ function replayOnPopState(state) {
 
 function onFrameChanged() {
     const urlParams = getUrlParamsFromInputs();
-    updateHistory(urlParams);
+    const wrapped = wrapFrameInputValues(urlParams);
+    setFrameInputData(wrapped);
+    updateHistory(wrapped);
     replayContext.createTiles(() => arrange());
-    updateThread(urlParams);
+    updateThread(wrapped);
 }
 
 function getIntFromParams(params, key) {
@@ -167,7 +169,8 @@ function getIntFromInput(id) {
 }
 
 function setValueToInput(id, value) {
-    const x = value || "";
+    const isDefined = value | value === 0;
+    const x = isDefined ? value : "";
     document.querySelector(id).value = x;
 }
 

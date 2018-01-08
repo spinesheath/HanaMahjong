@@ -3,6 +3,46 @@ var _observedPlayerId;
 var _replay;
 var _storageUrl;
 
+// if an input goes above or below the max/min value, adjusts that.
+function wrapFrameInputValues(d) {
+    // wrap seats around
+    if (d.p < 0 || d.p > 3) {
+        d.p = Math.abs(d.p % 4);
+    }
+
+    if (!_replay) {
+        return d;
+    }
+
+    // limit games to (0, max)
+    if (d.g < 0) {
+        d.g = 0;
+    }
+    if (d.g >= _replay.length) {
+        d.g = _replay.length - 1;
+    }
+
+    // wrap into next/previous game if possible
+    if (d.f < 0) {
+        if (d.g > 0) {
+            d.g -= 1;
+            d.f = _replay[d.g].frames.length - 1;
+        } else {
+            d.f = 0;
+        }
+    }
+    if (d.f >= _replay[d.g].frames.length) {
+        if (d.g < _replay.length - 1) {
+            d.g += 1;
+            d.f = 0;
+        } else {
+            d.f = _replay[d.g].frames.length - 1;
+        }
+    }
+
+    return d;
+}
+
 function loadReplay(d) {
     if (!d.r || !_replayIdRegex.test(d.r)) {
         _replay = undefined;
