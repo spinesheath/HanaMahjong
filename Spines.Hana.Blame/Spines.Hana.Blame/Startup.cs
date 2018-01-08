@@ -1,6 +1,8 @@
 ﻿// This file is licensed to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
+using System.Net;
 using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -57,7 +59,7 @@ namespace Spines.Hana.Blame
       services.AddTransient<RoomInitializer>();
       services.AddTransient<ReplayManager>();
 
-      services.AddSingleton<HttpClient>();
+      services.AddSingleton(CreateHttpClient);
 
       services.Configure<AuthMessageSenderOptions>(Configuration);
       services.Configure<InitializeIdentityOptions>(Configuration);
@@ -98,6 +100,17 @@ namespace Spines.Hana.Blame
     {
       var connectionString = Configuration.GetConnectionString("SpinesHanaBlameDefaultConnectionString");
       return string.IsNullOrEmpty(connectionString) ? Configuration.GetValue<string>("SpinesHanaBlameDefaultConnectionString") : connectionString;
+    }
+
+    private static HttpClient CreateHttpClient(IServiceProvider arg)
+    {
+      var handler = new HttpClientHandler
+      {
+        AutomaticDecompression = DecompressionMethods.GZip
+      };
+      var httpClient = new HttpClient(handler);      
+      httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+      return httpClient;
     }
   }
 }
