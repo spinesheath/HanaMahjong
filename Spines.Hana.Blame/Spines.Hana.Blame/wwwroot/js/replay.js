@@ -344,10 +344,15 @@ function createAddedKanFrames(previousFrame, meldedTiles, announcement) {
     frame.hands[frame.activePlayer] = hand;
 
     hand.melds = hand.melds.slice(0);
-    const pon = hand.melds.find(m => m.tiles.some(t => meldedTiles.indexOf(t) !== -1));
-    const added = meldedTiles.find(t => pon.tiles.indexOf(t) === -1);
-    hand.melds.push({ tiles: meldedTiles, flipped: pon.flipped, added: added, relativeFrom: pon.relativeFrom });
-    remove(hand.melds, pon);
+
+    const meldCount = hand.melds.length;
+    for (let i = 0; i < meldCount; i++) {
+        const pon = hand.melds[i];
+        if (pon.tiles.some(t => meldedTiles.indexOf(t) !== -1)) {
+            const added = meldedTiles.find(t => pon.tiles.indexOf(t) === -1);
+            hand.melds[i] = { tiles: meldedTiles, flipped: pon.flipped, added: added, relativeFrom: pon.relativeFrom };
+        }
+    }
 
     return [announcementFrame, frame];
 }
