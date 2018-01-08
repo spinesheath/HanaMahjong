@@ -1,5 +1,5 @@
-﻿var _normalIdRegex = /(\d{10}gm-\d{4}-\d{4}-[\da-f]{8})/;
-var _xIdRegex = /(\d{10}gm)(-\d{4}-\d{4}-)x([\da-f]{4})([\da-f]{4})([\da-f]{4})/;
+﻿var _normalIdRegex = /(\d{10}gm-[\da-f]{4}-[\da-f]{4}-[\da-f]{8})/;
+var _xIdRegex = /(\d{10}gm)(-[\da-f]{4}-[\da-f]{4}-)x([\da-f]{4})([\da-f]{4})([\da-f]{4})/;
 var _seatRegex = /tw=(\d)/;
 var _tt =
 [

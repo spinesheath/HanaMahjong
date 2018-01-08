@@ -108,6 +108,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       result.Players = players;
 
       var upcomingRinshan = false;
+      var insertDiscardBeforeDora = false;
       var game = new Game();
 
       foreach (var e in xElement.Elements())
@@ -130,9 +131,18 @@ namespace Spines.Hana.Blame.Services.ReplayManager
         var discardMatch = DiscardRegex.Match(name);
         if (discardMatch.Success)
         {
+          if (insertDiscardBeforeDora && game.Actions[game.Actions.Count - 1] == Ids.Dora)
+          {
+            game.Actions.Insert(game.Actions.Count - 1, Ids.Discard);
+          }
+          else
+          {
+            game.Actions.Add(Ids.Discard);
+          }
+
           var tileId = ToInt(discardMatch.Groups[2].Value);
           game.Discards.Add(tileId);
-          game.Actions.Add(Ids.Discard);
+          insertDiscardBeforeDora = false;
           continue;
         }
         switch (name)
@@ -193,6 +203,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
             call.Tiles.AddRange(decoder.Tiles);
             game.Calls.Add(call);
             upcomingRinshan = IsKan(decoder.MeldType);
+            insertDiscardBeforeDora = decoder.MeldType == MeldType.AddedKan || decoder.MeldType == MeldType.CalledKan;
             break;
           }
           case "REACH":

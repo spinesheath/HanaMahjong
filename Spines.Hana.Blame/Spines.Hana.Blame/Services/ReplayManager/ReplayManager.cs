@@ -95,7 +95,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     private readonly HttpClient _client;
     private readonly StorageOptions _storage;
     private static readonly TimeSpan Delay = TimeSpan.FromSeconds(5);
-    private static readonly Regex ReplayIdRegex = new Regex(@"\A(\d{10})gm-\d{4}-\d{4}-[\da-f]{8}\z");
+    private static readonly Regex ReplayIdRegex = new Regex(@"\A(\d{10})gm-[\da-f]{4}-[\da-f]{4}-[\da-f]{8}\z");
     private static readonly ConcurrentDictionary<string, Task<HttpStatusCode>> CurrentWork = new ConcurrentDictionary<string, Task<HttpStatusCode>>();
     private static readonly SemaphoreSlim TenhouSemaphore = new SemaphoreSlim(1, 1);
     private readonly ILogger<ReplayManager> _logger;
