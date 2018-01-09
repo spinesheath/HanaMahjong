@@ -67,7 +67,7 @@ namespace Spines.Hana.Snitch
       {
         try
         {
-          await Task.Delay(TimeSpan.FromSeconds(5));
+          await Task.Delay(TimeSpan.FromSeconds(10));
           var response = await Client.GetAsync(GetSnitchUrl(replayData));
           if (response.IsSuccessStatusCode)
           {
