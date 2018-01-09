@@ -12,10 +12,11 @@ namespace Spines.Hana.Blame.Controllers
 {
   public class HomeController : Controller
   {
-    public HomeController(IOptions<CopyrightOptions> copyrightOptions, IOptions<StorageOptions> storageOptions)
+    public HomeController(IOptions<CopyrightOptions> copyrightOptions, IOptions<StorageOptions> storageOptions, IOptions<SnitchOptions> snitchOptions)
     {
       _storage = storageOptions.Value;
       _copyright = copyrightOptions.Value;
+      _snitch = snitchOptions.Value;
     }
 
     public IActionResult Index()
@@ -23,7 +24,7 @@ namespace Spines.Hana.Blame.Controllers
       ViewData["CopyrightHolder"] = _copyright.CopyrightHolder;
       ViewData["CopyrightYear"] = DateTime.Today.Year;
       ViewData["StorageUrl"] = $"{_storage.StorageUrl}/{StorageContainers.TenhouJson}/";
-      ViewData["SnitchUrl"] = $"{_storage.StorageUrl}/{StorageContainers.Binaries}/Spines.Hana.Snitch.exe";
+      ViewData["SnitchUrl"] = _snitch.SnitchUrl;
       return View();
     }
 
@@ -32,8 +33,9 @@ namespace Spines.Hana.Blame.Controllers
       ViewData["CopyrightHolder"] = _copyright.CopyrightHolder;
       return View();
     }
-    
+
     private readonly StorageOptions _storage;
     private readonly CopyrightOptions _copyright;
+    private readonly SnitchOptions _snitch;
   }
 }

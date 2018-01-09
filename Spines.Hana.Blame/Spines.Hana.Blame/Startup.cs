@@ -65,6 +65,7 @@ namespace Spines.Hana.Blame
       services.Configure<InitializeIdentityOptions>(Configuration);
       services.Configure<CopyrightOptions>(Configuration);
       services.Configure<StorageOptions>(Configuration);
+      services.Configure<SnitchOptions>(Configuration);
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
