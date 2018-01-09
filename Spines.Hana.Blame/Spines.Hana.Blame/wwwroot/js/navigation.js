@@ -47,9 +47,49 @@ function onKeyPress(event) {
     } else if (char === "e") {
         d.g += 1;
         d.f = 0;
+    } else if (char === "r") {
+        if (!_comments) {
+            return;
+        }
+        const comment = _comments
+            .filter(c => c.playerId === d.p)
+            .filter(c => c.gameId < d.g || c.gameId === d.g && c.frameId < d.f)
+            .sort(commentSortDown)[0];
+        if (comment) {
+            d.g = comment.gameId;
+            d.f = comment.frameId;
+        }
+    } else if (char === "t") {
+        if (!_comments) {
+            return;
+        }
+        const comment = _comments
+            .filter(c => c.playerId === d.p)
+            .filter(c => c.gameId > d.g || c.gameId === d.g && c.frameId > d.f)
+            .sort(commentSortUp)[0];
+        if (comment) {
+            d.g = comment.gameId;
+            d.f = comment.frameId;
+        }
     }
+
+
     setFrameInputData(d);
     onFrameChanged();
+}
+
+function commentSortUp(a, b) {
+    if (a.gameId === b.gameId) {
+        return a.frameId > b.frameId;
+    }
+    return a.gameId > b.gameId;
+}
+
+function commentSortDown(a, b) {
+    if (a.gameId === b.gameId) {
+        return a.frameId < b.frameId;
+    }
+    return a.gameId < b.gameId;
 }
 
 function navigateToReplay(replayId, seat, game) {
