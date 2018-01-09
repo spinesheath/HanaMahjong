@@ -7,13 +7,49 @@
 
 var _replayId;
 
-function initView() {
+function initNavigaion() {
+    $(document).keypress(onKeyPress);
     const params = getUrlParams();
     if (params.r) {
         showView("blame");
     } else {
         showView("browse");
     }
+}
+
+function onKeyPress(event) {
+    if (document.activeElement !== document.body) {
+        return;
+    }
+
+    const blame = $("#blameDiv")[0];
+    if (blame.hidden) {
+        return;
+    }
+
+    if (event.ctrlKey || event.altKey || event.shiftKey) {
+        return;
+    }
+
+    const d = getUrlParamsFromInputs();
+    const char = event.key;
+    if (char === "w") {
+        d.f += 1;
+    } else if (char === "s") {
+        d.f -= 1;
+    } else if (char === "a") {
+        d.p -= 1;
+    } else if (char === "d") {
+        d.p += 1;
+    } else if (char === "q") {
+        d.g -= 1;
+        d.f = 0;
+    } else if (char === "e") {
+        d.g += 1;
+        d.f = 0;
+    }
+    setFrameInputData(d);
+    onFrameChanged();
 }
 
 function navigateToReplay(replayId, seat, game) {

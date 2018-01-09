@@ -2,7 +2,7 @@
 <div class="content" data-content="browse">
     @await Html.PartialAsync("_BrowsePartial")
 </div>
-<div class="content" data-content="blame">
+<div class="content" data-content="blame" id="blameDiv">
     @await Html.PartialAsync("_BlamePartial")
 </div>
 <div class="content" data-content="play">
@@ -37,7 +37,7 @@
             initThreeJS();
             initReplay('@ViewData["StorageUrl"]');
             loadReplayAndThread();
-            initView();
+            initNavigaion();
         }
     </script>
 }
