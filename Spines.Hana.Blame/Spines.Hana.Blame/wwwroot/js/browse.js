@@ -1,5 +1,8 @@
 ﻿function getReplays() {
     const text = document.querySelector("#browseSearchText").value;
+    if (!text || !text.length) {
+        return;
+    }
     $.ajax({
         type: "POST",
         url: "/Browse/GetReplays",
