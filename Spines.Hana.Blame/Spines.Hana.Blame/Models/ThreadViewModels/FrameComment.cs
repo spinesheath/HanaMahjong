@@ -16,5 +16,7 @@ namespace Spines.Hana.Blame.Models.ThreadViewModels
     public string Message { get; set; }
     public string UserName { get; set; }
     public DateTime Timestamp { get; set; }
+    public bool Editable { get; set; }
+    public long Id { get; set; }
   }
 }

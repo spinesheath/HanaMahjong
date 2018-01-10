@@ -64,10 +64,7 @@ textarea {
     border-style: solid;
     border-color: #808080;
     border-width: 0 0 1px 0;
-    padding-left: 6px;
-    padding-right: 6px;
-    padding-top: 3px;
-    padding-bottom: 3px;
+    padding: 0;
 }
 
 .comment-header:after {
@@ -76,12 +73,26 @@ textarea {
 
 .comment-user {
     float: left;
-    margin: 0;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    margin-left: 6px;
+    margin-right: 6px;
 }
 
 .comment-time {
     float: right;
-    margin: 0;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    margin-left: 6px;
+    margin-right: 6px;
+}
+
+.comment-button {
+    float: right;
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 .comment-message {

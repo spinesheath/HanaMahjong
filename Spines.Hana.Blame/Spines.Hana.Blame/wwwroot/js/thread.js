@@ -60,6 +60,54 @@ function updateComments() {
     const params = getUrlParamsFromInputs();
     const frameComments = _comments.filter(c => c.gameId === params.g && c.frameId === params.f && c.playerId === params.p);
     frameComments.sort((a, b) => a.timestamp > b.timestamp);
-    const commentDivs = frameComments.map(c => `<div class='comment-border'><div class='comment-header'><p class='comment-user'>${c.userName}</p><p class='comment-time'>${new Date(c.timestamp).toLocaleString()}</p></div><p class='comment-message'>${c.message}</p></div>`).join("\n");
-    $("#commentsDiv").html(commentDivs);
+    const commentDivs = frameComments.map(createCommentDiv);
+    $("#commentsDiv").html(commentDivs.join(""));
 }
+
+function createCommentDiv(c) {
+    var buttons = createButtons(c);
+    return formatString(commentTemplate, [c.userName, new Date(c.timestamp).toLocaleString(), c.message, buttons]);
+}
+
+function createButtons(c) {
+    if (c.editable) {
+        return formatString(editButtonsTemplate, [c.id]);
+    } else {
+        return "";
+    }
+}
+
+function removeComment(x) {
+    const id = x.dataset.commentid;
+    $.ajax({
+        type: "POST",
+        url: "/Thread/Remove",
+        data: `id=${id}`,
+        success: function (data) {
+            if (data.replayId === _replayId) {
+                _comments = data.comments;
+                updateComments();
+            }
+        }
+    });
+}
+
+var editButtonsTemplate =
+    "<input class='comment-button' type='button' value='remove' onclick='removeComment(this)' data-commentid='{0}'/>";
+
+var commentTemplate =
+    "<div class='comment-border'>" +
+        "<div class='comment-header'>" +
+            "<p class='comment-user'>{0}</p>" +
+            "{3}" +
+            "<p class='comment-time'>{1}</p>" +
+        "</div>" +
+        "<p class='comment-message'>{2}</p>" +
+    "</div>";
+
+function formatString(format, args) {
+    const count = args.length;
+    return format.replace(/{(\d+)}/g, function (match, number) {
+        return number < count ? args[number] : match;
+    });
+};

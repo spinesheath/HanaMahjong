@@ -14,6 +14,7 @@ using Spines.Hana.Blame.Data;
 using Spines.Hana.Blame.Models;
 using Spines.Hana.Blame.Models.ThreadViewModels;
 using Spines.Hana.Blame.Services.ReplayManager;
+using FrameComment = Spines.Hana.Blame.Models.ThreadViewModels.FrameComment;
 
 namespace Spines.Hana.Blame.Controllers
 {
@@ -27,18 +28,20 @@ namespace Spines.Hana.Blame.Controllers
       _replayManager = replayManager;
     }
 
-    private async Task<IEnumerable<Models.ThreadViewModels.FrameComment>> GetComments(Match match)
+    private async Task<IEnumerable<FrameComment>> GetComments(Match match, ApplicationUser user)
     {
       var comments = await _context.FrameComments.Where(c => c.Match == match).Include(c => c.User).ToListAsync();
       return comments.Select(c =>
-        new Models.ThreadViewModels.FrameComment
+        new FrameComment
         {
           Message = HttpUtility.HtmlEncode(c.Message),
           FrameId = c.FrameIndex,
           GameId = c.GameIndex,
           Timestamp = c.Time,
           UserName = HttpUtility.HtmlEncode(c.User.UserName),
-          PlayerId = c.SeatIndex
+          PlayerId = c.SeatIndex,
+          Editable = c.User == user,
+          Id = c.Id
         });
     }
 
@@ -46,17 +49,18 @@ namespace Spines.Hana.Blame.Controllers
     [AllowAnonymous]
     public async Task<IActionResult> Comments(string replayId)
     {
-      var thread = new MatchComments { ReplayId = replayId, Comments = new List<Models.ThreadViewModels.FrameComment>() };
+      var thread = new MatchComments { ReplayId = replayId, Comments = new List<FrameComment>() };
       if (!_replayManager.IsValidId(replayId))
       {
         return Json(thread);
       }
       var match = await _context.Matches.Include(m => m.Participants).FirstOrDefaultAsync(m => m.FileName == replayId);
-      if (null == match)
+      if (match == null)
       {
         return Json(thread);
       }
-      var comments = await GetComments(match);
+      var user = await _userManager.GetUserAsync(HttpContext.User);
+      var comments = await GetComments(match, user);
       thread.Comments.AddRange(comments);
       return Json(thread);
     }
@@ -77,22 +81,22 @@ namespace Spines.Hana.Blame.Controllers
         return BadRequest();
       }
       var user = await _userManager.GetUserAsync(HttpContext.User);
-      if (null == user)
+      if (user == null)
       {
         return BadRequest();
       }
       var match = await _context.Matches.Include(m => m.Participants).Include(m => m.Games).FirstOrDefaultAsync(m => m.FileName == comment.ReplayId);
-      if (null == match)
+      if (match == null)
       {
         return BadRequest();
       }
       var participant = match.Participants.FirstOrDefault(p => p.Seat == comment.PlayerId);
-      if (null == participant)
+      if (participant == null)
       {
         return BadRequest();
       }
       var game = match.Games.FirstOrDefault(g => g.Index == comment.GameId);
-      if (null == game)
+      if (game == null)
       {
         return BadRequest();
       }
@@ -113,8 +117,38 @@ namespace Spines.Hana.Blame.Controllers
       await _context.Comments.AddAsync(frameComment);
       await _context.SaveChangesAsync();
 
-      var resultThread = new MatchComments { ReplayId = comment.ReplayId, Comments = new List<Models.ThreadViewModels.FrameComment>() };
-      var comments = await GetComments(match);
+      var resultThread = new MatchComments { ReplayId = comment.ReplayId, Comments = new List<FrameComment>() };
+      var comments = await GetComments(match, user);
+      resultThread.Comments.AddRange(comments);
+
+      return Json(resultThread);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Remove(long id)
+    {
+      if (id < 0)
+      {
+        return BadRequest();
+      }
+      var user = await _userManager.GetUserAsync(HttpContext.User);
+      if (user == null)
+      {
+        return BadRequest();
+      }
+      var comment = await _context.FrameComments.Include(f => f.Match).FirstOrDefaultAsync(c => c.Id == id && c.User == user);
+      if (comment == null)
+      {
+        return BadRequest();
+      }
+
+      var match = comment.Match;
+
+      _context.Comments.Remove(comment);
+      await _context.SaveChangesAsync();
+
+      var resultThread = new MatchComments { ReplayId = match.FileName, Comments = new List<FrameComment>() };
+      var comments = await GetComments(match, user);
       resultThread.Comments.AddRange(comments);
 
       return Json(resultThread);
