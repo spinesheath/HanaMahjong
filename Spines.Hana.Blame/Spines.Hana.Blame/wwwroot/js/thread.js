@@ -65,7 +65,7 @@ function updateComments() {
 }
 
 function createCommentDiv(c) {
-    var buttons = createButtons(c);
+    const buttons = createButtons(c);
     return formatString(commentTemplate, [c.userName, new Date(c.timestamp).toLocaleString(), c.message, buttons]);
 }
 
@@ -104,10 +104,3 @@ var commentTemplate =
         "</div>" +
         "<p class='comment-message'>{2}</p>" +
     "</div>";
-
-function formatString(format, args) {
-    const count = args.length;
-    return format.replace(/{(\d+)}/g, function (match, number) {
-        return number < count ? args[number] : match;
-    });
-};

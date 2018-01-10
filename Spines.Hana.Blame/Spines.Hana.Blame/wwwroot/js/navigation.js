@@ -251,17 +251,6 @@ function updateUrlParams(data) {
     setBrowserHistory(current);
 }
 
-function getIntFromInput(id) {
-    const input = document.querySelector(id);
-    return input.value ? parseInt(input.value) : 0;
-}
-
-function setValueToInput(id, value) {
-    const isDefined = value | value === 0;
-    const x = isDefined ? value : "";
-    document.querySelector(id).value = x;
-}
-
 // displays the partial view with the given contentName. blame if undefined.
 function showView(target) {
     const contentName = target || "blame";

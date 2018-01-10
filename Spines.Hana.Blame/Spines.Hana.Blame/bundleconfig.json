@@ -18,7 +18,8 @@
       "wwwroot/js/navigation.js",
       "wwwroot/js/thread.js",
       "wwwroot/js/browse.js",
-      "wwwroot/js/snitch.js"
+      "wwwroot/js/snitch.js",
+      "wwwroot/js/rendercontext.js"
     ],
     // Optionally specify minification options
     "minify": {

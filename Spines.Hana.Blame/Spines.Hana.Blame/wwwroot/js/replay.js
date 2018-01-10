@@ -458,7 +458,7 @@ function createDiscardFrame(previousFrame, discard) {
     const hand = Object.assign({}, frame.hands[frame.activePlayer]);
     hand.tiles = hand.tiles.slice(0);
     remove(hand.tiles, discard);
-    sort(hand.tiles);
+    intSort(hand.tiles);
     hand.justCalled = false;
     hand.drewRinshan = false;
     frame.hands[frame.activePlayer] = hand;
@@ -694,7 +694,7 @@ function getDealtTileIds(wall, playerId, oyaId) {
         tileIds = tileIds.concat(wall.slice(136 - (offset + i * 16 + 4), 136 - (offset + i * 16)));
     }
     tileIds.push(wall[135 - (playerOffset + 3 * 4 * 4)]);
-    sort(tileIds);
+    intSort(tileIds);
     return tileIds;
 }
 
@@ -820,6 +820,6 @@ function removeMany(array, values) {
     }
 }
 
-function sort(array) {
+function intSort(array) {
     array.sort((a, b) => a - b);
 }
