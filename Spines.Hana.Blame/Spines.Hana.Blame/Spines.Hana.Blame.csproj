@@ -48,7 +48,6 @@
   <ItemGroup>
     <None Include="wwwroot\js\replay.js" />
     <None Include="wwwroot\js\shared.js" />
-    <None Include="wwwroot\js\wwyd.js" />
     <None Include="wwwroot\resources\fonts\LICENSE" />
   </ItemGroup>
   <ItemGroup>
