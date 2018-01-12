@@ -181,6 +181,19 @@ function onFrameChanged() {
     updateHistory(wrapped);
     replayContext.createTiles(() => arrange());
     updateThread(wrapped);
+
+    updateShanten();
+}
+
+function updateShanten() {
+    if (!_replay) {
+        return;
+    }
+
+    const d = getUrlParamsFromInputs();
+    const hand = _replay[d.g].frames[d.f].hands[d.p];
+    const a = new Analyzer(hand);
+    a.getValuesAsync().then(v => $("#shantenDiv").html(v.toString()));
 }
 
 function getIntFromParams(params, key) {

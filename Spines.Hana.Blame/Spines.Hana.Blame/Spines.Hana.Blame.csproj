@@ -43,6 +43,7 @@
     <Folder Include="Views\Shared\Components\" />
     <Folder Include="wwwroot\resources\bumpmaps\" />
     <Folder Include="wwwroot\resources\fonts\" />
+    <Folder Include="wwwroot\resources\analysis\" />
     <Folder Include="wwwroot\resources\textures\" />
   </ItemGroup>
   <ItemGroup>

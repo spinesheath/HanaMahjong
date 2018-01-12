@@ -363,7 +363,10 @@ function createAddedKanFrames(previousFrame, meldedTiles, announcement) {
         const pon = hand.melds[i];
         if (pon.tiles.some(t => meldedTiles.indexOf(t) !== -1)) {
             const added = meldedTiles.find(t => pon.tiles.indexOf(t) === -1);
-            hand.melds[i] = { tiles: meldedTiles, flipped: pon.flipped, added: added, relativeFrom: pon.relativeFrom };
+            const shape = 7 + 9 + getTileNumberIndex(added);
+            const suit = suitFromTileId(meldedTiles[0]);
+            hand.melds[i] = { tiles: meldedTiles, flipped: pon.flipped, added: added, relativeFrom: pon.relativeFrom, shape: shape, suit: suit };
+            break;
         }
     }
 
@@ -388,8 +391,10 @@ function createClosedKanFrames(previousFrame, meldedTiles, announcement) {
     hand.justCalled = true;
     frame.hands[frame.activePlayer] = hand;
 
+    const shape = 7 + 9 + getTileNumberIndex(meldedTiles[0]);
+    const suit = suitFromTileId(meldedTiles[0]);
     hand.melds = hand.melds.slice(0);
-    hand.melds.push({ tiles: meldedTiles, relativeFrom: 0 });
+    hand.melds.push({ tiles: meldedTiles, relativeFrom: 0, shape: shape, suit: suit });
 
     return [announcementFrame, frame];
 }
@@ -422,14 +427,24 @@ function createCallFrames(previousFrame, meldedTiles, announcement) {
     hand.justCalled = true;
     frame.hands[activePlayer] = hand;
 
+    const min = Math.min(...meldedTiles.map(getTileNumberIndex));
+    const ponOffset = announcement === announcements.pon ? 7 : 0;
+    const kanOffset = meldedTiles.length === 4 ? 7 + 9 : 0;
+    const shape = ponOffset + kanOffset + min;
+    const suit = suitFromTileId(meldedTiles[0]);
+
     hand.melds = hand.melds.slice(0);
     const relativeFrom = (playerCalledFrom - activePlayer + 4) % 4;
-    const meld = { tiles: meldedTiles, flipped: called.tileId, relativeFrom: relativeFrom };
+    const meld = { tiles: meldedTiles, flipped: called.tileId, relativeFrom: relativeFrom, shape: shape, suit: suit };
     hand.melds.push(meld);
 
     ghostTile.meld = meld;
 
     return [announcementFrame, frame];
+}
+
+function getTileNumberIndex(tileId) {
+    return (tileId >> 2) % 9;
 }
 
 function createRiichiFrame(previousFrame) {
@@ -735,14 +750,14 @@ function createMeld(playerId, x, meld) {
 }
 
 function addTile(playerId, tileId, x, y, z, placement) {
-    const number = numberFromTileId(tileId);
+    const number = numberFromTileIdIncluding0(tileId);
     const suit = suitFromTileId(tileId);
     const mesh = replayContext.createTileMesh(number, suit);
     addTileMesh(mesh, playerId, x, y, z, placement);
 }
 
 function addGhostTile(playerId, tileId, x, y, z, placement) {
-    const number = numberFromTileId(tileId);
+    const number = numberFromTileIdIncluding0(tileId);
     const suit = suitFromTileId(tileId);
     const mesh = replayContext.createGhostTileMesh(number, suit);
     addTileMesh(mesh, playerId, x, y, z, placement);
@@ -796,7 +811,7 @@ function suitFromTileId(tileId) {
     return Math.floor(tileId / (9 * 4));
 }
 
-function numberFromTileId(tileId) {
+function numberFromTileIdIncluding0(tileId) {
     if (tileId === 4 * 4 || tileId === 16 + 9 * 4 || tileId === 16 + 9 * 4 * 2)
         return 0;
     return 1 + Math.floor(tileId % (9 * 4) / 4);
