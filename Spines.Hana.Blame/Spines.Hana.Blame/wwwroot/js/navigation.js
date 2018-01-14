@@ -193,7 +193,7 @@ function updateShanten() {
     const d = getUrlParamsFromInputs();
     const hand = _replay[d.g].frames[d.f].hands[d.p];
     const a = new Analyzer(hand);
-    a.getValuesAsync().then(v => $("#shantenDiv").html(v.toString()));
+    a.getShantenAsync().then(v => $("#shantenDiv").html(v.toString()));
 }
 
 function getIntFromParams(params, key) {

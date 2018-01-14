@@ -1,50 +1,10 @@
 ﻿class Analyzer {
     constructor(hand) {
-        this._tileTypes = new Array(34).fill(0);
-        const tileCount = hand.tiles.length;
-        for (let i = 0; i < tileCount; i++) {
-            const t = Math.floor(hand.tiles[i] / 4);
-            this._tileTypes[t] += 1;
-        }
-
-        this._melds = [0, 1, 2, 3].map(n => hand.melds.filter(m => m.suit === n).map(m => m.shape));
-        this._meldCounts = this._melds.map(m => m.length);
-        this._meldCount = hand.melds.length;
-
-        this._suitClassifiersPromise = Analyzer._dataPromise.then(data => Analyzer.createClassifiers(data, this._melds, this._meldCounts, this._tileTypes));
+        this._suitClassifiersPromise = Analyzer._dataPromise.then(data => Analyzer.createClassifiers(data, hand));
     }
 
-    static createClassifiers(data, melds, counts, tileTypes) {
-        const c = [new SuitClassifier(data), new SuitClassifier(data), new SuitClassifier(data), new HonorClassifier(data), new ArrangementClassifier(data)];
-        for (let i = 0; i < 3; i++) {
-            c[i].setMelds(melds[i], counts[i]);
-        }
-        const honorMeldCount = melds[3].length;
-        const meldedHonors = [0, 0, 0, 0, 0, 0, 0];
-        for (let i = 0; i < honorMeldCount; i++) {
-            const shape = melds[i];
-            if (shape < 7 + 9) {
-                meldedHonors[shape - 7] = 3;
-                c[3].draw(0, 0);
-                c[3].draw(1, 0);
-                c[3].pon(2);
-            } else {
-                meldedHonors[shape - 7] = 4;
-                c[3].draw(0, 0);
-                c[3].draw(1, 0);
-                c[3].draw(2, 0);
-                c[3].daiminkan();
-            }
-        }
-
-        for (let i = 0; i < 7; i++) {
-            const count = tileTypes[9 * 3 + i];
-            for (let j = 0; j < count; j++) {
-                c[3].draw(j, meldedHonors[i]);
-            }
-        }
-
-        return c;
+    static createClassifiers(data, hand) {
+        return new AnalyzerImpl(data, hand);
     }
 
     static getAllData() {
@@ -58,21 +18,67 @@
         return $.get({ url: url }).then(txt => txt.split("\n").map(x => parseInt(x)));
     }
 
-    getValuesAsync() {
-        return this._suitClassifiersPromise.then(c => this.getShanten(c, this._tileTypes));
-    }
-
-    getShanten(c, tileTypes) {
-        const values = [0, 0, 0, 0];
-        values[3] = c[3].getValue();
-        for (let i = 0; i < 3; i++) {
-            values[i] = c[i].getValue(tileTypes.slice(i * 9, i * 9 + 9));
-        }
-        return c[4].classify(values) - 1;
+    getShantenAsync() {
+        return this._suitClassifiersPromise.then(a => a.getShanten());
     }
 }
 
 Analyzer._dataPromise = Analyzer.getAllData();
+
+class AnalyzerImpl {
+    constructor(data, hand) {
+        this.suit = [new SuitClassifier(data), new SuitClassifier(data), new SuitClassifier(data)];
+        this.honor = new HonorClassifier(data);
+        this.arrangement = new ArrangementClassifier(data);
+
+        this.tileTypes = new Array(34).fill(0);
+        const tileCount = hand.tiles.length;
+        for (let i = 0; i < tileCount; i++) {
+            const t = Math.floor(hand.tiles[i] / 4);
+            this.tileTypes[t] += 1;
+        }
+
+        const melds = [0, 1, 2, 3].map(n => hand.melds.filter(m => m.suit === n).map(m => m.shape));
+        const meldCounts = melds.map(m => m.length);
+
+        for (let i = 0; i < 3; i++) {
+            this.suit[i].setMelds(melds[i], meldCounts[i]);
+        }
+        const honorMeldCount = melds[3].length;
+        const meldedHonors = [0, 0, 0, 0, 0, 0, 0];
+        for (let i = 0; i < honorMeldCount; i++) {
+            const shape = melds[i];
+            if (shape < 7 + 9) {
+                meldedHonors[shape - 7] = 3;
+                this.honor.draw(0, 0);
+                this.honor.draw(1, 0);
+                this.honor.pon(2);
+            } else {
+                meldedHonors[shape - 7] = 4;
+                this.honor.draw(0, 0);
+                this.honor.draw(1, 0);
+                this.honor.draw(2, 0);
+                this.honor.daiminkan();
+            }
+        }
+
+        for (let i = 0; i < 7; i++) {
+            const count = this.tileTypes[9 * 3 + i];
+            for (let j = 0; j < count; j++) {
+                this.honor.draw(j, meldedHonors[i]);
+            }
+        }
+    }
+
+    getShanten() {
+        const values = [0, 0, 0, 0];
+        values[3] = this.honor.getValue();
+        for (let i = 0; i < 3; i++) {
+            values[i] = this.suit[i].getValue(this.tileTypes.slice(i * 9, i * 9 + 9));
+        }
+        return this.arrangement.classify(values) - 1;
+    }
+}
 
 class ArrangementClassifier {
     constructor(data) {
