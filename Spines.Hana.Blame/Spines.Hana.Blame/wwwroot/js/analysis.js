@@ -38,6 +38,8 @@ class AnalyzerImpl {
             this.tileTypes[t] += 1;
         }
 
+        this.canDiscard = tileCount + hand.melds.length * 3 === 14;
+
         const melds = [0, 1, 2, 3].map(n => hand.melds.filter(m => m.suit === n).map(m => m.shape));
         const meldCounts = melds.map(m => m.length);
 
@@ -45,16 +47,16 @@ class AnalyzerImpl {
             this.suit[i].setMelds(melds[i], meldCounts[i]);
         }
         const honorMeldCount = melds[3].length;
-        const meldedHonors = [0, 0, 0, 0, 0, 0, 0];
+        this.meldedHonors = [0, 0, 0, 0, 0, 0, 0];
         for (let i = 0; i < honorMeldCount; i++) {
             const shape = melds[i];
             if (shape < 7 + 9) {
-                meldedHonors[shape - 7] = 3;
+                this.meldedHonors[shape - 7] = 3;
                 this.honor.draw(0, 0);
                 this.honor.draw(1, 0);
                 this.honor.pon(2);
             } else {
-                meldedHonors[shape - 7] = 4;
+                this.meldedHonors[shape - 7 - 9] = 4;
                 this.honor.draw(0, 0);
                 this.honor.draw(1, 0);
                 this.honor.draw(2, 0);
@@ -65,23 +67,63 @@ class AnalyzerImpl {
         for (let i = 0; i < 7; i++) {
             const count = this.tileTypes[9 * 3 + i];
             for (let j = 0; j < count; j++) {
-                this.honor.draw(j, meldedHonors[i]);
+                this.honor.draw(j, this.meldedHonors[i]);
             }
         }
     }
 
     getUkeIre() {
-        return [];
+        if (this.canDiscard) {
+            return [];
+        } else {
+            return [this.getUkeIre13()];
+        }
     }
 
+    getUkeIre13() {
+        const currentShanten = this.getShanten();
+        const ukeIre = [];
+        let tileType = 0;
+        const baseArrangements = this.getArrangements();
+        const localArrangements = baseArrangements.slice();
+        const localTileTypes = [0, 1, 2].map(i => this.tileTypes.slice(i * 9, i * 9 + 9));
+        for (let suit = 0; suit < 3; suit++) {
+            for (let index = 0; index < 9; index++) {
+                if (localTileTypes[suit][index] !== 4) {
+                    localTileTypes[suit][index] += 1;
+                    localArrangements[suit] = this.suit[suit].getValue(localTileTypes[suit]);
+                    if (this.arrangement.classify(localArrangements) < currentShanten) {
+                        ukeIre.push({ tileType: tileType, count: 4 - this.tileTypes[tileType]});
+                    }
+                    localTileTypes[suit][index] -= 1;
+                }
+                tileType += 1;
+            }
+            localArrangements[suit] = baseArrangements[suit];
+        }
+        for (let index = 0; index < 7; index++) {
+            if (this.tileTypes[tileType] !== 4) {
+                localArrangements[3] = this.honor.fork().draw(this.tileTypes[3 * 9 + index], this.meldedHonors[index]);
+                if (this.arrangement.classify(localArrangements) < currentShanten) {
+                    ukeIre.push({ tileType: tileType, count: 4 - this.tileTypes[tileType] });
+                }
+            }
+            tileType += 1;
+        }
+        return ukeIre;
+    }
 
-    getShanten() {
+    getArrangements() {
         const values = [0, 0, 0, 0];
         values[3] = this.honor.getValue();
         for (let i = 0; i < 3; i++) {
             values[i] = this.suit[i].getValue(this.tileTypes.slice(i * 9, i * 9 + 9));
         }
-        return this.arrangement.classify(values) - 1;
+        return values;
+    }
+
+    getShanten() {
+        return this.arrangement.classify(this.getArrangements());
     }
 }
 
@@ -95,7 +137,7 @@ class ArrangementClassifier {
         for (let i = 0; i < 4; i++) {
             current = this._transitions[current + arrangements[i]];
         }
-        return current;
+        return current - 1;
     }
 }
 
@@ -103,6 +145,13 @@ class HonorClassifier {
     constructor(data) {
         this._transitions = data[1];
         this._current = 0;
+        this._data = data;
+    }
+
+    fork() {
+        const c = new HonorClassifier(this._data);
+        c._current = this._current;
+        return c;
     }
 
     draw(previousTiles, melded)

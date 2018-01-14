@@ -193,7 +193,28 @@ function updateShanten() {
     const d = getUrlParamsFromInputs();
     const hand = _replay[d.g].frames[d.f].hands[d.p];
     const a = new Analyzer(hand);
-    a.getShantenAsync().then(v => $("#shantenDiv").html(v.toString()));
+    //a.getShantenAsync().then(v => $("#shantenDiv").html(v.toString()));
+    a.getUkeIreAsync().then(v => $("#shantenDiv").html(ukeIreToString(v)));
+}
+
+function ukeIreToString(ukeList) {
+    return ukeList.map(ukeIreRowToString).join("<br/>");
+}
+
+function ukeIreRowToString(uke) {
+    const chars = ["m", "p", "s", "z"];
+    const sum = uke.map(u => u.count).reduce((x, y) => x + y);
+    const suits = [[], [], [], []];
+    const len = uke.length;
+    for (let i = 0; i < len; i++) {
+        const u = uke[i];
+        suits[Math.floor(u.tileType / 9)].push(u.tileType % 9 + 1);
+    }
+    for (let i = 0; i < 4; i++) {
+        suits[i].sort();
+    }
+    const tiles = [0, 1, 2, 3].map(i => suits[i].join("") + chars[i]).join("");
+    return sum + ": " + tiles;
 }
 
 function getIntFromParams(params, key) {
