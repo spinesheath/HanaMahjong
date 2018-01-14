@@ -1,10 +1,6 @@
 ﻿class Analyzer {
     constructor(hand) {
-        this._suitClassifiersPromise = Analyzer._dataPromise.then(data => Analyzer.createClassifiers(data, hand));
-    }
-
-    static createClassifiers(data, hand) {
-        return new AnalyzerImpl(data, hand);
+        this._implPromise = Analyzer._dataPromise.then(data => new AnalyzerImpl(data, hand));
     }
 
     static getAllData() {
@@ -19,7 +15,11 @@
     }
 
     getShantenAsync() {
-        return this._suitClassifiersPromise.then(a => a.getShanten());
+        return this._implPromise.then(a => a.getShanten());
+    }
+
+    getUkeIreAsync() {
+        return this._implPromise.then(a => a.getUkeIre());
     }
 }
 
@@ -69,6 +69,11 @@ class AnalyzerImpl {
             }
         }
     }
+
+    getUkeIre() {
+        return [];
+    }
+
 
     getShanten() {
         const values = [0, 0, 0, 0];
