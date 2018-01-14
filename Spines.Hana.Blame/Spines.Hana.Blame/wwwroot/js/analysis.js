@@ -27,8 +27,8 @@ Analyzer._dataPromise = Analyzer.getAllData();
 
 class AnalyzerImpl {
     constructor(data, hand) {
-        this.suit = [new SuitClassifier(data), new SuitClassifier(data), new SuitClassifier(data)];
-        this.honor = new HonorClassifier(data);
+        this.suitClassifier = [new SuitClassifier(data), new SuitClassifier(data), new SuitClassifier(data)];
+        this.honorClassifier = new HonorClassifier(data);
         this.arrangement = new ArrangementClassifier(data);
 
         this.tileTypes = new Array(34).fill(0);
@@ -44,7 +44,7 @@ class AnalyzerImpl {
         const meldCounts = melds.map(m => m.length);
 
         for (let i = 0; i < 3; i++) {
-            this.suit[i].setMelds(melds[i], meldCounts[i]);
+            this.suitClassifier[i].setMelds(melds[i], meldCounts[i]);
         }
         const honorMeldCount = melds[3].length;
         this.meldedHonors = [0, 0, 0, 0, 0, 0, 0];
@@ -52,32 +52,66 @@ class AnalyzerImpl {
             const shape = melds[i];
             if (shape < 7 + 9) {
                 this.meldedHonors[shape - 7] = 3;
-                this.honor.draw(0, 0);
-                this.honor.draw(1, 0);
-                this.honor.pon(2);
+                this.honorClassifier.draw(0, 0);
+                this.honorClassifier.draw(1, 0);
+                this.honorClassifier.pon(2);
             } else {
                 this.meldedHonors[shape - 7 - 9] = 4;
-                this.honor.draw(0, 0);
-                this.honor.draw(1, 0);
-                this.honor.draw(2, 0);
-                this.honor.daiminkan();
+                this.honorClassifier.draw(0, 0);
+                this.honorClassifier.draw(1, 0);
+                this.honorClassifier.draw(2, 0);
+                this.honorClassifier.daiminkan();
             }
         }
 
         for (let i = 0; i < 7; i++) {
             const count = this.tileTypes[9 * 3 + i];
             for (let j = 0; j < count; j++) {
-                this.honor.draw(j, this.meldedHonors[i]);
+                this.honorClassifier.draw(j, this.meldedHonors[i]);
             }
         }
     }
 
     getUkeIre() {
         if (this.canDiscard) {
-            return [];
+            return this.getUkeIre14();
         } else {
-            return [this.getUkeIre13()];
+            return [{ ukeIre: this.getUkeIre13() }];
         }
+    }
+
+    getUkeIre14() {
+        const currentShanten = this.getShanten();
+        const ukeIreList = [];
+        for (let suit = 0; suit < 4; suit++) {
+            for (let index = 0; index < 9; index++) {
+                const tileType = suit * 9 + index;
+                if (tileType >= 34) {
+                    break;
+                }
+                if (this.tileTypes[tileType] === 0) {
+                    continue;
+                }
+
+                this.tileTypes[tileType] -= 1;
+                if (suit === 3) {
+                    this.honorClassifier.discard(this.tileTypes[tileType], this.meldedHonors[index]);
+                }
+
+                if (this.getShanten() === currentShanten) {
+                    const ukeIre = this.getUkeIre13();
+                    if (ukeIre.length > 0) {
+                        ukeIreList.push({ discard: tileType, ukeIre: ukeIre });
+                    }
+                }
+
+                if (suit === 3) {
+                    this.honorClassifier.draw(this.tileTypes[tileType], this.meldedHonors[index]);
+                }
+                this.tileTypes[tileType] += 1;
+            }
+        }
+        return ukeIreList;
     }
 
     getUkeIre13() {
@@ -91,7 +125,7 @@ class AnalyzerImpl {
             for (let index = 0; index < 9; index++) {
                 if (localTileTypes[suit][index] !== 4) {
                     localTileTypes[suit][index] += 1;
-                    localArrangements[suit] = this.suit[suit].getValue(localTileTypes[suit]);
+                    localArrangements[suit] = this.suitClassifier[suit].getValue(localTileTypes[suit]);
                     if (this.arrangement.classify(localArrangements) < currentShanten) {
                         ukeIre.push({ tileType: tileType, count: 4 - this.tileTypes[tileType]});
                     }
@@ -103,7 +137,7 @@ class AnalyzerImpl {
         }
         for (let index = 0; index < 7; index++) {
             if (this.tileTypes[tileType] !== 4) {
-                localArrangements[3] = this.honor.fork().draw(this.tileTypes[3 * 9 + index], this.meldedHonors[index]);
+                localArrangements[3] = this.honorClassifier.fork().draw(this.tileTypes[3 * 9 + index], this.meldedHonors[index]);
                 if (this.arrangement.classify(localArrangements) < currentShanten) {
                     ukeIre.push({ tileType: tileType, count: 4 - this.tileTypes[tileType] });
                 }
@@ -115,9 +149,9 @@ class AnalyzerImpl {
 
     getArrangements() {
         const values = [0, 0, 0, 0];
-        values[3] = this.honor.getValue();
+        values[3] = this.honorClassifier.getValue();
         for (let i = 0; i < 3; i++) {
-            values[i] = this.suit[i].getValue(this.tileTypes.slice(i * 9, i * 9 + 9));
+            values[i] = this.suitClassifier[i].getValue(this.tileTypes.slice(i * 9, i * 9 + 9));
         }
         return values;
     }

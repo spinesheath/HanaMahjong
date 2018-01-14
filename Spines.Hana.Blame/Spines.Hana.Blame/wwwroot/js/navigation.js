@@ -201,7 +201,9 @@ function ukeIreToString(ukeList) {
     return ukeList.map(ukeIreRowToString).join("<br/>");
 }
 
-function ukeIreRowToString(uke) {
+function ukeIreRowToString(data) {
+    const discard = data.discard;
+    const uke = data.ukeIre;
     const chars = ["m", "p", "s", "z"];
     const sum = uke.map(u => u.count).reduce((x, y) => x + y);
     const suits = [[], [], [], []];
@@ -213,8 +215,12 @@ function ukeIreRowToString(uke) {
     for (let i = 0; i < 4; i++) {
         suits[i].sort();
     }
-    const tiles = [0, 1, 2, 3].map(i => suits[i].join("") + chars[i]).join("");
-    return sum + ": " + tiles;
+    const tiles = [0, 1, 2, 3].map(i => suits[i].length > 0 ? suits[i].join("") + chars[i] : "").join("");
+    if (discard === undefined) {
+        return sum + ": " + tiles;
+    } else {
+        return (discard % 9 + 1) + chars[Math.floor(discard / 9)] + ": " + sum + ": " + tiles;
+    }
 }
 
 function getIntFromParams(params, key) {
