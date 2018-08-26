@@ -58,6 +58,11 @@ namespace Spines.Hana.Blame
       services.AddTransient<RuleSetInitializer>();
       services.AddTransient<RoomInitializer>();
       services.AddTransient<ReplayManager>();
+#if DEBUG
+      services.AddTransient<IStorage, MemoryStorage>();
+#else
+      services.AddTransient<IStorage, Storage>();
+#endif
 
       services.AddSingleton(CreateHttpClient);
 

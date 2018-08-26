@@ -13,10 +13,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Auth;
-using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json;
 using Spines.Hana.Blame.Data;
 using Spines.Hana.Blame.Models;
@@ -26,12 +22,12 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 {
   public class ReplayManager
   {
-    public ReplayManager(ApplicationDbContext context, IOptions<StorageOptions> storageOptions, HttpClient client, ILoggerFactory loggerFactory)
+    public ReplayManager(ApplicationDbContext context, IStorage storage, HttpClient client, ILoggerFactory loggerFactory)
     {
       _context = context;
       _client = client;
-      _storage = storageOptions.Value;
       _logger = loggerFactory.CreateLogger<ReplayManager>();
+      _storage = storage;
     }
 
     public async Task<HttpStatusCode> PrepareAsync(string replayId)
@@ -79,26 +75,24 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
     public async Task ReparseReplays()
     {
-      var client = GetCloudBlobClient();
       var replayIds = await _context.Matches.Select(m => m.FileName).ToListAsync();
       foreach (var replayId in replayIds)
       {
-        var container = client.GetContainerReference(StorageContainers.TenhouXml);
-        var xmlBlob = container.GetBlockBlobReference(replayId + ".xml");
-        var xml = await xmlBlob.DownloadTextAsync();
+        var xml = await _storage.ReadXmlAsync(replayId);
         var replay = Replay.Parse(xml);
-        await SaveToJsonStorage(replayId, replay, client);
+        var json = JsonConvert.SerializeObject(replay);
+        await _storage.SaveJsonAsync(replayId, json);
       }
     }
 
     private readonly ApplicationDbContext _context;
     private readonly HttpClient _client;
-    private readonly StorageOptions _storage;
     private static readonly TimeSpan Delay = TimeSpan.FromSeconds(5);
     private static readonly Regex ReplayIdRegex = new Regex(@"\A(\d{10})gm-[\da-f]{4}-[\da-f]{4}-[\da-f]{8}\z");
     private static readonly ConcurrentDictionary<string, Task<HttpStatusCode>> CurrentWork = new ConcurrentDictionary<string, Task<HttpStatusCode>>();
     private static readonly SemaphoreSlim TenhouSemaphore = new SemaphoreSlim(1, 1);
     private readonly ILogger<ReplayManager> _logger;
+    private readonly IStorage _storage;
 
     private async Task<bool> MatchExists(string replayId)
     {
@@ -131,11 +125,11 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
           // Save the downloaded replay.
           var replay = Replay.Parse(xml);
-          var cloudBlobClient = GetCloudBlobClient();
+          var json = JsonConvert.SerializeObject(replay);
           await Task.WhenAll(
             SaveToDatabase(replayId, replay),
-            SaveToJsonStorage(replayId, replay, cloudBlobClient),
-            SaveToXmlStorage(replayId, xml, cloudBlobClient));
+            _storage.SaveJsonAsync(replayId, json),
+            _storage.SaveXmlAsync(replayId, xml));
         }
         else
         {
@@ -204,28 +198,6 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     {
       var p = await _context.Players.FirstOrDefaultAsync(x => x.Name == name);
       return p ?? (await _context.Players.AddAsync(new Models.Player {Name = name})).Entity;
-    }
-
-    private CloudBlobClient GetCloudBlobClient()
-    {
-      var storageCredentials = new StorageCredentials(_storage.StorageAccountName, _storage.StorageAccountKey);
-      var cloudStorageAccount = new CloudStorageAccount(storageCredentials, false);
-      return cloudStorageAccount.CreateCloudBlobClient();
-    }
-
-    private static async Task SaveToJsonStorage(string replayId, Replay replay, CloudBlobClient client)
-    {
-      var json = JsonConvert.SerializeObject(replay);
-      var container = client.GetContainerReference(StorageContainers.TenhouJson);
-      var newBlob = container.GetBlockBlobReference(replayId + ".json");
-      await newBlob.UploadTextAsync(json);
-    }
-
-    private static async Task SaveToXmlStorage(string replayId, string xml, CloudBlobClient client)
-    {
-      var container = client.GetContainerReference(StorageContainers.TenhouXml);
-      var newBlob = container.GetBlockBlobReference(replayId + ".xml");
-      await newBlob.UploadTextAsync(xml);
     }
 
     /// <summary>
