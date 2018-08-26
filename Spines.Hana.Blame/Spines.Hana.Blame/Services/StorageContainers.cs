@@ -7,6 +7,5 @@ namespace Spines.Hana.Blame.Services
   {
     public const string TenhouJson = "tenhoureplays";
     public const string TenhouXml = "tenhouxml";
-    public const string Binaries = "bin";
   }
 }
