@@ -35,11 +35,14 @@ namespace Spines.Hana.Blame
 
       builder.AddEnvironmentVariables();
       Configuration = builder.Build();
+
+      _env = env;
     }
 
     public IConfigurationRoot Configuration { get; }
 
     // This method gets called by the runtime. Use this method to add services to the container.
+    // ReSharper disable once UnusedMember.Global
     public void ConfigureServices(IServiceCollection services)
     {
       // Add framework services.
@@ -58,11 +61,15 @@ namespace Spines.Hana.Blame
       services.AddTransient<RuleSetInitializer>();
       services.AddTransient<RoomInitializer>();
       services.AddTransient<ReplayManager>();
-#if DEBUG
-      services.AddTransient<IStorage, MemoryStorage>();
-#else
-      services.AddTransient<IStorage, Storage>();
-#endif
+
+      if (_env.IsDevelopment())
+      {
+        services.AddTransient<IStorage, MemoryStorage>();
+      }
+      else
+      {
+        services.AddTransient<IStorage, Storage>();
+      }
 
       services.AddSingleton(CreateHttpClient);
 
@@ -74,6 +81,7 @@ namespace Spines.Hana.Blame
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    // ReSharper disable once UnusedMember.Global
     public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
     {
       loggerFactory.AddConsole(Configuration.GetSection("Logging"));
@@ -118,5 +126,7 @@ namespace Spines.Hana.Blame
       httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
       return httpClient;
     }
+
+    private readonly IHostingEnvironment _env;
   }
 }
