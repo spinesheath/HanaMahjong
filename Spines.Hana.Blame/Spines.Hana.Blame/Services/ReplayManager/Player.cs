@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 namespace Spines.Hana.Blame.Services.ReplayManager
 {
   [DataContract]
-  internal class Player
+  public class Player
   {
     public Player(string name, int rank, decimal rate, string gender)
     {

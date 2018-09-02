@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Spines.Hana.Blame.Services.ReplayManager
 {
   [DataContract]
-  internal class Owari
+  public class Owari
   {
     /// <summary>
     /// Final points including uma for each player.

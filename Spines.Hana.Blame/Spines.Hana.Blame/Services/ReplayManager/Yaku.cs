@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 namespace Spines.Hana.Blame.Services.ReplayManager
 {
   [DataContract]
-  internal class Yaku
+  public class Yaku
   {
     [DataMember(Name = "id")]
     public int Id { get; set; }

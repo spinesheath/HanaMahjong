@@ -13,7 +13,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
   /// Houou   |  1      | 1
   /// </summary>
   [Flags]
-  internal enum GameTypeFlag
+  public enum GameTypeFlag
   {
     None = 0,
     Multiplayer = 1,

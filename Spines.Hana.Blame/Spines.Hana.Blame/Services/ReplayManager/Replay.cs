@@ -14,7 +14,7 @@ using Spines.Hana.Blame.Utility;
 namespace Spines.Hana.Blame.Services.ReplayManager
 {
   [DataContract]
-  internal class Replay
+  public class Replay
   {
     [DataMember(Name = "room")]
     public Room Room { get; private set; }
@@ -34,6 +34,8 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     [DataMember(Name = "players")]
     public IReadOnlyList<Player> Players { get; private set; }
 
+    public string RawData => _rawData ?? throw new InvalidOperationException();
+
     public static Replay Parse(string xml)
     {
       try
@@ -44,6 +46,49 @@ namespace Spines.Hana.Blame.Services.ReplayManager
       {
         return null;
       }
+    }
+    
+    public static Replay Null()
+    {
+      var result = new Replay();
+      var games = new List<Game>();
+      result._rawData = "<mjloggm ver=\"2.3\"></mjloggm>";
+      result.Lobby = "0";
+      result.Rules = RuleSet.TenhouAriAri;
+      result.Room = Room.Ippan;
+      result.Players = Enumerable.Range(0, 4).Select(i => new Player($"player{i}", 1, 1500, "C")).ToList();
+      
+      for (var round = 0; round < 8; round++)
+      {
+        var game = new Game();
+        game.Wall.AddRange(Enumerable.Range(0, 136));
+        game.Dice.AddRange(Enumerable.Repeat(1, 2));
+        game.Oya = 0;
+        game.Scores.AddRange(Enumerable.Repeat(25000, 4));
+        game.Round = round;
+        game.Honba = 0;
+        game.Riichi = 0;
+        game.Repetition = 0;
+        games.Add(game);
+
+        for (var i = 0; i < 4; i++)
+        {
+          game.Actions.Add(Ids.Draw);
+          game.Actions.Add(Ids.Discard);
+          game.Discards.Add(135 - 4 * i);
+        }
+
+        game.Actions.Add(Ids.ExhaustiveDraw);
+
+        var ryuukyoku = new Ryuukyoku();
+        ryuukyoku.ScoreChanges.AddRange(Enumerable.Repeat(0, 4));
+        ryuukyoku.Revealed.AddRange(Enumerable.Repeat(false, 4));
+      }
+
+      result.Owari.Scores.AddRange(Enumerable.Repeat(25000, 4));
+      result.Owari.Points.AddRange(Enumerable.Repeat(0m, 4));
+      result.Games = games;
+      return result;
     }
 
     private Replay()
@@ -73,6 +118,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     private static Replay ParseInternal(string xml)
     {
       var result = new Replay();
+      result._rawData = xml;
       var xElement = XElement.Parse(xml);
       var games = new List<Game>();
 
@@ -314,6 +360,8 @@ namespace Spines.Hana.Blame.Services.ReplayManager
     {
       return Convert.ToDecimal(value, CultureInfo.InvariantCulture);
     }
+
+    private string _rawData;
 
     /// <summary>
     /// Ids for events during a match. 0-12 are used for discards, defining the index of the discard in a sorted hand.

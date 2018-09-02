@@ -21,6 +21,17 @@ namespace Spines.Hana.Blame.Controllers
       return StatusCode((int) result);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Replay(string replayId)
+    {
+      var result = await _replayManager.JsonFor(replayId);
+      if (result == null)
+      {
+        return NotFound();
+      }
+      return new JsonResult(result);
+    }
+
     private readonly ReplayManager _replayManager;
   }
 }

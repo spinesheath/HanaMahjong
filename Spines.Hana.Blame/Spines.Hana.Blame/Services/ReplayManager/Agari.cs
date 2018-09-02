@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 namespace Spines.Hana.Blame.Services.ReplayManager
 {
   [DataContract]
-  internal class Agari
+  public class Agari
   {
     /// <summary>
     /// The player who won the hand.

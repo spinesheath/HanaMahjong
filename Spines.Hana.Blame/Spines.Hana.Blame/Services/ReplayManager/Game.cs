@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 namespace Spines.Hana.Blame.Services.ReplayManager
 {
   [DataContract]
-  internal class Game
+  public class Game
   {
     /// <summary>
     /// 0-3 for E1-E4, 4-7 for S1-S4 etc.

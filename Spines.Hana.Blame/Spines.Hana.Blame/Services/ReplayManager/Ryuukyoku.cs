@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 namespace Spines.Hana.Blame.Services.ReplayManager
 {
   [DataContract]
-  internal class Ryuukyoku
+  public class Ryuukyoku
   {
     /// <summary>
     /// For each player, whether they revealed their hand at the end.

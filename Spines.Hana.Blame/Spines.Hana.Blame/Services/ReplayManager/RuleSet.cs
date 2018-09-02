@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 namespace Spines.Hana.Blame.Services.ReplayManager
 {
   [DataContract]
-  internal class RuleSet
+  public class RuleSet
   {
     /// <summary>
     /// Name of the rule set.
@@ -83,7 +83,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
     private readonly GameTypeFlag _flags;
 
-    private static readonly RuleSet TenhouAriAri = new RuleSet(GameTypeFlag.Tonnansen, nameof(TenhouAriAri));
+    public static RuleSet TenhouAriAri { get; } = new RuleSet(GameTypeFlag.Tonnansen, nameof(TenhouAriAri));
 
     private static readonly Dictionary<GameTypeFlag, RuleSet> AllRuleSets = new Dictionary<GameTypeFlag, RuleSet>
     {

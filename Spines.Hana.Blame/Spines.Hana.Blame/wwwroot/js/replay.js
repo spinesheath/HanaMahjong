@@ -1,7 +1,6 @@
 ﻿var replayContext;
 var _observedPlayerId;
 var _replay;
-var _storageUrl;
 
 // if an input goes above or below the max/min value, adjusts that.
 function wrapFrameInputValues(d) {
@@ -64,11 +63,12 @@ function loadReplay(d) {
         return;
     }
 
-    const jsonUrl = `${_storageUrl}${d.r}.json`;
+    const replayId = d.r;
 
     const xhr = $.ajax({
         type: "GET",
-        url: jsonUrl,
+        url: "/Api/Replay",
+        data: `replayId=${replayId}`,
         success: function (data, textStatus, xhr2) {
             if (xhr2.replayId === _replayId) {
                 _replay = parseReplay(JSON.parse(data));
@@ -80,9 +80,7 @@ function loadReplay(d) {
     xhr.replayId = d.r;
 }
 
-function initReplay(storageUrl) {
-    _storageUrl = storageUrl;
-    
+function initReplay() {
     replayContext = new RenderContext("replayCanvas");
     replayContext.setCameraPosition(_cameraPosition, _lookAt);
     replayContext.createAmbientLight(_ambientLightColor);

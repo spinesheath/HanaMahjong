@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 namespace Spines.Hana.Blame.Services.ReplayManager
 {
   [DataContract]
-  internal class Call
+  public class Call
   {
     /// <summary>
     /// The tiles in the meld.

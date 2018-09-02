@@ -64,11 +64,13 @@ namespace Spines.Hana.Blame
 
       if (_env.IsDevelopment())
       {
-        services.AddTransient<IStorage, MemoryStorage>();
+        services.AddSingleton<IReplayStorage, MemoryReplayStorage>();
+        services.AddTransient<IReplaySource, MemoryReplaySource>();
       }
       else
       {
-        services.AddTransient<IStorage, Storage>();
+        services.AddTransient<IReplayStorage, AzureCloudReplayStorage>();
+        services.AddTransient<IReplaySource, TenhouNet>();
       }
 
       services.AddSingleton(CreateHttpClient);

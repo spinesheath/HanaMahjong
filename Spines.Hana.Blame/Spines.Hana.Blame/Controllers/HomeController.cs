@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Spines.Hana.Blame.Data;
 using Spines.Hana.Blame.Options;
-using Spines.Hana.Blame.Services;
 
 namespace Spines.Hana.Blame.Controllers
 {
@@ -14,7 +13,6 @@ namespace Spines.Hana.Blame.Controllers
   {
     public HomeController(IOptions<CopyrightOptions> copyrightOptions, IOptions<StorageOptions> storageOptions, IOptions<SnitchOptions> snitchOptions)
     {
-      _storage = storageOptions.Value;
       _copyright = copyrightOptions.Value;
       _snitch = snitchOptions.Value;
     }
@@ -23,7 +21,6 @@ namespace Spines.Hana.Blame.Controllers
     {
       ViewData["CopyrightHolder"] = _copyright.CopyrightHolder;
       ViewData["CopyrightYear"] = DateTime.Today.Year;
-      ViewData["StorageUrl"] = $"{_storage.StorageUrl}/{StorageContainers.TenhouJson}/";
       ViewData["SnitchUrl"] = _snitch.SnitchUrl;
       return View();
     }
@@ -33,8 +30,7 @@ namespace Spines.Hana.Blame.Controllers
       ViewData["CopyrightHolder"] = _copyright.CopyrightHolder;
       return View();
     }
-
-    private readonly StorageOptions _storage;
+    
     private readonly CopyrightOptions _copyright;
     private readonly SnitchOptions _snitch;
   }

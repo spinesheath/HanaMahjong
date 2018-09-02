@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Spines.Hana.Blame.Services.ReplayManager
 {
-  internal class Room
+  public class Room
   {
     public string Name { get; }
 
@@ -27,10 +27,10 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
     private readonly GameTypeFlag _flags;
 
-    private static readonly Room Ippan = new Room(GameTypeFlag.None, nameof(Ippan));
-    private static readonly Room Joukyuu = new Room(GameTypeFlag.Advanced, nameof(Joukyuu));
-    private static readonly Room Tokujou = new Room(GameTypeFlag.Expert, nameof(Tokujou));
-    private static readonly Room Houou = new Room(GameTypeFlag.Advanced | GameTypeFlag.Expert, nameof(Houou));
+    public static Room Ippan { get; } = new Room(GameTypeFlag.None, nameof(Ippan));
+    public static Room Joukyuu { get; } = new Room(GameTypeFlag.Advanced, nameof(Joukyuu));
+    public static Room Tokujou { get; } = new Room(GameTypeFlag.Expert, nameof(Tokujou));
+    public static Room Houou { get; } = new Room(GameTypeFlag.Advanced | GameTypeFlag.Expert, nameof(Houou));
 
     private static readonly Dictionary<GameTypeFlag, Room> AllRooms = new Dictionary<GameTypeFlag, Room>
     {
