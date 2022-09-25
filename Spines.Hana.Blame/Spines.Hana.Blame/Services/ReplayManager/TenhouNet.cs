@@ -14,7 +14,7 @@ namespace Spines.Hana.Blame.Services.ReplayManager
 
     public async Task<Replay> GetAsync(ReplayId id)
     {
-      var response = await _client.GetAsync($"http://e.mjv.jp/0/log/?{id}");
+      var response = await _client.GetAsync($"https://tenhou.net/0/log/?{id}");
       if (response.IsSuccessStatusCode)
       {
         var xml = await response.Content.ReadAsStringAsync();
